@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import 'fonts';
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans Arabic', sans-serif;
+}
+
+.hafs {
+  font-family: 'Hafs', sans-serif !important;
+}
