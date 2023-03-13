@@ -3,8 +3,11 @@ import LayoutNavigation from '@/components/layout/LayoutNavigation.vue'
 </script>
 
 <template>
-  <RouterView />
-  <LayoutNavigation />
-</template>
+  <main>
+    <section class="pb-[6.25rem] pt-5 px-5">
+      <RouterView />
+    </section>
 
-<style lang="scss" scoped></style>
+    <LayoutNavigation />
+  </main>
+</template>
