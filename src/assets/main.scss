@@ -1,0 +1,31 @@
+@use '@picocss/pico/scss/pico' with (
+  $theme-color: 'amber'
+);
+
+@font-face {
+  font-family: 'Noto Sans Arabic';
+  src: url('fonts/NotoSansArabic-Regular.ttf') format('truetype');
+  font-style: normal;
+  display: swap;
+}
+
+@font-face {
+  font-family: 'Kitab Regular';
+  src: url('fonts/Kitab-Regular.ttf') format('truetype');
+  font-style: normal;
+  display: swap;
+}
+
+html,
+body {
+  font-family: 'Noto Sans Arabic', sans-serif;
+  background-color: #fffaf5;
+}
+
+.quran-font {
+  font-family: 'Kitab Regular', sans-serif;
+}
+
+a {
+  text-decoration: none;
+}
