@@ -8,17 +8,10 @@ import PauseIcon from '@/components/icons/PauseIcon.vue';
 const player = useAudioStore();
 
 const togglePlay = (channel) => {
-  if (player.currentChannel !== channel) {
-    player.play(channel);
-
-    // Return early to prevent pausing the track immediately after playing it
-    return;
-  }
-
-  if (player.isPlaying) {
+  if (player.isPlaying && player.currentChannel.url === channel.url) {
     player.stop();
   } else {
-    player.play();
+    player.play(channel);
   }
 };
 
