@@ -23,10 +23,7 @@ onBeforeMount(() => {
   <div v-if="surah" class="quran-page">
     <header>
       <h3 class="quran-font">{{ surah.name }}</h3>
-
-      <RouterLink :to="{ name: 'quran' }">
-        ← رجوع
-      </RouterLink>
+      <RouterLink :to="{ name: 'quran' }"> ← رجوع </RouterLink>
     </header>
 
     <span class="ayah quran-font" v-for="ayah in surah.ayahs" :key="ayah.number">
@@ -43,26 +40,31 @@ onBeforeMount(() => {
 
 <style lang="scss" scoped>
 .quran-page {
-  max-width: 600px;
-  margin: 0 auto;
+  padding: 1rem;
   text-align: justify;
-}
 
-.quran-page header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-block: 2rem;
-}
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-block: 0.5rem 1.5rem;
 
-.quran-page header * {
-  margin: 0;
-}
+    * {
+      margin: 0;
+    }
+  }
 
-.ayah-number {
-  padding-inline: 5px;
-  font-size: 0.8em;
-  vertical-align: middle;
+  .ayah {
+    font-size: 1.25em;
+    line-height: 1.5;
+    margin-block: 0.5rem;
+
+    .ayah-number {
+      padding-inline: 5px;
+      font-size: 0.8em;
+      vertical-align: middle;
+    }
+  }
 }
 
 [aria-busy='true'] {

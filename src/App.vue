@@ -1,15 +1,32 @@
 <script setup>
 import { RouterView } from 'vue-router';
+import AppHeader from '@/components/AppHeader.vue';
+import NavigationMenu from '@/components/NavigationMenu.vue';
 </script>
 
 <template>
-  <main class="container">
-    <RouterView />
+  <main>
+    <AppHeader />
+
+    <section>
+      <RouterView />
+    </section>
+
+    <NavigationMenu />
   </main>
 </template>
 
 <style lang="scss" scoped>
-.container {
-  padding-block: 1rem;
+main {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  section {
+    flex: 1;
+    margin: 0;
+    overflow-y: auto;
+  }
 }
 </style>

@@ -5,20 +5,24 @@ export const useAudioStore = defineStore({
   state: () => ({
     audio: new Audio(),
     isPlaying: false,
-    currentTrack: null,
+    currentChannel: null,
   }),
   actions: {
-    play(url) {
-      if (this.currentTrack !== url) {
-        this.audio.src = this.currentTrack = url;
+    play(channel) {
+      if (this.currentChannel !== channel) {
+        this.currentChannel = channel;
+        this.audio.src = channel.url;
       }
 
       this.audio.play();
       this.isPlaying = true;
     },
-    pause() {
+    stop() {
       this.audio.pause();
       this.isPlaying = false;
+
+      this.audio.url = '';
+      this.currentChannel = null;
     },
   },
 });

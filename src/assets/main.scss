@@ -19,7 +19,6 @@
 html,
 body {
   font-family: 'Noto Sans Arabic', sans-serif;
-  background-color: #fffaf5;
 }
 
 .quran-font {
@@ -28,4 +27,14 @@ body {
 
 a {
   text-decoration: none;
+}
+
+small {
+  font-size: 0.8rem;
+}
+
+button:focus,
+button:active {
+  outline: none !important;
+  box-shadow: none !important;
 }
