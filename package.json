@@ -11,6 +11,8 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "bootstrap": "^5.3.3",
     "pinia": "^2.1.7",
     "sass": "^1.77.4",
     "vue": "^3.4.21",
