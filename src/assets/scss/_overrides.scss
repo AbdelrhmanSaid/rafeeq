@@ -1,0 +1,9 @@
+.navbar-toggler {
+  border: none;
+
+  &:focus,
+  &:active {
+    outline: none;
+    box-shadow: none;
+  }
+}

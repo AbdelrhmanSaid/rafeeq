@@ -1,3 +1,9 @@
+<script setup>
+import PageLayout from '@/components/Layout/PageLayout.vue'
+</script>
+
 <template>
-  <h1>أهلًا بالعالم</h1>
+  <PageLayout>
+    <h1>أهلًا بالعالم</h1>
+  </PageLayout>
 </template>

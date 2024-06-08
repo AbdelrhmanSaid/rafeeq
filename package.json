@@ -12,8 +12,10 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
+    "@tabler/icons-vue": "^3.5.0",
     "bootstrap": "^5.3.3",
     "pinia": "^2.1.7",
+    "rtlcss": "^4.1.1",
     "sass": "^1.77.4",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"
