@@ -4,6 +4,6 @@ import PageLayout from '@/components/Layout/PageLayout.vue'
 
 <template>
   <PageLayout>
-    <h1>الرئيسية</h1>
+    <h1>القرآن الكريم</h1>
   </PageLayout>
 </template>

@@ -1,7 +1,17 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import { useModeStore } from '@/stores/mode'
-import { IconMoonStars, IconSunFilled } from '@tabler/icons-vue'
+import {
+  IconMoonStars,
+  IconSunFilled,
+  IconHome,
+  IconBook,
+  IconBook2,
+  IconSparkles,
+  IconRadio,
+  IconSettings,
+} from '@tabler/icons-vue'
+
 import logo from '@/assets/images/logo.svg'
 
 const mode = useModeStore()
@@ -19,21 +29,44 @@ const mode = useModeStore()
       </button>
 
       <div class="collapse navbar-collapse" id="menu">
-        <ul class="navbar-nav ms-lg-3 me-lg-auto mt-2 mt-lg-0">
+        <ul class="navbar-nav ms-lg-3 me-lg-auto mt-3 mt-lg-0 gap-2">
           <li class="nav-item">
-            <RouterLink to="/" class="nav-link">الرئيسية</RouterLink>
+            <RouterLink to="/" class="nav-link">
+              <IconHome class="me-2" size="1.25rem" />
+              <span>الرئيسية</span>
+            </RouterLink>
           </li>
 
           <li class="nav-item">
-            <RouterLink to="/" class="nav-link">رابط 1</RouterLink>
+            <RouterLink to="/quran" class="nav-link">
+              <IconBook class="me-2" size="1.25rem" />
+              <span>القرآن الكريم</span>
+            </RouterLink>
           </li>
 
           <li class="nav-item">
-            <RouterLink to="/" class="nav-link">رابط 2</RouterLink>
+            <RouterLink to="/hadith" class="nav-link">
+              <IconBook2 class="me-2" size="1.25rem" />
+              <span>السنة النبوية</span>
+            </RouterLink>
+          </li>
+
+          <li class="nav-item">
+            <RouterLink to="/adhkar" class="nav-link">
+              <IconSparkles class="me-2" size="1.25rem" />
+              <span>الأذكار</span>
+            </RouterLink>
+          </li>
+
+          <li class="nav-item">
+            <RouterLink to="/radio" class="nav-link">
+              <IconRadio class="me-2" size="1.25rem" />
+              <span>الإذاعة</span>
+            </RouterLink>
           </li>
         </ul>
 
-        <ul class="navbar-nav ms-auto">
+        <ul class="navbar-nav ms-auto gap-2">
           <li class="nav-item">
             <a href="#" class="nav-link" @click.prevent="mode.toggle()">
               <span v-if="mode.isDark">
@@ -49,7 +82,10 @@ const mode = useModeStore()
           </li>
 
           <li class="nav-item">
-            <RouterLink to="/" class="nav-link">رابط 2</RouterLink>
+            <RouterLink to="/settings" class="nav-link">
+              <IconSettings class="me-2" size="1.25rem" />
+              <span>الإعدادات</span>
+            </RouterLink>
           </li>
         </ul>
       </div>
@@ -57,8 +93,20 @@ const mode = useModeStore()
   </nav>
 </template>
 
-<style scoped>
-[data-bs-theme='dark'] .navbar-brand img {
-  filter: brightness(0) invert(1);
+<style lang="scss" scoped>
+[data-bs-theme='dark'] {
+  .navbar-brand img {
+    filter: brightness(0) invert(1);
+  }
+}
+
+.nav-item .nav-link {
+  border-radius: 0.25rem;
+  transition: background-color 0.2s;
+
+  &:hover,
+  &.router-link-active {
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+  }
 }
 </style>

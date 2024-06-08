@@ -4,6 +4,6 @@ import PageLayout from '@/components/Layout/PageLayout.vue'
 
 <template>
   <PageLayout>
-    <h1>الرئيسية</h1>
+    <h1>الإعدادات</h1>
   </PageLayout>
 </template>
