@@ -1,3 +1,5 @@
+import nProgress from 'nprogress'
+
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
@@ -48,9 +50,16 @@ const router = createRouter({
   ],
 })
 
+router.beforeEach(() => {
+  nProgress.start()
+})
+
 router.afterEach(() => {
   // Close the mobile menu after clicking on a link
   document.querySelector('.navbar-collapse')?.classList?.remove('show')
+
+  // Stop the progress bar
+  nProgress.done()
 })
 
 export default router
