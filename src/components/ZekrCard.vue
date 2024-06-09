@@ -52,6 +52,7 @@ const count = ref(0)
   }
 
   .zekr-text {
+    text-align: justify;
     font-size: 1.5rem;
   }
 }
