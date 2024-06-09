@@ -14,14 +14,15 @@ const radio = useRadioStore()
 
 <template>
   <PageLayout>
-    <div class="d-flex align-items-end justify-content-between mb-4">
+    <div class="mb-4">
       <div>
         <h1>الإذاعة</h1>
         <p class="lead">استمع لإذاعات القرآن الكريم المختلفة حول العالم</p>
       </div>
 
-      <div>
-        <input v-model="search" type="text" class="form-control" placeholder="ابحث عن إذاعة..." />
+      <div class="form-floating">
+        <input v-model="search" type="search" class="form-control" placeholder="ابحث عن إذاعة" />
+        <label>تبحث عن إذاعة معينة؟</label>
       </div>
     </div>
 
