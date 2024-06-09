@@ -23,3 +23,9 @@ body {
     'Segoe UI Symbol',
     'Noto Color Emoji';
 }
+
+.btn-flat,
+.btn-flat:active,
+.btn-flat:focus {
+  border: none;
+}

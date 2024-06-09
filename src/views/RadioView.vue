@@ -38,11 +38,11 @@ const radio = useRadioStore()
         <div class="d-flex justify-content-between align-items-center">
           <span>{{ station.id }}. {{ station.name }}</span>
 
-          <button class="btn" @click="radio.stop()" v-if="radio.station === station.url">
+          <button class="btn btn-flat stretched-link" @click="radio.stop()" v-if="radio.station === station.url">
             <IconPlayerPause size="1.25rem" />
           </button>
 
-          <button class="btn" @click="radio.play(station.url)" v-else>
+          <button class="btn btn-flat stretched-link" @click="radio.play(station.url)" v-else>
             <IconPlayerPlay size="1.25rem" />
           </button>
         </div>
@@ -69,12 +69,6 @@ const radio = useRadioStore()
     button {
       color: var(--bs-white);
     }
-  }
-
-  button,
-  button:active,
-  button:focus {
-    border: none;
   }
 }
 </style>

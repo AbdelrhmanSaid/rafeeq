@@ -32,6 +32,12 @@ const router = createRouter({
     },
 
     {
+      path: '/hisn-al-muslim/:category',
+      name: 'hisn-al-muslim-category',
+      component: () => import('@/views/HisnAlMuslimCategoryView.vue'),
+    },
+
+    {
       path: '/radio',
       name: 'radio',
       component: () => import('@/views/RadioView.vue'),
