@@ -26,6 +26,10 @@ const count = ref(0)
 </template>
 
 <style lang="scss" scoped>
+[data-bs-theme='dark'] .zekr-card {
+  --bs-primary-bg-subtle: rgba(255, 255, 255, 0.1);
+}
+
 .zekr-card {
   .btn-counter {
     position: relative;
