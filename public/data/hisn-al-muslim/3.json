@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "id": 3,
+    "name": "دعاء ُلبْس الثوب الجديد",
+    "audio": "http://www.hisnmuslim.com/audio/ar/ar_7esn_AlMoslem_by_Doors_004.mp3"
+  },
+  "content": [
+    {
+      "id": 6,
+      "text": "(اللَّهُمَّ لَكَ الْحَمْدُ أَنْتَ كَسَوْتَنِيهِ، أَسْأَلُكَ مِنْ خَيْرِهِ وَخَيْرِ مَا صُنِعَ لَهُ، وَأَعُوذُ بِكَ مِنْ شَرِّهِ وَشَرِّ مَا صُنِعَ لَهُ).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/6.mp3",
+      "repeat": 1
+    }
+  ]
+}

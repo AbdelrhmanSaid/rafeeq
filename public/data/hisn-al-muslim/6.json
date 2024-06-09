@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "id": 6,
+    "name": "دعاء دخول الخلاء",
+    "audio": "http://www.hisnmuslim.com/audio/ar/ar_7esn_AlMoslem_by_Doors_007.mp3"
+  },
+  "content": [
+    {
+      "id": 10,
+      "text": "([بِسْمِ اللَّهِ] اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبْثِ وَالْخَبائِث).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/10.mp3",
+      "repeat": 1
+    }
+  ]
+}

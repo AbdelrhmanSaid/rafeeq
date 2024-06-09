@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "id": 20,
+    "name": "دعاء الجلسة بين السجدتين",
+    "audio": "http://www.hisnmuslim.com/audio/ar/ar_7esn_AlMoslem_by_Doors_021.mp3"
+  },
+  "content": [
+    {
+      "id": 48,
+      "text": "(رَبِّ اغْفِرْ لِي، رَبِّ اغْفِرْ لِي).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/48.mp3",
+      "repeat": 1
+    },
+    {
+      "id": 49,
+      "text": "(اللَّهُمَّ اغْفِرْ لِي، وَارْحَمْنِي، وَاهْدِنِي، وَاجْبُرْنِي، وَعَافِنِي، وَارْزُقْنِي، وَارْفَعْنِي).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/49.mp3",
+      "repeat": 1
+    }
+  ]
+}

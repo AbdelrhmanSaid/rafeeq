@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "id": 122,
+    "name": "دعاء التعجب والأمر السار",
+    "audio": "http://www.hisnmuslim.com/audio/ar/ar_7esn_AlMoslem_by_Doors_123.mp3"
+  },
+  "content": [
+    {
+      "id": 240,
+      "text": "(سُبْحَانَ اللَّهِ!).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/240.mp3",
+      "repeat": 1
+    },
+    {
+      "id": 241,
+      "text": "(اللَّهُ أَكْبَرُ!).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/241.mp3",
+      "repeat": 1
+    }
+  ]
+}

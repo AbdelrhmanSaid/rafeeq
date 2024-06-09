@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "id": 8,
+    "name": "الذكر قبل الوضوء",
+    "audio": "http://www.hisnmuslim.com/audio/ar/ar_7esn_AlMoslem_by_Doors_009.mp3"
+  },
+  "content": [
+    {
+      "id": 12,
+      "text": "(بِسْمِ اللَّهِ).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/12.mp3",
+      "repeat": 1
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "id": 100,
+    "name": "دعاء المسافر للمقيم",
+    "audio": "http://www.hisnmuslim.com/audio/ar/ar_7esn_AlMoslem_by_Doors_101.mp3"
+  },
+  "content": [
+    {
+      "id": 211,
+      "text": "(أَسْتَوْدِعُكُمُ اللَّهَ الَّذِي لاَ تَضِيعُ وَدَائِعُهُ).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/211.mp3",
+      "repeat": 1
+    }
+  ]
+}

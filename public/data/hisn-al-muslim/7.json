@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "id": 7,
+    "name": "دعاء الخروج من الخلاء",
+    "audio": "http://www.hisnmuslim.com/audio/ar/ar_7esn_AlMoslem_by_Doors_008.mp3"
+  },
+  "content": [
+    {
+      "id": 11,
+      "text": "(غُفْرَانَكَ).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/11.mp3",
+      "repeat": 1
+    }
+  ]
+}

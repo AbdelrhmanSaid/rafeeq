@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "id": 52,
+    "name": "تلقين المحتضر",
+    "audio": "http://www.hisnmuslim.com/audio/ar/ar_7esn_AlMoslem_by_Doors_053.mp3"
+  },
+  "content": [
+    {
+      "id": 153,
+      "text": "(مَنْ كَانَ آخِرُ كَلاَمِهِ لاَ إِلَهَ إِلاَّ اللَّهُ دَخَلَ الْجَنَّةَ).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/.mp3",
+      "repeat": 1
+    }
+  ]
+}

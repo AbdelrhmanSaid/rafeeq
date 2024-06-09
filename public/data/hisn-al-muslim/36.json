@@ -1,0 +1,27 @@
+{
+  "meta": {
+    "id": 36,
+    "name": "دعاء لقاء العدو و ذي السلطان",
+    "audio": "http://www.hisnmuslim.com/audio/ar/ar_7esn_AlMoslem_by_Doors_037.mp3"
+  },
+  "content": [
+    {
+      "id": 126,
+      "text": "(اللَّهُمَّ إِنَّا نَجْعَلُكَ فِي نُحُورِهِم، وَنَعُوذُ بِكَ مِنْ شُرُورِهِمْ).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/126.mp3",
+      "repeat": 1
+    },
+    {
+      "id": 127,
+      "text": "(اللَّهُمَّ أَنْتَ عَضُدِي، وَأَنْتَ نَصِيرِي، بِكَ أَحُولُ وَبِكَ أَصُولُ، وَبِكَ أُقاتِلُ).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/127.mp3",
+      "repeat": 1
+    },
+    {
+      "id": 128,
+      "text": "(حَسْبُنا اللَّهُ وَنِعْمَ الْوَكِيلُ).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/128.mp3",
+      "repeat": 1
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "id": 11,
+    "name": "الذكر عند دخول المنزل",
+    "audio": "http://www.hisnmuslim.com/audio/ar/ar_7esn_AlMoslem_by_Doors_012.mp3"
+  },
+  "content": [
+    {
+      "id": 18,
+      "text": "(بِسْمِ اللَّهِ وَلَجْنَا، وَبِسْمِ اللَّهِ خَرَجْنَا، وَعَلَى اللَّهِ رَبِّنَا تَوَكَّلْنَا، ثُمَّ لِيُسَلِّمْ عَلَى أَهْلِهِ).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/18.mp3",
+      "repeat": 1
+    }
+  ]
+}

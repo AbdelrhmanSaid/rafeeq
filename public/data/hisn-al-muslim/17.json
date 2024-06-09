@@ -1,0 +1,39 @@
+{
+  "meta": {
+    "id": 17,
+    "name": "دعاء الركوع",
+    "audio": "http://www.hisnmuslim.com/audio/ar/ar_7esn_AlMoslem_by_Doors_018.mp3"
+  },
+  "content": [
+    {
+      "id": 33,
+      "text": "(سُبْحانَ رَبِّيَ الْعَظِيمِ). ثلاث مرَّاتٍ.",
+      "audio": "http://www.hisnmuslim.com/audio/ar/33.mp3",
+      "repeat": 3
+    },
+    {
+      "id": 34,
+      "text": "(سُبْحَانَكَ اللَّهُمَّ رَبَّنَا وَبِحَمْدِكَ، اللَّهُمَّ اغْفِرْ لِي).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/34.mp3",
+      "repeat": 1
+    },
+    {
+      "id": 35,
+      "text": "(سُبُّوُحٌ، قُدُّوسٌ، رَبُّ المَلاَئِكَةِ وَالرُّوحِ).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/35.mp3",
+      "repeat": 1
+    },
+    {
+      "id": 36,
+      "text": "(اللَّهُمَّ لَكَ رَكَعْتُ، وَبِكَ آمَنْتُ، وَلَكَ أَسْلَمْتُ، خَشَعَ لَكَ سَمْعِي، وَبَصَرِي، وَمُخِّي، وَعَــــظْمِي، وَعَصَبِي، [وَمَا استَقَلَّتْ بِهِ قَدَمِي]).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/36.mp3",
+      "repeat": 1
+    },
+    {
+      "id": 37,
+      "text": "(سُبْحَانَ ذِي الْجَبَرُوتِ، وَالْمَلَكُوتِ، وَالْكِبْرِيَاءِ، وَالْعَظَمَةِ).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/37.mp3",
+      "repeat": 1
+    }
+  ]
+}

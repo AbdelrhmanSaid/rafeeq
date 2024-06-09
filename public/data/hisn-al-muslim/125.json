@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "id": 125,
+    "name": "دعاء من خشي أن يصيب شيئا بعينه",
+    "audio": "http://www.hisnmuslim.com/audio/ar/ar_7esn_AlMoslem_by_Doors_126.mp3"
+  },
+  "content": [
+    {
+      "id": 244,
+      "text": "(إِذَا رَأَى أَحَدُكُم مِنْ أَخِيهِ، أَوْ مِنْ نَفْسِهِ، أَوْ مِنْ مَالِهِ مَا يُعْجِبُهُ [فَلْيَدْعُ لَهُ بِالْبَرَكَةِ] فَإِنَّ الْعَيْنَ حَقٌّ).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/244.mp3",
+      "repeat": 1
+    }
+  ]
+}

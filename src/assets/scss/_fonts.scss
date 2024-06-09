@@ -53,3 +53,19 @@
   font-display: swap;
   src: url('../fonts/IBMPlexSansArabic-Bold.ttf') format('truetype');
 }
+
+@font-face {
+  font-family: 'Noto Naskh Arabic';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('../fonts/NotoNaskhArabic.ttf') format('truetype');
+}
+
+.font-IBM-Plex-Sans-Arabic {
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+}
+
+.font-Noto-Naskh-Arabic {
+  font-family: 'Noto Naskh Arabic', sans-serif;
+}

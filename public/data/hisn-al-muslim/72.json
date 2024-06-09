@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "id": 72,
+    "name": "التعريض بالدعاء لطلب الطعام أو الشراب",
+    "audio": "http://www.hisnmuslim.com/audio/ar/ar_7esn_AlMoslem_by_Doors_073.mp3"
+  },
+  "content": [
+    {
+      "id": 183,
+      "text": "(اللَّهُمَّ أَطْعِمْ مَنْ أَطْعَمَنِي، وَاسْقِ مَنْ سَقَانِي).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/183.mp3",
+      "repeat": 1
+    }
+  ]
+}

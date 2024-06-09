@@ -32,7 +32,7 @@ const router = createRouter({
     },
 
     {
-      path: '/hisn-al-muslim/:category',
+      path: '/hisn-al-muslim/:category(\\d+)',
       name: 'hisn-al-muslim-category',
       component: () => import('@/views/HisnAlMuslimCategoryView.vue'),
     },
@@ -51,6 +51,7 @@ const router = createRouter({
 
     {
       path: '/:pathMatch(.*)*',
+      name: 'not-found',
       component: NotFoundView,
     },
   ],
@@ -66,6 +67,9 @@ router.afterEach(() => {
 
   // Stop the progress bar
   nProgress.done()
+
+  // Scroll to the top of the page smoothly
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 })
 
 export default router

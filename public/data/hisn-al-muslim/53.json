@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "id": 53,
+    "name": "دعاء من أصيب بمصيبة",
+    "audio": "http://www.hisnmuslim.com/audio/ar/ar_7esn_AlMoslem_by_Doors_054.mp3"
+  },
+  "content": [
+    {
+      "id": 154,
+      "text": "(إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ، اللَّهُمَّ أْجُرْنِي فِي مُصِيبَتِي، وَأَخْلِفْ لِي خَيْرَاً مِنْهَا).",
+      "audio": "http://www.hisnmuslim.com/audio/ar/154.mp3",
+      "repeat": 1
+    }
+  ]
+}
