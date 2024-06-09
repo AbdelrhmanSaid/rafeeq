@@ -42,11 +42,17 @@ async function fetchData() {
 
   <PageLayout v-else>
     <div class="mb-4">
-      <h1>{{ category.meta.name }}</h1>
+      <h1>{{ category.meta.id }}. {{ category.meta.name }}</h1>
       <p class="lead">باب {{ category.meta.name }}، عدد الأذكار في هذا الباب {{ category.content.length }} أذكار.</p>
     </div>
 
-    <ZekrCard class="mb-3" v-for="zekr in category.content" :key="zekr.id" :text="zekr.text" :repeat="zekr.repeat" />
+    <ZekrCard
+      class="mb-3"
+      v-for="(zekr, index) in category.content"
+      :key="index"
+      :text="zekr.text"
+      :repeat="zekr.repeat"
+    />
 
     <RouterLink :to="{ name: 'hisn-al-muslim' }" class="btn btn-primary">
       <span>العودة للقائمة الرئيسية</span>
