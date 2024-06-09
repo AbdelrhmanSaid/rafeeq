@@ -7,7 +7,7 @@ const count = ref(0)
 </script>
 
 <template>
-  <div class="zekr-card border rounded p-3">
+  <div class="zekr-card border rounded p-4">
     <div class="row align-items-center g-4 text-center text-lg-start">
       <div class="col-12 col-lg-auto">
         <button
@@ -19,7 +19,7 @@ const count = ref(0)
       </div>
 
       <div class="col-12 col-lg">
-        <p class="zekr-text font-Noto-Naskh-Arabic">{{ text }}</p>
+        <p class="zekr-text font-Noto-Naskh-Arabic m-0">{{ text }}</p>
       </div>
     </div>
   </div>
