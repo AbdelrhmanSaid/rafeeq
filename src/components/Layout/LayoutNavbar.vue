@@ -33,35 +33,35 @@ const radio = useRadioStore()
       <div class="collapse navbar-collapse" id="menu">
         <ul class="navbar-nav ms-lg-3 me-lg-auto mt-3 mt-lg-0 gap-2">
           <li class="nav-item">
-            <RouterLink to="/" class="nav-link">
+            <RouterLink :to="{ name: 'home' }" class="nav-link">
               <IconHome class="me-2" size="1.25rem" />
               <span>الرئيسية</span>
             </RouterLink>
           </li>
 
           <li class="nav-item">
-            <RouterLink to="/quran" class="nav-link">
+            <RouterLink :to="{ name: 'quran' }" class="nav-link">
               <IconBook class="me-2" size="1.25rem" />
               <span>القرآن الكريم</span>
             </RouterLink>
           </li>
 
           <li class="nav-item">
-            <RouterLink to="/hadith" class="nav-link">
+            <RouterLink :to="{ name: 'hadith' }" class="nav-link">
               <IconBook2 class="me-2" size="1.25rem" />
               <span>السنة النبوية</span>
             </RouterLink>
           </li>
 
           <li class="nav-item">
-            <RouterLink to="/adhkar" class="nav-link">
+            <RouterLink :to="{ name: 'hisn-al-muslim' }" class="nav-link">
               <IconSparkles class="me-2" size="1.25rem" />
-              <span>الأذكار</span>
+              <span>حصن المسلم</span>
             </RouterLink>
           </li>
 
           <li class="nav-item">
-            <RouterLink to="/radio" class="nav-link">
+            <RouterLink :to="{ name: 'radio' }" class="nav-link">
               <IconRadio class="me-2" size="1.25rem" />
               <span>الإذاعة</span>
               <span class="radio-status ms-2" v-if="radio.isPlaying"></span>
@@ -85,7 +85,7 @@ const radio = useRadioStore()
           </li>
 
           <li class="nav-item">
-            <RouterLink to="/settings" class="nav-link">
+            <RouterLink :to="{ name: 'settings' }" class="nav-link">
               <IconSettings class="me-2" size="1.25rem" />
               <span>الإعدادات</span>
             </RouterLink>

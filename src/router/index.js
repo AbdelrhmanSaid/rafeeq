@@ -24,9 +24,9 @@ const router = createRouter({
     },
 
     {
-      path: '/adhkar',
-      name: 'adhkar',
-      component: () => import('@/views/AdhkarView.vue'),
+      path: '/hisn-al-muslim',
+      name: 'hisn-al-muslim',
+      component: () => import('@/views/HisnAlMuslimView.vue'),
     },
 
     {
