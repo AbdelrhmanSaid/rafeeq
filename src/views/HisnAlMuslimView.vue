@@ -2,10 +2,12 @@
 import { ref, computed } from 'vue'
 
 import PageLayout from '@/components/Layout/PageLayout.vue'
-import hisnAlMuslim from '@/databases/hisn-al-muslim.json'
+import EmptyState from '@/components/EmptyState.vue'
+
+import categories from '@/databases/hisn-al-muslim.json'
 
 const search = ref('')
-const categories = computed(() => hisnAlMuslim.filter((item) => item.name.includes(search.value)))
+const filtered = computed(() => categories.filter((item) => item.name.includes(search.value)))
 </script>
 
 <template>
@@ -20,21 +22,20 @@ const categories = computed(() => hisnAlMuslim.filter((item) => item.name.includ
       </div>
 
       <div class="form-floating">
-        <input v-model="search" type="search" class="form-control" placeholder="ابحث عن الباب" />
+        <input v-model="search" type="text" class="form-control" placeholder="ابحث عن الباب" />
         <label>تبحث عن باب معين؟</label>
       </div>
     </div>
 
     <ul class="list-group">
-      <li v-for="(item, index) in categories" :key="index" class="list-group-item py-3">
+      <li v-for="category in filtered" :key="category.id" class="list-group-item py-3">
         <div class="d-flex justify-content-between align-items-center">
-          <span>{{ index + 1 }}. {{ item.name }}</span>
+          <span>{{ category.id }}. {{ category.name }}</span>
         </div>
       </li>
 
-      <li v-if="categories.length === 0" class="list-group-item py-5 text-center">
-        <IconMoodEmpty size="2.5rem" />
-        <p class="mt-2">لا توجد نتائج مطابقة لعملية البحث</p>
+      <li v-if="filtered.length === 0" class="list-group-item">
+        <EmptyState />
       </li>
     </ul>
   </PageLayout>

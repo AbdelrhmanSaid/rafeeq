@@ -1,13 +1,15 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRadioStore } from '@/stores/radio'
-import { IconPlayerPlay, IconPlayerPause, IconMoodEmpty } from '@tabler/icons-vue'
+import { IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
 
 import PageLayout from '@/components/Layout/PageLayout.vue'
-import radios from '@/databases/radios.json'
+import EmptyState from '@/components/EmptyState.vue'
+
+import stations from '@/databases/radios.json'
 
 const search = ref('')
-const stations = computed(() => radios.filter((item) => item.name.includes(search.value)))
+const filtered = computed(() => stations.filter((item) => item.name.includes(search.value)))
 
 const radio = useRadioStore()
 </script>
@@ -28,27 +30,26 @@ const radio = useRadioStore()
 
     <ul class="list-group">
       <li
-        v-for="(item, index) in stations"
-        :key="index"
-        class="list-group-item py-3"
-        :class="{ active: radio.station === item.url }"
+        v-for="station in filtered"
+        :key="station.id"
+        class="list-group-item"
+        :class="{ active: radio.station === station.url }"
       >
         <div class="d-flex justify-content-between align-items-center">
-          <span>{{ index + 1 }}. {{ item.name }}</span>
+          <span>{{ station.id }}. {{ station.name }}</span>
 
-          <button class="btn" @click="radio.stop()" v-if="radio.station === item.url">
+          <button class="btn" @click="radio.stop()" v-if="radio.station === station.url">
             <IconPlayerPause size="1.25rem" />
           </button>
 
-          <button class="btn" @click="radio.play(item.url)" v-else>
+          <button class="btn" @click="radio.play(station.url)" v-else>
             <IconPlayerPlay size="1.25rem" />
           </button>
         </div>
       </li>
 
-      <li v-if="stations.length === 0" class="list-group-item py-5 text-center">
-        <IconMoodEmpty size="2.5rem" />
-        <p class="mt-2">لا توجد نتائج مطابقة لعملية البحث</p>
+      <li v-if="filtered.length === 0" class="list-group-item">
+        <EmptyState />
       </li>
     </ul>
   </PageLayout>
