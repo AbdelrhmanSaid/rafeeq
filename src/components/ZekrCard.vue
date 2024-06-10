@@ -20,7 +20,7 @@ const count = ref(0)
       </div>
 
       <div class="col-12 col-lg">
-        <p class="zekr-text font-Noto-Naskh-Arabic m-0">{{ text }}</p>
+        <p class="zekr-text font-quran m-0">{{ text }}</p>
       </div>
     </div>
   </div>

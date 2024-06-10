@@ -55,17 +55,17 @@
 }
 
 @font-face {
-  font-family: 'Noto Naskh Arabic';
+  font-family: 'Amiri Quran Regular';
   font-style: normal;
   font-weight: 400 700;
   font-display: swap;
-  src: url('../fonts/NotoNaskhArabic.ttf') format('truetype');
+  src: url('../fonts/AmiriQuran-Regular.ttf') format('truetype');
 }
 
-.font-IBM-Plex-Sans-Arabic {
+.font-body {
   font-family: 'IBM Plex Sans Arabic', sans-serif;
 }
 
-.font-Noto-Naskh-Arabic {
-  font-family: 'Noto Naskh Arabic', sans-serif;
+.font-quran {
+  font-family: 'Amiri Quran Regular', 'IBM Plex Sans Arabic', sans-serif;
 }

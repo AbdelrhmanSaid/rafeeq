@@ -41,8 +41,8 @@ async function fetchData() {
     <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
   </PageLayout>
 
-  <PageLayout v-else>
-    <div class="mb-4">
+  <PageLayout class="quran-page" v-else>
+    <div class="mb-4 text-center">
       <h1>{{ toArabicNumber(surah.number) }}. {{ surah.name }}</h1>
       <p class="lead">
         {{ toArabicNumber(surah.numberOfAyahs) }} {{ matchNumber(surah.numberOfAyahs, 'آية', 'آيات') }}
@@ -51,27 +51,35 @@ async function fetchData() {
       </p>
     </div>
 
-    <div v-for="ayah in surah.ayahs" :key="ayah.number">
-      <div class="ayah card font-Noto-Naskh-Arabic">
-        <div class="card-body">
-          <span v-html="ayah.text" />
-          <span class="ayah-number">﴿{{ toArabicNumber(ayah.numberInSurah) }}﴾</span>
-        </div>
-      </div>
+    <div class="ayat mb-4">
+      <span class="ayah font-quran" v-for="ayah in surah.ayahs" :key="ayah.number">
+        {{ ayah.text }}
+        ﴿{{ toArabicNumber(ayah.numberInSurah) }}﴾
+      </span>
     </div>
 
     <RouterLink :to="{ name: 'quran' }" class="btn btn-primary">
-      <span>العودة للقائمة الرئيسية</span>
-      <IconChevronLeft size="1.25rem" class="ms-2" />
+      <IconChevronLeft size="1.25rem" />
     </RouterLink>
   </PageLayout>
 </template>
 
 <style lang="scss" scoped>
-.ayah {
-  line-height: 2;
-  font-size: 1.25rem;
-  text-align: justify;
-  margin-bottom: 1rem;
+.quran-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 600px;
+
+  .ayat {
+    text-align: justify;
+
+    .ayah {
+      line-height: 2.125;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+  }
 }
 </style>
