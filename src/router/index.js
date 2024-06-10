@@ -20,6 +20,12 @@ const router = createRouter({
     },
 
     {
+      path: '/quran/:surah(\\d+)',
+      name: 'quran-surah',
+      component: () => import('@/views/QuranSurahView.vue'),
+    },
+
+    {
       path: '/hadith',
       name: 'hadith',
       component: () => import('@/views/HadithView.vue'),

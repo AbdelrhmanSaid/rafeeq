@@ -1,5 +1,4 @@
 <script setup>
-import { ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { IconChevronLeft } from '@tabler/icons-vue'
 
@@ -7,9 +6,10 @@ import PageLayout from '@/components/Layout/PageLayout.vue'
 import EmptyState from '@/components/EmptyState.vue'
 
 import categories from '@/exports/HisnAlMuslimCategories.js'
+import { useSearch } from '@/composables/search'
 
-const search = ref('')
-const filtered = computed(() => categories.filter((item) => item.name.includes(search.value)))
+const { search, filtered } = useSearch(categories, ['name'])
+import { toArabicNumber } from '@/utilities/arabic'
 </script>
 
 <template>
@@ -32,7 +32,7 @@ const filtered = computed(() => categories.filter((item) => item.name.includes(s
     <ul class="list-group">
       <li v-for="category in filtered" :key="category.id" class="list-group-item list-group-item-action py-3">
         <div class="d-flex justify-content-between align-items-center">
-          <span>{{ category.id }}. {{ category.name }}</span>
+          <span>{{ toArabicNumber(category.id) }}. {{ category.name }}</span>
 
           <RouterLink
             :to="{ name: 'hisn-al-muslim-category', params: { category: category.id } }"
