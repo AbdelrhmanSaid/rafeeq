@@ -6,10 +6,10 @@ import { IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
 import PageLayout from '@/components/Layout/PageLayout.vue'
 import EmptyState from '@/components/EmptyState.vue'
 
-import stations from '@/databases/radios.json'
+import radios from '@/exports/Radios.js'
 
 const search = ref('')
-const filtered = computed(() => stations.filter((item) => item.name.includes(search.value)))
+const filtered = computed(() => radios.filter((item) => item.name.includes(search.value)))
 
 const radio = useRadioStore()
 </script>

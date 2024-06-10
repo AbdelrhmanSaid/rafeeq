@@ -6,7 +6,7 @@ import { IconChevronLeft } from '@tabler/icons-vue'
 import PageLayout from '@/components/Layout/PageLayout.vue'
 import EmptyState from '@/components/EmptyState.vue'
 
-import categories from '@/databases/hisn-al-muslim.json'
+import categories from '@/exports/HisnAlMuslimCategories.js'
 
 const search = ref('')
 const filtered = computed(() => categories.filter((item) => item.name.includes(search.value)))
