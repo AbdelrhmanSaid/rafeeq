@@ -73,6 +73,8 @@ async function fetchData() {
   border: 1px dashed var(--bs-border-color);
   border-radius: 0.25rem;
   padding: 1.5rem 1rem;
+  min-height: 100px;
+  text-align: center;
 }
 
 .timings {
