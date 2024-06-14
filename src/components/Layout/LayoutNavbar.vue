@@ -7,7 +7,6 @@ import {
   IconSunFilled,
   IconHome,
   IconBook,
-  IconBook2,
   IconSparkles,
   IconRadio,
   IconSettings,
@@ -43,13 +42,6 @@ const radio = useRadioStore()
             <RouterLink :to="{ name: 'quran' }" class="nav-link">
               <IconBook class="me-2" size="1.25rem" />
               <span>القرآن الكريم</span>
-            </RouterLink>
-          </li>
-
-          <li class="nav-item">
-            <RouterLink :to="{ name: 'hadith' }" class="nav-link">
-              <IconBook2 class="me-2" size="1.25rem" />
-              <span>السنة النبوية</span>
             </RouterLink>
           </li>
 
