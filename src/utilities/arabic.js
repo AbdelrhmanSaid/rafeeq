@@ -17,6 +17,24 @@ export const toArabicNumber = (text) => {
   return String(text).replace(/[0-9]/g, (d) => String.fromCharCode(d.charCodeAt(0) + 0x660 - 0x30))
 }
 
+export const to12HourFormat = (time) => {
+  const [hour, minute] = time.split(':').map(Number)
+
+  if (hour === 0) {
+    return toArabicNumber(`12:${minute} ص`)
+  }
+
+  if (hour < 12) {
+    return toArabicNumber(`${hour}:${minute} ص`)
+  }
+
+  if (hour === 12) {
+    return toArabicNumber(`12:${minute} م`)
+  }
+
+  return toArabicNumber(`${hour - 12}:${minute} م`)
+}
+
 export const matchNumber = (number, singular, plural, dual = null) => {
   number = Math.abs(number)
 

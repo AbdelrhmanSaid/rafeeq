@@ -2,15 +2,7 @@
 import { RouterLink } from 'vue-router'
 import { useModeStore } from '@/stores/mode'
 import { useRadioStore } from '@/stores/radio'
-import {
-  IconMoonStars,
-  IconSunFilled,
-  IconHome,
-  IconBook,
-  IconSparkles,
-  IconRadio,
-  IconSettings,
-} from '@tabler/icons-vue'
+import { IconMoonStars, IconSunFilled, IconHome, IconBook, IconSparkles, IconRadio } from '@tabler/icons-vue'
 
 import logo from '@/assets/images/logo.svg'
 
@@ -74,13 +66,6 @@ const radio = useRadioStore()
                 <span>الوضع الداكن</span>
               </span>
             </a>
-          </li>
-
-          <li class="nav-item">
-            <RouterLink :to="{ name: 'settings' }" class="nav-link">
-              <IconSettings class="me-2" size="1.25rem" />
-              <span>الإعدادات</span>
-            </RouterLink>
           </li>
         </ul>
       </div>
