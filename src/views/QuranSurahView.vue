@@ -52,10 +52,10 @@ async function fetchData() {
     </div>
 
     <div class="ayat mb-4">
-      <span class="ayah font-quran" v-for="ayah in surah.ayahs" :key="ayah.number">
-        {{ ayah.text }}
-        ﴿{{ toArabicNumber(ayah.numberInSurah) }}﴾
-      </span>
+      <template v-for="ayah in surah.ayahs" :key="ayah.number">
+        <span class="ayah font-quran">{{ ayah.text }}</span>
+        <span class="ayah-number font-quran">﴿{{ toArabicNumber(ayah.numberInSurah) }}﴾</span>
+      </template>
     </div>
 
     <RouterLink :to="{ name: 'quran' }" class="btn btn-primary">
@@ -70,15 +70,26 @@ async function fetchData() {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  max-width: 600px;
+  gap: 10px;
+  max-width: 700px;
 
   .ayat {
+    padding: 1rem;
+    border-radius: 5px;
     text-align: justify;
+    border: 1px solid var(--bs-border-color);
 
-    .ayah {
+    span {
       line-height: 2.125;
       font-size: 1.5rem;
       margin-bottom: 1rem;
+    }
+
+    .ayah-number {
+      padding: 0.25rem 0.5rem;
+      padding-inline-start: 0;
+      color: var(--bs-gray-600);
+      vertical-align: middle;
     }
   }
 }

@@ -31,7 +31,7 @@ const radio = useRadioStore()
       </button>
 
       <div class="collapse navbar-collapse" id="menu">
-        <ul class="navbar-nav ms-lg-3 me-lg-auto mt-3 mt-lg-0 gap-2">
+        <ul class="navbar-nav ms-lg-3 me-lg-auto mt-3 mt-lg-0 mb-2 mb-lg-0 gap-2">
           <li class="nav-item">
             <RouterLink :to="{ name: 'home' }" class="nav-link">
               <IconHome class="me-2" size="1.25rem" />
