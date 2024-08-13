@@ -23,7 +23,7 @@ async function fetchData() {
   loading.value = true
 
   try {
-    const response = await fetch(`/data/hisn-al-muslim/${route.params.category}.json`)
+    const response = await fetch(`/data/azkar/${route.params.category}.json`)
     category.value = await response.json()
   } catch (err) {
     error.value = err
@@ -58,9 +58,11 @@ async function fetchData() {
       :key="index"
       :text="zekr.text"
       :repeat="zekr.repeat"
+      :reference="zekr.reference"
+      :benefit="zekr.benefit"
     />
 
-    <RouterLink :to="{ name: 'hisn-al-muslim' }" class="btn btn-primary">
+    <RouterLink :to="{ name: 'azkar' }" class="btn btn-primary">
       <span>العودة للقائمة الرئيسية</span>
       <IconChevronLeft size="1.25rem" class="ms-2" />
     </RouterLink>

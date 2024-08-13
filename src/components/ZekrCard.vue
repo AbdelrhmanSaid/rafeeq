@@ -2,7 +2,7 @@
 import { ref, defineProps } from 'vue'
 import { toArabicNumber } from '@/utilities/arabic'
 
-defineProps(['text', 'repeat'])
+defineProps(['text', 'repeat', 'reference', 'benefit'])
 
 const count = ref(0)
 </script>
@@ -21,6 +21,12 @@ const count = ref(0)
 
       <div class="col-12 col-lg">
         <p class="zekr-text font-quran m-0">{{ text }}</p>
+
+        <p class="text-muted mt-3 m-0" v-if="benefit || reference">
+          <small v-if="reference">{{ reference }}</small>
+          <small v-if="benefit && reference"> - </small>
+          <small v-if="benefit">{{ benefit }}</small>
+        </p>
       </div>
     </div>
   </div>

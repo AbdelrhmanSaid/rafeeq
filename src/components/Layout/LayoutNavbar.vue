@@ -38,9 +38,9 @@ const radio = useRadioStore()
           </li>
 
           <li class="nav-item">
-            <RouterLink :to="{ name: 'hisn-al-muslim' }" class="nav-link">
+            <RouterLink :to="{ name: 'azkar' }" class="nav-link">
               <IconSparkles class="me-2" size="1.25rem" />
-              <span>حصن المسلم</span>
+              <span>الأذكار</span>
             </RouterLink>
           </li>
 

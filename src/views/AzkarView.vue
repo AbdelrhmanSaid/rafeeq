@@ -5,21 +5,20 @@ import { IconChevronLeft } from '@tabler/icons-vue'
 import PageLayout from '@/components/Layout/PageLayout.vue'
 import EmptyState from '@/components/EmptyState.vue'
 
-import categories from '@/exports/HisnAlMuslimCategories.js'
+import categories from '@/exports/AzkarCategories.js'
 import { useSearch } from '@/composables/search'
 
 const { search, filtered } = useSearch(categories, ['name'])
-import { toArabicNumber } from '@/utilities/arabic'
+import { toArabicNumber, matchNumber } from '@/utilities/arabic'
 </script>
 
 <template>
   <PageLayout>
     <div class="mb-4">
       <div>
-        <h1>حصن المسلم</h1>
+        <h1>الأذكار</h1>
         <p class="lead">
-          كتاب حصن المسلم من أذكار الكتاب والسنة يجمع أذكار وأدعية النبي صلى الله عليه وسلم الصحيحة في مختلف مجالات
-          الحياة اليومية.
+          هناك {{ toArabicNumber(categories.length) }} {{ matchNumber(categories.length, 'باب', 'أبواب') }} من الأذكار.
         </p>
       </div>
 
@@ -35,7 +34,7 @@ import { toArabicNumber } from '@/utilities/arabic'
           <span>{{ toArabicNumber(category.id) }}. {{ category.name }}</span>
 
           <RouterLink
-            :to="{ name: 'hisn-al-muslim-category', params: { category: category.id } }"
+            :to="{ name: 'azkar-category', params: { category: category.id } }"
             class="btn btn-flat stretched-link"
           >
             <IconChevronLeft size="1.25rem" />

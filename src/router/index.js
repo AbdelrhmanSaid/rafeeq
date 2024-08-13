@@ -26,15 +26,15 @@ const router = createRouter({
     },
 
     {
-      path: '/hisn-al-muslim',
-      name: 'hisn-al-muslim',
-      component: () => import('@/views/HisnAlMuslimView.vue'),
+      path: '/azkar',
+      name: 'azkar',
+      component: () => import('@/views/AzkarView.vue'),
     },
 
     {
-      path: '/hisn-al-muslim/:category(\\d+)',
-      name: 'hisn-al-muslim-category',
-      component: () => import('@/views/HisnAlMuslimCategoryView.vue'),
+      path: '/azkar/:category(\\d+)',
+      name: 'azkar-category',
+      component: () => import('@/views/AzkarCategoryView.vue'),
     },
 
     {
