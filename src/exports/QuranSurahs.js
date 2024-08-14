@@ -25,7 +25,7 @@ export default [
   },
   {
     id: 5,
-    name: 'سُورَةُ المَائـِدَةِ',
+    name: 'سُورَةُ المَائِدَةِ',
     numberOfAyahs: 120,
     isMeccan: false,
   },
