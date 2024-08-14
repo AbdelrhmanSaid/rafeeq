@@ -2,7 +2,7 @@
 import { RouterLink } from 'vue-router'
 import { useModeStore } from '@/stores/mode'
 import { useRadioStore } from '@/stores/radio'
-import { IconMoonStars, IconSunFilled, IconHome, IconBook, IconSparkles, IconRadio } from '@tabler/icons-vue'
+import { IconMoonStars, IconSunFilled, IconHome, IconBook, IconSparkles, IconRadio, IconDotsCircleHorizontal } from '@tabler/icons-vue'
 
 import logo from '@/assets/images/logo.svg'
 
@@ -50,6 +50,16 @@ const radio = useRadioStore()
               <span>الإذاعة</span>
               <span class="radio-status ms-2" v-if="radio.isPlaying"></span>
             </RouterLink>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <IconDotsCircleHorizontal class="me-2" size="1.25rem" />
+              <span>المزيد</span>
+            </a>
+            <ul class="dropdown-menu">
+              <li><RouterLink class="dropdown-item" :to="{ name: 'sebha' }">السبحة الإلكترونية</RouterLink></li>
+            </ul>
           </li>
         </ul>
 

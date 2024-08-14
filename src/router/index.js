@@ -44,6 +44,12 @@ const router = createRouter({
     },
 
     {
+      path: '/sebha',
+      name: 'sebha',
+      component: () => import('@/views/SebhaView.vue'),
+    },
+
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: NotFoundView,
