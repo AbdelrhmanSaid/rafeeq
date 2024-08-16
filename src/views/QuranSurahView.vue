@@ -1,39 +1,20 @@
 <script setup>
-import { ref, watch } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink } from 'vue-router'
 import { IconChevronLeft } from '@tabler/icons-vue'
-import { matchNumber, toArabicNumber } from '@/utilities/arabic'
+import { useFetch } from '@vueuse/core'
+import { useRouteParams } from '@vueuse/router'
 
 import PageLayout from '@/components/Layout/PageLayout.vue'
+import Heading from '@/components/Heading.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 
-const route = useRoute()
-const loading = ref(false)
-const surah = ref(null)
-const error = ref(null)
-
-// Watch the params of the route to fetch the data again
-watch(() => route.params.surah, fetchData, { immediate: true })
-
-async function fetchData() {
-  error.value = surah.value = null
-  loading.value = true
-
-  try {
-    const response = await fetch(`https://api.alquran.cloud/v1/surah/${route.params.surah}`)
-    surah.value = await response.json()
-    surah.value = surah.value.data
-  } catch (err) {
-    error.value = err
-  } finally {
-    loading.value = false
-  }
-}
+const surahId = useRouteParams('surah')
+const { isFetching, data: surah, error } = useFetch(`https://api.alquran.cloud/v1/surah/${surahId.value}`).json().get()
 </script>
 
 <template>
-  <PageLayout v-if="loading">
+  <PageLayout v-if="isFetching">
     <LoadingState />
   </PageLayout>
 
@@ -41,20 +22,17 @@ async function fetchData() {
     <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
   </PageLayout>
 
-  <PageLayout class="quran-page" v-else>
-    <div class="mb-4 text-center">
-      <h1>{{ toArabicNumber(surah.number) }}. {{ surah.name }}</h1>
-      <p class="lead">
-        {{ toArabicNumber(surah.numberOfAyahs) }} {{ matchNumber(surah.numberOfAyahs, 'آية', 'آيات') }}
-        -
-        {{ surah.revelationType === 'Meccan' ? 'مكية' : 'مدنية' }}
-      </p>
-    </div>
+  <PageLayout class="quran-page" v-else-if="surah">
+    <Heading
+      class="text-center"
+      :title="surah.data.name"
+      :subtitle="`عدد الآيات: ${surah.data.numberOfAyahs} - ${surah.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`"
+    />
 
     <div class="ayat mb-4">
-      <template v-for="ayah in surah.ayahs" :key="ayah.number">
+      <template v-for="ayah in surah.data.ayahs" :key="ayah.number">
         <span class="ayah font-quran">{{ ayah.text }}</span>
-        <span class="ayah-number font-quran">﴿{{ toArabicNumber(ayah.numberInSurah) }}﴾</span>
+        <span class="ayah-number font-quran">﴿{{ ayah.numberInSurah }}﴾</span>
       </template>
     </div>
 

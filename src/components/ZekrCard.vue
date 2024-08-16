@@ -1,6 +1,5 @@
 <script setup>
-import { ref, defineProps } from 'vue'
-import { toArabicNumber } from '@/utilities/arabic'
+import { ref } from 'vue'
 
 defineProps(['text', 'repeat', 'reference', 'benefit'])
 
@@ -15,7 +14,7 @@ const count = ref(0)
           class="btn btn-counter border-flat"
           @click="count < repeat && count++"
           :style="{ '--progress': count / repeat }"
-          :data-content="`${toArabicNumber(count)} / ${toArabicNumber(repeat)}`"
+          :data-content="`${count}/${repeat}`"
         ></button>
       </div>
 

@@ -1,16 +1,9 @@
 <script setup>
-import { ref, watch } from 'vue'
 import { useCoordinatesStore } from '@/stores/coordinates'
+import { useFetch, useDateFormat } from '@vueuse/core'
 
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
-
-import { to12HourFormat } from '@/utilities/arabic'
-
-const store = useCoordinatesStore()
-const loading = ref(false)
-const timings = ref(null)
-const error = ref(null)
 
 const timingsMap = {
   Fajr: 'الفجر',
@@ -20,31 +13,16 @@ const timingsMap = {
   Isha: 'العشاء',
 }
 
-watch(() => store.latitude, fetchData, { immediate: true })
+const store = useCoordinatesStore()
+const today = `${new Date().getDate()}-${new Date().getMonth() + 1}-${new Date().getFullYear()}`
+const endpoint = `https://api.aladhan.com/v1/timings/${today}?latitude=${store.latitude}&longitude=${store.longitude}&iso8601=true`
 
-async function fetchData() {
-  error.value = timings.value = null
-  loading.value = true
-
-  try {
-    const today = `${new Date().getDate()}-${new Date().getMonth() + 1}-${new Date().getFullYear()}`
-    const endpoint = `https://api.aladhan.com/v1/timings/${today}?latitude=${store.latitude}&longitude=${store.longitude}`
-
-    const response = await fetch(endpoint)
-    const data = await response.json()
-
-    timings.value = data.data.timings
-  } catch (err) {
-    error.value = err
-  } finally {
-    loading.value = false
-  }
-}
+const { isFetching, data: timings, error } = useFetch(endpoint).json().get()
 </script>
 
 <template>
   <div v-if="store.latitude != 0 && store.longitude != 0">
-    <div class="message-box" v-if="loading">
+    <div class="message-box" v-if="isFetching">
       <LoadingState />
     </div>
 
@@ -55,7 +33,7 @@ async function fetchData() {
     <div class="timings" v-else-if="timings">
       <div class="item" v-for="(timing, key) in timingsMap" :key="key">
         <div class="item-title">{{ timing }}</div>
-        <div class="item-time">{{ to12HourFormat(timings[key]) }}</div>
+        <div class="item-time">{{ useDateFormat(timings.data.timings[key], 'hh:mm A') }}</div>
       </div>
     </div>
   </div>

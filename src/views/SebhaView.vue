@@ -1,26 +1,24 @@
 <script setup>
+import { ref } from 'vue'
 import { IconRefreshDot } from '@tabler/icons-vue'
 
 import PageLayout from '@/components/Layout/PageLayout.vue'
-
-import { ref } from 'vue'
-import { toArabicNumber } from '@/utilities/arabic'
+import Heading from '@/components/Heading.vue'
 
 const sebha = ref(0)
 </script>
 
 <template>
   <PageLayout>
-    <div class="mb-4">
-      <div>
-        <h1>السبحة الإلكترونية</h1>
-        <p>السبحة الإلكترونية هي تطبيق يساعدك على ذكر الله في أي وقت ومكان.</p>
-      </div>
-    </div>
+    <Heading
+      class="mb-4"
+      title="السبحة الإلكترونية"
+      subtitle="السبحة الإلكترونية هي تطبيق يساعدك على ذكر الله في أي وقت ومكان."
+    />
 
     <div class="d-flex align-items-center justify-content-center my-5">
       <button @click="sebha++" class="sebha-btn">
-        <span>{{ toArabicNumber(sebha) }}</span>
+        <span>{{ sebha }}</span>
       </button>
     </div>
 
@@ -37,12 +35,11 @@ const sebha = ref(0)
 .sebha-btn {
   width: 150px;
   height: 150px;
-  border-radius: 50%;
-  background-color: #fff;
+  background-color: var(--bs-body-bg);
   color: var(--bs-primary);
   border: 1px solid var(--bs-primary);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
+  border-radius: 50%;
+  transition: transform 150ms;
 
   &:hover {
     transform: scale(1.1);

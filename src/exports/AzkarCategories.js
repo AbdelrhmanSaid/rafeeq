@@ -26,5 +26,5 @@ export default [
   {
     id: 7,
     name: 'الرقية الشرعية',
-  }
+  },
 ]
