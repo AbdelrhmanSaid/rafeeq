@@ -2,7 +2,16 @@
 import { RouterLink } from 'vue-router'
 import { useModeStore } from '@/stores/mode'
 import { useRadioStore } from '@/stores/radio'
-import { IconMoonStars, IconSunFilled, IconHome, IconBook, IconSparkles, IconRadio, IconDotsCircleHorizontal } from '@tabler/icons-vue'
+
+import {
+  IconMoonStars,
+  IconSunFilled,
+  IconHome,
+  IconBook,
+  IconSparkles,
+  IconRadio,
+  IconDotsCircleHorizontal,
+} from '@tabler/icons-vue'
 
 import logo from '@/assets/images/logo.svg'
 

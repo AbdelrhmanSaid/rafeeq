@@ -5,7 +5,7 @@ import PageLayout from '@/components/Layout/PageLayout.vue'
 
 import { ref } from 'vue'
 import { toArabicNumber } from '@/utilities/arabic'
-import Heading from '@/components/Heading.vue';
+import Heading from '@/components/Heading.vue'
 
 const sebha = ref(0)
 </script>

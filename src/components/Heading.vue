@@ -1,6 +1,6 @@
 <script setup>
 defineProps(['title', 'subtitle'])
-</script>2
+</script>
 
 <template>
   <div>

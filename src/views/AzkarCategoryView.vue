@@ -1,5 +1,4 @@
 <script setup>
-import { ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { IconChevronLeft } from '@tabler/icons-vue'
 
@@ -10,32 +9,14 @@ import ErrorState from '@/components/ErrorState.vue'
 import ZekrCard from '@/components/ZekrCard.vue'
 
 import { matchNumber, toArabicNumber } from '@/utilities/arabic'
+import { useFetch } from '@vueuse/core'
 
-const route = useRoute()
-const loading = ref(false)
-const category = ref(null)
-const error = ref(null)
-
-// Watch the params of the route to fetch the data again
-watch(() => route.params.category, fetchData, { immediate: true })
-
-async function fetchData() {
-  error.value = category.value = null
-  loading.value = true
-
-  try {
-    const response = await fetch(`/data/azkar/${route.params.category}.json`)
-    category.value = await response.json()
-  } catch (err) {
-    error.value = err
-  } finally {
-    loading.value = false
-  }
-}
+const { params } = useRoute()
+const { isFetching, data: category, error } = useFetch(`/data/azkar/${params.category}.json`).json().get()
 </script>
 
 <template>
-  <PageLayout v-if="loading">
+  <PageLayout v-if="isFetching">
     <LoadingState />
   </PageLayout>
 
@@ -43,7 +24,7 @@ async function fetchData() {
     <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
   </PageLayout>
 
-  <PageLayout v-else>
+  <PageLayout v-else-if="category">
     <Heading
       class="mb-4"
       :title="category.meta.name"
