@@ -24,11 +24,7 @@ const { isFetching, data: category, error } = useFetch(`/data/azkar/${categoryId
   </PageLayout>
 
   <PageLayout v-else-if="category">
-    <Heading
-      class="mb-4"
-      :title="category.meta.name"
-      :subtitle="category.meta.description"
-    />
+    <Heading class="mb-4" :title="category.meta.name" :subtitle="category.meta.description" />
 
     <ZekrCard
       class="mb-3"
