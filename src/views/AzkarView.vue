@@ -1,16 +1,15 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import { IconChevronLeft } from '@tabler/icons-vue'
+import { useSearch } from '@/composables/search'
+import { toArabicNumber, matchNumber } from '@/utilities/arabic'
 
 import PageLayout from '@/components/Layout/PageLayout.vue'
 import Heading from '@/components/Heading.vue'
 import EmptyState from '@/components/EmptyState.vue'
-
 import categories from '@/exports/AzkarCategories.js'
-import { useSearch } from '@/composables/search'
 
 const { search, filtered } = useSearch(categories, ['name'])
-import { toArabicNumber, matchNumber } from '@/utilities/arabic'
 </script>
 
 <template>

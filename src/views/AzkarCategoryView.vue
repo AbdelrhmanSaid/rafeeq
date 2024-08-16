@@ -1,6 +1,9 @@
 <script setup>
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink } from 'vue-router'
 import { IconChevronLeft } from '@tabler/icons-vue'
+import { matchNumber, toArabicNumber } from '@/utilities/arabic'
+import { useFetch } from '@vueuse/core'
+import { useRouteParams } from '@vueuse/router'
 
 import PageLayout from '@/components/Layout/PageLayout.vue'
 import Heading from '@/components/Heading.vue'
@@ -8,11 +11,8 @@ import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import ZekrCard from '@/components/ZekrCard.vue'
 
-import { matchNumber, toArabicNumber } from '@/utilities/arabic'
-import { useFetch } from '@vueuse/core'
-
-const { params } = useRoute()
-const { isFetching, data: category, error } = useFetch(`/data/azkar/${params.category}.json`).json().get()
+const categoryId = useRouteParams('category')
+const { isFetching, data: category, error } = useFetch(`/data/azkar/${categoryId.value}.json`).json().get()
 </script>
 
 <template>

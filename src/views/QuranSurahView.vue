@@ -1,16 +1,17 @@
 <script setup>
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink } from 'vue-router'
 import { IconChevronLeft } from '@tabler/icons-vue'
 import { matchNumber, toArabicNumber } from '@/utilities/arabic'
 import { useFetch } from '@vueuse/core'
+import { useRouteParams } from '@vueuse/router'
 
 import PageLayout from '@/components/Layout/PageLayout.vue'
 import Heading from '@/components/Heading.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 
-const { params } = useRoute()
-const { isFetching, data: surah, error } = useFetch(`https://api.alquran.cloud/v1/surah/${params.surah}`).json().get()
+const surahId = useRouteParams('surah')
+const { isFetching, data: surah, error } = useFetch(`https://api.alquran.cloud/v1/surah/${surahId.value}`).json().get()
 </script>
 
 <template>

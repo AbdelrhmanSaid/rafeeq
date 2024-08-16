@@ -1,10 +1,9 @@
 <script setup>
+import { ref } from 'vue'
+import { toArabicNumber } from '@/utilities/arabic'
 import { IconRefreshDot } from '@tabler/icons-vue'
 
 import PageLayout from '@/components/Layout/PageLayout.vue'
-
-import { ref } from 'vue'
-import { toArabicNumber } from '@/utilities/arabic'
 import Heading from '@/components/Heading.vue'
 
 const sebha = ref(0)
