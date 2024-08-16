@@ -35,12 +35,11 @@ const sebha = ref(0)
 .sebha-btn {
   width: 150px;
   height: 150px;
-  border-radius: 50%;
-  background-color: #fff;
+  background-color: var(--bs-body-bg);
   color: var(--bs-primary);
   border: 1px solid var(--bs-primary);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
+  border-radius: 50%;
+  transition: transform 150ms;
 
   &:hover {
     transform: scale(1.1);
