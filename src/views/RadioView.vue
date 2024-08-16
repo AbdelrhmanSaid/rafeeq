@@ -2,7 +2,6 @@
 import { useRadioStore } from '@/stores/radio'
 import { IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
 import { useSearch } from '@/composables/search'
-import { toArabicNumber } from '@/utilities/arabic'
 
 import PageLayout from '@/components/Layout/PageLayout.vue'
 import Heading from '@/components/Heading.vue'
@@ -31,7 +30,7 @@ const radio = useRadioStore()
         :class="{ active: radio.station === station.url }"
       >
         <div class="d-flex justify-content-between align-items-center">
-          <span>{{ toArabicNumber(station.id) }}. {{ station.name }}</span>
+          <span>{{ station.id }}. {{ station.name }}</span>
 
           <button class="btn btn-flat stretched-link" @click="radio.stop()" v-if="radio.station === station.url">
             <IconPlayerPause size="1.25rem" />

@@ -1,7 +1,6 @@
 <script setup>
 import { useCoordinatesStore } from '@/stores/coordinates'
-import { useFetch } from '@vueuse/core'
-import { to12HourFormat } from '@/utilities/arabic'
+import { useFetch, useDateFormat } from '@vueuse/core'
 
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
@@ -16,7 +15,7 @@ const timingsMap = {
 
 const store = useCoordinatesStore()
 const today = `${new Date().getDate()}-${new Date().getMonth() + 1}-${new Date().getFullYear()}`
-const endpoint = `https://api.aladhan.com/v1/timings/${today}?latitude=${store.latitude}&longitude=${store.longitude}`
+const endpoint = `https://api.aladhan.com/v1/timings/${today}?latitude=${store.latitude}&longitude=${store.longitude}&iso8601=true`
 
 const { isFetching, data: timings, error } = useFetch(endpoint).json().get()
 </script>
@@ -34,7 +33,7 @@ const { isFetching, data: timings, error } = useFetch(endpoint).json().get()
     <div class="timings" v-else-if="timings">
       <div class="item" v-for="(timing, key) in timingsMap" :key="key">
         <div class="item-title">{{ timing }}</div>
-        <div class="item-time">{{ to12HourFormat(timings.data.timings[key]) }}</div>
+        <div class="item-time">{{ useDateFormat(timings.data.timings[key], 'hh:mm A') }}</div>
       </div>
     </div>
   </div>

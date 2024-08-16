@@ -2,7 +2,6 @@
 import { RouterLink } from 'vue-router'
 import { IconChevronLeft } from '@tabler/icons-vue'
 import { useSearch } from '@/composables/search'
-import { toArabicNumber, matchNumber } from '@/utilities/arabic'
 
 import PageLayout from '@/components/Layout/PageLayout.vue'
 import Heading from '@/components/Heading.vue'
@@ -28,12 +27,8 @@ const { search, filtered } = useSearch(surahs, ['name'])
       <li v-for="surah in filtered" :key="surah.id" class="list-group-item list-group-item-action py-3">
         <div class="d-flex justify-content-between align-items-center">
           <p class="d-flex flex-column m-0">
-            <span>{{ toArabicNumber(surah.id) }}. {{ surah.name }}</span>
-            <small>
-              {{ toArabicNumber(surah.numberOfAyahs) }} {{ matchNumber(surah.numberOfAyahs, 'آية', 'آيات') }}
-              -
-              {{ surah.isMeccan ? 'مكية' : 'مدنية' }}
-            </small>
+            <span>{{ surah.id }}. {{ surah.name }}</span>
+            <small> عدد الآيات: {{ surah.numberOfAyahs }} - {{ surah.isMeccan ? 'مكية' : 'مدنية' }} </small>
           </p>
 
           <RouterLink :to="{ name: 'quran-surah', params: { surah: surah.id } }" class="btn btn-flat stretched-link">

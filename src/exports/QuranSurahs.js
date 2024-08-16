@@ -1,7 +1,7 @@
 export default [
   {
     id: 1,
-    name: 'سُورَةُ ٱلْفَاتِحَةِ',
+    name: 'سُورَةُ الْفَاتِحَةِ',
     numberOfAyahs: 7,
     isMeccan: true,
   },

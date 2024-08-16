@@ -1,6 +1,5 @@
 <script setup>
 import { ref } from 'vue'
-import { toArabicNumber } from '@/utilities/arabic'
 import { IconRefreshDot } from '@tabler/icons-vue'
 
 import PageLayout from '@/components/Layout/PageLayout.vue'
@@ -19,7 +18,7 @@ const sebha = ref(0)
 
     <div class="d-flex align-items-center justify-content-center my-5">
       <button @click="sebha++" class="sebha-btn">
-        <span>{{ toArabicNumber(sebha) }}</span>
+        <span>{{ sebha }}</span>
       </button>
     </div>
 

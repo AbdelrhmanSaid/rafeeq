@@ -1,7 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import { IconChevronLeft } from '@tabler/icons-vue'
-import { matchNumber, toArabicNumber } from '@/utilities/arabic'
 import { useFetch } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
 
@@ -27,13 +26,13 @@ const { isFetching, data: surah, error } = useFetch(`https://api.alquran.cloud/v
     <Heading
       class="text-center"
       :title="surah.data.name"
-      :subtitle="`${toArabicNumber(surah.data.numberOfAyahs)} ${matchNumber(surah.data.numberOfAyahs, 'آية', 'آيات')} - ${surah.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`"
+      :subtitle="`عدد الآيات: ${surah.data.numberOfAyahs} - ${surah.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`"
     />
 
     <div class="ayat mb-4">
       <template v-for="ayah in surah.data.ayahs" :key="ayah.number">
         <span class="ayah font-quran">{{ ayah.text }}</span>
-        <span class="ayah-number font-quran">﴿{{ toArabicNumber(ayah.numberInSurah) }}﴾</span>
+        <span class="ayah-number font-quran">﴿{{ ayah.numberInSurah }}﴾</span>
       </template>
     </div>
 

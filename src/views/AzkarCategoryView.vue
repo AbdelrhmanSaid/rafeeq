@@ -1,7 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import { IconChevronLeft } from '@tabler/icons-vue'
-import { matchNumber, toArabicNumber } from '@/utilities/arabic'
 import { useFetch } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
 
@@ -28,7 +27,7 @@ const { isFetching, data: category, error } = useFetch(`/data/azkar/${categoryId
     <Heading
       class="mb-4"
       :title="category.meta.name"
-      :subtitle="`باب ${category.meta.name}، عدد الأذكار في هذا الباب ${toArabicNumber(category.content.length)} ${matchNumber(category.content.length, 'ذكر', 'أذكار')}.`"
+      :subtitle="category.meta.description"
     />
 
     <ZekrCard
