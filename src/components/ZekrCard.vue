@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineProps } from 'vue'
+import { ref } from 'vue'
 import { toArabicNumber } from '@/utilities/arabic'
 
 defineProps(['text', 'repeat', 'reference', 'benefit'])

@@ -1,14 +1,16 @@
 <script setup>
 import PageLayout from '@/components/Layout/PageLayout.vue'
 import PrayerTimes from '@/components/PrayerTimes.vue'
+import Heading from '@/components/Heading.vue'
 </script>
 
 <template>
   <PageLayout>
-    <div class="mb-4">
-      <h1>مواقيت الصلاة</h1>
-      <p class="lead">سُئِلَ رسولُ اللهِ صلى الله عليه وسلم أيُّ الأعمالِ أفضلُ؟ قال: الصلاةُ في أولِ وقتِها.</p>
-    </div>
+    <Heading
+      class="mb-4"
+      title="مواقيت الصلاة"
+      subtitle="سُئِلَ رسولُ اللهِ صلى الله عليه وسلم أيُّ الأعمالِ أفضلُ؟ قال: الصلاةُ في أولِ وقتِها."
+    />
 
     <PrayerTimes />
   </PageLayout>

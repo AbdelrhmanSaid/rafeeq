@@ -4,6 +4,7 @@ import { RouterLink, useRoute } from 'vue-router'
 import { IconChevronLeft } from '@tabler/icons-vue'
 
 import PageLayout from '@/components/Layout/PageLayout.vue'
+import Heading from '@/components/Heading.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import ZekrCard from '@/components/ZekrCard.vue'
@@ -43,14 +44,11 @@ async function fetchData() {
   </PageLayout>
 
   <PageLayout v-else>
-    <div class="mb-4">
-      <h1>{{ toArabicNumber(category.meta.id) }}. {{ category.meta.name }}</h1>
-      <p class="lead">
-        باب {{ category.meta.name }}، عدد الأذكار في هذا الباب
-        {{ toArabicNumber(category.content.length) }}
-        {{ matchNumber(category.content.length, 'ذكر', 'أذكار') }}.
-      </p>
-    </div>
+    <Heading
+      class="mb-4"
+      :title="category.meta.name"
+      :subtitle="`باب ${category.meta.name}، عدد الأذكار في هذا الباب ${toArabicNumber(category.content.length)} ${matchNumber(category.content.length, 'ذكر', 'أذكار')}.`"
+    />
 
     <ZekrCard
       class="mb-3"

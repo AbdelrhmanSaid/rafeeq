@@ -3,6 +3,7 @@ import { RouterLink } from 'vue-router'
 import { IconChevronLeft } from '@tabler/icons-vue'
 
 import PageLayout from '@/components/Layout/PageLayout.vue'
+import Heading from '@/components/Heading.vue'
 import EmptyState from '@/components/EmptyState.vue'
 
 import surahs from '@/exports/QuranSurahs.js'
@@ -14,16 +15,14 @@ const { search, filtered } = useSearch(surahs, ['name'])
 
 <template>
   <PageLayout>
-    <div class="mb-4">
-      <div>
-        <h1>القرآن الكريم</h1>
-        <p class="lead">إن له لحلاوة، وإن عليه لطلاوة، وإن أعلاه لمثمر، وإن أسفله لمغدق، وإنه يعلو ولا يعلى عليه.</p>
-      </div>
+    <Heading
+      title="القرآن الكريم"
+      subtitle="إن له لحلاوة، وإن عليه لطلاوة، وإن أعلاه لمثمر، وإن أسفله لمغدق، وإنه يعلو ولا يعلى عليه."
+    />
 
-      <div class="form-floating">
-        <input v-model="search" type="text" class="form-control" placeholder="ابحث بالسورة" />
-        <label>تبحث عن سورة معينة؟</label>
-      </div>
+    <div class="form-floating mb-4">
+      <input v-model="search" type="text" class="form-control" placeholder="ابحث بالسورة" />
+      <label>تبحث عن سورة معينة؟</label>
     </div>
 
     <ul class="list-group">

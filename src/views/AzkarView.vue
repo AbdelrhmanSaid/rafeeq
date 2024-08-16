@@ -3,6 +3,7 @@ import { RouterLink } from 'vue-router'
 import { IconChevronLeft } from '@tabler/icons-vue'
 
 import PageLayout from '@/components/Layout/PageLayout.vue'
+import Heading from '@/components/Heading.vue'
 import EmptyState from '@/components/EmptyState.vue'
 
 import categories from '@/exports/AzkarCategories.js'
@@ -14,18 +15,14 @@ import { toArabicNumber, matchNumber } from '@/utilities/arabic'
 
 <template>
   <PageLayout>
-    <div class="mb-4">
-      <div>
-        <h1>الأذكار</h1>
-        <p class="lead">
-          هناك {{ toArabicNumber(categories.length) }} {{ matchNumber(categories.length, 'باب', 'أبواب') }} من الأذكار.
-        </p>
-      </div>
+    <Heading
+      title="الأذكار"
+      :subtitle="`هناك ${toArabicNumber(categories.length)} ${matchNumber(categories.length, 'باب', 'أبواب')} من الأذكار.`"
+    />
 
-      <div class="form-floating">
-        <input v-model="search" type="text" class="form-control" placeholder="ابحث عن الباب" />
-        <label>تبحث عن باب معين؟</label>
-      </div>
+    <div class="form-floating mb-4">
+      <input v-model="search" type="text" class="form-control" placeholder="ابحث عن الباب" />
+      <label>تبحث عن باب معين؟</label>
     </div>
 
     <ul class="list-group">

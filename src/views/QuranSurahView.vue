@@ -5,6 +5,7 @@ import { IconChevronLeft } from '@tabler/icons-vue'
 import { matchNumber, toArabicNumber } from '@/utilities/arabic'
 
 import PageLayout from '@/components/Layout/PageLayout.vue'
+import Heading from '@/components/Heading.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 
@@ -42,14 +43,11 @@ async function fetchData() {
   </PageLayout>
 
   <PageLayout class="quran-page" v-else>
-    <div class="mb-4 text-center">
-      <h1>{{ toArabicNumber(surah.number) }}. {{ surah.name }}</h1>
-      <p class="lead">
-        {{ toArabicNumber(surah.numberOfAyahs) }} {{ matchNumber(surah.numberOfAyahs, 'آية', 'آيات') }}
-        -
-        {{ surah.revelationType === 'Meccan' ? 'مكية' : 'مدنية' }}
-      </p>
-    </div>
+    <Heading
+      class="text-center"
+      :title="surah.name"
+      :subtitle="`${toArabicNumber(surah.numberOfAyahs)} ${matchNumber(surah.numberOfAyahs, 'آية', 'آيات')} - ${surah.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`"
+    />
 
     <div class="ayat mb-4">
       <template v-for="ayah in surah.ayahs" :key="ayah.number">
