@@ -14,10 +14,13 @@ const timingsMap = {
 }
 
 const store = useCoordinatesStore()
-const today = `${new Date().getDate()}-${new Date().getMonth() + 1}-${new Date().getFullYear()}`
-const endpoint = `https://api.aladhan.com/v1/timings/${today}?latitude=${store.latitude}&longitude=${store.longitude}&iso8601=true`
 
-const { isFetching, data: timings, error } = useFetch(endpoint).json().get()
+if (store.latitude != 0 && store.longitude != 0) {
+  const today = `${new Date().getDate()}-${new Date().getMonth() + 1}-${new Date().getFullYear()}`
+  const endpoint = `https://api.aladhan.com/v1/timings/${today}?latitude=${store.latitude}&longitude=${store.longitude}&iso8601=true`
+
+  const { isFetching, data: timings, error } = useFetch(endpoint).json().get()
+}
 </script>
 
 <template>
