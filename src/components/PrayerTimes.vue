@@ -8,6 +8,7 @@ import ErrorState from '@/components/ErrorState.vue'
 
 const timingsMap = {
   Fajr: 'الفجر',
+  Sunrise: 'الشروق',
   Dhuhr: 'الظهر',
   Asr: 'العصر',
   Maghrib: 'المغرب',
@@ -60,39 +61,46 @@ const { isFetching, data: timings, error } = useFetch(endpoint, options).json().
     <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
   </div>
 
-  <div class="timings" v-else-if="timings">
-    <div class="item" v-for="(timing, key) in timingsMap" :key="key">
-      <div class="item-title">{{ timing }}</div>
+  <table class="table table-bordered text-center" v-else-if="timings">
+    <thead>
+      <tr>
+        <th v-for="(value, key) in timingsMap" :key="key">{{ value }}</th>
+      </tr>
+    </thead>
 
-      <div class="item-time">
-        {{ useDateFormat(timings.data.timings[key], 'hh:mm A').value.replace('AM', 'ص').replace('PM', 'م') }}
-      </div>
-    </div>
-  </div>
+    <tbody>
+      <tr>
+        <td v-for="(value, key) in timingsMap" :key="key" :data-label="value">
+          {{ useDateFormat(timings.data.timings[key], 'hh:mm A').value.replace('AM', 'ص').replace('PM', 'م') }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 
 <style lang="scss" scoped>
-.timings {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-
-  .item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    border: 1px solid var(--bs-border-color);
-    border-radius: 0.25rem;
-
-    .item-title {
-      font-size: 1.25rem;
-      font-weight: 500;
+@media (max-width: 768px) {
+  table {
+    th {
+      display: none;
     }
 
-    .item-time {
-      font-size: 1.5rem;
+    td {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      border-bottom: 1px solid var(--bs-border-color);
+
+      &:before {
+        content: attr(data-label);
+        font-weight: bold;
+        display: block;
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
     }
   }
 }

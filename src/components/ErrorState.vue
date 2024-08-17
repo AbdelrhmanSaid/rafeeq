@@ -1,5 +1,13 @@
 <script setup>
-defineProps(['code', 'message'])
+defineProps({
+  code: {
+    type: Number,
+  },
+  message: {
+    type: String,
+    default: 'حدث خطأ، برجاء المحاولة في وقت لاحق.',
+  },
+})
 </script>
 
 <template>

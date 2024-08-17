@@ -1,7 +1,22 @@
 <script setup>
 import { ref } from 'vue'
 
-defineProps(['text', 'repeat', 'reference', 'benefit'])
+defineProps({
+  text: {
+    type: String,
+    required: true,
+  },
+  repeat: {
+    type: Number,
+    default: 1,
+  },
+  reference: {
+    type: String,
+  },
+  benefit: {
+    type: String,
+  },
+})
 
 const count = ref(0)
 </script>
