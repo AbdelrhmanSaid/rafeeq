@@ -78,4 +78,10 @@ const count = ref(0)
     line-height: 2;
   }
 }
+
+@media screen and (max-width: 992px) {
+  .zekr-card > .row {
+    flex-direction: column-reverse;
+  }
+}
 </style>
