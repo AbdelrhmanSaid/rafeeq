@@ -11,6 +11,7 @@ import {
   IconSparkles,
   IconRadio,
   IconDotsCircleHorizontal,
+  IconBrandTelegram,
 } from '@tabler/icons-vue'
 
 import logo from '@/assets/images/logo.svg'
@@ -84,6 +85,13 @@ const radio = useRadioStore()
                 <IconMoonStars class="me-2" size="1.25rem" />
                 <span>الوضع الداكن</span>
               </span>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="https://t.me/rafeeqme" target="_blank" class="nav-link">
+              <IconBrandTelegram class="me-2" size="1.25rem" />
+              <span>قناة التليجرام</span>
             </a>
           </li>
         </ul>
