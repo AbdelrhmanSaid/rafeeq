@@ -60,7 +60,8 @@ const count = ref(0)
     font-size: 1.25rem;
     border: none;
 
-    background: radial-gradient(closest-side, var(--bs-body-bg) 79%, transparent 80% 100%),
+    background:
+      radial-gradient(closest-side, var(--bs-body-bg) 79%, transparent 80% 100%),
       conic-gradient(var(--bs-primary) calc(var(--progress) * 100%), var(--bs-primary-bg-subtle) 0);
 
     &::before {

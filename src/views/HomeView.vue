@@ -16,12 +16,7 @@ import SunnahPrayers from '@/components/SunnahPrayers.vue'
 
     <PrayerTimes class="mb-5" />
 
-    <Heading
-      :size="2"
-      class="mb-4"
-      title="السنن الرواتب"
-      subtitle="وما يزال عبدي يتقرب إلي بالنوافل حتى أحبه."
-    />
+    <Heading :size="2" class="mb-4" title="السنن الرواتب" subtitle="وما يزال عبدي يتقرب إلي بالنوافل حتى أحبه." />
 
     <SunnahPrayers class="mb-4" />
   </PageLayout>
