@@ -6,13 +6,39 @@ import { useFetch, useDateFormat } from '@vueuse/core'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 
+// Import prayer icons
+import Fajr from './icons/Prayers/Fajr.vue'
+import Shurooq from './icons/Prayers/Shurooq.vue'
+import Duhur from './icons/Prayers/Duhur.vue'
+import Asr from './icons/Prayers/Asr.vue'
+import Maghrib from './icons/Prayers/Maghrib.vue'
+import Ishaa from './icons/Prayers/Ishaa.vue'
+
 const timingsMap = {
-  Fajr: 'الفجر',
-  Sunrise: 'الشروق',
-  Dhuhr: 'الظهر',
-  Asr: 'العصر',
-  Maghrib: 'المغرب',
-  Isha: 'العشاء',
+  Fajr: {
+    label: 'الفجر',
+    icon: Fajr,
+  },
+  Sunrise: {
+    label: 'الشروق',
+    icon: Shurooq,
+  },
+  Dhuhr: {
+    label: 'الظهر',
+    icon: Duhur,
+  },
+  Asr: {
+    label: 'العصر',
+    icon: Asr,
+  },
+  Maghrib: {
+    label: 'المغرب',
+    icon: Maghrib,
+  },
+  Isha: {
+    label: 'العشاء',
+    icon: Ishaa,
+  },
 }
 
 // Get the coordinates store
@@ -61,47 +87,22 @@ const { isFetching, data: timings, error } = useFetch(endpoint, options).json().
     <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
   </div>
 
-  <table class="table table-bordered text-center" v-else-if="timings">
-    <thead>
-      <tr>
-        <th v-for="(value, key) in timingsMap" :key="key">{{ value }}</th>
-      </tr>
-    </thead>
+  <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2" v-else-if="timings">
+    <div v-for="(timing, key) in timingsMap" :key="key">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <component :is="timing.icon" />
+            <h5 class="card-title mb-0">{{ timing.label }}</h5>
+          </div>
 
-    <tbody>
-      <tr>
-        <td v-for="(value, key) in timingsMap" :key="key" :data-label="value">
-          {{ useDateFormat(timings.data.timings[key], 'hh:mm A').value.replace('AM', 'ص').replace('PM', 'م') }}
-        </td>
-      </tr>
-    </tbody>
-  </table>
+          <p class="card-text">
+            {{
+              useDateFormat(timings.data.timings[key], 'hh:mm A').value.replace('AM', 'صباحًا').replace('PM', 'مساءًا')
+            }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
-
-<style lang="scss" scoped>
-@media (max-width: 768px) {
-  table {
-    th {
-      display: none;
-    }
-
-    td {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1rem;
-      border-bottom: 1px solid var(--bs-border-color);
-
-      &:before {
-        content: attr(data-label);
-        font-weight: bold;
-        display: block;
-      }
-
-      &:last-child {
-        border-bottom: none;
-      }
-    }
-  }
-}
-</style>
