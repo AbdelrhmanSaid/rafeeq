@@ -7,7 +7,7 @@ import SunnahPrayers from '@/components/SunnahPrayers.vue'
 
 <template>
   <Page>
-    <Heading :size="2" class="mb-4" title="مواقيت الصلاة" subtitle="أفضل الأعمال الصلاةُ في أولِ وقتِها." />
+    <Heading :size="2" class="mb-4" title="مواقيت الصلاة" subtitle="إن الصلاة كانت على المؤمنين كتابا موقوتا." />
     <PrayerTimes class="mb-5" />
 
     <Heading :size="2" class="mb-4" title="السنن الرواتب" subtitle="وما يزال عبدي يتقرب إلي بالنوافل حتى أحبه." />
