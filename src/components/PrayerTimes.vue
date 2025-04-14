@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useCoordinatesStore } from '@/stores/coordinates'
 import { useFetch, useDateFormat } from '@vueuse/core'
 
@@ -68,6 +68,63 @@ const options = {
 
 // Start fetching the data
 const { isFetching, data: timings, error } = useFetch(endpoint, options).json().get()
+
+// Current Time and Active Prayer
+const now = ref(new Date())
+let timer = null
+
+onMounted(() => {
+  timer = setInterval(() => (now.value = new Date()), 60 * 1000)
+})
+
+onUnmounted(() => {
+  if (timer) {
+    clearInterval(timer)
+  }
+})
+
+const currentPrayerKey = computed(() => {
+  if (!timings.value?.data?.timings) {
+    return null
+  }
+
+  const prayerTimes = timings.value.data.timings
+  const currentTime = now.value.getTime()
+
+  // Get timestamps for each prayer
+  const fajrTime = new Date(prayerTimes.Fajr).getTime()
+  const sunriseTime = new Date(prayerTimes.Sunrise).getTime()
+  const dhuhrTime = new Date(prayerTimes.Dhuhr).getTime()
+  const asrTime = new Date(prayerTimes.Asr).getTime()
+  const maghribTime = new Date(prayerTimes.Maghrib).getTime()
+  const ishaTime = new Date(prayerTimes.Isha).getTime()
+
+  if (currentTime >= fajrTime && currentTime < sunriseTime) {
+    return 'Fajr'
+  }
+
+  if (currentTime >= sunriseTime && currentTime < dhuhrTime) {
+    return 'Sunrise'
+  }
+
+  if (currentTime >= dhuhrTime && currentTime < asrTime) {
+    return 'Dhuhr'
+  }
+
+  if (currentTime >= asrTime && currentTime < maghribTime) {
+    return 'Asr'
+  }
+
+  if (currentTime >= maghribTime && currentTime < ishaTime) {
+    return 'Maghrib'
+  }
+
+  if (currentTime >= ishaTime || currentTime < fajrTime) {
+    return 'Isha'
+  }
+
+  return null
+})
 </script>
 
 <template>
@@ -89,7 +146,7 @@ const { isFetching, data: timings, error } = useFetch(endpoint, options).json().
 
   <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2" v-else-if="timings">
     <div v-for="(timing, key) in timingsMap" :key="key">
-      <div class="card">
+      <div class="card" :class="{ active: key === currentPrayerKey }">
         <div class="card-body">
           <div class="d-flex align-items-center gap-3 mb-3">
             <component :is="timing.icon" />
@@ -106,3 +163,10 @@ const { isFetching, data: timings, error } = useFetch(endpoint, options).json().
     </div>
   </div>
 </template>
+
+<style scoped>
+.card.active {
+  background-color: #f0e4d7;
+  border-color: #937a58;
+}
+</style>
