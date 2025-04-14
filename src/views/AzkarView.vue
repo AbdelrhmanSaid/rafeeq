@@ -3,7 +3,7 @@ import { RouterLink } from 'vue-router'
 import { IconChevronLeft } from '@tabler/icons-vue'
 import { useSearch } from '@/composables/search'
 
-import PageLayout from '@/components/Layout/PageLayout.vue'
+import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import categories from '@/exports/AzkarCategories.js'
@@ -12,7 +12,7 @@ const { search, filtered } = useSearch(categories, ['name'])
 </script>
 
 <template>
-  <PageLayout>
+  <Page>
     <Heading title="الأذكار" subtitle="اختر الباب الذي ترغب في البحث عن الأذكار المتعلقة به" />
 
     <div class="form-floating mb-4">
@@ -38,5 +38,5 @@ const { search, filtered } = useSearch(categories, ['name'])
         <EmptyState />
       </li>
     </ul>
-  </PageLayout>
+  </Page>
 </template>

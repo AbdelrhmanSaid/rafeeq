@@ -4,7 +4,7 @@ import { IconChevronLeft } from '@tabler/icons-vue'
 import { useFetch } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
 
-import PageLayout from '@/components/Layout/PageLayout.vue'
+import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
@@ -15,15 +15,15 @@ const { isFetching, data: category, error } = useFetch(`/data/azkar/${categoryId
 </script>
 
 <template>
-  <PageLayout v-if="isFetching">
+  <Page v-if="isFetching">
     <LoadingState />
-  </PageLayout>
+  </Page>
 
-  <PageLayout v-else-if="error">
+  <Page v-else-if="error">
     <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
-  </PageLayout>
+  </Page>
 
-  <PageLayout v-else-if="category">
+  <Page v-else-if="category">
     <Heading class="mb-4" :title="category.meta.name" :subtitle="category.meta.description" />
 
     <ZekrCard
@@ -40,5 +40,5 @@ const { isFetching, data: category, error } = useFetch(`/data/azkar/${categoryId
       <span>العودة للقائمة الرئيسية</span>
       <IconChevronLeft size="1.25rem" class="ms-2" />
     </RouterLink>
-  </PageLayout>
+  </Page>
 </template>

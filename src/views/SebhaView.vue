@@ -2,14 +2,14 @@
 import { ref } from 'vue'
 import { IconRefreshDot } from '@tabler/icons-vue'
 
-import PageLayout from '@/components/Layout/PageLayout.vue'
+import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
 
 const sebha = ref(0)
 </script>
 
 <template>
-  <PageLayout>
+  <Page>
     <Heading
       class="mb-4"
       title="السبحة الإلكترونية"
@@ -28,7 +28,7 @@ const sebha = ref(0)
         <span>إعادة العداد</span>
       </button>
     </div>
-  </PageLayout>
+  </Page>
 </template>
 
 <style lang="scss" scoped>

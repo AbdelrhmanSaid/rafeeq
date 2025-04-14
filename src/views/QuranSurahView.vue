@@ -4,7 +4,7 @@ import { IconChevronLeft } from '@tabler/icons-vue'
 import { useFetch } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
 
-import PageLayout from '@/components/Layout/PageLayout.vue'
+import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
@@ -14,15 +14,15 @@ const { isFetching, data: surah, error } = useFetch(`https://api.alquran.cloud/v
 </script>
 
 <template>
-  <PageLayout v-if="isFetching">
+  <Page v-if="isFetching">
     <LoadingState />
-  </PageLayout>
+  </Page>
 
-  <PageLayout v-else-if="error">
+  <Page v-else-if="error">
     <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
-  </PageLayout>
+  </Page>
 
-  <PageLayout class="quran-page" v-else-if="surah">
+  <Page class="quran-page" v-else-if="surah">
     <Heading
       class="text-center"
       :title="surah.data.name"
@@ -39,7 +39,7 @@ const { isFetching, data: surah, error } = useFetch(`https://api.alquran.cloud/v
     <RouterLink :to="{ name: 'quran' }" class="btn btn-primary">
       <IconChevronLeft size="1.25rem" />
     </RouterLink>
-  </PageLayout>
+  </Page>
 </template>
 
 <style lang="scss" scoped>

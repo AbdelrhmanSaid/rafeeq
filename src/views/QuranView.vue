@@ -3,7 +3,7 @@ import { RouterLink } from 'vue-router'
 import { IconChevronLeft } from '@tabler/icons-vue'
 import { useSearch } from '@/composables/search'
 
-import PageLayout from '@/components/Layout/PageLayout.vue'
+import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import surahs from '@/exports/QuranSurahs.js'
@@ -12,7 +12,7 @@ const { search, filtered } = useSearch(surahs, ['name'])
 </script>
 
 <template>
-  <PageLayout>
+  <Page>
     <Heading
       title="القرآن الكريم"
       subtitle="إن له لحلاوة، وإن عليه لطلاوة، وإن أعلاه لمثمر، وإن أسفله لمغدق، وإنه يعلو ولا يعلى عليه."
@@ -41,5 +41,5 @@ const { search, filtered } = useSearch(surahs, ['name'])
         <EmptyState />
       </li>
     </ul>
-  </PageLayout>
+  </Page>
 </template>

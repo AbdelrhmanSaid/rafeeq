@@ -3,7 +3,7 @@ import { useRadioStore } from '@/stores/radio'
 import { IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
 import { useSearch } from '@/composables/search'
 
-import PageLayout from '@/components/Layout/PageLayout.vue'
+import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import radios from '@/exports/Radios.js'
@@ -14,7 +14,7 @@ const radio = useRadioStore()
 </script>
 
 <template>
-  <PageLayout>
+  <Page>
     <Heading title="الإذاعة" subtitle="استمع لإذاعات القرآن الكريم المختلفة حول العالم" />
 
     <div class="form-floating mb-4">
@@ -46,7 +46,7 @@ const radio = useRadioStore()
         <EmptyState />
       </li>
     </ul>
-  </PageLayout>
+  </Page>
 </template>
 
 <style lang="scss" scoped>
