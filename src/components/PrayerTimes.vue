@@ -38,7 +38,7 @@ const store = useCoordinatesStore()
 // API endpoint
 const endpoint = computed(() => {
   if (!store.latitude || !store.longitude) return null
-  const today = new Date().toLocaleDateString('en-CA') // Format: YYYY-MM-DD
+  const today = new Date().toISOString().split('T')[0].split('-').reverse().join('-')
   return `https://api.aladhan.com/v1/timings/${today}?latitude=${store.latitude}&longitude=${store.longitude}&iso8601=true`
 })
 
