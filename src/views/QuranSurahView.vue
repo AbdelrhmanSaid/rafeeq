@@ -96,6 +96,10 @@ const ayat = computed(() => {
       margin-bottom: 1rem;
     }
 
+    .ayah:hover {
+      background-color: var(--bs-gray-200);
+    }
+
     .ayah-number {
       padding: 0.25rem 0.5rem;
       color: var(--bs-gray-600);
