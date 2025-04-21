@@ -27,7 +27,7 @@ const ayat = computed(() => {
       ...ayah,
 
       // Remove the Basmala from the first Ayah of other Surahs
-      text: ayah.numberInSurah === 1 ? ayah.text.replace('بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ', '') : ayah.text,
+      text: (ayah.numberInSurah === 1 ? ayah.text.replace('بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ', '') : ayah.text).trim(),
     }))
   }
 
