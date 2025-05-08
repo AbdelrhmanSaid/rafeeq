@@ -83,8 +83,14 @@ const nextPrayerKey = computed(() => {
 const remainingTime = computed(() => {
   if (!timings.value?.data?.timings || !nextPrayerKey.value) return null
 
-  const nextPrayerTime = new Date(timings.value.data.timings[nextPrayerKey.value])
+  let nextPrayerTime = new Date(timings.value.data.timings[nextPrayerKey.value])
   const currentTime = now.value
+
+  // If next prayer time is before current time, add 1 day (24 hours)
+  if (nextPrayerTime < currentTime) {
+    nextPrayerTime.setDate(nextPrayerTime.getDate() + 1)
+  }
+
   const diff = nextPrayerTime - currentTime
 
   const hours = Math.floor(diff / (1000 * 60 * 60))
