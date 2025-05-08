@@ -122,12 +122,12 @@ const remainingTime = computed(() => {
             </span>
             <h5 class="card-title mb-0">{{ timing.label }}</h5>
           </div>
-          <p class="card-text d-flex justify-content-between align-items-center">
+          <p class="card-text d-flex justify-content-between align-items-end">
             <span>{{ formatTime(timings.data.timings[key]) }}</span>
 
-            <span v-if="key === nextPrayerKey">
+            <small v-if="key === nextPrayerKey">
               {{ remainingTime }}
-            </span>
+            </small>
           </p>
         </div>
       </div>
