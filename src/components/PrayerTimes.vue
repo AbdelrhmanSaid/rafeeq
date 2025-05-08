@@ -18,8 +18,8 @@ import Ishaa from '@/components/icons/Prayers/Ishaa.vue'
 const now = ref(new Date())
 let timer = null
 
-// Update current time every minute
-onMounted(() => (timer = setInterval(() => (now.value = new Date()), 60 * 1000)))
+// Update current time every second
+onMounted(() => (timer = setInterval(() => (now.value = new Date()), 1000)))
 onUnmounted(() => timer && clearInterval(timer))
 
 // Prayer timings map
@@ -55,7 +55,7 @@ const { isFetching, data: timings, error } = useFetch(endpoint, options).json().
 
 // Format time
 const formatTime = (time) => {
-  return useDateFormat(time, 'hh:mm A').value.replace('AM', 'صباحًا').replace('PM', 'مساءً')
+  return useDateFormat(time, 'hh:mm A').value.replace('AM', 'ص').replace('PM', 'م')
 }
 
 // Determine the next prayer
@@ -77,6 +77,21 @@ const nextPrayerKey = computed(() => {
   }
 
   return currentTime >= prayers[prayers.length - 1].time || currentTime < prayers[0].time ? prayers[0].name : null
+})
+
+// Calculate remaining time until next prayer
+const remainingTime = computed(() => {
+  if (!timings.value?.data?.timings || !nextPrayerKey.value) return null
+
+  const nextPrayerTime = new Date(timings.value.data.timings[nextPrayerKey.value])
+  const currentTime = now.value
+  const diff = nextPrayerTime - currentTime
+
+  const hours = Math.floor(diff / (1000 * 60 * 60))
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
 })
 </script>
 
@@ -102,10 +117,18 @@ const nextPrayerKey = computed(() => {
       <div class="card" :class="{ active: key === nextPrayerKey }">
         <div class="card-body">
           <div class="d-flex align-items-center gap-3 mb-3">
-            <component :is="timing.icon" />
+            <span class="icon-container">
+              <component :is="timing.icon" />
+            </span>
             <h5 class="card-title mb-0">{{ timing.label }}</h5>
           </div>
-          <p class="card-text">{{ formatTime(timings.data.timings[key]) }}</p>
+          <p class="card-text d-flex justify-content-between align-items-center">
+            <span>{{ formatTime(timings.data.timings[key]) }}</span>
+
+            <span v-if="key === nextPrayerKey">
+              {{ remainingTime }}
+            </span>
+          </p>
         </div>
       </div>
     </div>
@@ -117,5 +140,13 @@ const nextPrayerKey = computed(() => {
   border-color: var(--bs-primary);
   background-color: var(--bs-primary);
   color: #fff;
+}
+
+.icon-container {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
