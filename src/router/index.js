@@ -50,6 +50,12 @@ const router = createRouter({
     },
 
     {
+      path: '/settings',
+      name: 'settings',
+      component: () => import('@/views/settings/SettingsView.vue'),
+    },
+
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: NotFoundView,

@@ -69,6 +69,7 @@ const radio = useRadioStore()
             </a>
             <ul class="dropdown-menu">
               <li><RouterLink class="dropdown-item" :to="{ name: 'sebha' }">السبحة الإلكترونية</RouterLink></li>
+              <li><RouterLink class="dropdown-item" :to="{ name: 'settings' }">الإعدادات</RouterLink></li>
             </ul>
           </li>
         </ul>
