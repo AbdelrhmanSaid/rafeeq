@@ -1,7 +1,7 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
-import { IconChevronLeft } from '@tabler/icons-vue'
+import { IconChevronLeft, IconPlayerPlay } from '@tabler/icons-vue'
 import { useFetch } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
 
@@ -27,7 +27,10 @@ const ayat = computed(() => {
       ...ayah,
 
       // Remove the Basmala from the first Ayah of other Surahs
-      text: (ayah.numberInSurah === 1 ? ayah.text.replace('بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ', '') : ayah.text).trim(),
+      text: (ayah.numberInSurah === 1
+        ? ayah.text.replace('بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ', '')
+        : ayah.text
+      ).trim(),
     }))
   }
 
@@ -46,9 +49,8 @@ const ayat = computed(() => {
 
   <Page class="quran-page" v-else-if="surah">
     <Heading
-      class="text-center"
       :title="surah.data.name"
-      :subtitle="`عدد الآيات: ${surah.data.numberOfAyahs} - ${surah.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`"
+      :subtitle="`عدد الآيات: ${surah.data.numberOfAyahs} آية - سورة ${surah.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`"
     />
 
     <div class="ayat font-quran mb-4">
@@ -70,8 +72,6 @@ const ayat = computed(() => {
 .quran-page {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   gap: 10px;
   max-width: 700px;
 
