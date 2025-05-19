@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
-    "@tabler/icons-vue": "^3.31.0",
+    "@tabler/icons-vue": "^3.33.0",
     "@vueuse/core": "^13.0.0",
     "@vueuse/router": "^13.0.0",
     "bootstrap": "^5.3.5",
