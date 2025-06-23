@@ -15,7 +15,7 @@
     "@tabler/icons-vue": "^3.31.0",
     "@vueuse/core": "^13.3.0",
     "@vueuse/router": "^13.0.0",
-    "bootstrap": "^5.3.5",
+    "bootstrap": "^5.3.7",
     "nprogress": "^0.2.0",
     "pinia": "^3.0.1",
     "rtlcss": "^4.3.0",
