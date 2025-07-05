@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
-import { IconCalculator, IconCoins, IconWheat, IconShoppingCart, IconGift, IconBuildingStore } from '@tabler/icons-vue'
+import { IconCoins, IconWheat, IconGift, IconBuildingStore } from '@tabler/icons-vue'
 
 const activeTab = ref('money')
 const moneyAmount = ref('')
@@ -215,7 +215,7 @@ const formatCurrency = (num) => {
         <div class="alert alert-light mt-3">
           <h6>شروط زكاة المال:</h6>
           <ul class="mb-0">
-            <li>أن يبلغ النصاب ({{ formatCurrency(moneyNisab) }})</li>
+            <li>أن يبلغ النصاب</li>
             <li>أن يحول عليه الحول الهجري (سنة قمرية)</li>
             <li>أن يكون زائداً عن الحاجات الأساسية</li>
           </ul>
