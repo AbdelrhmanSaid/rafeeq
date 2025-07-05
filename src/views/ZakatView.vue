@@ -14,6 +14,19 @@ const livestockCamels = ref('')
 const cropsAmount = ref('')
 const businessAmount = ref('')
 
+// dynamic gold price and nisab calculations
+const goldPrice = ref('')
+
+const moneyNisab = computed(() => {
+  const price = parseFloat(goldPrice.value)
+  return price && price > 0 ? price * nisabValues.gold : nisabValues.money
+})
+
+const businessNisab = computed(() => {
+  const price = parseFloat(goldPrice.value)
+  return price && price > 0 ? price * nisabValues.gold : nisabValues.business
+})
+
 // Nisab values (minimum thresholds)
 const nisabValues = {
   money: 2156.25, // Equivalent to 85 grams of gold in USD (approximate)
@@ -38,7 +51,7 @@ const zakatRates = {
 // Money/Savings Zakat calculation
 const moneyZakat = computed(() => {
   const amount = parseFloat(moneyAmount.value) || 0
-  if (amount < nisabValues.money) return 0
+  if (amount < moneyNisab.value) return 0
   return amount * zakatRates.money
 })
 
@@ -104,7 +117,7 @@ const cropsZakat = computed(() => {
 // Business Zakat calculation
 const businessZakat = computed(() => {
   const amount = parseFloat(businessAmount.value) || 0
-  return amount < nisabValues.business ? 0 : amount * zakatRates.business
+  return amount < businessNisab.value ? 0 : amount * zakatRates.business
 })
 
 const tabs = [
@@ -160,10 +173,22 @@ const formatCurrency = (num) => {
           زكاة المال والمدخرات
         </h5>
 
-        <div class="row">
+        <div class="row gy-3">
           <div class="col-md-8">
             <div class="mb-3">
-              <label class="form-label">إجمالي المال والمدخرات (بالجنيه المصري)</label>
+              <label class="form-label">سعر جرام الذهب (عيار 24) بالجنيه المصري</label>
+              <input
+                v-model="goldPrice"
+                type="number"
+                class="form-control"
+                placeholder="أدخل السعر الحالي"
+                min="0"
+                step="0.01"
+              />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">إجمالي المال والمدخرات</label>
               <input
                 v-model="moneyAmount"
                 type="number"
@@ -172,7 +197,7 @@ const formatCurrency = (num) => {
                 min="0"
                 step="0.01"
               />
-              <div class="form-text">النصاب: {{ formatCurrency(nisabValues.money) }}</div>
+              <div class="form-text" v-if="goldPrice">النصاب: {{ formatCurrency(moneyNisab) }} جنيه مصري</div>
             </div>
           </div>
 
@@ -190,7 +215,7 @@ const formatCurrency = (num) => {
         <div class="alert alert-light mt-3">
           <h6>شروط زكاة المال:</h6>
           <ul class="mb-0">
-            <li>أن يبلغ النصاب ({{ formatCurrency(nisabValues.money) }})</li>
+            <li>أن يبلغ النصاب ({{ formatCurrency(moneyNisab) }})</li>
             <li>أن يحول عليه الحول الهجري (سنة قمرية)</li>
             <li>أن يكون زائداً عن الحاجات الأساسية</li>
           </ul>
@@ -206,7 +231,7 @@ const formatCurrency = (num) => {
           زكاة الذهب
         </h5>
 
-        <div class="row">
+        <div class="row gy-3">
           <div class="col-md-8">
             <div class="mb-3">
               <label class="form-label">وزن الذهب (بالجرام)</label>
@@ -250,7 +275,7 @@ const formatCurrency = (num) => {
           زكاة الفضة
         </h5>
 
-        <div class="row">
+        <div class="row gy-3">
           <div class="col-md-8">
             <div class="mb-3">
               <label class="form-label">وزن الفضة (بالجرام)</label>
@@ -294,7 +319,7 @@ const formatCurrency = (num) => {
           زكاة الأنعام
         </h5>
 
-        <div class="row">
+        <div class="row gy-3">
           <div class="col-md-8">
             <div class="row g-3">
               <div class="col-md-4">
@@ -346,7 +371,7 @@ const formatCurrency = (num) => {
           زكاة الزروع والثمار
         </h5>
 
-        <div class="row">
+        <div class="row gy-3">
           <div class="col-md-8">
             <div class="mb-3">
               <label class="form-label">كمية المحصول (بالكيلوجرام)</label>
@@ -391,8 +416,20 @@ const formatCurrency = (num) => {
           زكاة عروض التجارة
         </h5>
 
-        <div class="row">
+        <div class="row gy-3">
           <div class="col-md-8">
+            <div class="mb-3">
+              <label class="form-label">سعر جرام الذهب (عيار 24) بالجنيه المصري</label>
+              <input
+                v-model="goldPrice"
+                type="number"
+                class="form-control"
+                placeholder="أدخل السعر الحالي"
+                min="0"
+                step="0.01"
+              />
+            </div>
+
             <div class="mb-3">
               <label class="form-label">قيمة البضائع والأصول التجارية (بالجنيه المصري)</label>
               <input
@@ -403,7 +440,7 @@ const formatCurrency = (num) => {
                 min="0"
                 step="0.01"
               />
-              <div class="form-text">النصاب: {{ formatCurrency(nisabValues.business) }}</div>
+              <div class="form-text" v-if="goldPrice">النصاب: {{ formatCurrency(businessNisab) }} جنيه مصري</div>
             </div>
           </div>
 
@@ -434,7 +471,7 @@ const formatCurrency = (num) => {
     <div class="card mt-4">
       <div class="card-body">
         <h5 class="card-title">معلومات مهمة عن الزكاة</h5>
-        <div class="row">
+        <div class="row gy-3">
           <div class="col-md-6">
             <h6>مصارف الزكاة الثمانية:</h6>
             <ul class="mb-0">
