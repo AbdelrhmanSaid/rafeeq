@@ -390,7 +390,9 @@ const formatCurrency = (num) => {
           <div class="col-md-4">
             <div class="alert alert-info">
               <h6 class="alert-heading">مقدار الزكاة</h6>
-              <div class="display-6 text-primary">{{ formatNumber(cropsZakat) }} كجم</div>
+              <div class="display-6 text-primary">
+                {{ formatNumber(cropsZakat) }} ~ {{ formatNumber(cropsZakat * 2) }} كجم
+              </div>
               <small class="text-muted">5% (مطرية) أو 10% (مروية)</small>
             </div>
           </div>
