@@ -50,6 +50,12 @@ const router = createRouter({
     },
 
     {
+      path: '/zakat',
+      name: 'zakat',
+      component: () => import('@/views/ZakatView.vue'),
+    },
+
+    {
       path: '/settings',
       name: 'settings',
       component: () => import('@/views/settings/SettingsView.vue'),
