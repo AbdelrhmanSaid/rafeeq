@@ -62,9 +62,11 @@ const ayat = computed(() => {
       </template>
     </div>
 
-    <RouterLink :to="{ name: 'quran' }" class="btn btn-primary">
-      <IconChevronLeft size="1.25rem" />
-    </RouterLink>
+    <div class="d-flex justify-content-center">
+      <RouterLink :to="{ name: 'quran' }" class="btn btn-primary">
+        <IconChevronLeft size="1.25rem" />
+      </RouterLink>
+    </div>
   </Page>
 </template>
 
