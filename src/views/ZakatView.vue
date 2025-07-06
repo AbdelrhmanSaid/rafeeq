@@ -393,7 +393,7 @@ const formatCurrency = (num) => {
               <div class="display-6 text-primary">
                 {{ formatNumber(cropsZakat) }} ~ {{ formatNumber(cropsZakat * 2) }} كجم
               </div>
-              <small class="text-muted">5% (مطرية) أو 10% (مروية)</small>
+              <small class="text-muted">10% (مطرية) أو 5% (مروية)</small>
             </div>
           </div>
         </div>
