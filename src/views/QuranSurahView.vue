@@ -11,7 +11,7 @@ import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import AudioPlayer from '@/components/AudioPlayer.vue'
 import { useAudioStore } from '@/stores/audio'
-import AudioService from '@/services/audioService'
+import QuranService from '@/services/quran'
 
 const surahId = useRouteParams('surah')
 const { isFetching, data: surah, error } = useFetch(`https://api.alquran.cloud/v1/surah/${surahId.value}`).json().get()
@@ -47,16 +47,13 @@ const ayat = computed(() => {
 
 const loadSurahAudio = async () => {
   if (!surah.value || audioLoading.value) return
-  
+
   try {
     audioLoading.value = true
     audioError.value = null
-    
-    const audioData = await AudioService.getAudioForSurah(
-      surah.value.data.number,
-      audioStore.selectedReciter
-    )
-    
+
+    const audioData = await QuranService.getAudioForSurah(surah.value.data.number, audioStore.selectedReciter)
+
     audioSurah.value = audioData
   } catch (err) {
     console.error('Error loading surah audio:', err)
@@ -70,20 +67,18 @@ const playVerse = (verse) => {
   console.log('playVerse called with:', verse.numberInSurah)
   if (audioSurah.value) {
     // Find the index of this verse in the playlist
-    const verseIndex = audioSurah.value.ayahs.findIndex(
-      ayah => ayah.numberInSurah === verse.numberInSurah
-    )
-    
+    const verseIndex = audioSurah.value.ayahs.findIndex((ayah) => ayah.numberInSurah === verse.numberInSurah)
+
     console.log('Found verse index:', verseIndex)
     console.log('Current playlist length:', audioStore.currentPlaylist.length)
-    
+
     if (verseIndex !== -1) {
       // If playlist doesn't exist, create it first
       if (audioStore.currentPlaylist.length === 0) {
         console.log('Creating playlist...')
         audioStore.playSurah(audioSurah.value)
       }
-      
+
       // Jump to the selected verse and mark for auto-play
       console.log('Jumping to verse and setting autoplay...')
       audioStore.jumpToVerse(verseIndex)
@@ -101,20 +96,23 @@ const playSurah = () => {
 const isCurrentVerse = (verse) => {
   const currentAudio = audioStore.currentAudio
   if (!currentAudio || !surah.value) return false
-  
-  return currentAudio.verseNumber === verse.numberInSurah && 
-         currentAudio.surahName === surah.value.data.name
+
+  return currentAudio.verseNumber === verse.numberInSurah && currentAudio.surahName === surah.value.data.name
 }
 
 onMounted(() => {
   audioStore.initializeStore()
 })
 
-watch(surah, (newSurah) => {
-  if (newSurah) {
-    loadSurahAudio()
-  }
-}, { immediate: true })
+watch(
+  surah,
+  (newSurah) => {
+    if (newSurah) {
+      loadSurahAudio()
+    }
+  },
+  { immediate: true },
+)
 
 watch(audioSurah, (newAudioSurah) => {
   if (newAudioSurah && newAudioSurah.ayahs && newAudioSurah.ayahs.length > 0) {
@@ -124,7 +122,6 @@ watch(audioSurah, (newAudioSurah) => {
     audioStore.currentAudio = null
   }
 })
-
 </script>
 
 <template>
@@ -149,12 +146,13 @@ watch(audioSurah, (newAudioSurah) => {
       <span class="basmallah">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
 
       <template v-for="ayah in ayat" :key="ayah.number">
-        <span 
-          class="ayah clickable-ayah" 
+        <span
+          class="ayah clickable-ayah"
           :class="{ 'current-ayah': isCurrentVerse(ayah) }"
           @click="playVerse(ayah)"
           :title="'تشغيل الآية ' + ayah.numberInSurah"
-        >{{ ayah.text }}</span>
+          >{{ ayah.text }}</span
+        >
         <span class="ayah-number">﴿{{ ayah.numberInSurah }}﴾</span>
       </template>
     </div>
@@ -206,11 +204,11 @@ watch(audioSurah, (newAudioSurah) => {
       transition: background-color 0.2s ease;
       padding: 2px 4px;
       border-radius: 4px;
-      
+
       &:hover {
         background-color: var(--bs-primary-bg-subtle);
       }
-      
+
       &.current-ayah {
         background-color: var(--bs-primary-bg-subtle);
       }

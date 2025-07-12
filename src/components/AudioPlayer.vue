@@ -1,53 +1,3 @@
-<template>
-  <div class="audio-player">
-    <div class="audio-controls">
-      <button 
-        @click="togglePlayPause" 
-        class="btn btn-primary"
-        :disabled="loading"
-      >
-        <IconPlayerPlay v-if="!isPlaying" />
-        <IconPlayerPause v-else />
-      </button>
-      
-      <div class="audio-info">
-        <div class="verse-info" v-if="currentAudio">
-          <span class="surah-name">{{ currentAudio.surahName }}</span>
-          <span class="verse-number">آية {{ currentAudio.verseNumber }}</span>
-        </div>
-        <div class="verse-info" v-else>
-          <span class="surah-name">اضغط على آية للاستماع</span>
-        </div>
-        <div class="reciter-name" v-if="currentAudio">{{ currentAudio.reciterName }}</div>
-      </div>
-      
-      <div class="audio-progress">
-        <div class="progress">
-          <div 
-            class="progress-bar" 
-            :style="{ width: progressPercentage + '%' }"
-          ></div>
-        </div>
-        <div class="time-display">
-          <span>{{ formatTime(currentTime) }}</span>
-          <span>{{ formatTime(duration) }}</span>
-        </div>
-      </div>
-      
-    </div>
-    
-    <audio 
-      ref="audioElement"
-      @loadstart="loading = true"
-      @canplay="loading = false"
-      @timeupdate="updateProgress"
-      @ended="onAudioEnded"
-      @loadedmetadata="onLoadedMetadata"
-      preload="metadata"
-    ></audio>
-  </div>
-</template>
-
 <script setup>
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { useAudioStore } from '@/stores/audio'
@@ -70,7 +20,7 @@ const progressPercentage = computed(() => {
 
 const togglePlayPause = async () => {
   if (!audioElement.value) return
-  
+
   if (isPlaying.value) {
     audioElement.value.pause()
     isPlaying.value = false
@@ -97,7 +47,6 @@ const updateProgress = () => {
   }
 }
 
-
 const onLoadedMetadata = () => {
   if (audioElement.value) {
     duration.value = audioElement.value.duration
@@ -117,31 +66,39 @@ const formatTime = (seconds) => {
   return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 
-watch(currentAudio, (newAudio) => {
-  if (newAudio && audioElement.value) {
-    audioElement.value.src = newAudio.audioUrl
-    audioElement.value.load()
-    
-    // Check if we should auto-play this verse
-    if (audioStore.shouldAutoPlay) {
-      audioElement.value.addEventListener('canplay', async () => {
-        try {
-          await audioElement.value.play()
-          isPlaying.value = true
-          audioStore.shouldAutoPlay = false // Reset the flag
-        } catch (error) {
-          console.log('Auto-play prevented by browser policy')
-          isPlaying.value = false
-          audioStore.shouldAutoPlay = false
-        }
-      }, { once: true })
-    } else {
-      isPlaying.value = false
+watch(
+  currentAudio,
+  (newAudio) => {
+    if (newAudio && audioElement.value) {
+      audioElement.value.src = newAudio.audioUrl
+      audioElement.value.load()
+
+      // Check if we should auto-play this verse
+      if (audioStore.shouldAutoPlay) {
+        audioElement.value.addEventListener(
+          'canplay',
+          async () => {
+            try {
+              await audioElement.value.play()
+              isPlaying.value = true
+              audioStore.shouldAutoPlay = false // Reset the flag
+            } catch (error) {
+              console.log('Auto-play prevented by browser policy')
+              isPlaying.value = false
+              audioStore.shouldAutoPlay = false
+            }
+          },
+          { once: true },
+        )
+      } else {
+        isPlaying.value = false
+      }
+
+      currentTime.value = 0
     }
-    
-    currentTime.value = 0
-  }
-}, { immediate: true })
+  },
+  { immediate: true },
+)
 
 onUnmounted(() => {
   if (audioElement.value) {
@@ -150,15 +107,49 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
-.audio-player {
-  background: var(--bs-light);
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 1rem 0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+<template>
+  <div class="audio-player card">
+    <div class="audio-controls card-body">
+      <button @click="togglePlayPause" class="btn btn-primary" :disabled="loading">
+        <IconPlayerPlay v-if="!isPlaying" />
+        <IconPlayerPause v-else />
+      </button>
 
+      <div class="audio-info">
+        <div class="verse-info" v-if="currentAudio">
+          <span class="surah-name">{{ currentAudio.surahName }}</span>
+          <span class="verse-number">آية {{ currentAudio.verseNumber }}</span>
+        </div>
+        <div class="verse-info" v-else>
+          <span class="surah-name">اضغط على آية للاستماع</span>
+        </div>
+        <div class="reciter-name" v-if="currentAudio">{{ currentAudio.reciterName }}</div>
+      </div>
+
+      <div class="audio-progress">
+        <div class="progress">
+          <div class="progress-bar" :style="{ width: progressPercentage + '%' }"></div>
+        </div>
+        <div class="time-display">
+          <span>{{ formatTime(currentTime) }}</span>
+          <span>{{ formatTime(duration) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <audio
+      ref="audioElement"
+      @loadstart="loading = true"
+      @canplay="loading = false"
+      @timeupdate="updateProgress"
+      @ended="onAudioEnded"
+      @loadedmetadata="onLoadedMetadata"
+      preload="metadata"
+    ></audio>
+  </div>
+</template>
+
+<style scoped>
 .audio-controls {
   display: flex;
   align-items: center;
@@ -228,17 +219,15 @@ onUnmounted(() => {
   color: var(--bs-muted);
 }
 
-
 @media (max-width: 768px) {
   .audio-controls {
     flex-wrap: wrap;
   }
-  
+
   .audio-progress {
     order: 3;
     flex: 100%;
     margin-top: 1rem;
   }
-  
 }
 </style>

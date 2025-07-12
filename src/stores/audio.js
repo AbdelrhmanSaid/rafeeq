@@ -14,57 +14,57 @@ export const useAudioStore = defineStore('audio', () => {
     {
       identifier: 'ar.alafasy',
       name: 'مشاري العفاسي',
-      englishName: 'Alafasy'
+      englishName: 'Alafasy',
     },
     {
       identifier: 'ar.abdulbasitmurattal',
       name: 'عبد الباسط عبد الصمد المرتل',
-      englishName: 'Abdul Basit'
+      englishName: 'Abdul Basit',
     },
     {
       identifier: 'ar.husary',
       name: 'محمود خليل الحصري',
-      englishName: 'Husary'
+      englishName: 'Husary',
     },
     {
       identifier: 'ar.abdurrahmaansudais',
       name: 'عبدالرحمن السديس',
-      englishName: 'Abdurrahmaan As-Sudais'
+      englishName: 'Abdurrahmaan As-Sudais',
     },
     {
       identifier: 'ar.mahermuaiqly',
       name: 'ماهر المعيقلي',
-      englishName: 'Maher Al Muaiqly'
+      englishName: 'Maher Al Muaiqly',
     },
     {
       identifier: 'ar.muhammadayyoub',
       name: 'محمد أيوب',
-      englishName: 'Muhammad Ayyoub'
+      englishName: 'Muhammad Ayyoub',
     },
     {
       identifier: 'ar.saoodshuraym',
       name: 'سعود الشريم',
-      englishName: 'Saood bin Ibraaheem Ash-Shuraym'
+      englishName: 'Saood bin Ibraaheem Ash-Shuraym',
     },
     {
       identifier: 'ar.shaatree',
       name: 'أبو بكر الشاطري',
-      englishName: 'Abu Bakr Ash-Shaatree'
+      englishName: 'Abu Bakr Ash-Shaatree',
     },
     {
       identifier: 'ar.ahmedajamy',
       name: 'أحمد بن علي العجمي',
-      englishName: 'Ahmed ibn Ali al-Ajamy'
+      englishName: 'Ahmed ibn Ali al-Ajamy',
     },
     {
       identifier: 'ar.hanirifai',
       name: 'هاني الرفاعي',
-      englishName: 'Hani Rifai'
-    }
+      englishName: 'Hani Rifai',
+    },
   ])
 
   const currentReciter = computed(() => {
-    return reciters.value.find(r => r.identifier === selectedReciter.value) || reciters.value[0]
+    return reciters.value.find((r) => r.identifier === selectedReciter.value) || reciters.value[0]
   })
 
   const hasNext = computed(() => {
@@ -84,14 +84,14 @@ export const useAudioStore = defineStore('audio', () => {
       surahEnglishName: surahInfo.englishName,
       reciterName: currentReciter.value.name,
       reciterEnglishName: currentReciter.value.englishName,
-      verse: verse
+      verse: verse,
     }
-    
+
     currentAudio.value = audioData
   }
 
   const playSurah = (surahData) => {
-    const playlist = surahData.ayahs.map(verse => ({
+    const playlist = surahData.ayahs.map((verse) => ({
       audioUrl: verse.audio,
       audioSecondary: verse.audioSecondary,
       verseNumber: verse.numberInSurah,
@@ -99,9 +99,9 @@ export const useAudioStore = defineStore('audio', () => {
       surahEnglishName: surahData.englishName,
       reciterName: currentReciter.value.name,
       reciterEnglishName: currentReciter.value.englishName,
-      verse: verse
+      verse: verse,
     }))
-    
+
     currentPlaylist.value = playlist
     currentIndex.value = 0
     currentAudio.value = playlist[0]
@@ -113,7 +113,7 @@ export const useAudioStore = defineStore('audio', () => {
       shouldAutoPlay.value = true
       return
     }
-    
+
     if (hasNext.value) {
       currentIndex.value++
       currentAudio.value = currentPlaylist.value[currentIndex.value]
@@ -174,7 +174,7 @@ export const useAudioStore = defineStore('audio', () => {
   // Initialize from localStorage
   const initializeStore = () => {
     const savedReciter = localStorage.getItem('rafeeq_selected_reciter')
-    if (savedReciter && reciters.value.find(r => r.identifier === savedReciter)) {
+    if (savedReciter && reciters.value.find((r) => r.identifier === savedReciter)) {
       selectedReciter.value = savedReciter
     }
   }
@@ -189,12 +189,12 @@ export const useAudioStore = defineStore('audio', () => {
     repeatMode,
     shouldAutoPlay,
     reciters,
-    
+
     // Getters
     currentReciter,
     hasNext,
     hasPrevious,
-    
+
     // Actions
     playVerse,
     playSurah,
@@ -206,6 +206,6 @@ export const useAudioStore = defineStore('audio', () => {
     toggleShuffle,
     setRepeatMode,
     cycleRepeatMode,
-    initializeStore
+    initializeStore,
   }
 })
