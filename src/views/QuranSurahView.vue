@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref, watch, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
-import { IconChevronLeft, IconPlayerPlay } from '@tabler/icons-vue'
+import { IconChevronLeft } from '@tabler/icons-vue'
 import { useFetch } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
 
@@ -18,8 +18,6 @@ const { isFetching, data: surah, error } = useFetch(`https://api.alquran.cloud/v
 const audioStore = useQuranStore()
 
 const audioSurah = ref(null)
-const audioLoading = ref(false)
-const audioError = ref(null)
 
 // Prepare the ayat data
 const ayat = computed(() => {
@@ -46,50 +44,26 @@ const ayat = computed(() => {
 })
 
 const loadSurahAudio = async () => {
-  if (!surah.value || audioLoading.value) return
+  if (!surah.value) return
 
-  try {
-    audioLoading.value = true
-    audioError.value = null
+  const audioData = await QuranService.getAudioForSurah(surah.value.data.number, audioStore.selectedReciter)
 
-    const audioData = await QuranService.getAudioForSurah(surah.value.data.number, audioStore.selectedReciter)
-
-    audioSurah.value = audioData
-  } catch (err) {
-    console.error('Error loading surah audio:', err)
-    audioError.value = err.message
-  } finally {
-    audioLoading.value = false
-  }
+  audioSurah.value = audioData
+  audioStore.playSurah(audioData)
+  audioStore.currentAudio = null
 }
 
 const playVerse = (verse) => {
-  console.log('playVerse called with:', verse.numberInSurah)
-  if (audioSurah.value) {
-    // Find the index of this verse in the playlist
-    const verseIndex = audioSurah.value.ayahs.findIndex((ayah) => ayah.numberInSurah === verse.numberInSurah)
+  if (!audioSurah.value) return
+  const verseIndex = audioSurah.value.ayahs.findIndex((ayah) => ayah.numberInSurah === verse.numberInSurah)
 
-    console.log('Found verse index:', verseIndex)
-    console.log('Current playlist length:', audioStore.currentPlaylist.length)
-
-    if (verseIndex !== -1) {
-      // If playlist doesn't exist, create it first
-      if (audioStore.currentPlaylist.length === 0) {
-        console.log('Creating playlist...')
-        audioStore.playSurah(audioSurah.value)
-      }
-
-      // Jump to the selected verse and mark for auto-play
-      console.log('Jumping to verse and setting autoplay...')
-      audioStore.jumpToVerse(verseIndex)
-      audioStore.shouldAutoPlay = true
+  if (verseIndex !== -1) {
+    if (audioStore.currentPlaylist.length === 0) {
+      audioStore.playSurah(audioSurah.value)
     }
-  }
-}
 
-const playSurah = () => {
-  if (audioSurah.value) {
-    audioStore.playSurah(audioSurah.value)
+    audioStore.jumpToVerse(verseIndex)
+    audioStore.shouldAutoPlay = true
   }
 }
 
@@ -113,15 +87,6 @@ watch(
   },
   { immediate: true },
 )
-
-watch(audioSurah, (newAudioSurah) => {
-  if (newAudioSurah && newAudioSurah.ayahs && newAudioSurah.ayahs.length > 0) {
-    // Prepare the playlist but don't auto-play
-    audioStore.playSurah(newAudioSurah)
-    // Just clear the current audio but keep the playlist
-    audioStore.currentAudio = null
-  }
-})
 </script>
 
 <template>
@@ -201,23 +166,13 @@ watch(audioSurah, (newAudioSurah) => {
 
     .clickable-ayah {
       cursor: pointer;
-      transition: background-color 0.2s ease;
       padding: 2px 4px;
-      border-radius: 4px;
+      border-radius: 0.25rem;
 
+      &.current-ayah,
       &:hover {
         background-color: var(--bs-primary-bg-subtle);
       }
-
-      &.current-ayah {
-        background-color: var(--bs-primary-bg-subtle);
-      }
-    }
-  }
-
-  .audio-controls-section {
-    .btn {
-      gap: 0.5rem;
     }
   }
 }

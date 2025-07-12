@@ -6,8 +6,6 @@ export const useQuranStore = defineStore('audio', () => {
   const currentPlaylist = ref([])
   const currentIndex = ref(0)
   const selectedReciter = ref('ar.alafasy')
-  const isShuffleEnabled = ref(false)
-  const repeatMode = ref('none') // 'none', 'one', 'all'
   const shouldAutoPlay = ref(false)
 
   const hasNext = computed(() => {
@@ -47,19 +45,9 @@ export const useQuranStore = defineStore('audio', () => {
   }
 
   const playNext = () => {
-    if (repeatMode.value === 'one') {
-      // Replay current verse
-      shouldAutoPlay.value = true
-      return
-    }
-
     if (hasNext.value) {
       currentIndex.value++
       currentAudio.value = currentPlaylist.value[currentIndex.value]
-      shouldAutoPlay.value = true
-    } else if (repeatMode.value === 'all') {
-      currentIndex.value = 0
-      currentAudio.value = currentPlaylist.value[0]
       shouldAutoPlay.value = true
     } else {
       stop()
@@ -92,24 +80,6 @@ export const useQuranStore = defineStore('audio', () => {
     localStorage.setItem('rafeeq_selected_reciter', reciterIdentifier)
   }
 
-  const toggleShuffle = () => {
-    isShuffleEnabled.value = !isShuffleEnabled.value
-  }
-
-  const setRepeatMode = (mode) => {
-    const modes = ['none', 'one', 'all']
-    if (modes.includes(mode)) {
-      repeatMode.value = mode
-    }
-  }
-
-  const cycleRepeatMode = () => {
-    const modes = ['none', 'one', 'all']
-    const currentIndex = modes.indexOf(repeatMode.value)
-    const nextIndex = (currentIndex + 1) % modes.length
-    repeatMode.value = modes[nextIndex]
-  }
-
   // Initialize from localStorage
   const initializeStore = () => {
     selectedReciter.value = 'ar.alafasy'
@@ -121,8 +91,6 @@ export const useQuranStore = defineStore('audio', () => {
     currentPlaylist,
     currentIndex,
     selectedReciter,
-    isShuffleEnabled,
-    repeatMode,
     shouldAutoPlay,
 
     // Getters
@@ -137,9 +105,6 @@ export const useQuranStore = defineStore('audio', () => {
     jumpToVerse,
     stop,
     setReciter,
-    toggleShuffle,
-    setRepeatMode,
-    cycleRepeatMode,
     initializeStore,
   }
 })

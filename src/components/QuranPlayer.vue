@@ -108,119 +108,40 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="audio-player card">
-    <div class="audio-controls card-body">
-      <button @click="togglePlayPause" class="btn btn-primary" :disabled="loading">
+  <div class="card">
+    <div class="card-body d-flex align-items-center gap-3 flex-wrap">
+      <button @click="togglePlayPause" class="btn btn-primary rounded-circle" :disabled="loading">
         <IconPlayerPlay v-if="!isPlaying" />
         <IconPlayerPause v-else />
       </button>
 
-      <div class="audio-info">
-        <div class="verse-info" v-if="currentAudio">
-          <span class="surah-name">{{ currentAudio.surahName }}</span>
-          <span class="verse-number">آية {{ currentAudio.verseNumber }}</span>
+      <div class="flex-grow-1">
+        <div v-if="currentAudio" class="fw-semibold small">
+          <span class="text-primary">{{ currentAudio.surahName }}</span>
+          <span class="text-secondary ms-1">آية {{ currentAudio.verseNumber }}</span>
         </div>
-        <div class="verse-info" v-else>
-          <span class="surah-name">اضغط على آية للاستماع</span>
-        </div>
-      </div>
+        <div v-else class="small text-muted">اضغط على آية للاستماع</div>
 
-      <div class="audio-progress">
-        <div class="progress">
-          <div class="progress-bar" :style="{ width: progressPercentage + '%' }"></div>
+        <div class="progress mt-2">
+          <div class="progress-bar" role="progressbar" :style="{ width: progressPercentage + '%' }"></div>
         </div>
-        <div class="time-display">
+        <div class="d-flex justify-content-between small text-muted mt-1">
           <span>{{ formatTime(currentTime) }}</span>
           <span>{{ formatTime(duration) }}</span>
         </div>
       </div>
-    </div>
 
-    <audio
-      ref="audioElement"
-      @loadstart="loading = true"
-      @canplay="loading = false"
-      @timeupdate="updateProgress"
-      @ended="onAudioEnded"
-      @loadedmetadata="onLoadedMetadata"
-      preload="metadata"
-    ></audio>
+      <audio
+        ref="audioElement"
+        @loadstart="loading = true"
+        @canplay="loading = false"
+        @timeupdate="updateProgress"
+        @ended="onAudioEnded"
+        @loadedmetadata="onLoadedMetadata"
+        preload="metadata"
+      ></audio>
+    </div>
   </div>
 </template>
 
-<style scoped>
-.audio-controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.audio-controls button {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.audio-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.verse-info {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.surah-name {
-  color: var(--bs-primary);
-}
-
-.verse-number {
-  color: var(--bs-secondary);
-  font-size: 0.8rem;
-}
-
-.audio-progress {
-  flex: 2;
-  min-width: 200px;
-}
-
-.progress {
-  height: 4px;
-  background: var(--bs-secondary);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-bottom: 0.5rem;
-}
-
-.progress-bar {
-  height: 100%;
-  background: var(--bs-primary);
-  transition: width 0.1s ease;
-}
-
-.time-display {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.75rem;
-  color: var(--bs-muted);
-}
-
-@media (max-width: 768px) {
-  .audio-controls {
-    flex-wrap: wrap;
-  }
-
-  .audio-progress {
-    order: 3;
-    flex: 100%;
-    margin-top: 1rem;
-  }
-}
-</style>
+<style scoped></style>
