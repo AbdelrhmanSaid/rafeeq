@@ -13,10 +13,7 @@ const duration = ref(0)
 
 const currentAudio = computed(() => quranStore.currentAudio)
 
-const progressPercentage = computed(() => {
-  if (duration.value === 0) return 0
-  return (currentTime.value / duration.value) * 100
-})
+const progressPercentage = computed(() => (duration.value ? (currentTime.value / duration.value) * 100 : 0))
 
 const togglePlayPause = async () => {
   if (!audioElement.value) return
@@ -24,19 +21,15 @@ const togglePlayPause = async () => {
   if (isPlaying.value) {
     audioElement.value.pause()
     isPlaying.value = false
+  } else if (!currentAudio.value && quranStore.currentPlaylist.length > 0) {
+    quranStore.jumpToVerse(0)
+    quranStore.shouldAutoPlay = true
   } else {
-    // If no audio is loaded, start from first verse
-    if (!currentAudio.value && quranStore.currentPlaylist.length > 0) {
-      quranStore.jumpToVerse(0)
-      quranStore.shouldAutoPlay = true
-    } else {
-      try {
-        await audioElement.value.play()
-        isPlaying.value = true
-      } catch (error) {
-        console.error('Playback failed:', error)
-        isPlaying.value = false
-      }
+    try {
+      await audioElement.value.play()
+      isPlaying.value = true
+    } catch {
+      isPlaying.value = false
     }
   }
 }
@@ -68,34 +61,24 @@ const formatTime = (seconds) => {
 
 watch(
   currentAudio,
-  (newAudio) => {
-    if (newAudio && audioElement.value) {
-      audioElement.value.src = newAudio.audioUrl
-      audioElement.value.load()
+  async (newAudio) => {
+    if (!audioElement.value || !newAudio) return
+    audioElement.value.src = newAudio.audioUrl
+    audioElement.value.load()
 
-      // Check if we should auto-play this verse
-      if (quranStore.shouldAutoPlay) {
-        audioElement.value.addEventListener(
-          'canplay',
-          async () => {
-            try {
-              await audioElement.value.play()
-              isPlaying.value = true
-              quranStore.shouldAutoPlay = false // Reset the flag
-            } catch (error) {
-              console.log('Auto-play prevented by browser policy')
-              isPlaying.value = false
-              quranStore.shouldAutoPlay = false
-            }
-          },
-          { once: true },
-        )
-      } else {
+    if (quranStore.shouldAutoPlay) {
+      try {
+        await audioElement.value.play()
+        isPlaying.value = true
+      } catch {
         isPlaying.value = false
       }
-
-      currentTime.value = 0
+      quranStore.shouldAutoPlay = false
+    } else {
+      isPlaying.value = false
     }
+
+    currentTime.value = 0
   },
   { immediate: true },
 )
@@ -108,31 +91,34 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="audio-player card">
-    <div class="audio-controls card-body">
-      <button @click="togglePlayPause" class="btn btn-primary" :disabled="loading">
+  <div class="card">
+    <div class="card-body d-flex align-items-center gap-3">
+      <button
+        @click="togglePlayPause"
+        class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center"
+        :disabled="loading"
+        style="width: 40px; height: 40px"
+      >
         <IconPlayerPlay v-if="!isPlaying" />
         <IconPlayerPause v-else />
       </button>
 
-      <div class="audio-info">
-        <div class="verse-info" v-if="currentAudio">
-          <span class="surah-name">{{ currentAudio.surahName }}</span>
-          <span class="verse-number">آية {{ currentAudio.verseNumber }}</span>
-        </div>
-        <div class="verse-info" v-else>
-          <span class="surah-name">اضغط على آية للاستماع</span>
-        </div>
+      <div class="flex-grow-1">
+        <template v-if="currentAudio">
+          <span class="fw-semibold text-primary">{{ currentAudio.surahName }}</span>
+          <span class="text-secondary small">آية {{ currentAudio.verseNumber }}</span>
+        </template>
+        <span v-else class="text-muted">اضغط على آية للاستماع</span>
       </div>
+    </div>
 
-      <div class="audio-progress">
-        <div class="progress">
-          <div class="progress-bar" :style="{ width: progressPercentage + '%' }"></div>
-        </div>
-        <div class="time-display">
-          <span>{{ formatTime(currentTime) }}</span>
-          <span>{{ formatTime(duration) }}</span>
-        </div>
+    <div class="px-3 pb-3">
+      <div class="progress" style="height: 0.25rem">
+        <div class="progress-bar" :style="{ width: progressPercentage + '%' }"></div>
+      </div>
+      <div class="d-flex justify-content-between small text-muted mt-1">
+        <span>{{ formatTime(currentTime) }}</span>
+        <span>{{ formatTime(duration) }}</span>
       </div>
     </div>
 
@@ -148,79 +134,4 @@ onUnmounted(() => {
   </div>
 </template>
 
-<style scoped>
-.audio-controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.audio-controls button {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.audio-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.verse-info {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.surah-name {
-  color: var(--bs-primary);
-}
-
-.verse-number {
-  color: var(--bs-secondary);
-  font-size: 0.8rem;
-}
-
-.audio-progress {
-  flex: 2;
-  min-width: 200px;
-}
-
-.progress {
-  height: 4px;
-  background: var(--bs-secondary);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-bottom: 0.5rem;
-}
-
-.progress-bar {
-  height: 100%;
-  background: var(--bs-primary);
-  transition: width 0.1s ease;
-}
-
-.time-display {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.75rem;
-  color: var(--bs-muted);
-}
-
-@media (max-width: 768px) {
-  .audio-controls {
-    flex-wrap: wrap;
-  }
-
-  .audio-progress {
-    order: 3;
-    flex: 100%;
-    margin-top: 1rem;
-  }
-}
-</style>
+<style scoped></style>

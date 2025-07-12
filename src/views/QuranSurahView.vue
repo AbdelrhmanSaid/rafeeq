@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref, watch, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
-import { IconChevronLeft, IconPlayerPlay } from '@tabler/icons-vue'
+import { IconChevronLeft } from '@tabler/icons-vue'
 import { useFetch } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
 
@@ -55,6 +55,8 @@ const loadSurahAudio = async () => {
     const audioData = await QuranService.getAudioForSurah(surah.value.data.number, audioStore.selectedReciter)
 
     audioSurah.value = audioData
+    audioStore.playSurah(audioData)
+    audioStore.currentAudio = null
   } catch (err) {
     console.error('Error loading surah audio:', err)
     audioError.value = err.message
@@ -64,33 +66,14 @@ const loadSurahAudio = async () => {
 }
 
 const playVerse = (verse) => {
-  console.log('playVerse called with:', verse.numberInSurah)
-  if (audioSurah.value) {
-    // Find the index of this verse in the playlist
-    const verseIndex = audioSurah.value.ayahs.findIndex((ayah) => ayah.numberInSurah === verse.numberInSurah)
-
-    console.log('Found verse index:', verseIndex)
-    console.log('Current playlist length:', audioStore.currentPlaylist.length)
-
-    if (verseIndex !== -1) {
-      // If playlist doesn't exist, create it first
-      if (audioStore.currentPlaylist.length === 0) {
-        console.log('Creating playlist...')
-        audioStore.playSurah(audioSurah.value)
-      }
-
-      // Jump to the selected verse and mark for auto-play
-      console.log('Jumping to verse and setting autoplay...')
-      audioStore.jumpToVerse(verseIndex)
-      audioStore.shouldAutoPlay = true
-    }
-  }
-}
-
-const playSurah = () => {
-  if (audioSurah.value) {
+  if (!audioSurah.value) return
+  const verseIndex = audioSurah.value.ayahs.findIndex((ayah) => ayah.numberInSurah === verse.numberInSurah)
+  if (verseIndex === -1) return
+  if (audioStore.currentPlaylist.length === 0) {
     audioStore.playSurah(audioSurah.value)
   }
+  audioStore.jumpToVerse(verseIndex)
+  audioStore.shouldAutoPlay = true
 }
 
 const isCurrentVerse = (verse) => {
@@ -113,15 +96,6 @@ watch(
   },
   { immediate: true },
 )
-
-watch(audioSurah, (newAudioSurah) => {
-  if (newAudioSurah && newAudioSurah.ayahs && newAudioSurah.ayahs.length > 0) {
-    // Prepare the playlist but don't auto-play
-    audioStore.playSurah(newAudioSurah)
-    // Just clear the current audio but keep the playlist
-    audioStore.currentAudio = null
-  }
-})
 </script>
 
 <template>
@@ -147,7 +121,7 @@ watch(audioSurah, (newAudioSurah) => {
 
       <template v-for="ayah in ayat" :key="ayah.number">
         <span
-          class="ayah clickable-ayah"
+          class="ayah clickable-ayah rounded px-1"
           :class="{ 'current-ayah': isCurrentVerse(ayah) }"
           @click="playVerse(ayah)"
           :title="'تشغيل الآية ' + ayah.numberInSurah"
@@ -201,23 +175,10 @@ watch(audioSurah, (newAudioSurah) => {
 
     .clickable-ayah {
       cursor: pointer;
-      transition: background-color 0.2s ease;
-      padding: 2px 4px;
-      border-radius: 4px;
-
-      &:hover {
-        background-color: var(--bs-primary-bg-subtle);
-      }
-
-      &.current-ayah {
-        background-color: var(--bs-primary-bg-subtle);
-      }
     }
-  }
 
-  .audio-controls-section {
-    .btn {
-      gap: 0.5rem;
+    .current-ayah {
+      background-color: var(--bs-primary-bg-subtle);
     }
   }
 }
