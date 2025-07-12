@@ -1,7 +1,7 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
-import { IconChevronLeft, IconPlayerPlay } from '@tabler/icons-vue'
+import { IconChevronLeft } from '@tabler/icons-vue'
 import { useFetch } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
 
@@ -9,9 +9,37 @@ import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
+import AudioPlayer from '@/components/QuranPlayer.vue'
+import { useQuranStore } from '@/stores/quran'
 
 const surahId = useRouteParams('surah')
-const { isFetching, data: surah, error } = useFetch(`https://api.alquran.cloud/v1/surah/${surahId.value}`).json().get()
+const endpoint = `https://api.alquran.cloud/v1/surah/${surahId.value}`
+const { isFetching, data: surah, error, onFetchResponse } = useFetch(endpoint).json().get()
+
+const quranStore = useQuranStore()
+const quranSurah = ref(null)
+const quranLoading = ref(false)
+const quranLoadingError = ref(null)
+
+onFetchResponse(async () => {
+  try {
+    quranLoading.value = true
+    quranLoadingError.value = null
+
+    const { data } = await useFetch(`http://api.alquran.cloud/v1/surah/${surah.value.data.number}/ar.alafasy`)
+      .json()
+      .get()
+    const audioData = data.value.data
+
+    quranSurah.value = audioData
+    quranStore.playSurah(audioData)
+    quranStore.currentAudio = null
+  } catch (err) {
+    quranLoadingError.value = err.message
+  } finally {
+    quranLoading.value = false
+  }
+})
 
 // Prepare the ayat data
 const ayat = computed(() => {
@@ -36,6 +64,25 @@ const ayat = computed(() => {
 
   return []
 })
+
+const playVerse = (verse) => {
+  if (!quranSurah.value) return
+
+  const verseIndex = quranSurah.value.ayahs.findIndex((ayah) => ayah.numberInSurah === verse.numberInSurah)
+
+  if (verseIndex === -1) return
+  if (quranStore.currentPlaylist.length === 0) quranStore.playSurah(quranSurah.value)
+
+  quranStore.jumpToVerse(verseIndex)
+  quranStore.shouldAutoPlay = true
+}
+
+const isCurrentVerse = (verse) => {
+  const currentAudio = quranStore.currentAudio
+  if (!currentAudio || !surah.value) return false
+
+  return currentAudio.verseNumber === verse.numberInSurah && currentAudio.surahName === surah.value.data.name
+}
 </script>
 
 <template>
@@ -53,11 +100,20 @@ const ayat = computed(() => {
       :subtitle="`عدد الآيات: ${surah.data.numberOfAyahs} آية - سورة ${surah.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`"
     />
 
+    <!-- Audio Player -->
+    <AudioPlayer />
+
     <div class="ayat font-quran mb-4">
       <span class="basmallah">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
 
       <template v-for="ayah in ayat" :key="ayah.number">
-        <span class="ayah">{{ ayah.text }}</span>
+        <span
+          class="ayah clickable-ayah rounded px-1"
+          :class="{ 'current-ayah': isCurrentVerse(ayah) }"
+          @click="playVerse(ayah)"
+          :title="'تشغيل الآية ' + ayah.numberInSurah"
+          >{{ ayah.text }}</span
+        >
         <span class="ayah-number">﴿{{ ayah.numberInSurah }}﴾</span>
       </template>
     </div>
@@ -102,6 +158,14 @@ const ayat = computed(() => {
       padding: 0.25rem 0.5rem;
       color: var(--bs-gray-600);
       vertical-align: middle;
+    }
+
+    .clickable-ayah {
+      cursor: pointer;
+    }
+
+    .current-ayah {
+      background-color: var(--bs-primary-bg-subtle);
     }
   }
 }
