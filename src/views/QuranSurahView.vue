@@ -64,23 +64,17 @@ const loadSurahAudio = async () => {
 }
 
 const playVerse = (verse) => {
-  console.log('playVerse called with:', verse.numberInSurah)
   if (audioSurah.value) {
     // Find the index of this verse in the playlist
     const verseIndex = audioSurah.value.ayahs.findIndex((ayah) => ayah.numberInSurah === verse.numberInSurah)
 
-    console.log('Found verse index:', verseIndex)
-    console.log('Current playlist length:', audioStore.currentPlaylist.length)
-
     if (verseIndex !== -1) {
       // If playlist doesn't exist, create it first
       if (audioStore.currentPlaylist.length === 0) {
-        console.log('Creating playlist...')
         audioStore.playSurah(audioSurah.value)
       }
 
       // Jump to the selected verse and mark for auto-play
-      console.log('Jumping to verse and setting autoplay...')
       audioStore.jumpToVerse(verseIndex)
       audioStore.shouldAutoPlay = true
     }
@@ -133,7 +127,7 @@ watch(audioSurah, (newAudioSurah) => {
     <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
   </Page>
 
-  <Page class="quran-page" v-else-if="surah">
+  <Page class="quran-page d-flex flex-column gap-2 mx-auto" v-else-if="surah">
     <Heading
       :title="surah.data.name"
       :subtitle="`عدد الآيات: ${surah.data.numberOfAyahs} آية - سورة ${surah.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`"
@@ -167,9 +161,6 @@ watch(audioSurah, (newAudioSurah) => {
 
 <style lang="scss" scoped>
 .quran-page {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
   max-width: 700px;
 
   .ayat {
@@ -215,10 +206,5 @@ watch(audioSurah, (newAudioSurah) => {
     }
   }
 
-  .audio-controls-section {
-    .btn {
-      gap: 0.5rem;
-    }
-  }
 }
 </style>

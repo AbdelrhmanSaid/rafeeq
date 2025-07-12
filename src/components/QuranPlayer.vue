@@ -68,28 +68,22 @@ const formatTime = (seconds) => {
 
 watch(
   currentAudio,
-  (newAudio) => {
+  async (newAudio) => {
     if (newAudio && audioElement.value) {
       audioElement.value.src = newAudio.audioUrl
       audioElement.value.load()
 
       // Check if we should auto-play this verse
       if (quranStore.shouldAutoPlay) {
-        audioElement.value.addEventListener(
-          'canplay',
-          async () => {
-            try {
-              await audioElement.value.play()
-              isPlaying.value = true
-              quranStore.shouldAutoPlay = false // Reset the flag
-            } catch (error) {
-              console.log('Auto-play prevented by browser policy')
-              isPlaying.value = false
-              quranStore.shouldAutoPlay = false
-            }
-          },
-          { once: true },
-        )
+        try {
+          await audioElement.value.play()
+          isPlaying.value = true
+        } catch (error) {
+          console.error('Auto-play prevented by browser policy')
+          isPlaying.value = false
+        } finally {
+          quranStore.shouldAutoPlay = false
+        }
       } else {
         isPlaying.value = false
       }
@@ -108,28 +102,32 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="audio-player card">
-    <div class="audio-controls card-body">
-      <button @click="togglePlayPause" class="btn btn-primary" :disabled="loading">
+  <div class="card">
+    <div class="card-body d-flex align-items-center gap-3 flex-wrap">
+      <button
+        @click="togglePlayPause"
+        class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center"
+        :disabled="loading"
+      >
         <IconPlayerPlay v-if="!isPlaying" />
         <IconPlayerPause v-else />
       </button>
 
-      <div class="audio-info">
-        <div class="verse-info" v-if="currentAudio">
-          <span class="surah-name">{{ currentAudio.surahName }}</span>
-          <span class="verse-number">آية {{ currentAudio.verseNumber }}</span>
+      <div class="flex-grow-1">
+        <div class="d-flex gap-1 align-items-center fw-semibold" v-if="currentAudio">
+          <span class="text-primary">{{ currentAudio.surahName }}</span>
+          <span class="text-secondary small">آية {{ currentAudio.verseNumber }}</span>
         </div>
-        <div class="verse-info" v-else>
-          <span class="surah-name">اضغط على آية للاستماع</span>
+        <div v-else>
+          <span class="text-primary">اضغط على آية للاستماع</span>
         </div>
       </div>
 
-      <div class="audio-progress">
-        <div class="progress">
+      <div class="flex-grow-1" style="min-width: 200px;">
+        <div class="progress mb-2" style="height: 4px;">
           <div class="progress-bar" :style="{ width: progressPercentage + '%' }"></div>
         </div>
-        <div class="time-display">
+        <div class="d-flex justify-content-between small text-muted">
           <span>{{ formatTime(currentTime) }}</span>
           <span>{{ formatTime(duration) }}</span>
         </div>
@@ -148,79 +146,3 @@ onUnmounted(() => {
   </div>
 </template>
 
-<style scoped>
-.audio-controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.audio-controls button {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.audio-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.verse-info {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.surah-name {
-  color: var(--bs-primary);
-}
-
-.verse-number {
-  color: var(--bs-secondary);
-  font-size: 0.8rem;
-}
-
-.audio-progress {
-  flex: 2;
-  min-width: 200px;
-}
-
-.progress {
-  height: 4px;
-  background: var(--bs-secondary);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-bottom: 0.5rem;
-}
-
-.progress-bar {
-  height: 100%;
-  background: var(--bs-primary);
-  transition: width 0.1s ease;
-}
-
-.time-display {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.75rem;
-  color: var(--bs-muted);
-}
-
-@media (max-width: 768px) {
-  .audio-controls {
-    flex-wrap: wrap;
-  }
-
-  .audio-progress {
-    order: 3;
-    flex: 100%;
-    margin-top: 1rem;
-  }
-}
-</style>
