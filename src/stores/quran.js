@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
-export const useAudioStore = defineStore('audio', () => {
+export const useQuranStore = defineStore('audio', () => {
   const currentAudio = ref(null)
   const currentPlaylist = ref([])
   const currentIndex = ref(0)

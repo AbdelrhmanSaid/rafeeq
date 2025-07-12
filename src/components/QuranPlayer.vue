@@ -1,9 +1,9 @@
 <script setup>
 import { ref, computed, watch, onUnmounted } from 'vue'
-import { useAudioStore } from '@/stores/audio'
+import { useQuranStore } from '@/stores/quran'
 import { IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
 
-const audioStore = useAudioStore()
+const quranStore = useQuranStore()
 
 const audioElement = ref(null)
 const isPlaying = ref(false)
@@ -11,7 +11,7 @@ const loading = ref(false)
 const currentTime = ref(0)
 const duration = ref(0)
 
-const currentAudio = computed(() => audioStore.currentAudio)
+const currentAudio = computed(() => quranStore.currentAudio)
 
 const progressPercentage = computed(() => {
   if (duration.value === 0) return 0
@@ -26,9 +26,9 @@ const togglePlayPause = async () => {
     isPlaying.value = false
   } else {
     // If no audio is loaded, start from first verse
-    if (!currentAudio.value && audioStore.currentPlaylist.length > 0) {
-      audioStore.jumpToVerse(0)
-      audioStore.shouldAutoPlay = true
+    if (!currentAudio.value && quranStore.currentPlaylist.length > 0) {
+      quranStore.jumpToVerse(0)
+      quranStore.shouldAutoPlay = true
     } else {
       try {
         await audioElement.value.play()
@@ -56,7 +56,7 @@ const onLoadedMetadata = () => {
 const onAudioEnded = () => {
   isPlaying.value = false
   currentTime.value = 0
-  audioStore.playNext()
+  quranStore.playNext()
 }
 
 const formatTime = (seconds) => {
@@ -74,18 +74,18 @@ watch(
       audioElement.value.load()
 
       // Check if we should auto-play this verse
-      if (audioStore.shouldAutoPlay) {
+      if (quranStore.shouldAutoPlay) {
         audioElement.value.addEventListener(
           'canplay',
           async () => {
             try {
               await audioElement.value.play()
               isPlaying.value = true
-              audioStore.shouldAutoPlay = false // Reset the flag
+              quranStore.shouldAutoPlay = false // Reset the flag
             } catch (error) {
               console.log('Auto-play prevented by browser policy')
               isPlaying.value = false
-              audioStore.shouldAutoPlay = false
+              quranStore.shouldAutoPlay = false
             }
           },
           { once: true },

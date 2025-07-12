@@ -9,13 +9,13 @@ import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
-import AudioPlayer from '@/components/AudioPlayer.vue'
-import { useAudioStore } from '@/stores/audio'
+import AudioPlayer from '@/components/QuranPlayer.vue'
+import { useQuranStore } from '@/stores/quran'
 import QuranService from '@/services/quran'
 
 const surahId = useRouteParams('surah')
 const { isFetching, data: surah, error } = useFetch(`https://api.alquran.cloud/v1/surah/${surahId.value}`).json().get()
-const audioStore = useAudioStore()
+const audioStore = useQuranStore()
 
 const audioSurah = ref(null)
 const audioLoading = ref(false)
