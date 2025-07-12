@@ -10,7 +10,6 @@ import Heading from '@/components/Heading.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import AudioPlayer from '@/components/AudioPlayer.vue'
-import ReciterSelector from '@/components/ReciterSelector.vue'
 import { useAudioStore } from '@/stores/audio'
 import AudioService from '@/services/audioService'
 
@@ -68,12 +67,27 @@ const loadSurahAudio = async () => {
 }
 
 const playVerse = (verse) => {
+  console.log('playVerse called with:', verse.numberInSurah)
   if (audioSurah.value) {
-    const audioVerse = audioSurah.value.ayahs.find(
+    // Find the index of this verse in the playlist
+    const verseIndex = audioSurah.value.ayahs.findIndex(
       ayah => ayah.numberInSurah === verse.numberInSurah
     )
-    if (audioVerse) {
-      audioStore.playVerse(audioVerse, audioSurah.value)
+    
+    console.log('Found verse index:', verseIndex)
+    console.log('Current playlist length:', audioStore.currentPlaylist.length)
+    
+    if (verseIndex !== -1) {
+      // If playlist doesn't exist, create it first
+      if (audioStore.currentPlaylist.length === 0) {
+        console.log('Creating playlist...')
+        audioStore.playSurah(audioSurah.value)
+      }
+      
+      // Jump to the selected verse and mark for auto-play
+      console.log('Jumping to verse and setting autoplay...')
+      audioStore.jumpToVerse(verseIndex)
+      audioStore.shouldAutoPlay = true
     }
   }
 }
@@ -82,6 +96,14 @@ const playSurah = () => {
   if (audioSurah.value) {
     audioStore.playSurah(audioSurah.value)
   }
+}
+
+const isCurrentVerse = (verse) => {
+  const currentAudio = audioStore.currentAudio
+  if (!currentAudio || !surah.value) return false
+  
+  return currentAudio.verseNumber === verse.numberInSurah && 
+         currentAudio.surahName === surah.value.data.name
 }
 
 onMounted(() => {
@@ -94,9 +116,15 @@ watch(surah, (newSurah) => {
   }
 }, { immediate: true })
 
-watch(() => audioStore.selectedReciter, () => {
-  loadSurahAudio()
+watch(audioSurah, (newAudioSurah) => {
+  if (newAudioSurah && newAudioSurah.ayahs && newAudioSurah.ayahs.length > 0) {
+    // Prepare the playlist but don't auto-play
+    audioStore.playSurah(newAudioSurah)
+    // Just clear the current audio but keep the playlist
+    audioStore.currentAudio = null
+  }
 })
+
 </script>
 
 <template>
@@ -114,30 +142,6 @@ watch(() => audioStore.selectedReciter, () => {
       :subtitle="`عدد الآيات: ${surah.data.numberOfAyahs} آية - سورة ${surah.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`"
     />
 
-    <!-- Audio Controls -->
-    <div class="audio-controls-section mb-3">
-      <div class="d-flex gap-2 align-items-center justify-content-center flex-wrap">
-        <button 
-          @click="playSurah" 
-          class="btn btn-success"
-          :disabled="audioLoading || !audioSurah"
-        >
-          <IconPlayerPlay size="1.25rem" />
-          تشغيل السورة
-        </button>
-        
-        <ReciterSelector />
-        
-        <div v-if="audioLoading" class="text-muted">
-          <small>جاري تحميل الصوت...</small>
-        </div>
-        
-        <div v-if="audioError" class="text-danger">
-          <small>خطأ في تحميل الصوت</small>
-        </div>
-      </div>
-    </div>
-
     <!-- Audio Player -->
     <AudioPlayer />
 
@@ -147,6 +151,7 @@ watch(() => audioStore.selectedReciter, () => {
       <template v-for="ayah in ayat" :key="ayah.number">
         <span 
           class="ayah clickable-ayah" 
+          :class="{ 'current-ayah': isCurrentVerse(ayah) }"
           @click="playVerse(ayah)"
           :title="'تشغيل الآية ' + ayah.numberInSurah"
         >{{ ayah.text }}</span>
@@ -199,10 +204,15 @@ watch(() => audioStore.selectedReciter, () => {
     .clickable-ayah {
       cursor: pointer;
       transition: background-color 0.2s ease;
+      padding: 2px 4px;
+      border-radius: 4px;
       
       &:hover {
         background-color: var(--bs-primary-bg-subtle);
-        border-radius: 4px;
+      }
+      
+      &.current-ayah {
+        background-color: var(--bs-primary-bg-subtle);
       }
     }
   }

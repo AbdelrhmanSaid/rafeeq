@@ -8,6 +8,7 @@ export const useAudioStore = defineStore('audio', () => {
   const selectedReciter = ref('ar.alafasy')
   const isShuffleEnabled = ref(false)
   const repeatMode = ref('none') // 'none', 'one', 'all'
+  const shouldAutoPlay = ref(false)
 
   const reciters = ref([
     {
@@ -109,17 +110,27 @@ export const useAudioStore = defineStore('audio', () => {
   const playNext = () => {
     if (repeatMode.value === 'one') {
       // Replay current verse
+      shouldAutoPlay.value = true
       return
     }
     
     if (hasNext.value) {
       currentIndex.value++
       currentAudio.value = currentPlaylist.value[currentIndex.value]
+      shouldAutoPlay.value = true
     } else if (repeatMode.value === 'all') {
       currentIndex.value = 0
       currentAudio.value = currentPlaylist.value[0]
+      shouldAutoPlay.value = true
     } else {
       stop()
+    }
+  }
+
+  const jumpToVerse = (verseIndex) => {
+    if (currentPlaylist.value.length > 0 && verseIndex >= 0 && verseIndex < currentPlaylist.value.length) {
+      currentIndex.value = verseIndex
+      currentAudio.value = currentPlaylist.value[verseIndex]
     }
   }
 
@@ -176,6 +187,7 @@ export const useAudioStore = defineStore('audio', () => {
     selectedReciter,
     isShuffleEnabled,
     repeatMode,
+    shouldAutoPlay,
     reciters,
     
     // Getters
@@ -188,6 +200,7 @@ export const useAudioStore = defineStore('audio', () => {
     playSurah,
     playNext,
     playPrevious,
+    jumpToVerse,
     stop,
     setReciter,
     toggleShuffle,

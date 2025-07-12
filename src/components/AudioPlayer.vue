@@ -1,5 +1,5 @@
 <template>
-  <div class="audio-player" v-if="currentAudio">
+  <div class="audio-player">
     <div class="audio-controls">
       <button 
         @click="togglePlayPause" 
@@ -11,11 +11,14 @@
       </button>
       
       <div class="audio-info">
-        <div class="verse-info">
+        <div class="verse-info" v-if="currentAudio">
           <span class="surah-name">{{ currentAudio.surahName }}</span>
           <span class="verse-number">آية {{ currentAudio.verseNumber }}</span>
         </div>
-        <div class="reciter-name">{{ currentAudio.reciterName }}</div>
+        <div class="verse-info" v-else>
+          <span class="surah-name">اضغط على آية للاستماع</span>
+        </div>
+        <div class="reciter-name" v-if="currentAudio">{{ currentAudio.reciterName }}</div>
       </div>
       
       <div class="audio-progress">
@@ -31,17 +34,6 @@
         </div>
       </div>
       
-      <div class="volume-control">
-        <IconVolume />
-        <input 
-          type="range" 
-          v-model="volume" 
-          min="0" 
-          max="1" 
-          step="0.1"
-          @input="updateVolume"
-        >
-      </div>
     </div>
     
     <audio 
@@ -59,7 +51,7 @@
 <script setup>
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { useAudioStore } from '@/stores/audio'
-import { IconPlayerPlay, IconPlayerPause, IconVolume } from '@tabler/icons-vue'
+import { IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
 
 const audioStore = useAudioStore()
 
@@ -68,7 +60,6 @@ const isPlaying = ref(false)
 const loading = ref(false)
 const currentTime = ref(0)
 const duration = ref(0)
-const volume = ref(0.8)
 
 const currentAudio = computed(() => audioStore.currentAudio)
 
@@ -77,15 +68,26 @@ const progressPercentage = computed(() => {
   return (currentTime.value / duration.value) * 100
 })
 
-const togglePlayPause = () => {
+const togglePlayPause = async () => {
   if (!audioElement.value) return
   
   if (isPlaying.value) {
     audioElement.value.pause()
     isPlaying.value = false
   } else {
-    audioElement.value.play()
-    isPlaying.value = true
+    // If no audio is loaded, start from first verse
+    if (!currentAudio.value && audioStore.currentPlaylist.length > 0) {
+      audioStore.jumpToVerse(0)
+      audioStore.shouldAutoPlay = true
+    } else {
+      try {
+        await audioElement.value.play()
+        isPlaying.value = true
+      } catch (error) {
+        console.error('Playback failed:', error)
+        isPlaying.value = false
+      }
+    }
   }
 }
 
@@ -95,16 +97,10 @@ const updateProgress = () => {
   }
 }
 
-const updateVolume = () => {
-  if (audioElement.value) {
-    audioElement.value.volume = volume.value
-  }
-}
 
 const onLoadedMetadata = () => {
   if (audioElement.value) {
     duration.value = audioElement.value.duration
-    audioElement.value.volume = volume.value
   }
 }
 
@@ -125,7 +121,24 @@ watch(currentAudio, (newAudio) => {
   if (newAudio && audioElement.value) {
     audioElement.value.src = newAudio.audioUrl
     audioElement.value.load()
-    isPlaying.value = false
+    
+    // Check if we should auto-play this verse
+    if (audioStore.shouldAutoPlay) {
+      audioElement.value.addEventListener('canplay', async () => {
+        try {
+          await audioElement.value.play()
+          isPlaying.value = true
+          audioStore.shouldAutoPlay = false // Reset the flag
+        } catch (error) {
+          console.log('Auto-play prevented by browser policy')
+          isPlaying.value = false
+          audioStore.shouldAutoPlay = false
+        }
+      }, { once: true })
+    } else {
+      isPlaying.value = false
+    }
+    
     currentTime.value = 0
   }
 }, { immediate: true })
@@ -215,15 +228,6 @@ onUnmounted(() => {
   color: var(--bs-muted);
 }
 
-.volume-control {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.volume-control input[type="range"] {
-  width: 80px;
-}
 
 @media (max-width: 768px) {
   .audio-controls {
@@ -236,8 +240,5 @@ onUnmounted(() => {
     margin-top: 1rem;
   }
   
-  .volume-control {
-    margin-left: auto;
-  }
 }
 </style>
