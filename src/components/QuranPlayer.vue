@@ -123,7 +123,6 @@ onUnmounted(() => {
         <div class="verse-info" v-else>
           <span class="surah-name">اضغط على آية للاستماع</span>
         </div>
-        <div class="reciter-name" v-if="currentAudio">{{ currentAudio.reciterName }}</div>
       </div>
 
       <div class="audio-progress">
@@ -185,12 +184,6 @@ onUnmounted(() => {
 .verse-number {
   color: var(--bs-secondary);
   font-size: 0.8rem;
-}
-
-.reciter-name {
-  font-size: 0.8rem;
-  color: var(--bs-muted);
-  margin-top: 0.25rem;
 }
 
 .audio-progress {

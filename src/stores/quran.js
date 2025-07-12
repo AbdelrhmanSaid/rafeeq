@@ -10,63 +10,6 @@ export const useQuranStore = defineStore('audio', () => {
   const repeatMode = ref('none') // 'none', 'one', 'all'
   const shouldAutoPlay = ref(false)
 
-  const reciters = ref([
-    {
-      identifier: 'ar.alafasy',
-      name: 'مشاري العفاسي',
-      englishName: 'Alafasy',
-    },
-    {
-      identifier: 'ar.abdulbasitmurattal',
-      name: 'عبد الباسط عبد الصمد المرتل',
-      englishName: 'Abdul Basit',
-    },
-    {
-      identifier: 'ar.husary',
-      name: 'محمود خليل الحصري',
-      englishName: 'Husary',
-    },
-    {
-      identifier: 'ar.abdurrahmaansudais',
-      name: 'عبدالرحمن السديس',
-      englishName: 'Abdurrahmaan As-Sudais',
-    },
-    {
-      identifier: 'ar.mahermuaiqly',
-      name: 'ماهر المعيقلي',
-      englishName: 'Maher Al Muaiqly',
-    },
-    {
-      identifier: 'ar.muhammadayyoub',
-      name: 'محمد أيوب',
-      englishName: 'Muhammad Ayyoub',
-    },
-    {
-      identifier: 'ar.saoodshuraym',
-      name: 'سعود الشريم',
-      englishName: 'Saood bin Ibraaheem Ash-Shuraym',
-    },
-    {
-      identifier: 'ar.shaatree',
-      name: 'أبو بكر الشاطري',
-      englishName: 'Abu Bakr Ash-Shaatree',
-    },
-    {
-      identifier: 'ar.ahmedajamy',
-      name: 'أحمد بن علي العجمي',
-      englishName: 'Ahmed ibn Ali al-Ajamy',
-    },
-    {
-      identifier: 'ar.hanirifai',
-      name: 'هاني الرفاعي',
-      englishName: 'Hani Rifai',
-    },
-  ])
-
-  const currentReciter = computed(() => {
-    return reciters.value.find((r) => r.identifier === selectedReciter.value) || reciters.value[0]
-  })
-
   const hasNext = computed(() => {
     return currentIndex.value < currentPlaylist.value.length - 1
   })
@@ -82,8 +25,6 @@ export const useQuranStore = defineStore('audio', () => {
       verseNumber: verse.numberInSurah,
       surahName: surahInfo.name,
       surahEnglishName: surahInfo.englishName,
-      reciterName: currentReciter.value.name,
-      reciterEnglishName: currentReciter.value.englishName,
       verse: verse,
     }
 
@@ -97,8 +38,6 @@ export const useQuranStore = defineStore('audio', () => {
       verseNumber: verse.numberInSurah,
       surahName: surahData.name,
       surahEnglishName: surahData.englishName,
-      reciterName: currentReciter.value.name,
-      reciterEnglishName: currentReciter.value.englishName,
       verse: verse,
     }))
 
@@ -173,10 +112,7 @@ export const useQuranStore = defineStore('audio', () => {
 
   // Initialize from localStorage
   const initializeStore = () => {
-    const savedReciter = localStorage.getItem('rafeeq_selected_reciter')
-    if (savedReciter && reciters.value.find((r) => r.identifier === savedReciter)) {
-      selectedReciter.value = savedReciter
-    }
+    selectedReciter.value = 'ar.alafasy'
   }
 
   return {
@@ -188,10 +124,8 @@ export const useQuranStore = defineStore('audio', () => {
     isShuffleEnabled,
     repeatMode,
     shouldAutoPlay,
-    reciters,
 
     // Getters
-    currentReciter,
     hasNext,
     hasPrevious,
 
