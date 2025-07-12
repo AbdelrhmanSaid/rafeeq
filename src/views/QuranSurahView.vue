@@ -13,12 +13,33 @@ import AudioPlayer from '@/components/QuranPlayer.vue'
 import { useQuranStore } from '@/stores/quran'
 
 const surahId = useRouteParams('surah')
-const { isFetching, data: surah, error } = useFetch(`https://api.alquran.cloud/v1/surah/${surahId.value}`).json().get()
-const audioStore = useQuranStore()
+const endpoint = `https://api.alquran.cloud/v1/surah/${surahId.value}`
+const { isFetching, data: surah, error, onFetchResponse } = useFetch(endpoint).json().get()
 
-const audioSurah = ref(null)
-const audioLoading = ref(false)
-const audioError = ref(null)
+const quranStore = useQuranStore()
+const quranSurah = ref(null)
+const quranLoading = ref(false)
+const quranLoadingError = ref(null)
+
+onFetchResponse(async () => {
+  try {
+    quranLoading.value = true
+    quranLoadingError.value = null
+
+    const { data } = await useFetch(`http://api.alquran.cloud/v1/surah/${surah.value.data.number}/ar.alafasy`)
+      .json()
+      .get()
+    const audioData = data.value.data
+
+    quranSurah.value = audioData
+    quranStore.playSurah(audioData)
+    quranStore.currentAudio = null
+  } catch (err) {
+    quranLoadingError.value = err.message
+  } finally {
+    quranLoading.value = false
+  }
+})
 
 // Prepare the ayat data
 const ayat = computed(() => {
@@ -44,56 +65,24 @@ const ayat = computed(() => {
   return []
 })
 
-const loadSurahAudio = async () => {
-  if (!surah.value || audioLoading.value) return
-
-  try {
-    audioLoading.value = true
-    audioError.value = null
-
-    const endpoint = `http://api.alquran.cloud/v1/surah/${surah.value.data.number}/ar.alafasy`
-    const response = await fetch(endpoint)
-    const data = await response.json()
-    const audioData = data.data
-
-    audioSurah.value = audioData
-    audioStore.playSurah(audioData)
-    audioStore.currentAudio = null
-  } catch (err) {
-    console.error('Error loading surah audio:', err)
-    audioError.value = err.message
-  } finally {
-    audioLoading.value = false
-  }
-}
-
 const playVerse = (verse) => {
-  if (!audioSurah.value) return
-  const verseIndex = audioSurah.value.ayahs.findIndex((ayah) => ayah.numberInSurah === verse.numberInSurah)
+  if (!quranSurah.value) return
+
+  const verseIndex = quranSurah.value.ayahs.findIndex((ayah) => ayah.numberInSurah === verse.numberInSurah)
+
   if (verseIndex === -1) return
-  if (audioStore.currentPlaylist.length === 0) {
-    audioStore.playSurah(audioSurah.value)
-  }
-  audioStore.jumpToVerse(verseIndex)
-  audioStore.shouldAutoPlay = true
+  if (quranStore.currentPlaylist.length === 0) quranStore.playSurah(quranSurah.value)
+
+  quranStore.jumpToVerse(verseIndex)
+  quranStore.shouldAutoPlay = true
 }
 
 const isCurrentVerse = (verse) => {
-  const currentAudio = audioStore.currentAudio
+  const currentAudio = quranStore.currentAudio
   if (!currentAudio || !surah.value) return false
 
   return currentAudio.verseNumber === verse.numberInSurah && currentAudio.surahName === surah.value.data.name
 }
-
-watch(
-  surah,
-  (newSurah) => {
-    if (newSurah) {
-      loadSurahAudio()
-    }
-  },
-  { immediate: true },
-)
 </script>
 
 <template>
