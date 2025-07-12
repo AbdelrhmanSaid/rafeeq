@@ -133,5 +133,3 @@ onUnmounted(() => {
     ></audio>
   </div>
 </template>
-
-<style scoped></style>

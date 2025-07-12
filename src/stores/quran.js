@@ -15,8 +15,8 @@ export const useQuranStore = defineStore('audio', () => {
     return currentIndex.value > 0
   })
 
-  const playVerse = (verse, surahInfo) => {
-    const audioData = {
+  const mapper = (verse, surahInfo) => {
+    return {
       audioUrl: verse.audio,
       audioSecondary: verse.audioSecondary,
       verseNumber: verse.numberInSurah,
@@ -24,19 +24,14 @@ export const useQuranStore = defineStore('audio', () => {
       surahEnglishName: surahInfo.englishName,
       verse: verse,
     }
+  }
 
-    currentAudio.value = audioData
+  const playVerse = (verse, surahInfo) => {
+    currentAudio.value = mapper(verse, surahInfo)
   }
 
   const playSurah = (surahData) => {
-    const playlist = surahData.ayahs.map((verse) => ({
-      audioUrl: verse.audio,
-      audioSecondary: verse.audioSecondary,
-      verseNumber: verse.numberInSurah,
-      surahName: surahData.name,
-      surahEnglishName: surahData.englishName,
-      verse: verse,
-    }))
+    const playlist = surahData.ayahs.map((verse) => mapper(verse, surahData))
 
     currentPlaylist.value = playlist
     currentIndex.value = 0
@@ -58,36 +53,18 @@ export const useQuranStore = defineStore('audio', () => {
     }
   }
 
-  const playPrevious = () => {
-    if (hasPrevious.value) {
-      currentIndex.value--
-      currentAudio.value = currentPlaylist.value[currentIndex.value]
-    }
-  }
-
-  const stop = () => {
-    currentAudio.value = null
-    currentPlaylist.value = []
-    currentIndex.value = 0
-  }
-
   return {
-    // State
     currentAudio,
     currentPlaylist,
     currentIndex,
     shouldAutoPlay,
 
-    // Getters
     hasNext,
     hasPrevious,
 
-    // Actions
     playVerse,
     playSurah,
     playNext,
-    playPrevious,
     jumpToVerse,
-    stop,
   }
 })
