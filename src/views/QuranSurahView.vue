@@ -26,7 +26,7 @@ onFetchResponse(async () => {
     quranLoading.value = true
     quranLoadingError.value = null
 
-    const { data } = await useFetch(`http://api.alquran.cloud/v1/surah/${surah.value.data.number}/ar.alafasy`)
+    const { data } = await useFetch(`https://api.alquran.cloud/v1/surah/${surah.value.data.number}/ar.alafasy`)
       .json()
       .get()
     const audioData = data.value.data
