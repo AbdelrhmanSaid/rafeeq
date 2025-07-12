@@ -5,7 +5,6 @@ export const useQuranStore = defineStore('audio', () => {
   const currentAudio = ref(null)
   const currentPlaylist = ref([])
   const currentIndex = ref(0)
-  const selectedReciter = ref('ar.alafasy')
   const shouldAutoPlay = ref(false)
 
   const hasNext = computed(() => {
@@ -72,25 +71,11 @@ export const useQuranStore = defineStore('audio', () => {
     currentIndex.value = 0
   }
 
-  const setReciter = (reciterIdentifier) => {
-    selectedReciter.value = reciterIdentifier
-    // Save to localStorage
-    localStorage.setItem('rafeeq_selected_reciter', reciterIdentifier)
-  }
-
-  // Shuffle and repeat features removed for simplicity
-
-  // Initialize from localStorage
-  const initializeStore = () => {
-    selectedReciter.value = 'ar.alafasy'
-  }
-
   return {
     // State
     currentAudio,
     currentPlaylist,
     currentIndex,
-    selectedReciter,
     shouldAutoPlay,
 
     // Getters
@@ -104,7 +89,5 @@ export const useQuranStore = defineStore('audio', () => {
     playPrevious,
     jumpToVerse,
     stop,
-    setReciter,
-    initializeStore,
   }
 })

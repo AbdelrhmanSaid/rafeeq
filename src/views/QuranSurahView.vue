@@ -51,7 +51,7 @@ const loadSurahAudio = async () => {
     audioLoading.value = true
     audioError.value = null
 
-    const endpoint = `http://api.alquran.cloud/v1/surah/${surah.value.data.number}/${audioStore.selectedReciter}`
+    const endpoint = `http://api.alquran.cloud/v1/surah/${surah.value.data.number}/ar.alafasy`
     const response = await fetch(endpoint)
     const data = await response.json()
     const audioData = data.data
@@ -84,10 +84,6 @@ const isCurrentVerse = (verse) => {
 
   return currentAudio.verseNumber === verse.numberInSurah && currentAudio.surahName === surah.value.data.name
 }
-
-onMounted(() => {
-  audioStore.initializeStore()
-})
 
 watch(
   surah,
