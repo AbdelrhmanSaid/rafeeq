@@ -11,7 +11,6 @@ import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import AudioPlayer from '@/components/QuranPlayer.vue'
 import { useQuranStore } from '@/stores/quran'
-import QuranService from '@/services/quran'
 
 const surahId = useRouteParams('surah')
 const { isFetching, data: surah, error } = useFetch(`https://api.alquran.cloud/v1/surah/${surahId.value}`).json().get()
@@ -52,7 +51,10 @@ const loadSurahAudio = async () => {
     audioLoading.value = true
     audioError.value = null
 
-    const audioData = await QuranService.getAudioForSurah(surah.value.data.number, audioStore.selectedReciter)
+    const endpoint = `http://api.alquran.cloud/v1/surah/${surah.value.data.number}/${audioStore.selectedReciter}`
+    const response = await fetch(endpoint)
+    const data = await response.json()
+    const audioData = data.data
 
     audioSurah.value = audioData
     audioStore.playSurah(audioData)
