@@ -27,9 +27,6 @@ export default defineConfig({
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
               },
-              cacheKeyWillBeUsed: async ({ request }) => {
-                return `${request.url}`;
-              },
             },
           },
           // Cache Quran API responses
@@ -41,9 +38,6 @@ export default defineConfig({
               expiration: {
                 maxEntries: 50,
                 maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
-              },
-              cacheKeyWillBeUsed: async ({ request }) => {
-                return `${request.url}`;
               },
             },
           },
@@ -58,9 +52,6 @@ export default defineConfig({
                 maxAgeSeconds: 60 * 60 * 12, // 12 hours
               },
               networkTimeoutSeconds: 5,
-              cacheKeyWillBeUsed: async ({ request }) => {
-                return `${request.url}`;
-              },
             },
           },
           // Cache fonts
