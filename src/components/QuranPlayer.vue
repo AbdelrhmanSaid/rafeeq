@@ -2,8 +2,10 @@
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { useQuranStore } from '@/stores/quran'
 import { IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
+import { useRadioStore } from '@/stores/radio'
 
 const quranStore = useQuranStore()
+const radioStore = useRadioStore()
 
 const audioElement = ref(null)
 const isPlaying = ref(false)
@@ -17,6 +19,11 @@ const progressPercentage = computed(() => (duration.value ? (currentTime.value /
 
 const togglePlayPause = async () => {
   if (!audioElement.value) return
+
+  // Make sure radio is paused if it was playing
+  if (radioStore.isPlaying) {
+    radioStore.stop()
+  }
 
   if (isPlaying.value) {
     audioElement.value.pause()
