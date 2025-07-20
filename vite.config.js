@@ -14,11 +14,90 @@ export default defineConfig({
       devOptions: {
         enabled: true,
       },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,woff,woff2}'],
+        runtimeCaching: [
+          // Cache Azkar JSON files
+          {
+            urlPattern: /^.*\/data\/azkar\/.*\.json$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'azkar-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+              },
+              cacheKeyWillBeUsed: async ({ request }) => {
+                return `${request.url}`;
+              },
+            },
+          },
+          // Cache Quran API responses
+          {
+            urlPattern: /^https:\/\/api\.alquran\.cloud\/v1\/.*/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'quran-api-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
+              },
+              cacheKeyWillBeUsed: async ({ request }) => {
+                return `${request.url}`;
+              },
+            },
+          },
+          // Cache Prayer Times API responses
+          {
+            urlPattern: /^https:\/\/api\.aladhan\.com\/v1\/.*/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'prayer-times-cache',
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 12, // 12 hours
+              },
+              networkTimeoutSeconds: 5,
+              cacheKeyWillBeUsed: async ({ request }) => {
+                return `${request.url}`;
+              },
+            },
+          },
+          // Cache fonts
+          {
+            urlPattern: /^.*\.(ttf|woff|woff2)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'fonts-cache',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+              },
+            },
+          },
+          // Cache images
+          {
+            urlPattern: /^.*\.(png|jpg|jpeg|svg|gif|webp)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'images-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+              },
+            },
+          },
+        ],
+      },
       manifest: {
-        name: 'Rafeeq',
-        short_name: 'Rafeeq',
-        description: 'Islamic App',
-        theme_color: '#ffffff',
+        name: 'رفيق - زادك في الطريق',
+        short_name: 'رفيق',
+        description: 'تطبيق إسلامي شامل للأذكار والقرآن الكريم ومواقيت الصلاة',
+        theme_color: '#795547',
+        background_color: '#ffffff',
+        display: 'standalone',
+        start_url: '/',
+        scope: '/',
         icons: [
           {
             src: 'pwa-192x192.png',
@@ -29,6 +108,7 @@ export default defineConfig({
             src: 'pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
+            purpose: 'any maskable',
           },
         ],
       },
