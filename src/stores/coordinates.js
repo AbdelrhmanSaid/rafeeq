@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
-import { ref, watchEffect } from 'vue'
+import { useLocalStorage } from '@vueuse/core'
 
 export const useCoordinatesStore = defineStore('coordinates', function () {
-  const longitude = ref(+localStorage.getItem('longitude') || 0)
-  const latitude = ref(+localStorage.getItem('latitude') || 0)
+  const longitude = useLocalStorage('longitude', 0);
+  const latitude = useLocalStorage('latitude', 0);
 
   function detect() {
     navigator.geolocation.getCurrentPosition((position) => {
@@ -21,11 +21,6 @@ export const useCoordinatesStore = defineStore('coordinates', function () {
     longitude.value = longitude
     latitude.value = latitude
   }
-
-  watchEffect(() => {
-    localStorage.setItem('longitude', longitude.value)
-    localStorage.setItem('latitude', latitude.value)
-  })
 
   return {
     longitude,

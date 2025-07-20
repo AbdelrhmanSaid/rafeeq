@@ -1,3 +1,4 @@
+import { useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
@@ -5,6 +6,7 @@ export const useQuranStore = defineStore('audio', () => {
   const currentAudio = ref(null)
   const currentPlaylist = ref([])
   const currentIndex = ref(0)
+  const currentReciter = useLocalStorage('currentReciter', 'ar.alafasy')
   const shouldAutoPlay = ref(false)
 
   const hasNext = computed(() => {
@@ -53,10 +55,15 @@ export const useQuranStore = defineStore('audio', () => {
     }
   }
 
+  const changeReciter = (reciter) => {
+    currentReciter.value = reciter
+  }
+
   return {
     currentAudio,
     currentPlaylist,
     currentIndex,
+    currentReciter,
     shouldAutoPlay,
 
     hasNext,
@@ -66,5 +73,6 @@ export const useQuranStore = defineStore('audio', () => {
     playSurah,
     playNext,
     jumpToVerse,
+    changeReciter,
   }
 })

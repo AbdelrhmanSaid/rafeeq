@@ -3,6 +3,7 @@ import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
 
 import SettingsLocation from './partials/SettingsLocation.vue'
+import SettingsReciter from './partials/SettingsReciter.vue'
 </script>
 
 <template>
@@ -12,6 +13,9 @@ import SettingsLocation from './partials/SettingsLocation.vue'
     <div class="row">
       <div class="col-12 col-md-6">
         <SettingsLocation />
+      </div>
+      <div class="col-12 col-md-6">
+        <SettingsReciter />
       </div>
     </div>
   </Page>
