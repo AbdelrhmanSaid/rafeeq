@@ -2,8 +2,8 @@ import { defineStore } from 'pinia'
 import { useLocalStorage } from '@vueuse/core'
 
 export const useCoordinatesStore = defineStore('coordinates', function () {
-  const longitude = useLocalStorage('longitude', 0);
-  const latitude = useLocalStorage('latitude', 0);
+  const longitude = useLocalStorage('longitude', 0)
+  const latitude = useLocalStorage('latitude', 0)
 
   function detect() {
     navigator.geolocation.getCurrentPosition((position) => {
