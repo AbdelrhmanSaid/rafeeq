@@ -1,10 +1,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useFetch, useStorage } from '@vueuse/core'
-import { IconDownload, IconCheck, IconLoader2, IconX } from '@tabler/icons-vue'
+import { useFetch, useStorage, useOnline } from '@vueuse/core'
+import { IconDownload, IconCheck, IconLoader2, IconX, IconWifiOff } from '@tabler/icons-vue'
 
 import surahs from '@/exports/QuranSurahs.js'
 import azkarCategories from '@/exports/AzkarCategories.js'
+
+const online = useOnline()
 
 const downloadedSurahs = useStorage('downloadedSurahs', {})
 const downloadedAzkar = useStorage('downloadedAzkar', {})
@@ -86,12 +88,14 @@ const downloadButtonText = computed(() => {
   if (downloadState.value.isDownloading) return 'جاري التحميل...'
   if (isCompleted.value) return 'تم التحميل بالكامل'
   if (hasPartialDownloads.value) return 'استكمال التحميل'
+  if (!online.value) return 'لا يوجد اتصال بالإنترنت'
   return 'بدء التحميل'
 })
 
 const downloadButtonIcon = computed(() => {
   if (downloadState.value.isDownloading) return IconLoader2
   if (isCompleted.value) return IconCheck
+  if (!online.value) return IconWifiOff
   return IconDownload
 })
 </script>
@@ -165,7 +169,7 @@ const downloadButtonIcon = computed(() => {
           type="button"
           class="btn btn-primary d-flex align-items-center gap-2"
           @click="downloadAllAssets"
-          :disabled="downloadState.isDownloading"
+          :disabled="downloadState.isDownloading || !online"
         >
           <component :is="downloadButtonIcon" size="1.25rem" :class="{ spin: downloadState.isDownloading }" />
           <span>{{ downloadButtonText }}</span>
