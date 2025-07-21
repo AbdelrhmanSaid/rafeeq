@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
-    "@tabler/icons-vue": "^3.34.0",
+    "@tabler/icons-vue": "^3.34.1",
     "@vueuse/core": "^13.5.0",
     "@vueuse/router": "^13.5.0",
     "bootstrap": "^5.3.7",
@@ -29,7 +29,7 @@
     "eslint": "^9.31.0",
     "eslint-plugin-vue": "^10.3.0",
     "prettier": "3.6.2",
-    "vite": "^7.0.4",
+    "vite": "^7.0.5",
     "vite-plugin-pwa": "^1.0.1",
     "vite-plugin-vue-devtools": "^7.7.7"
   }
