@@ -1,8 +1,8 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
 import { RouterView } from 'vue-router'
 import Navbar from '@/components/Layout/Navbar.vue'
 import Footer from '@/components/Layout/Footer.vue'
+import TabBar from '@/components/Layout/TabBar.vue'
 import { IconWifiOff } from '@tabler/icons-vue'
 import { useOnline } from '@vueuse/core'
 
@@ -21,9 +21,19 @@ const online = useOnline()
     </div>
   </div>
 
-  <Navbar />
-  <RouterView />
-  <Footer />
+  <!-- Desktop Navbar -->
+  <Navbar class="d-none d-md-block" />
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <RouterView />
+  </div>
+
+  <!-- Desktop Footer -->
+  <Footer class="d-none d-md-block" />
+
+  <!-- Mobile TabBar -->
+  <TabBar class="d-block d-md-none" />
 </template>
 
 <style lang="scss" scoped>
@@ -39,6 +49,19 @@ const online = useOnline()
 
 .offline-banner + .navbar {
   top: 50px; /* Adjust navbar position when offline banner is visible */
+}
+
+.main-content {
+  min-height: calc(100vh - 120px); /* Adjust for navbar and footer on desktop */
+  padding-bottom: 80px; /* Add padding for mobile tab bar */
+}
+
+/* Desktop adjustments */
+@media (min-width: 992px) {
+  .main-content {
+    min-height: calc(100vh - 200px);
+    padding-bottom: 0;
+  }
 }
 
 @keyframes slideDown {
