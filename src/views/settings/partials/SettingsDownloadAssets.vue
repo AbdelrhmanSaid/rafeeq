@@ -29,7 +29,7 @@ const hasPartialDownloads = computed(() => alreadyDownloadedCount.value > 0 && !
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const downloadSurah = async (surah) => {
-  downloadState.value.currentItem = `سورة ${surah.name || surah.id}`
+  downloadState.value.currentItem = `${surah.name || surah.id}`
   const { data } = await useFetch(`https://api.alquran.cloud/v1/surah/${surah.id}`).json()
   downloadedSurahs.value[surah.id] = await data.value
 }
