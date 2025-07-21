@@ -30,7 +30,7 @@ const online = useOnline()
   </div>
 
   <!-- Desktop Footer -->
-  <Footer class="d-none d-md-block" />
+  <Footer class="d-none d-md-block mt-5" />
 
   <!-- Mobile TabBar -->
   <TabBar class="d-block d-md-none" />
