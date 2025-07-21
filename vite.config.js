@@ -32,7 +32,7 @@ export default defineConfig({
           // Cache Quran API responses
           {
             urlPattern: /^https:\/\/api\.alquran\.cloud\/v1\/.*/,
-            handler: 'StaleWhileRevalidate',
+            handler: 'CacheFirst',
             options: {
               cacheName: 'quran-api-cache',
               expiration: {
