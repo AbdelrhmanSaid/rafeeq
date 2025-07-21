@@ -9,7 +9,6 @@ const quranStore = useQuranStore()
   <div class="form-floating">
     <select
       class="form-select"
-      type="text"
       id="currentReciter"
       :value="quranStore.currentReciter"
       @change="quranStore.changeReciter($event.target.value)"
