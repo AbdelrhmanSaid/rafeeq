@@ -2,7 +2,7 @@
 import { computed, ref, watch, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { IconChevronLeft } from '@tabler/icons-vue'
-import { useFetch } from '@vueuse/core'
+import { useFetch, useOnline } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
 
 import Page from '@/components/Layout/Page.vue'
@@ -11,6 +11,8 @@ import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import AudioPlayer from '@/components/QuranPlayer.vue'
 import { useQuranStore } from '@/stores/quran'
+
+const online = useOnline()
 
 const surahId = useRouteParams('surah')
 const endpoint = `https://api.alquran.cloud/v1/surah/${surahId.value}`
@@ -100,7 +102,7 @@ const isCurrentVerse = (verse) => {
     />
 
     <!-- Audio Player -->
-    <AudioPlayer />
+    <AudioPlayer v-if="online" />
 
     <div class="ayat font-quran mb-4">
       <span class="basmallah">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>

@@ -1,10 +1,11 @@
 <script setup>
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useCoordinatesStore } from '@/stores/coordinates'
-import { useFetch, useDateFormat } from '@vueuse/core'
+import { useFetch, useDateFormat, useOnline } from '@vueuse/core'
 
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
+import OfflineState from '@/components/OfflineState.vue'
 
 // Import prayer icons
 import Fajr from '@/components/icons/Prayers/Fajr.vue'
@@ -21,6 +22,9 @@ let timer = null
 // Update current time every second
 onMounted(() => (timer = setInterval(() => (now.value = new Date()), 1000)))
 onUnmounted(() => timer && clearInterval(timer))
+
+// Check if the user is online
+const online = useOnline()
 
 // Prayer timings map
 const timingsMap = {
@@ -138,6 +142,10 @@ const remainingTime = computed(() => {
         </div>
       </div>
     </div>
+  </div>
+
+  <div v-else-if="!online" class="border rounded p-5">
+    <OfflineState />
   </div>
 </template>
 

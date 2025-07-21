@@ -8,4 +8,7 @@ export default defineConfig([
       'vue/multi-word-component-names': 'off',
     },
   },
+  {
+    ignores: ['node_modules', 'dist', 'dev-dist'],
+  },
 ])

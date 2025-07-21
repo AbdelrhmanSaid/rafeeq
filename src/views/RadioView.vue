@@ -3,14 +3,19 @@ import { useRadioStore } from '@/stores/radio'
 import { IconPlayerPlay, IconPlayerPause, IconHeart, IconHeartFilled } from '@tabler/icons-vue'
 import { useSearch } from '@/composables/search'
 import { computed, ref } from 'vue'
+import { useOnline } from '@vueuse/core'
 
 import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import radiosData from '@/exports/Radios.js'
+import OfflineState from '@/components/OfflineState.vue'
 
 // Radio store
 const store = useRadioStore()
+
+// Check if the user is online
+const online = useOnline()
 
 // Favorites filter
 const favoritesOnly = ref(false)
@@ -27,7 +32,11 @@ const { search, filtered } = useSearch(radios, ['name'])
 </script>
 
 <template>
-  <Page>
+  <Page v-if="!online">
+    <OfflineState />
+  </Page>
+
+  <Page v-else>
     <Heading title="الإذاعة" subtitle="استمع لإذاعات القرآن الكريم المختلفة حول العالم" />
 
     <div class="row g-3 mb-4">
