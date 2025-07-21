@@ -11,7 +11,7 @@ import SettingsDownloadAssets from './partials/SettingsDownloadAssets.vue'
   <Page>
     <Heading class="mb-4" title="الإعدادات" subtitle="تعديل الإعدادات المختلفة للتطبيق" />
 
-    <div class="row g-4">
+    <div class="row g-3">
       <div class="col-12 col-md-6">
         <SettingsLocation />
       </div>

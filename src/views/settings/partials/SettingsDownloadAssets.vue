@@ -373,7 +373,7 @@ const connectionStatus = computed(() => ({
       </p>
 
       <!-- Current Storage Status -->
-      <div class="mb-3 p-3 bg-light rounded">
+      <div class="mb-3 p-3 border rounded">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <span class="fw-medium">حالة التخزين الحالية:</span>
           <span class="badge" :class="isCompleted ? 'bg-success' : hasPartialDownloads ? 'bg-warning' : 'bg-secondary'">
