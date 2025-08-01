@@ -47,17 +47,17 @@ const toggleMode = () => {
 <template>
   <div>
     <!-- More Menu Overlay -->
-    <div 
-      v-if="showMoreMenu" 
+    <div
+      v-if="showMoreMenu"
       class="position-fixed top-0 start-0 end-0 bottom-0 d-flex align-items-end more-menu-overlay"
-      :class="{ 'closing': isClosing }"
+      :class="{ closing: isClosing }"
       @click="closeMoreMenu"
     >
-      <div 
+      <div
         class="bg-body rounded-top-3 w-100 more-menu"
-        :class="{ 'closing': isClosing }"
+        :class="{ closing: isClosing }"
         @click.stop
-        style="max-height: 70vh;"
+        style="max-height: 70vh"
       >
         <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
           <h5 class="mb-0">المزيد</h5>
@@ -67,33 +67,33 @@ const toggleMode = () => {
         </div>
 
         <div class="py-3">
-          <RouterLink 
-            :to="{ name: 'zakat' }" 
-            class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item" 
+          <RouterLink
+            :to="{ name: 'zakat' }"
+            class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item"
             @click="closeMoreMenu"
-          > 
-            حاسبة الزكاة 
+          >
+            حاسبة الزكاة
           </RouterLink>
-          <RouterLink 
-            :to="{ name: 'sebha' }" 
-            class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item" 
+          <RouterLink
+            :to="{ name: 'sebha' }"
+            class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item"
             @click="closeMoreMenu"
           >
             السبحة الإلكترونية
           </RouterLink>
-          <RouterLink 
-            :to="{ name: 'settings' }" 
-            class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item" 
+          <RouterLink
+            :to="{ name: 'settings' }"
+            class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item"
             @click="closeMoreMenu"
-          > 
-            الإعدادات 
+          >
+            الإعدادات
           </RouterLink>
 
           <hr class="my-3" />
 
-          <a 
-            href="#" 
-            class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item" 
+          <a
+            href="#"
+            class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item"
             @click.prevent="toggleMode"
           >
             <span v-if="mode.isDark" class="d-flex align-items-center">
@@ -106,10 +106,10 @@ const toggleMode = () => {
             </span>
           </a>
 
-          <a 
-            href="https://t.me/rafeeqme" 
-            target="_blank" 
-            class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item" 
+          <a
+            href="https://t.me/rafeeqme"
+            target="_blank"
+            class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item"
             @click="closeMoreMenu"
           >
             <IconBrandTelegram class="me-2" size="1.25rem" />
@@ -121,32 +121,32 @@ const toggleMode = () => {
 
     <!-- Tab Bar -->
     <nav class="position-fixed bottom-0 start-0 end-0 bg-body border-top d-flex justify-content-around py-2 tab-bar">
-      <RouterLink 
-        :to="{ name: 'home' }" 
+      <RouterLink
+        :to="{ name: 'home' }"
         class="d-flex flex-column align-items-center text-decoration-none text-secondary px-2 py-1 rounded tab-item"
       >
         <IconHome size="1.5rem" />
         <span class="mt-1 small">الرئيسية</span>
       </RouterLink>
 
-      <RouterLink 
-        :to="{ name: 'quran' }" 
+      <RouterLink
+        :to="{ name: 'quran' }"
         class="d-flex flex-column align-items-center text-decoration-none text-secondary px-2 py-1 rounded tab-item"
       >
         <IconBook size="1.5rem" />
         <span class="mt-1 small">القرآن</span>
       </RouterLink>
 
-      <RouterLink 
-        :to="{ name: 'azkar' }" 
+      <RouterLink
+        :to="{ name: 'azkar' }"
         class="d-flex flex-column align-items-center text-decoration-none text-secondary px-2 py-1 rounded tab-item"
       >
         <IconSparkles size="1.5rem" />
         <span class="mt-1 small">الأذكار</span>
       </RouterLink>
 
-      <RouterLink 
-        :to="{ name: 'radio' }" 
+      <RouterLink
+        :to="{ name: 'radio' }"
         class="d-flex flex-column align-items-center text-decoration-none text-secondary px-2 py-1 rounded position-relative tab-item"
       >
         <IconRadio size="1.5rem" />
@@ -154,8 +154,8 @@ const toggleMode = () => {
         <span class="position-absolute top-0 end-0 radio-status" v-if="radio.isPlaying"></span>
       </RouterLink>
 
-      <button 
-        class="d-flex flex-column align-items-center text-secondary bg-transparent border-0 px-2 py-1 rounded tab-item" 
+      <button
+        class="d-flex flex-column align-items-center text-secondary bg-transparent border-0 px-2 py-1 rounded tab-item"
         @click="toggleMoreMenu"
       >
         <IconDotsCircleHorizontal size="1.5rem" />
@@ -200,9 +200,15 @@ const toggleMode = () => {
 }
 
 @keyframes pulse {
-  0% { transform: translate(25%, -25%) scale(0.9); }
-  50% { transform: translate(25%, -25%) scale(1.1); }
-  100% { transform: translate(25%, -25%) scale(0.9); }
+  0% {
+    transform: translate(25%, -25%) scale(0.9);
+  }
+  50% {
+    transform: translate(25%, -25%) scale(1.1);
+  }
+  100% {
+    transform: translate(25%, -25%) scale(0.9);
+  }
 }
 
 .more-menu-overlay {
@@ -225,7 +231,9 @@ const toggleMode = () => {
     animation: none;
     transform: translateY(100%);
     opacity: 0;
-    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    transition:
+      transform 0.3s ease-out,
+      opacity 0.3s ease-out;
   }
 }
 
