@@ -4,19 +4,37 @@ import Navbar from '@/components/Layout/Navbar.vue'
 import Footer from '@/components/Layout/Footer.vue'
 import TabBar from '@/components/Layout/TabBar.vue'
 import { IconWifiOff } from '@tabler/icons-vue'
+import { ref, watch } from 'vue'
 import { useOnline } from '@vueuse/core'
 
 // Network status detection
 const online = useOnline()
+
+// Offline banner visibility
+const showOfflineBanner = ref(true)
+
+// Reset banner when connection is restored
+watch(online, (isOnline) => {
+  if (isOnline) {
+    showOfflineBanner.value = true
+  }
+})
 </script>
 
 <template>
   <!-- Offline indicator -->
-  <div v-if="!online" class="offline-banner">
+  <div v-if="!online && showOfflineBanner" class="offline-banner">
     <div class="container">
-      <div class="d-flex align-items-center justify-content-center text-white">
+      <div class="d-flex align-items-center text-white">
         <IconWifiOff class="me-2" size="1.25rem" />
         <span>لا يوجد اتصال بالإنترنت</span>
+
+        <button
+          type="button"
+          class="btn-close btn-close-white ms-auto"
+          aria-label="Close"
+          @click="showOfflineBanner = false"
+        ></button>
       </div>
     </div>
   </div>
