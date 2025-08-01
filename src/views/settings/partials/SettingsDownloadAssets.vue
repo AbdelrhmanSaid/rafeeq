@@ -32,14 +32,20 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const downloadSurah = async (surah) => {
   downloadState.value.currentItem = `${surah.name || surah.id}`
-  const { data } = await useFetch(`https://api.alquran.cloud/v1/surah/${surah.id}`).json()
-  downloadedSurahs.value[surah.id] = await data.value
+  const { data, error } = await useFetch(`https://api.alquran.cloud/v1/surah/${surah.id}`).json()
+  if (error.value) {
+    throw error.value
+  }
+  downloadedSurahs.value[surah.id] = data.value
 }
 
 const downloadAzkarCategory = async (category) => {
   downloadState.value.currentItem = `${category.name || category.id}`
-  const { data } = await useFetch(`/data/azkar/${category.id}.json`).json()
-  downloadedAzkar.value[category.id] = await data.value
+  const { data, error } = await useFetch(`/data/azkar/${category.id}.json`).json()
+  if (error.value) {
+    throw error.value
+  }
+  downloadedAzkar.value[category.id] = data.value
 }
 
 const updateProgress = () => {
@@ -50,24 +56,28 @@ const downloadAllAssets = async () => {
   downloadState.value.isDownloading = true
   downloadState.value.completed = alreadyDownloadedCount.value
 
-  const surahsToDownload = surahs.filter((surah) => !downloadedSurahs.value[surah.id])
-  for (const surah of surahsToDownload) {
-    await downloadSurah(surah)
-    downloadState.value.completed++
-    updateProgress()
-    await delay(100)
-  }
+  try {
+    const surahsToDownload = surahs.filter((surah) => !downloadedSurahs.value[surah.id])
+    for (const surah of surahsToDownload) {
+      await downloadSurah(surah)
+      downloadState.value.completed++
+      updateProgress()
+      await delay(100)
+    }
 
-  const azkarToDownload = azkarCategories.filter((category) => !downloadedAzkar.value[category.id])
-  for (const category of azkarToDownload) {
-    await downloadAzkarCategory(category)
-    downloadState.value.completed++
-    updateProgress()
-    await delay(100)
+    const azkarToDownload = azkarCategories.filter((category) => !downloadedAzkar.value[category.id])
+    for (const category of azkarToDownload) {
+      await downloadAzkarCategory(category)
+      downloadState.value.completed++
+      updateProgress()
+      await delay(100)
+    }
+  } catch (e) {
+    console.error('Download error:', e)
+  } finally {
+    downloadState.value.isDownloading = false
+    downloadState.value.currentItem = null
   }
-
-  downloadState.value.isDownloading = false
-  downloadState.value.currentItem = null
 }
 
 const clearAllDownloads = () => {
@@ -169,7 +179,7 @@ const downloadButtonIcon = computed(() => {
           type="button"
           class="btn btn-primary d-flex align-items-center gap-2"
           @click="downloadAllAssets"
-          :disabled="downloadState.isDownloading || !online"
+          :disabled="downloadState.isDownloading || !online || isCompleted"
         >
           <component :is="downloadButtonIcon" size="1.25rem" :class="{ spin: downloadState.isDownloading }" />
           <span>{{ downloadButtonText }}</span>
