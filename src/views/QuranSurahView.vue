@@ -150,8 +150,8 @@ const isCurrentVerse = (verse) => {
 
     .ayah,
     .ayah-number {
-      line-height: 2.125;
-      font-size: 1.5rem;
+      line-height: 2;
+      font-size: 1.625rem;
       margin-bottom: 1rem;
     }
 

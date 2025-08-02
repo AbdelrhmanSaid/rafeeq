@@ -86,10 +86,18 @@
   src: url('../fonts/Amiri-BoldItalic.ttf') format('truetype');
 }
 
+@font-face {
+  font-family: 'Uthmani';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/Uthmani.woff') format('woff');
+}
+
 .font-body {
   font-family: 'IBM Plex Sans Arabic', sans-serif;
 }
 
 .font-quran {
-  font-family: 'Amiri', 'IBM Plex Sans Arabic', sans-serif;
+  font-family: 'Uthmani', 'Amiri', 'IBM Plex Sans Arabic', sans-serif;
 }
