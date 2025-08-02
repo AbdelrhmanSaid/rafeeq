@@ -9,8 +9,8 @@ export const useRadioStore = defineStore('radio', () => {
   const station = ref(null)
   const isPlaying = computed(() => station.value !== null)
 
-  const favoriteIds = useLocalStorage('radioFavorites', [])
-  const favorites = computed(() => radios.filter((station) => favoriteIds.value.includes(station.id)))
+  const favoriteUrls = useLocalStorage('radioFavorites', [])
+  const favorites = computed(() => radios.filter((station) => favoriteUrls.value.includes(station.url)))
 
   function play(url) {
     player.src = url
@@ -25,15 +25,15 @@ export const useRadioStore = defineStore('radio', () => {
     station.value = null
   }
 
-  function isFavorite(stationId) {
-    return favoriteIds.value.includes(stationId)
+  function isFavorite(stationUrl) {
+    return favoriteUrls.value.includes(stationUrl)
   }
 
-  function toggleFavorite(stationId) {
-    if (isFavorite(stationId)) {
-      favoriteIds.value = favoriteIds.value.filter((id) => id !== stationId)
+  function toggleFavorite(stationUrl) {
+    if (isFavorite(stationUrl)) {
+      favoriteUrls.value = favoriteUrls.value.filter((url) => url !== stationUrl)
     } else {
-      favoriteIds.value.push(stationId)
+      favoriteUrls.value.push(stationUrl)
     }
   }
 

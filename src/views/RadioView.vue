@@ -21,7 +21,7 @@ const online = useOnline()
 const favoritesOnly = ref(false)
 const radios = computed(() => {
   if (favoritesOnly.value) {
-    return radiosData.filter((radio) => store.isFavorite(radio.id))
+    return radiosData.filter((radio) => store.isFavorite(radio.url))
   }
 
   return radiosData
@@ -62,21 +62,21 @@ const { search, filtered } = useSearch(radios, ['name'])
 
     <ul class="list-group">
       <li
-        v-for="station in filtered"
-        :key="station.id"
+        v-for="(station, index) in filtered"
+        :key="index"
         class="list-group-item py-3"
         :class="{ active: store.station === station.url }"
       >
         <div class="d-flex justify-content-between align-items-center">
-          <span class="flex-grow-1">{{ station.id }}. {{ station.name }}</span>
+          <span class="flex-grow-1">{{ index + 1 }}. {{ station.name }}</span>
 
           <div class="d-flex gap-2">
             <button
               class="btn btn-flat"
-              @click.stop="store.toggleFavorite(station.id)"
-              :title="store.isFavorite(station.id) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"
+              @click.stop="store.toggleFavorite(station.url)"
+              :title="store.isFavorite(station.url) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"
             >
-              <IconHeartFilled v-if="store.isFavorite(station.id)" size="1.25rem" class="text-danger" />
+              <IconHeartFilled v-if="store.isFavorite(station.url)" size="1.25rem" class="text-danger" />
               <IconHeart v-else size="1.25rem" />
             </button>
 
