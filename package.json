@@ -16,6 +16,7 @@
     "@vueuse/core": "^13.5.0",
     "@vueuse/router": "^13.5.0",
     "bootstrap": "^5.3.7",
+    "html2canvas": "^1.4.1",
     "nprogress": "^0.2.0",
     "pinia": "^3.0.3",
     "rtlcss": "^4.3.0",

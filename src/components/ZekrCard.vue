@@ -1,7 +1,11 @@
 <script setup>
 import { ref } from 'vue'
+import { IconDownload } from '@tabler/icons-vue'
+import { exportComponent } from '@/utilities/export'
 
-defineProps({
+import ZekrImage from './ZekrImage.vue'
+
+const props = defineProps({
   text: {
     type: String,
     required: true,
@@ -19,6 +23,8 @@ defineProps({
 })
 
 const count = ref(0)
+
+const exportAsImage = () => exportComponent(ZekrImage, props, 'zekr')
 </script>
 
 <template>
@@ -36,11 +42,18 @@ const count = ref(0)
       <div class="col-12 col-lg">
         <p class="zekr-text font-quran m-0">{{ text }}</p>
 
-        <p class="text-muted mt-3 m-0" v-if="benefit || reference">
-          <small v-if="reference">{{ reference }}</small>
-          <small v-if="benefit && reference"> - </small>
-          <small v-if="benefit">{{ benefit }}</small>
-        </p>
+        <div class="d-flex flex-column flex-lg-row align-items-center mt-3">
+          <p class="text-muted m-0" v-if="benefit || reference">
+            <small v-if="reference">{{ reference }}</small>
+            <small v-if="benefit && reference"> - </small>
+            <small v-if="benefit">{{ benefit }}</small>
+          </p>
+
+          <!-- Download button at bottom -->
+          <button class="btn btn-link text-muted p-1 ms-lg-auto" @click="exportAsImage" title="تصدير كصورة">
+            <IconDownload :size="18" />
+          </button>
+        </div>
       </div>
     </div>
   </div>
