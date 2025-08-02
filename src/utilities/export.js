@@ -29,10 +29,13 @@ export async function exportComponent(component, props = {}, filePrefix = 'expor
     // Wait for component to render
     await nextTick()
 
+    const minimumWidth = 1080 // 1080px is the minimum width for the image
+    const actualWidth = container.firstChild.clientWidth
+
     // Default html2canvas options
     const defaultCanvasOptions = {
       backgroundColor: '#ffffff',
-      scale: 2,
+      scale: Math.max(minimumWidth / actualWidth, 1),
       useCORS: true,
       allowTaint: true,
       logging: false,

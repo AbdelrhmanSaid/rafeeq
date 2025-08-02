@@ -1,18 +1,28 @@
 <script setup>
-import logoSvg from '@/assets/images/logo.svg'
+import logo from '@/assets/images/logo.svg'
 
 defineProps({
-  text: String,
-  repeat: { type: Number, default: 1 },
-  reference: String,
-  benefit: String,
+  text: {
+    type: String,
+    required: true,
+  },
+  repeat: {
+    type: Number,
+    required: true,
+  },
+  reference: {
+    type: String,
+  },
+  benefit: {
+    type: String,
+  },
 })
 </script>
 
 <template>
   <div class="zekr-export bg-white p-4 d-flex flex-column justify-content-between align-items-center text-center">
     <div class="mb-3">
-      <img :src="logoSvg" alt="Logo" style="height: 48px; opacity: 0.8" />
+      <img :src="logo" style="height: 48px; opacity: 0.8" />
     </div>
 
     <div class="flex-fill d-flex flex-column justify-content-center w-100">
