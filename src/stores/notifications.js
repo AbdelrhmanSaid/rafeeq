@@ -45,9 +45,9 @@ export const useNotificationStore = defineStore('notifications', () => {
   }
 
   /**
-   * Show a notification
+   * Show a notification using the best available method
    */
-  function showNotification(title, options = {}) {
+  async function showNotification(title, options = {}) {
     if (!isGranted.value) {
       console.warn('Notification permission not granted')
       return
@@ -62,14 +62,44 @@ export const useNotificationStore = defineStore('notifications', () => {
       silent: false,
     }
 
-    const notification = new Notification(title, { ...defaultOptions, ...options })
+    const notificationOptions = { ...defaultOptions, ...options }
 
-    // Auto-close notification after 10 seconds
-    setTimeout(() => {
-      notification.close()
-    }, 10000)
+    try {
+      // Check if we're in a PWA context and have a service worker
+      if ('serviceWorker' in navigator) {
+        const registration = await navigator.serviceWorker.ready
+        if (registration && registration.showNotification) {
+          // Use service worker for PWA notifications (better for mobile)
+          console.log('📱 PWA context detected: Using service worker for notifications')
+          console.log('Notification options:', notificationOptions)
+          return await registration.showNotification(title, notificationOptions)
+        } else {
+          console.log('Service worker registration found but showNotification not available')
+        }
+      } else {
+        console.log('Service worker not supported in this browser')
+      }
+    } catch (error) {
+      console.warn('Failed to show notification via service worker, falling back to basic notifications:', error)
+    }
 
-    return notification
+    // Fallback to basic notifications for regular browser context
+    try {
+      console.log('Showing basic browser notification')
+      const notification = new Notification(title, notificationOptions)
+
+      // Auto-close notification after 10 seconds (only for basic notifications)
+      setTimeout(() => {
+        if (notification && typeof notification.close === 'function') {
+          notification.close()
+        }
+      }, 10000)
+
+      return notification
+    } catch (error) {
+      console.error('Failed to show notification:', error)
+      return null
+    }
   }
 
   /**
@@ -114,11 +144,15 @@ export const useNotificationStore = defineStore('notifications', () => {
 
       const timeUntilNotification = targetTime.getTime() - now.getTime()
 
-      const timeoutId = setTimeout(() => {
-        showNotification(notificationOptions.title, {
-          body: notificationOptions.body,
-          data: notificationOptions.data,
-        })
+      const timeoutId = setTimeout(async () => {
+        try {
+          await showNotification(notificationOptions.title, {
+            body: notificationOptions.body,
+            data: notificationOptions.data,
+          })
+        } catch (error) {
+          console.error('Failed to show scheduled notification:', error)
+        }
 
         // Schedule the next notification (24 hours later)
         scheduleNext()

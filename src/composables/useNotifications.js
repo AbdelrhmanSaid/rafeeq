@@ -53,7 +53,7 @@ export function useNotifications() {
   /**
    * Show a test notification
    */
-  function showTestNotification(type = 'morning') {
+  async function showTestNotification(type = 'morning') {
     if (!isGranted.value) {
       console.warn('Notification permission not granted')
       return
@@ -71,10 +71,16 @@ export function useNotifications() {
     }
 
     const config = notifications[type] || notifications.morning
-    notificationStore.showNotification(config.title, {
-      body: config.body,
-      data: { type: `${type}-azkar-test` },
-    })
+
+    try {
+      await notificationStore.showNotification(config.title, {
+        body: config.body,
+        data: { type: `${type}-azkar-test` },
+      })
+      console.log(`Test notification sent: ${config.title}`)
+    } catch (error) {
+      console.error('Failed to show test notification:', error)
+    }
   }
 
   /**
