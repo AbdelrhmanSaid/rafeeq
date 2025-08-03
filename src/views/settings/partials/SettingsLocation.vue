@@ -15,7 +15,7 @@ const location = computed(() => {
 </script>
 
 <template>
-  <div class="input-group mb-3">
+  <div class="input-group">
     <div class="form-floating">
       <input type="text" class="form-control" id="location" :value="location" readonly />
       <label for="location">الموقع</label>

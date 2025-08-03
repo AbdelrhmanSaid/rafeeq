@@ -45,22 +45,18 @@ async function handleRequestPermission() {
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h6 class="card-title mb-0">إشعارات الأذكار</h6>
+        <span class="badge" :class="permissionClass">{{ permissionStatus }}</span>
       </div>
 
       <p class="card-text text-muted mb-3">تلقي تذكيرات يومية لأذكار الصباح والمساء في الأوقات المحددة</p>
 
-      <!-- Permission Status -->
-      <div class="mb-3 p-3 border rounded">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="fw-medium">حالة الإذن:</span>
-          <span class="badge" :class="permissionClass">{{ permissionStatus }}</span>
-        </div>
-
-        <div v-if="!isSupported" class="text-muted">
+      <!-- Status Messages -->
+      <div v-if="!isSupported || isDenied" class="mb-3">
+        <div v-if="!isSupported" class="alert alert-secondary py-2">
           <small>متصفحك لا يدعم الإشعارات</small>
         </div>
 
-        <div v-else-if="isDenied" class="text-muted">
+        <div v-else-if="isDenied" class="alert alert-warning py-2">
           <small>تم رفض إذن الإشعارات. يمكنك تفعيلها من إعدادات المتصفح.</small>
         </div>
       </div>
