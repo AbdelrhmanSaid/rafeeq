@@ -23,10 +23,6 @@ export default defineConfig({
             handler: 'CacheFirst',
             options: {
               cacheName: 'azkar-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-              },
             },
           },
           // Cache Quran API responses
@@ -35,10 +31,6 @@ export default defineConfig({
             handler: 'CacheFirst',
             options: {
               cacheName: 'quran-api-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
-              },
             },
           },
           // Cache Prayer Times API responses
@@ -60,10 +52,6 @@ export default defineConfig({
             handler: 'CacheFirst',
             options: {
               cacheName: 'fonts-cache',
-              expiration: {
-                maxEntries: 20,
-                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
-              },
             },
           },
           // Cache images
@@ -72,10 +60,6 @@ export default defineConfig({
             handler: 'CacheFirst',
             options: {
               cacheName: 'images-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-              },
             },
           },
         ],
