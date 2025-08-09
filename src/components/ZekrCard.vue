@@ -26,26 +26,45 @@ const props = defineProps({
 const count = ref(0)
 
 const exportAsImage = () => {
-  exportComponent(ZekrImage, props, 'zekr')
-  toast.success('تم تصدير الصورة بنجاح')
+  let promise = () => new Promise((resolve, reject) => {
+    exportComponent(ZekrImage, props, 'zekr')
+    .then(resolve)
+    .catch(reject)
+  })
+
+  toast.promise(promise, {
+    loading: 'جاري التصدير...',
+    success: 'تم تصدير الصورة بنجاح',
+    error: 'حدث خطأ أثناء تصدير الصورة',
+  })
 }
 
 const shareZekr = async () => {
-  try {
-    await navigator.share({ title: 'رفيق', text: props.text })
-    toast.success('تم مشاركة الذكر بنجاح')
-  } catch {
-    toast.error('حدث خطأ أثناء مشاركة الذكر')
-  }
+  let promise = () => new Promise((resolve, reject) => {
+    navigator.share({ title: 'رفيق', text: props.text })
+    .then(resolve)
+    .catch(reject)
+  })
+
+  toast.promise(promise, {
+    loading: 'جاري المشاركة...',
+    success: 'تم مشاركة الذكر بنجاح',
+    error: 'حدث خطأ أثناء مشاركة الذكر',
+  })
 }
 
 const copyZekr = async () => {
-  try {
-    await navigator.clipboard.writeText(props.text)
-    toast.success('تم نسخ الذكر بنجاح')
-  } catch {
-    toast.error('حدث خطأ أثناء نسخ الذكر')
-  }
+  let promise = () => new Promise((resolve, reject) => {
+    navigator.clipboard.writeText(props.text)
+    .then(resolve)
+    .catch(reject)
+  })
+
+  toast.promise(promise, {
+    loading: 'جاري النسخ...',
+    success: 'تم نسخ الذكر بنجاح',
+    error: 'حدث خطأ أثناء نسخ الذكر',
+  })
 }
 </script>
 

@@ -1,5 +1,6 @@
 import 'bootstrap'
 import './assets/scss/base.scss'
+import 'vue-sonner/style.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'

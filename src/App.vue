@@ -7,9 +7,11 @@ import { IconWifiOff } from '@tabler/icons-vue'
 import { ref, watch } from 'vue'
 import { useOnline } from '@vueuse/core'
 import { Toaster } from 'vue-sonner'
+import { useModeStore } from './stores/mode'
 
 // Network status detection
 const online = useOnline()
+const modeStore = useModeStore()
 
 // Offline banner visibility
 const showOfflineBanner = ref(true)
@@ -55,7 +57,15 @@ watch(online, (isOnline) => {
   <TabBar class="d-block d-md-none" />
 
   <!-- Toast -->
-  <Toaster />
+  <Toaster
+    :theme="modeStore.mode"
+    :toast-options="{
+      style: {
+        gap: '20px',
+        fontFamily: 'IBM Plex Sans Arabic, sans-serif',
+      },
+    }"
+  />
 </template>
 
 <style lang="scss" scoped>
