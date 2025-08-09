@@ -69,7 +69,7 @@ const copyZekr = async () => {
 <template>
   <div class="zekr-card border rounded p-4">
     <div class="action-menu dropdown">
-      <button class="btn p-0 bg-transparent" type="button" data-bs-toggle="dropdown">
+      <button class="btn p-0 bg-transparent" type="button" data-bs-toggle="dropdown" data-bs-display="static">
         <IconHeartShare size="18" />
       </button>
 
