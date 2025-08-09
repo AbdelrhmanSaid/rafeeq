@@ -26,11 +26,11 @@ const props = defineProps({
 const count = ref(0)
 
 const exportAsImage = () => {
-  let promise = () => new Promise((resolve, reject) => {
-    exportComponent(ZekrImage, props, 'zekr')
-    .then(resolve)
-    .catch(reject)
-  })
+  let promise = () =>
+    new Promise(async (resolve, reject) => {
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      exportComponent(ZekrImage, props, 'zekr').then(resolve).catch(reject)
+    })
 
   toast.promise(promise, {
     loading: 'جاري التصدير...',
@@ -40,11 +40,10 @@ const exportAsImage = () => {
 }
 
 const shareZekr = async () => {
-  let promise = () => new Promise((resolve, reject) => {
-    navigator.share({ title: 'رفيق', text: props.text })
-    .then(resolve)
-    .catch(reject)
-  })
+  let promise = () =>
+    new Promise((resolve, reject) => {
+      navigator.share({ title: 'رفيق', text: props.text }).then(resolve).catch(reject)
+    })
 
   toast.promise(promise, {
     loading: 'جاري المشاركة...',
@@ -54,11 +53,10 @@ const shareZekr = async () => {
 }
 
 const copyZekr = async () => {
-  let promise = () => new Promise((resolve, reject) => {
-    navigator.clipboard.writeText(props.text)
-    .then(resolve)
-    .catch(reject)
-  })
+  let promise = () =>
+    new Promise((resolve, reject) => {
+      navigator.clipboard.writeText(props.text).then(resolve).catch(reject)
+    })
 
   toast.promise(promise, {
     loading: 'جاري النسخ...',

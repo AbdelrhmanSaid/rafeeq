@@ -59,6 +59,8 @@ watch(online, (isOnline) => {
   <!-- Toast -->
   <Toaster
     :theme="modeStore.mode"
+    position="bottom-left"
+    offset="20px"
     :toast-options="{
       style: {
         gap: '20px',
