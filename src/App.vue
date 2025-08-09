@@ -8,6 +8,7 @@ import { ref, watch } from 'vue'
 import { useOnline } from '@vueuse/core'
 import { Toaster } from 'vue-sonner'
 import { useModeStore } from './stores/mode'
+import { SpeedInsights } from '@vercel/speed-insights/vue'
 
 // Network status detection
 const online = useOnline()
@@ -68,6 +69,8 @@ watch(online, (isOnline) => {
       },
     }"
   />
+
+  <SpeedInsights />
 </template>
 
 <style lang="scss" scoped>
