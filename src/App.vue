@@ -6,6 +6,7 @@ import TabBar from '@/components/Layout/TabBar.vue'
 import { IconWifiOff } from '@tabler/icons-vue'
 import { ref, watch } from 'vue'
 import { useOnline } from '@vueuse/core'
+import { Toaster } from 'vue-sonner'
 
 // Network status detection
 const online = useOnline()
@@ -52,6 +53,9 @@ watch(online, (isOnline) => {
 
   <!-- Mobile TabBar -->
   <TabBar class="d-block d-md-none" />
+
+  <!-- Toast -->
+  <Toaster />
 </template>
 
 <style lang="scss" scoped>

@@ -1,7 +1,8 @@
 <script setup>
 import { ref } from 'vue'
-import { IconDownload } from '@tabler/icons-vue'
+import { IconDownload, IconShare3, IconCopy, IconHeartShare } from '@tabler/icons-vue'
 import { exportComponent } from '@/utilities/export'
+import { toast } from 'vue-sonner'
 
 import ZekrImage from './ZekrImage.vue'
 
@@ -24,11 +25,59 @@ const props = defineProps({
 
 const count = ref(0)
 
-const exportAsImage = () => exportComponent(ZekrImage, props, 'zekr')
+const exportAsImage = () => {
+  exportComponent(ZekrImage, props, 'zekr')
+  toast.success('تم تصدير الصورة بنجاح')
+}
+
+const shareZekr = async () => {
+  try {
+    await navigator.share({ title: 'رفيق', text: props.text })
+    toast.success('تم مشاركة الذكر بنجاح')
+  } catch {
+    toast.error('حدث خطأ أثناء مشاركة الذكر')
+  }
+}
+
+const copyZekr = async () => {
+  try {
+    await navigator.clipboard.writeText(props.text)
+    toast.success('تم نسخ الذكر بنجاح')
+  } catch {
+    toast.error('حدث خطأ أثناء نسخ الذكر')
+  }
+}
 </script>
 
 <template>
   <div class="zekr-card border rounded p-4">
+    <div class="action-menu dropdown">
+      <button class="btn p-0 bg-transparent" type="button" data-bs-toggle="dropdown">
+        <IconHeartShare size="18" />
+      </button>
+
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li>
+          <button class="dropdown-item d-flex align-items-center gap-2" @click="exportAsImage">
+            <IconDownload size="18" />
+            <span>تنزيل</span>
+          </button>
+        </li>
+        <li>
+          <button class="dropdown-item d-flex align-items-center gap-2" @click="shareZekr">
+            <IconShare3 size="18" />
+            <span>مشاركة</span>
+          </button>
+        </li>
+        <li>
+          <button class="dropdown-item d-flex align-items-center gap-2" @click="copyZekr">
+            <IconCopy size="18" />
+            <span>نسخ</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+
     <div class="row align-items-center g-4 text-center text-lg-start">
       <div class="col-12 col-lg-auto">
         <button
@@ -42,18 +91,11 @@ const exportAsImage = () => exportComponent(ZekrImage, props, 'zekr')
       <div class="col-12 col-lg">
         <p class="zekr-text font-quran m-0">{{ text }}</p>
 
-        <div class="d-flex flex-column flex-lg-row align-items-center mt-3">
-          <p class="text-muted m-0" v-if="benefit || reference">
-            <small v-if="reference">{{ reference }}</small>
-            <small v-if="benefit && reference"> - </small>
-            <small v-if="benefit">{{ benefit }}</small>
-          </p>
-
-          <!-- Download button at bottom -->
-          <button class="btn btn-link text-muted p-1 ms-lg-auto" @click="exportAsImage" title="تصدير كصورة">
-            <IconDownload :size="18" />
-          </button>
-        </div>
+        <p class="text-muted m-0 pe-2" v-if="benefit || reference">
+          <small v-if="reference">{{ reference }}</small>
+          <small v-if="benefit && reference"> - </small>
+          <small v-if="benefit">{{ benefit }}</small>
+        </p>
       </div>
     </div>
   </div>
@@ -65,6 +107,8 @@ const exportAsImage = () => exportComponent(ZekrImage, props, 'zekr')
 }
 
 .zekr-card {
+  position: relative;
+
   .btn-counter {
     position: relative;
     border-radius: 50%;
@@ -90,6 +134,20 @@ const exportAsImage = () => exportComponent(ZekrImage, props, 'zekr')
     text-align: justify;
     font-size: 1.625rem;
     line-height: 2;
+  }
+
+  .action-menu {
+    position: absolute;
+    inset-inline-end: 0.5rem;
+    inset-block-end: 0.5rem;
+
+    [data-bs-toggle='dropdown'] {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      color: var(--bs-secondary);
+    }
   }
 }
 
