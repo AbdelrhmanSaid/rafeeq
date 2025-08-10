@@ -19,7 +19,7 @@ Check out the live application at [rafeeq.me](https://rafeeq.me).
 
 ## Getting Started
 ### Prerequisites
-- [Node.js](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed on your machine.
+- [Bun.sh](https://bun.sh/) installed on your machine.
 
 ### Installation
 1. Clone the repository:
