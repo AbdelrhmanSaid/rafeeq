@@ -36,9 +36,10 @@ const { isFetching, data: category, error } = useFetch(`/data/azkar/${categoryId
       :benefit="zekr.benefit"
     />
 
-    <RouterLink :to="{ name: 'azkar' }" class="btn btn-primary">
-      <span>العودة للقائمة الرئيسية</span>
-      <IconChevronLeft size="1.25rem" class="ms-2" />
-    </RouterLink>
+    <div class="d-flex justify-content-center">
+      <RouterLink :to="{ name: 'azkar' }" class="btn btn-primary">
+        <IconChevronLeft size="1.25rem" />
+      </RouterLink>
+    </div>
   </Page>
 </template>
