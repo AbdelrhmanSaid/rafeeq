@@ -19,7 +19,7 @@ Check out the live application at [rafeeq.me](https://rafeeq.me).
 
 ## Getting Started
 ### Prerequisites
-- [Node.js](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed on your machine.
+- [Bun.sh](https://bun.sh/) installed on your machine.
 
 ### Installation
 1. Clone the repository:
@@ -32,15 +32,15 @@ Check out the live application at [rafeeq.me](https://rafeeq.me).
    ```
 3. Install dependencies:
    ```bash
-   npm install
+   bun install
    ```
 
 ### Running the Application
 To start the development server, run:
 ```bash
-npm start
+bun run dev
 ```
-The application will be available at `http://localhost:3000`.
+The application will be available at `http://localhost:5173`.
 
 ## Contributing
 Contributions are welcome! Feel free to open issues or submit pull requests.
