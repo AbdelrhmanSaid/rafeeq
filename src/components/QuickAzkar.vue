@@ -26,18 +26,18 @@ const azkar = [
 
 <template>
   <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
-    <div v-for="azkar in azkar" :key="azkar.id" class="col">
+    <div v-for="item in azkar" :key="item.slug" class="col">
       <div class="card h-100 position-relative">
         <div class="card-body d-flex align-items-center gap-3">
           <span class="icon-container">
-            <component :is="azkar.icon" />
+            <component :is="item.icon" />
           </span>
           <div>
-            <h5 class="card-title mb-1">{{ azkar.name }}</h5>
-            <small class="text-muted">{{ azkar.description }}</small>
+            <h5 class="card-title mb-1">{{ item.name }}</h5>
+            <small class="text-muted">{{ item.description }}</small>
           </div>
         </div>
-        <RouterLink :to="{ name: 'azkar-category', params: { category: azkar.slug } }" class="stretched-link" />
+        <RouterLink :to="{ name: 'azkar-category', params: { category: item.slug } }" class="stretched-link" />
       </div>
     </div>
 

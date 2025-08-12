@@ -1,7 +1,7 @@
 <script setup>
-import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { computed } from 'vue'
 import { useCoordinatesStore } from '@/stores/coordinates'
-import { useFetch, useDateFormat, useOnline } from '@vueuse/core'
+import { useFetch, useDateFormat, useOnline, useNow } from '@vueuse/core'
 
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
@@ -16,12 +16,7 @@ import Maghrib from '@/components/icons/Prayers/Maghrib.vue'
 import Ishaa from '@/components/icons/Prayers/Ishaa.vue'
 
 // Reactive state for current time
-const now = ref(new Date())
-let timer = null
-
-// Update current time every second
-onMounted(() => (timer = setInterval(() => (now.value = new Date()), 1000)))
-onUnmounted(() => timer && clearInterval(timer))
+const now = useNow()
 
 // Check if the user is online
 const online = useOnline()

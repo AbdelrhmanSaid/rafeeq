@@ -6,10 +6,16 @@ export const useCoordinatesStore = defineStore('coordinates', function () {
   const latitude = useLocalStorage('latitude', 0)
 
   function detect() {
-    navigator.geolocation.getCurrentPosition((position) => {
-      longitude.value = position.coords.longitude
-      latitude.value = position.coords.latitude
-    })
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        longitude.value = position.coords.longitude
+        latitude.value = position.coords.latitude
+      },
+      (error) => {
+        console.error('Geolocation error:', error.message)
+        clear()
+      }
+    )
   }
 
   function clear() {
