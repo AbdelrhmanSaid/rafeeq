@@ -34,4 +34,9 @@ export default [
     slug: 'ruqya',
     name: 'الرقية الشرعية',
   },
+  {
+    id: 8,
+    slug: 'prayer',
+    name: 'أذكار الصلاة',
+  },
 ]
