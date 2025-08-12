@@ -56,6 +56,12 @@ const router = createRouter({
     },
 
     {
+      path: '/qibla',
+      name: 'qibla',
+      component: () => import('@/views/QiblaView.vue'),
+    },
+
+    {
       path: '/settings',
       name: 'settings',
       component: () => import('@/views/settings/SettingsView.vue'),
