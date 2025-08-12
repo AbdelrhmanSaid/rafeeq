@@ -30,6 +30,11 @@ export default [
     name: 'أذكار النوم',
   },
   {
+    id: 9,
+    slug: 'wake',
+    name: 'أذكار الإستيقاظ',
+  },
+  {
     id: 7,
     slug: 'ruqya',
     name: 'الرقية الشرعية',
