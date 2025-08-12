@@ -55,6 +55,38 @@
 }
 
 @font-face {
+  font-family: 'Amiri';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/Amiri-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Amiri';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/Amiri-Italic.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Amiri';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/Amiri-Bold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Amiri';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/Amiri-BoldItalic.ttf') format('truetype');
+}
+
+@font-face {
   font-family: 'Uthmani';
   font-style: normal;
   font-weight: 400;

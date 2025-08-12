@@ -10,10 +10,7 @@ const normalize = (text) => {
 
   for (let i = 0; i < 10; i++) {
     // Replace Arabic numbers with English numbers
-    text = text.replaceAll(
-      String.fromCharCode(0x660 + i),
-      String.fromCharCode(48 + i)
-    )
+    text = text.replaceAll(String.fromCharCode(0x660 + i), String.fromCharCode(48 + i))
   }
 
   return text.toLowerCase()

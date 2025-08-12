@@ -70,11 +70,9 @@ const formatRakaa = (value) => {
       </div>
     </div>
   </div>
-
 </template>
 
 <style lang="scss" scoped>
-
 .icon-container {
   display: grid;
   place-items: center;

@@ -14,7 +14,7 @@ export const useCoordinatesStore = defineStore('coordinates', function () {
       (error) => {
         console.error('Geolocation error:', error.message)
         clear()
-      }
+      },
     )
   }
 

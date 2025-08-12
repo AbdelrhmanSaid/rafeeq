@@ -14,7 +14,9 @@ import categories from '@/exports/AzkarCategories.js'
 const categoryParam = useRouteParams('category')
 
 // Resolve slug to numeric id if needed
-const categoryEntry = categories.find((c) => String(c.id) === String(categoryParam.value) || c.slug === categoryParam.value)
+const categoryEntry = categories.find(
+  (c) => String(c.id) === String(categoryParam.value) || c.slug === categoryParam.value,
+)
 const resolvedId = categoryEntry ? categoryEntry.id : categoryParam.value
 
 const { isFetching, data: category, error } = useFetch(`/data/azkar/${resolvedId}.json`).json().get()

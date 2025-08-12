@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch, onMounted } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { IconChevronLeft } from '@tabler/icons-vue'
 import { useFetch, useOnline } from '@vueuse/core'
