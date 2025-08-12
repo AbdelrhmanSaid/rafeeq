@@ -32,7 +32,7 @@ const router = createRouter({
     },
 
     {
-      path: '/azkar/:category(\\d+)',
+      path: '/azkar/:category',
       name: 'azkar-category',
       component: () => import('@/views/AzkarCategoryView.vue'),
     },

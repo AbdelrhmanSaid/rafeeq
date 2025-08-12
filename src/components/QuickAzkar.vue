@@ -4,19 +4,19 @@ import { IconSun, IconMoon, IconShield, IconDots } from '@tabler/icons-vue'
 
 const azkar = [
   {
-    id: 1,
+    slug: 'morning',
     name: 'أذكار الصباح',
     description: 'وقتها من بعد الفجر حتى ارتفاع الشمس',
     icon: IconSun,
   },
   {
-    id: 2,
+    slug: 'evening',
     name: 'أذكار المساء',
     description: 'وقتها من بعد العصر حتى غروب الشمس',
     icon: IconMoon,
   },
   {
-    id: 3,
+    slug: 'ruqya',
     name: 'الرقية الشرعية',
     description: 'حصن نفسك بصحيح الرقية الشرعية',
     icon: IconShield,
@@ -37,7 +37,7 @@ const azkar = [
             <small class="text-muted">{{ azkar.description }}</small>
           </div>
         </div>
-        <RouterLink :to="{ name: 'azkar-category', params: { category: azkar.id } }" class="stretched-link" />
+        <RouterLink :to="{ name: 'azkar-category', params: { category: azkar.slug } }" class="stretched-link" />
       </div>
     </div>
 

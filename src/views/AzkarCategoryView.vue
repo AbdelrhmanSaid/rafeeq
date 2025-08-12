@@ -9,9 +9,15 @@ import Heading from '@/components/Heading.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import ZekrCard from '@/components/ZekrCard.vue'
+import categories from '@/exports/AzkarCategories.js'
 
-const categoryId = useRouteParams('category')
-const { isFetching, data: category, error } = useFetch(`/data/azkar/${categoryId.value}.json`).json().get()
+const categoryParam = useRouteParams('category')
+
+// Resolve slug to numeric id if needed
+const categoryEntry = categories.find((c) => String(c.id) === String(categoryParam.value) || c.slug === categoryParam.value)
+const resolvedId = categoryEntry ? categoryEntry.id : categoryParam.value
+
+const { isFetching, data: category, error } = useFetch(`/data/azkar/${resolvedId}.json`).json().get()
 </script>
 
 <template>
