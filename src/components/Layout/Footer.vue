@@ -23,6 +23,10 @@ const support = [
     title: 'الإبلاغ عن مشكلة',
     link: 'https://github.com/AbdelrhmanSaid/rafeeq/issues',
   },
+  {
+    title: 'دعم المطور',
+    link: 'https://buymeacoffee.com/abdelrhmansaid',
+  }
 ]
 </script>
 
