@@ -14,7 +14,7 @@ import {
   IconBrandTelegram,
 } from '@tabler/icons-vue'
 
-import logo from '@/assets/images/logo.svg'
+import Logo from '@/components/Logo.vue'
 
 const mode = useModeStore()
 const radio = useRadioStore()
@@ -24,7 +24,7 @@ const radio = useRadioStore()
   <nav class="navbar navbar-expand-lg sticky-top navbar-light bg-body border-bottom py-3">
     <div class="container">
       <RouterLink to="/" class="navbar-brand">
-        <img :src="logo" alt="رفيق" height="42" class="navbar-brand-img" />
+        <Logo />
       </RouterLink>
 
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
@@ -104,7 +104,7 @@ const radio = useRadioStore()
 
 <style lang="scss" scoped>
 [data-bs-theme='dark'] {
-  .navbar-brand img {
+  .navbar-brand {
     filter: brightness(0) invert(1);
   }
 }

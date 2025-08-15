@@ -1,5 +1,5 @@
 <script setup>
-import logo from '@/assets/images/logo.svg'
+import Logo from '@/components/Logo.vue'
 
 defineProps({
   text: {
@@ -22,7 +22,7 @@ defineProps({
 <template>
   <div class="zekr-export bg-white p-4 d-flex flex-column justify-content-between align-items-center text-center" data-bs-theme="light">
     <div class="mb-3">
-      <img :src="logo" style="height: 48px; opacity: 0.8" />
+      <Logo />
     </div>
 
     <div class="flex-fill d-flex flex-column justify-content-center w-100">
