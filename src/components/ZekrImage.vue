@@ -20,7 +20,10 @@ defineProps({
 </script>
 
 <template>
-  <div class="zekr-export bg-white p-4 d-flex flex-column justify-content-between align-items-center text-center" data-bs-theme="light">
+  <div
+    class="zekr-export bg-white p-4 d-flex flex-column justify-content-between align-items-center text-center"
+    data-bs-theme="light"
+  >
     <div class="mb-3">
       <Logo />
     </div>
