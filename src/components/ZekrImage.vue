@@ -20,7 +20,7 @@ defineProps({
 </script>
 
 <template>
-  <div class="zekr-export bg-white p-4 d-flex flex-column justify-content-between align-items-center text-center">
+  <div class="zekr-export bg-white p-4 d-flex flex-column justify-content-between align-items-center text-center" data-bs-theme="light">
     <div class="mb-3">
       <img :src="logo" style="height: 48px; opacity: 0.8" />
     </div>
@@ -47,6 +47,11 @@ defineProps({
 .zekr-export {
   min-height: 512px;
   max-width: 512px;
+}
+
+.zekr-export .text-muted {
+  /* Ensure readability when global theme is dark but export background is light */
+  color: #6c757d !important;
 }
 
 .repeat-badge {
