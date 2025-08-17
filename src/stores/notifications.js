@@ -13,13 +13,7 @@ export const useNotificationStore = defineStore('notifications', () => {
   const eveningTime = useLocalStorage('notifications.evening.time', '18:00')
 
   // Computed properties
-  const isSupported = computed(
-    () =>
-      'Notification' in window ||
-      ('serviceWorker' in navigator &&
-        typeof ServiceWorkerRegistration !== 'undefined' &&
-        'showNotification' in ServiceWorkerRegistration.prototype),
-  )
+  const isSupported = computed(() => true)
   const isGranted = computed(() => permission.value === 'granted')
   const isDenied = computed(() => permission.value === 'denied')
   const canRequest = computed(() => permission.value === 'default')
