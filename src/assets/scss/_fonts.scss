@@ -94,10 +94,26 @@
   src: url('../fonts/Uthmani.woff') format('woff');
 }
 
+@font-face {
+  font-family: 'UthmanTahaNaskh';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/UthmanTahaNaskh-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'UthmanTahaNaskh';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/UthmanTahaNaskh-Bold.ttf') format('truetype');
+}
+
 .font-body {
   font-family: 'IBM Plex Sans Arabic', sans-serif;
 }
 
 .font-quran {
-  font-family: 'Uthmani', 'Amiri', 'IBM Plex Sans Arabic', sans-serif;
+  font-family: 'UthmanTahaNaskh', 'Amiri', 'IBM Plex Sans Arabic', sans-serif;
 }
