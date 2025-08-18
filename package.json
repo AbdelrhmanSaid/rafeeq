@@ -16,7 +16,7 @@
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
     "@vueuse/core": "^13.6.0",
-    "@vueuse/router": "^13.6.0",
+    "@vueuse/router": "^13.7.0",
     "bootstrap": "^5.3.7",
     "html2canvas": "^1.4.1",
     "nprogress": "^0.2.0",
