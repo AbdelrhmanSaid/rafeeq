@@ -85,7 +85,6 @@ const formatRakaa = (value) => {
   :deep(svg) {
     width: 20px;
     height: 20px;
-    color: var(--bs-primary);
   }
 }
 
