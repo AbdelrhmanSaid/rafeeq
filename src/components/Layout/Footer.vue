@@ -26,7 +26,11 @@ const support = [
   {
     title: 'دعم المطور',
     link: 'https://buymeacoffee.com/abdelrhmansaid',
-  }
+  },
+  {
+    title: 'سياسة الخصوصية',
+    link: '/privacy',
+  },
 ]
 </script>
 
