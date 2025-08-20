@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "me.rafeeq.twa",
+      "sha256_cert_fingerprints": [
+        "4E:01:E6:89:00:62:C4:0B:B6:F7:D9:51:AB:75:57:62:A2:CF:ED:13:9A:67:18:2C:89:5C:0C:0F:06:CC:90:E0"
+      ]
+    }
+  }
+]
