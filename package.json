@@ -35,6 +35,6 @@
     "prettier": "3.6.2",
     "vite": "^7.1.4",
     "vite-plugin-pwa": "^1.0.3",
-    "vite-plugin-vue-devtools": "^8.0.1"
+    "vite-plugin-vue-devtools": "^8.0.2"
   }
 }
