@@ -31,15 +31,6 @@ const lastUpdated = '2025-08-18'
           نخزن بعض التفضيلات مثل وضع الواجهة (فاتح/داكن) وإعدادات الإشعارات باستخدام
           <span dir="ltr">localStorage</span> على جهازك فقط.
         </li>
-        <li>
-          <strong>بيانات الاستخدام التحليلية:</strong>
-          نستخدم تحليلات وأداء من Vercel
-          (<a href="https://vercel.com/docs/analytics" target="_blank" rel="noopener">Analytics</a>
-          و
-          <a href="https://vercel.com/docs/speed-insights" target="_blank" rel="noopener">Speed Insights</a>)
-          والتي قد تجمع بيانات استخدام عامة (مثل نوع المتصفح، الصفحات التي تزورها، معلومات الجهاز، عنوان IP بشكل
-          مختصر/مجهول قدر الإمكان وفق سياساتهم). تُستخدم هذه البيانات لتحسين الأداء وتجربة الاستخدام.
-        </li>
       </ul>
 
       <h2 class="h4 mt-4">2. كيف نستخدم البيانات</h2>
@@ -68,10 +59,6 @@ const lastUpdated = '2025-08-18'
           يستخدم التطبيق مصادر عامة مثل
           <a href="https://api.mp3quran.net/radios/radio_arabic.json" target="_blank" rel="noopener">MP3Quran</a>
           لجلب بيانات محطات الإذاعة.
-        </li>
-        <li>
-          <strong>خدمات التحليلات والأداء:</strong>
-          نقدم تقارير مجمّعة عبر خدمات Vercel المذكورة أعلاه لتحسين التطبيق دون تحديد هويتك الشخصية.
         </li>
       </ul>
 
