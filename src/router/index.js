@@ -3,6 +3,7 @@ import nProgress from 'nprogress'
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
+import { trackPageview } from '@/utilities/analytics'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -79,7 +80,7 @@ router.beforeEach(() => {
   nProgress.start()
 })
 
-router.afterEach(() => {
+router.afterEach((to) => {
   // Close the mobile menu after clicking on a link
   document.querySelector('.navbar-collapse')?.classList?.remove('show')
 
@@ -88,6 +89,9 @@ router.afterEach(() => {
 
   // Scroll to the top of the page smoothly
   window.scrollTo({ top: 0, behavior: 'smooth' })
+
+  // Send a pageview to analytics without blocking navigation
+  trackPageview(to.fullPath)
 })
 
 export default router
