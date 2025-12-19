@@ -10,7 +10,9 @@ export const useRadioStore = defineStore('radio', () => {
   const isPlaying = computed(() => station.value !== null)
 
   const favoriteUrls = useLocalStorage('radioFavorites', [])
-  const favorites = computed(() => radios.filter((station) => favoriteUrls.value.includes(station.url)))
+  const favorites = computed(() =>
+    Object.values(radios).filter((station) => favoriteUrls.value.includes(station.url))
+  )
 
   function play(url) {
     player.src = url

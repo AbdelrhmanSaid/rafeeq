@@ -8,14 +8,13 @@ import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
 import OfflineState from '@/components/OfflineState.vue'
 import radiosData from '@/exports/Radios.js'
-import { findRadioBySlug } from '@/utilities/radio'
 import { useRadioStore } from '@/stores/radio'
 
 const route = useRoute()
 const online = useOnline()
 const store = useRadioStore()
 
-const station = computed(() => findRadioBySlug(route.params.slug, radiosData))
+const station = computed(() => radiosData[route.params.slug])
 const isPlaying = computed(() => station.value && store.station === station.value.url)
 const canShare = computed(() => typeof navigator !== 'undefined' && typeof navigator.share === 'function')
 

@@ -10,7 +10,6 @@ import Heading from '@/components/Heading.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import radiosData from '@/exports/Radios.js'
 import OfflineState from '@/components/OfflineState.vue'
-import { getRadioSlug } from '@/utilities/radio'
 
 // Radio store
 const store = useRadioStore()
@@ -20,12 +19,19 @@ const online = useOnline()
 
 // Favorites filter
 const favoritesOnly = ref(false)
+const radiosList = computed(() =>
+  Object.entries(radiosData).map(([slug, station]) => ({
+    slug,
+    ...station,
+  }))
+)
+
 const radios = computed(() => {
   if (favoritesOnly.value) {
-    return radiosData.filter((radio) => store.isFavorite(radio.url))
+    return radiosList.value.filter((radio) => store.isFavorite(radio.url))
   }
 
-  return radiosData
+  return radiosList.value
 })
 
 // Filter radios by search
@@ -69,10 +75,7 @@ const { search, filtered } = useSearch(radios, ['name'])
         :class="{ active: store.station === station.url }"
       >
         <div class="d-flex justify-content-between align-items-center">
-          <RouterLink
-            :to="{ name: 'radio-station', params: { slug: getRadioSlug(station) } }"
-            class="flex-grow-1 radio-link"
-          >
+          <RouterLink :to="{ name: 'radio-station', params: { slug: station.slug } }" class="flex-grow-1 radio-link">
             {{ index + 1 }}. {{ station.name }}
           </RouterLink>
 
