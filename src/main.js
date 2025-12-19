@@ -1,4 +1,3 @@
-import 'bootstrap'
 import './assets/scss/base.scss'
 import 'vue-sonner/style.css'
 
@@ -25,13 +24,13 @@ export const createApp = ViteSSG(
   {
     routes,
     base: import.meta.env.BASE_URL,
-    includedRoutes: () => ssgRoutes,
   },
   ({ app, router, isClient }) => {
     app.use(createPinia())
     installRouterHooks(router)
 
     if (isClient) {
+      import('bootstrap')
       router.isReady().then(() => {
         // Initialize notifications after app is mounted
         const notificationStore = useNotificationStore()
@@ -40,3 +39,7 @@ export const createApp = ViteSSG(
     }
   },
 )
+
+export async function includedRoutes() {
+  return Array.from(new Set(ssgRoutes))
+}

@@ -7,6 +7,9 @@ import rtlcss from 'rtlcss'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  ssgOptions: {
+    entry: 'src/main.js',
+  },
   plugins: [
     vue(),
     VitePWA({
