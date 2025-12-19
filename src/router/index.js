@@ -43,6 +43,11 @@ const router = createRouter({
       name: 'radio',
       component: () => import('@/views/RadioView.vue'),
     },
+    {
+      path: '/radio/:slug',
+      name: 'radio-station',
+      component: () => import('@/views/RadioStationView.vue'),
+    },
 
     {
       path: '/sebha',

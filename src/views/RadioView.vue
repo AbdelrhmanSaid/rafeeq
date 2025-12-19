@@ -19,12 +19,19 @@ const online = useOnline()
 
 // Favorites filter
 const favoritesOnly = ref(false)
+const radiosList = computed(() =>
+  Object.entries(radiosData).map(([slug, station]) => ({
+    slug,
+    ...station,
+  }))
+)
+
 const radios = computed(() => {
   if (favoritesOnly.value) {
-    return radiosData.filter((radio) => store.isFavorite(radio.url))
+    return radiosList.value.filter((radio) => store.isFavorite(radio.slug))
   }
 
-  return radiosData
+  return radiosList.value
 })
 
 // Filter radios by search
@@ -68,15 +75,17 @@ const { search, filtered } = useSearch(radios, ['name'])
         :class="{ active: store.station === station.url }"
       >
         <div class="d-flex justify-content-between align-items-center">
-          <span class="flex-grow-1">{{ index + 1 }}. {{ station.name }}</span>
+          <RouterLink :to="{ name: 'radio-station', params: { slug: station.slug } }" class="flex-grow-1 radio-link">
+            {{ index + 1 }}. {{ station.name }}
+          </RouterLink>
 
           <div class="d-flex gap-2">
             <button
               class="btn btn-flat"
-              @click.stop="store.toggleFavorite(station.url)"
-              :title="store.isFavorite(station.url) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"
+              @click.stop="store.toggleFavorite(station.slug)"
+              :title="store.isFavorite(station.slug) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"
             >
-              <IconHeartFilled v-if="store.isFavorite(station.url)" size="1.25rem" class="text-danger" />
+              <IconHeartFilled v-if="store.isFavorite(station.slug)" size="1.25rem" class="text-danger" />
               <IconHeart v-else size="1.25rem" />
             </button>
 
@@ -105,6 +114,16 @@ const { search, filtered } = useSearch(radios, ['name'])
 </template>
 
 <style lang="scss" scoped>
+.radio-link {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    text-decoration: underline;
+  }
+}
+
 .list-group-item {
   transition:
     background-color 0.3s,

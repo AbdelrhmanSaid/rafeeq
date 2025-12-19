@@ -9,8 +9,25 @@ export const useRadioStore = defineStore('radio', () => {
   const station = ref(null)
   const isPlaying = computed(() => station.value !== null)
 
-  const favoriteUrls = useLocalStorage('radioFavorites', [])
-  const favorites = computed(() => radios.filter((station) => favoriteUrls.value.includes(station.url)))
+  const favoriteKeys = useLocalStorage('radioFavorites', [])
+  const favorites = computed(() =>
+    Object.entries(radios)
+      .filter(([slug]) => favoriteKeys.value.includes(slug))
+      .map(([slug, station]) => ({ slug, ...station }))
+  )
+
+  const getSlugForUrl = (url) =>
+    Object.entries(radios).find(([, station]) => station.url === url)?.[0]
+
+  if (favoriteKeys.value.some((favorite) => !radios[favorite])) {
+    favoriteKeys.value = Array.from(
+      new Set(
+        favoriteKeys.value
+          .map((favorite) => (radios[favorite] ? favorite : getSlugForUrl(favorite)))
+          .filter(Boolean)
+      )
+    )
+  }
 
   function play(url) {
     player.src = url
@@ -25,15 +42,15 @@ export const useRadioStore = defineStore('radio', () => {
     station.value = null
   }
 
-  function isFavorite(stationUrl) {
-    return favoriteUrls.value.includes(stationUrl)
+  function isFavorite(stationSlug) {
+    return favoriteKeys.value.includes(stationSlug)
   }
 
-  function toggleFavorite(stationUrl) {
-    if (isFavorite(stationUrl)) {
-      favoriteUrls.value = favoriteUrls.value.filter((url) => url !== stationUrl)
+  function toggleFavorite(stationSlug) {
+    if (isFavorite(stationSlug)) {
+      favoriteKeys.value = favoriteKeys.value.filter((slug) => slug !== stationSlug)
     } else {
-      favoriteUrls.value.push(stationUrl)
+      favoriteKeys.value.push(stationSlug)
     }
   }
 
