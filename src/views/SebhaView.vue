@@ -16,37 +16,96 @@ const sebha = ref(0)
       subtitle="السبحة الإلكترونية هي تطبيق يساعدك على ذكر الله في أي وقت ومكان."
     />
 
-    <div class="d-flex align-items-center justify-content-center my-5">
+    <div class="sebha-shell">
       <button @click="sebha++" class="sebha-btn">
-        <span>{{ sebha }}</span>
+        <span class="sebha-count">{{ sebha }}</span>
+        <span class="sebha-label">اضغط للتسبيح</span>
       </button>
-    </div>
 
-    <div class="d-flex justify-content-center">
-      <button @click="sebha = 0" class="btn btn-primary">
-        <IconRefreshDot class="me-2" size="1.25rem" />
-        <span>إعادة العداد</span>
-      </button>
+      <div class="sebha-actions">
+        <button @click="sebha = 0" class="btn btn-outline-primary">
+          <IconRefreshDot class="me-2" size="1.25rem" />
+          <span>إعادة العداد</span>
+        </button>
+        <span class="sebha-hint">استمر بالذكر، واحتسب الأجر</span>
+      </div>
     </div>
   </Page>
 </template>
 
 <style lang="scss" scoped>
-.sebha-btn {
-  width: 150px;
-  height: 150px;
-  background-color: var(--bs-body-bg);
+.sebha-shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+  padding: 2rem 1rem 3rem;
+  text-align: center;
+}
+
+.sebha-meta {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--bs-secondary-color);
+}
+
+.sebha-total {
+  font-size: clamp(2.25rem, 4vw, 3rem);
+  font-weight: 700;
   color: var(--bs-primary);
-  border: 1px solid var(--bs-primary);
+}
+
+.sebha-subtitle {
+  font-size: 0.9rem;
+}
+
+.sebha-btn {
+  width: min(220px, 70vw);
+  height: min(220px, 70vw);
   border-radius: 50%;
-  transition: transform 150ms;
+  border: 1px solid var(--bs-border-color);
+  background: var(--bs-body-bg);
+  color: var(--bs-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  box-shadow: 0 12px 24px rgba(16, 24, 40, 0.08);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease;
+}
 
-  &:hover {
-    transform: scale(1.1);
-  }
+.sebha-btn:hover {
+  transform: translateY(-3px);
+  border-color: var(--bs-primary);
+  box-shadow: 0 18px 30px rgba(16, 24, 40, 0.12);
+}
 
-  span {
-    font-size: 2rem;
-  }
+.sebha-btn:active {
+  transform: translateY(0);
+}
+
+.sebha-count {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 700;
+}
+
+.sebha-label {
+  font-size: 0.95rem;
+  color: var(--bs-secondary-color);
+}
+
+.sebha-actions {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: center;
+}
+
+.sebha-hint {
+  font-size: 0.9rem;
+  color: var(--bs-secondary-color);
 }
 </style>
