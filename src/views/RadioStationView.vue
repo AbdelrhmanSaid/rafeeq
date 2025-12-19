@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useOnline } from '@vueuse/core'
 import {
@@ -22,13 +22,10 @@ const route = useRoute()
 const online = useOnline()
 const store = useRadioStore()
 
-const station = computed(() => radiosData[route.params.slug])
-const stationSlug = computed(() => route.params.slug)
+const stationSlug = computed(() => route.params.slug.toLowerCase())
+const station = computed(() => radiosData[stationSlug.value])
 const isPlaying = computed(() => station.value && store.station === station.value.url)
 const canShare = computed(() => typeof navigator !== 'undefined' && typeof navigator.share === 'function')
-
-// Hover state for play button
-const isHoveringPlay = ref(false)
 
 const shareStation = async () => {
   if (!station.value || !navigator.share) {
@@ -121,8 +118,6 @@ const shareStation = async () => {
             :class="{ playing: isPlaying }"
             type="button"
             @click="isPlaying ? store.stop() : store.play(station.url)"
-            @mouseenter="isHoveringPlay = true"
-            @mouseleave="isHoveringPlay = false"
           >
             <div class="play-btn-bg"></div>
             <div class="play-btn-icon">

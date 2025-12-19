@@ -9,7 +9,7 @@ export const useRadioStore = defineStore('radio', () => {
   const station = ref(null)
   const isPlaying = computed(() => station.value !== null)
 
-  const favoriteKeys = useLocalStorage('radioFavorites', [])
+  const favoriteKeys = useLocalStorage('radioFavorites', []).map((key) => key.toLowerCase())
   const favorites = computed(() =>
     Object.entries(radios)
       .filter(([slug]) => favoriteKeys.value.includes(slug))
