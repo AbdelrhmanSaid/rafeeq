@@ -17,11 +17,6 @@ const sebha = ref(0)
     />
 
     <div class="sebha-shell">
-      <div class="sebha-meta">
-        <span class="sebha-total">{{ sebha }}</span>
-        <span class="sebha-subtitle">كل ضغطة = تسبيحة</span>
-      </div>
-
       <button @click="sebha++" class="sebha-btn">
         <span class="sebha-count">{{ sebha }}</span>
         <span class="sebha-label">اضغط للتسبيح</span>
