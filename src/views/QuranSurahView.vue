@@ -11,6 +11,7 @@ import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import AudioPlayer from '@/components/QuranPlayer.vue'
 import { useQuranStore } from '@/stores/quran'
+import { useMeta } from '@/utilities/head'
 
 const online = useOnline()
 
@@ -24,6 +25,12 @@ const quranLoading = ref(false)
 const quranLoadingError = ref(null)
 
 onFetchResponse(async () => {
+  useMeta({
+    title: surah.value.data.name,
+    description: `قراءة وتلاوة سورة ${surah.value.data.name} - ${surah.value.data.numberOfAyahs} آية - سورة ${surah.value.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`,
+    keywords: ['قرآن', 'سورة', surah.value.data.name, 'تلاوة', 'قراءة', 'رفيق'],
+  })
+
   try {
     quranLoading.value = true
     quranLoadingError.value = null

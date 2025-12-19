@@ -10,6 +10,7 @@ import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import ZekrCard from '@/components/ZekrCard.vue'
 import categories from '@/exports/AzkarCategories.js'
+import { useMeta } from '@/utilities/head'
 
 const categoryParam = useRouteParams('category')
 
@@ -19,7 +20,15 @@ const categoryEntry = categories.find(
 )
 const resolvedId = categoryEntry ? categoryEntry.id : categoryParam.value
 
-const { isFetching, data: category, error } = useFetch(`/data/azkar/${resolvedId}.json`).json().get()
+const { isFetching, data: category, error, onFetchResponse } = useFetch(`/data/azkar/${resolvedId}.json`).json().get()
+
+onFetchResponse(() => {
+  useMeta({
+    title: category.value.meta.name,
+    description: category.value.meta.description,
+    keywords: ['أذكار', 'دعاء', category.value.meta.name, 'رفيق'],
+  })
+})
 </script>
 
 <template>

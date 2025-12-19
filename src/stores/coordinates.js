@@ -8,8 +8,8 @@ export const useCoordinatesStore = defineStore('coordinates', function () {
   function detect() {
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        longitude.value = position.coords.longitude
-        latitude.value = position.coords.latitude
+        longitude.value = position.coords.longitude.toFixed(6)
+        latitude.value = position.coords.latitude.toFixed(6)
       },
       (error) => {
         console.error('Geolocation error:', error.message)

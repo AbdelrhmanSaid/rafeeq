@@ -1,7 +1,8 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import { useOnline } from '@vueuse/core'
+import { useMeta } from '@/utilities/head'
 import {
   IconArrowLeft,
   IconHeart,
@@ -26,6 +27,16 @@ const stationSlug = computed(() => route.params.slug.toLowerCase())
 const station = computed(() => radiosData[stationSlug.value])
 const isPlaying = computed(() => station.value && store.station === station.value.url)
 const canShare = computed(() => typeof navigator !== 'undefined' && typeof navigator.share === 'function')
+
+watchEffect(() => {
+  if (station.value) {
+    useMeta({
+      title: station.value.name,
+      description: `استمع إلى ${station.value.name} بث مباشر`,
+      keywords: ['إذاعة', 'راديو', 'قرآن', station.value.name, 'بث مباشر'],
+    })
+  }
+})
 
 const shareStation = async () => {
   if (!station.value || !navigator.share) {
