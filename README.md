@@ -43,14 +43,13 @@ bun run dev
 The application will be available at `http://localhost:5173`.
 
 ## Analytics
-To enable lightweight, privacy-friendly analytics with [Umami](https://umami.is/) without impacting performance or the PWA, set these environment variables before building or running the app:
+To enable Google Analytics without impacting performance or the PWA, set this environment variable before building or running the app:
 
 ```
-VITE_UMAMI_WEBSITE_ID=<your-umami-site-id>
-
-# Optional: point to your self-hosted script instead of the default cloud tracker
-VITE_UMAMI_SCRIPT_URL=https://your-umami-instance/script.js
+VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
+
+Replace `G-XXXXXXXXXX` with your Google Analytics 4 Measurement ID from [Google Analytics](https://analytics.google.com/).
 
 ## Contributing
 Contributions are welcome! Feel free to open issues or submit pull requests.

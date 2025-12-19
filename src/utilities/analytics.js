@@ -1,36 +1,38 @@
-const websiteId = import.meta.env.VITE_UMAMI_WEBSITE_ID
-const scriptUrl = import.meta.env.VITE_UMAMI_SCRIPT_URL || 'https://analytics.umami.is/script.js'
+const measurementId = import.meta.env.VITE_GA_MEASUREMENT_ID
 
 let trackerPromise
 
 const isBrowser = typeof window !== 'undefined'
 
 const loadTracker = () => {
-  if (trackerPromise || !isBrowser || !websiteId) return trackerPromise
+  if (trackerPromise || !isBrowser || !measurementId) return trackerPromise
 
   const existingScript = document.querySelector(
-    `script[data-website-id="${websiteId}"][data-analytics-provider="umami"]`,
+    `script[src*="googletagmanager.com/gtag/js?id=${measurementId}"]`,
   )
 
-  if (existingScript?.dataset.loaded === 'true') {
-    trackerPromise = Promise.resolve(window.umami)
+  if (existingScript && typeof window.gtag === 'function') {
+    trackerPromise = Promise.resolve(window.gtag)
     return trackerPromise
   }
 
   trackerPromise = new Promise((resolve) => {
-    const script = document.createElement('script')
-    script.src = scriptUrl
-    script.async = true
-    script.defer = true
-    script.dataset.websiteId = websiteId
-    script.dataset.analyticsProvider = 'umami'
-    script.onload = () => {
-      script.dataset.loaded = 'true'
-      resolve(window.umami)
+    // Initialize dataLayer
+    window.dataLayer = window.dataLayer || []
+    window.gtag = function () {
+      window.dataLayer.push(arguments)
     }
+    window.gtag('js', new Date())
+    window.gtag('config', measurementId)
+
+    // Load the gtag.js script
+    const script = document.createElement('script')
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`
+    script.async = true
+    script.onload = () => resolve(window.gtag)
     script.onerror = () => resolve(undefined)
 
-    document.body.appendChild(script)
+    document.head.appendChild(script)
   })
 
   return trackerPromise
@@ -39,16 +41,15 @@ const loadTracker = () => {
 export const trackPageview = (path) => {
   const tracker = loadTracker()
 
-  tracker?.then((umami) => {
-    if (!umami) return
+  tracker?.then((gtag) => {
+    if (!gtag) return
 
     const url = path ? new URL(path, window.location.origin).toString() : window.location.href
 
-    if (typeof umami.trackView === 'function') {
-      umami.trackView(url, document.referrer)
-    } else if (typeof umami === 'function') {
-      umami('pageview', { url })
-    }
+    gtag('event', 'page_view', {
+      page_path: path || window.location.pathname,
+      page_location: url,
+    })
   })
 }
 
