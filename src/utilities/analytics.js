@@ -9,7 +9,7 @@ const loadTracker = () => {
   if (trackerPromise || !isBrowser || !websiteId) return trackerPromise
 
   const existingScript = document.querySelector(
-    `script[data-website-id="${websiteId}"][data-analytics-provider="umami"]`
+    `script[data-website-id="${websiteId}"][data-analytics-provider="umami"]`,
   )
 
   if (existingScript?.dataset.loaded === 'true') {

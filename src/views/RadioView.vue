@@ -23,7 +23,7 @@ const radiosList = computed(() =>
   Object.entries(radiosData).map(([slug, station]) => ({
     slug,
     ...station,
-  }))
+  })),
 )
 
 const radios = computed(() => {
@@ -117,11 +117,6 @@ const { search, filtered } = useSearch(radios, ['name'])
 .radio-link {
   color: inherit;
   text-decoration: none;
-
-  &:hover,
-  &:focus {
-    text-decoration: underline;
-  }
 }
 
 .list-group-item {
@@ -137,6 +132,11 @@ const { search, filtered } = useSearch(radios, ['name'])
     button {
       color: var(--bs-white);
     }
+  }
+
+  &:hover:not(.active) {
+    background-color: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary);
   }
 }
 </style>

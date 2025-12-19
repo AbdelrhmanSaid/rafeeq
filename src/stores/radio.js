@@ -13,19 +13,16 @@ export const useRadioStore = defineStore('radio', () => {
   const favorites = computed(() =>
     Object.entries(radios)
       .filter(([slug]) => favoriteKeys.value.includes(slug))
-      .map(([slug, station]) => ({ slug, ...station }))
+      .map(([slug, station]) => ({ slug, ...station })),
   )
 
-  const getSlugForUrl = (url) =>
-    Object.entries(radios).find(([, station]) => station.url === url)?.[0]
+  const getSlugForUrl = (url) => Object.entries(radios).find(([, station]) => station.url === url)?.[0]
 
   if (favoriteKeys.value.some((favorite) => !radios[favorite])) {
     favoriteKeys.value = Array.from(
       new Set(
-        favoriteKeys.value
-          .map((favorite) => (radios[favorite] ? favorite : getSlugForUrl(favorite)))
-          .filter(Boolean)
-      )
+        favoriteKeys.value.map((favorite) => (radios[favorite] ? favorite : getSlugForUrl(favorite))).filter(Boolean),
+      ),
     )
   }
 
