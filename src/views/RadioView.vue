@@ -10,6 +10,7 @@ import Heading from '@/components/Heading.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import radiosData from '@/exports/Radios.js'
 import OfflineState from '@/components/OfflineState.vue'
+import { getRadioSlug } from '@/utilities/radio'
 
 // Radio store
 const store = useRadioStore()
@@ -68,7 +69,12 @@ const { search, filtered } = useSearch(radios, ['name'])
         :class="{ active: store.station === station.url }"
       >
         <div class="d-flex justify-content-between align-items-center">
-          <span class="flex-grow-1">{{ index + 1 }}. {{ station.name }}</span>
+          <RouterLink
+            :to="{ name: 'radio-station', params: { slug: getRadioSlug(station) } }"
+            class="flex-grow-1 radio-link"
+          >
+            {{ index + 1 }}. {{ station.name }}
+          </RouterLink>
 
           <div class="d-flex gap-2">
             <button
@@ -105,6 +111,16 @@ const { search, filtered } = useSearch(radios, ['name'])
 </template>
 
 <style lang="scss" scoped>
+.radio-link {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    text-decoration: underline;
+  }
+}
+
 .list-group-item {
   transition:
     background-color 0.3s,
