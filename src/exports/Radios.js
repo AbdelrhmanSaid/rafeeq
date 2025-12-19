@@ -1,9 +1,9 @@
 export default {
-  '8s5u5tpdtwzuv': {
+  Cairo: {
     name: 'إذاعة القرآن الكريم من القاهرة',
     url: 'https://stream.radiojar.com/8s5u5tpdtwzuv',
   },
-  '0tpy1h0kxtzuv': {
+  Makkah: {
     name: 'إذاعة الحرم المكي',
     url: 'https://stream.radiojar.com/0tpy1h0kxtzuv',
   },

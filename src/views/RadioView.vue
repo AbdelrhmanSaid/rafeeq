@@ -28,7 +28,7 @@ const radiosList = computed(() =>
 
 const radios = computed(() => {
   if (favoritesOnly.value) {
-    return radiosList.value.filter((radio) => store.isFavorite(radio.url))
+    return radiosList.value.filter((radio) => store.isFavorite(radio.slug))
   }
 
   return radiosList.value
@@ -82,10 +82,10 @@ const { search, filtered } = useSearch(radios, ['name'])
           <div class="d-flex gap-2">
             <button
               class="btn btn-flat"
-              @click.stop="store.toggleFavorite(station.url)"
-              :title="store.isFavorite(station.url) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"
+              @click.stop="store.toggleFavorite(station.slug)"
+              :title="store.isFavorite(station.slug) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"
             >
-              <IconHeartFilled v-if="store.isFavorite(station.url)" size="1.25rem" class="text-danger" />
+              <IconHeartFilled v-if="store.isFavorite(station.slug)" size="1.25rem" class="text-danger" />
               <IconHeart v-else size="1.25rem" />
             </button>
 

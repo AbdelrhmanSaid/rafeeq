@@ -15,6 +15,7 @@ const online = useOnline()
 const store = useRadioStore()
 
 const station = computed(() => radiosData[route.params.slug])
+const stationSlug = computed(() => route.params.slug)
 const isPlaying = computed(() => station.value && store.station === station.value.url)
 const canShare = computed(() => typeof navigator !== 'undefined' && typeof navigator.share === 'function')
 
@@ -89,11 +90,11 @@ const shareStation = async () => {
           <button
             class="btn btn-outline-danger btn-lg px-4"
             type="button"
-            @click="store.toggleFavorite(station.url)"
+            @click="store.toggleFavorite(stationSlug)"
           >
-            <IconHeartFilled v-if="store.isFavorite(station.url)" size="1.5rem" class="me-2" />
+            <IconHeartFilled v-if="store.isFavorite(stationSlug)" size="1.5rem" class="me-2" />
             <IconHeart v-else size="1.5rem" class="me-2" />
-            {{ store.isFavorite(station.url) ? 'إزالة من المفضلة' : 'إضافة للمفضلة' }}
+            {{ store.isFavorite(stationSlug) ? 'إزالة من المفضلة' : 'إضافة للمفضلة' }}
           </button>
         </div>
       </div>
