@@ -2,22 +2,41 @@ import 'bootstrap'
 import './assets/scss/base.scss'
 import 'vue-sonner/style.css'
 
-import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import { ViteSSG } from 'vite-ssg'
 
 import App from './App.vue'
-import router from './router'
+import { routes, installRouterHooks } from './router'
 import { useNotificationStore } from './stores/notifications'
+import surahs from '@/exports/QuranSurahs.js'
+import azkarCategories from '@/exports/AzkarCategories.js'
+import radios from '@/exports/Radios.js'
 
-const app = createApp(App)
+const baseRoutes = ['/', '/quran', '/azkar', '/radio', '/sebha', '/zakat', '/settings', '/privacy']
+const ssgRoutes = [
+  ...baseRoutes,
+  ...surahs.map((surah) => `/quran/${surah.id}`),
+  ...azkarCategories.flatMap((category) => [`/azkar/${category.id}`, `/azkar/${category.slug}`]),
+  ...Object.keys(radios).map((slug) => `/radio/${slug}`),
+]
 
-app.use(createPinia())
-app.use(router)
+export const createApp = ViteSSG(
+  App,
+  {
+    routes,
+    base: import.meta.env.BASE_URL,
+    includedRoutes: () => ssgRoutes,
+  },
+  ({ app, router, isClient }) => {
+    app.use(createPinia())
+    installRouterHooks(router)
 
-router.isReady().then(() => {
-  app.mount('#app')
-
-  // Initialize notifications after app is mounted
-  const notificationStore = useNotificationStore()
-  notificationStore.initialize()
-})
+    if (isClient) {
+      router.isReady().then(() => {
+        // Initialize notifications after app is mounted
+        const notificationStore = useNotificationStore()
+        notificationStore.initialize()
+      })
+    }
+  },
+)

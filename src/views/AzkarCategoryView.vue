@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { IconChevronLeft } from '@tabler/icons-vue'
 import { useFetch } from '@vueuse/core'
@@ -10,6 +11,7 @@ import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import ZekrCard from '@/components/ZekrCard.vue'
 import categories from '@/exports/AzkarCategories.js'
+import { loadPublicJson } from '@/utilities/ssg'
 
 const categoryParam = useRouteParams('category')
 
@@ -19,7 +21,22 @@ const categoryEntry = categories.find(
 )
 const resolvedId = categoryEntry ? categoryEntry.id : categoryParam.value
 
-const { isFetching, data: category, error } = useFetch(`/data/azkar/${resolvedId}.json`).json().get()
+const fetchState = import.meta.env.SSR
+  ? { isFetching: ref(false), data: ref(null), error: ref(null) }
+  : useFetch(`/data/azkar/${resolvedId}.json`).json().get()
+
+const { isFetching, data: category, error } = fetchState
+
+if (import.meta.env.SSR) {
+  isFetching.value = true
+  try {
+    category.value = await loadPublicJson(`data/azkar/${resolvedId}.json`)
+  } catch (err) {
+    error.value = err
+  } finally {
+    isFetching.value = false
+  }
+}
 </script>
 
 <template>

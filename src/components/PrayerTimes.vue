@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useCoordinatesStore } from '@/stores/coordinates'
 import { useFetch, useDateFormat, useOnline, useNow } from '@vueuse/core'
 
@@ -49,8 +49,19 @@ const options = {
   },
 }
 
-// Fetch prayer timings
-const { isFetching, data: timings, error } = useFetch(endpoint, options).json().get()
+const { isFetching, data: timings, error, execute } = useFetch(endpoint, {
+  ...options,
+  immediate: false,
+}).json()
+
+watch(
+  endpoint,
+  (value) => {
+    if (import.meta.env.SSR) return
+    if (value) execute()
+  },
+  { immediate: true },
+)
 
 // Format time
 const formatTime = (time) => {

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { IconChevronLeft } from '@tabler/icons-vue'
 import { useFetch, useOnline } from '@vueuse/core'
@@ -16,14 +16,14 @@ const online = useOnline()
 
 const surahId = useRouteParams('surah')
 const endpoint = `https://api.alquran.cloud/v1/surah/${surahId.value}`
-const { isFetching, data: surah, error, onFetchResponse } = useFetch(endpoint).json().get()
+const { isFetching, data: surah, error } = useFetch(endpoint).json().get()
 
 const quranStore = useQuranStore()
 const quranSurah = ref(null)
 const quranLoading = ref(false)
 const quranLoadingError = ref(null)
 
-onFetchResponse(async () => {
+const fetchRecitation = async () => {
   try {
     quranLoading.value = true
     quranLoadingError.value = null
@@ -40,7 +40,18 @@ onFetchResponse(async () => {
   } finally {
     quranLoading.value = false
   }
-})
+}
+
+if (!import.meta.env.SSR) {
+  watch(
+    () => surah.value?.data?.number,
+    (surahNumber) => {
+      if (!surahNumber) return
+      void fetchRecitation()
+    },
+    { immediate: true },
+  )
+}
 
 // Prepare the ayat data
 const ayat = computed(() => {

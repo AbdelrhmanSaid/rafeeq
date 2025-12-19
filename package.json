@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:ssg": "vite-ssg build",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix",
     "format": "prettier --write src/"
@@ -33,6 +34,7 @@
     "prettier": "3.6.2",
     "vite": "^7.3.0",
     "vite-plugin-pwa": "^1.2.0",
+    "vite-ssg": "^26.1.1",
     "vite-plugin-vue-devtools": "^8.0.5"
   }
 }
