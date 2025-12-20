@@ -1,8 +1,8 @@
 <script setup>
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
+import { computed, ref } from 'vue'
 import { useModeStore } from '@/stores/mode'
 import { useRadioStore } from '@/stores/radio'
-import { ref } from 'vue'
 
 import {
   IconHome,
@@ -18,8 +18,13 @@ import {
 
 const mode = useModeStore()
 const radio = useRadioStore()
+const route = useRoute()
 const showMoreMenu = ref(false)
 const isClosing = ref(false)
+
+const isQuranActive = computed(() => ['quran', 'quran-surah'].includes(route.name))
+const isAzkarActive = computed(() => ['azkar', 'azkar-category'].includes(route.name))
+const isRadioActive = computed(() => ['radio', 'radio-station'].includes(route.name))
 
 const toggleMoreMenu = () => {
   if (showMoreMenu.value) {
@@ -132,6 +137,7 @@ const toggleMode = () => {
       <RouterLink
         :to="{ name: 'quran' }"
         class="d-flex flex-column align-items-center text-decoration-none text-secondary px-2 py-1 rounded tab-item"
+        :class="{ 'is-active': isQuranActive }"
       >
         <IconBook size="1.5rem" />
         <span class="mt-1 small">القرآن</span>
@@ -140,6 +146,7 @@ const toggleMode = () => {
       <RouterLink
         :to="{ name: 'azkar' }"
         class="d-flex flex-column align-items-center text-decoration-none text-secondary px-2 py-1 rounded tab-item"
+        :class="{ 'is-active': isAzkarActive }"
       >
         <IconSparkles size="1.5rem" />
         <span class="mt-1 small">الأذكار</span>
@@ -148,6 +155,7 @@ const toggleMode = () => {
       <RouterLink
         :to="{ name: 'radio' }"
         class="d-flex flex-column align-items-center text-decoration-none text-secondary px-2 py-1 rounded position-relative tab-item"
+        :class="{ 'is-active': isRadioActive }"
       >
         <IconRadio size="1.5rem" />
         <span class="mt-1 small">الإذاعة</span>
@@ -181,11 +189,13 @@ const toggleMode = () => {
   }
 
   &:hover,
-  &.router-link-active {
+  &.router-link-active,
+  &.is-active {
     color: var(--bs-primary) !important;
   }
 
-  &.router-link-active {
+  &.router-link-active,
+  &.is-active {
     background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
   }
 }
