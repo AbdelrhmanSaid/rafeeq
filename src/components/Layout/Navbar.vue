@@ -1,5 +1,6 @@
 <script setup>
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
+import { computed } from 'vue'
 import { useModeStore } from '@/stores/mode'
 import { useRadioStore } from '@/stores/radio'
 
@@ -18,6 +19,11 @@ import Logo from '@/components/Logo.vue'
 
 const mode = useModeStore()
 const radio = useRadioStore()
+const route = useRoute()
+
+const isQuranActive = computed(() => ['quran', 'quran-surah'].includes(route.name))
+const isAzkarActive = computed(() => ['azkar', 'azkar-category'].includes(route.name))
+const isRadioActive = computed(() => ['radio', 'radio-station'].includes(route.name))
 </script>
 
 <template>
@@ -41,21 +47,21 @@ const radio = useRadioStore()
           </li>
 
           <li class="nav-item">
-            <RouterLink :to="{ name: 'quran' }" class="nav-link">
+            <RouterLink :to="{ name: 'quran' }" class="nav-link" :class="{ 'is-active': isQuranActive }">
               <IconBook class="me-2" size="1.25rem" />
               <span>القرآن الكريم</span>
             </RouterLink>
           </li>
 
           <li class="nav-item">
-            <RouterLink :to="{ name: 'azkar' }" class="nav-link">
+            <RouterLink :to="{ name: 'azkar' }" class="nav-link" :class="{ 'is-active': isAzkarActive }">
               <IconSparkles class="me-2" size="1.25rem" />
               <span>الأذكار</span>
             </RouterLink>
           </li>
 
           <li class="nav-item">
-            <RouterLink :to="{ name: 'radio' }" class="nav-link">
+            <RouterLink :to="{ name: 'radio' }" class="nav-link" :class="{ 'is-active': isRadioActive }">
               <IconRadio class="me-2" size="1.25rem" />
               <span>الإذاعة</span>
               <span class="radio-status ms-2" v-if="radio.isPlaying"></span>
@@ -116,7 +122,8 @@ const radio = useRadioStore()
   transition: background-color 0.2s;
 
   &:hover,
-  &.router-link-active {
+  &.router-link-active,
+  &.is-active {
     background-color: rgba(var(--bs-primary-rgb), 0.1);
   }
 }
