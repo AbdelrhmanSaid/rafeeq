@@ -1,6 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { useCoordinatesStore } from '@/stores/coordinates'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useFetch, useOnline } from '@vueuse/core'
 import { IconCompass, IconLocationFilled } from '@tabler/icons-vue'
 
@@ -11,7 +10,12 @@ import ErrorState from '@/components/ErrorState.vue'
 import OfflineState from '@/components/OfflineState.vue'
 
 const online = useOnline()
-const store = useCoordinatesStore()
+
+// Location state (fresh from navigator, not stored)
+const latitude = ref(null)
+const longitude = ref(null)
+const locationLoading = ref(true)
+const locationError = ref(null)
 
 // Compass state
 const rawHeading = ref(0)
@@ -22,20 +26,51 @@ const compassError = ref(null)
 // Smoothing factor (0-1, higher = smoother but slower response)
 const SMOOTHING = 0.15
 
+// Request fresh location from navigator
+function requestLocation() {
+  locationLoading.value = true
+  locationError.value = null
+
+  if (!navigator.geolocation) {
+    locationError.value = 'الموقع الجغرافي غير مدعوم في هذا المتصفح'
+    locationLoading.value = false
+    return
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      latitude.value = position.coords.latitude
+      longitude.value = position.coords.longitude
+      locationLoading.value = false
+    },
+    (err) => {
+      locationLoading.value = false
+      if (err.code === err.PERMISSION_DENIED) {
+        locationError.value = 'تم رفض إذن الوصول للموقع'
+      } else if (err.code === err.POSITION_UNAVAILABLE) {
+        locationError.value = 'الموقع غير متاح حالياً'
+      } else {
+        locationError.value = 'فشل في تحديد الموقع'
+      }
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  )
+}
+
 // API endpoint for Qibla direction
 const endpoint = computed(() => {
-  if (!store.latitude || !store.longitude) return null
-  return `https://api.aladhan.com/v1/qibla/${store.latitude}/${store.longitude}`
+  if (!latitude.value || !longitude.value) return null
+  return `https://api.aladhan.com/v1/qibla/${latitude.value}/${longitude.value}`
 })
 
-const options = {
+const fetchOptions = {
   refetch: true,
   beforeFetch: ({ url, cancel }) => {
     if (!url) cancel()
   },
 }
 
-const { isFetching, data: qiblaData, error } = useFetch(endpoint, options).json().get()
+const { isFetching, data: qiblaData, error } = useFetch(endpoint, fetchOptions).json().get()
 
 // Qibla direction from API (degrees from North)
 const qiblaDirection = computed(() => {
@@ -135,6 +170,7 @@ async function requestCompassPermission() {
 }
 
 onMounted(() => {
+  requestLocation()
   requestCompassPermission()
 })
 
@@ -152,29 +188,32 @@ onUnmounted(() => {
       subtitle="حدد اتجاه القبلة بسهولة باستخدام البوصلة الإلكترونية."
     />
 
-    <!-- No location set -->
-    <div
-      v-if="store.latitude === 0 || store.longitude === 0"
-      class="qibla-card text-center"
-      @click="store.detect"
-    >
-      <IconLocationFilled size="3rem" class="text-primary mb-3" />
-      <p class="mb-0">إضغط هنا لتحديد الموقع الخاص بك</p>
+    <!-- Offline state -->
+    <div v-if="!online" class="qibla-card">
+      <OfflineState />
     </div>
 
-    <!-- Loading state -->
+    <!-- Location loading -->
+    <div v-else-if="locationLoading" class="qibla-card">
+      <LoadingState />
+      <p class="text-center text-muted mt-3 mb-0">جاري تحديد موقعك...</p>
+    </div>
+
+    <!-- Location error -->
+    <div v-else-if="locationError" class="qibla-card text-center" @click="requestLocation">
+      <IconLocationFilled size="3rem" class="text-danger mb-3" />
+      <p class="mb-2">{{ locationError }}</p>
+      <p class="text-muted small mb-0">إضغط للمحاولة مرة أخرى</p>
+    </div>
+
+    <!-- Qibla API loading -->
     <div v-else-if="isFetching" class="qibla-card">
       <LoadingState />
     </div>
 
-    <!-- Error state -->
+    <!-- Qibla API error -->
     <div v-else-if="error" class="qibla-card">
       <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
-    </div>
-
-    <!-- Offline state -->
-    <div v-else-if="!online" class="qibla-card">
-      <OfflineState />
     </div>
 
     <!-- Qibla compass -->
