@@ -82,6 +82,17 @@ const router = createRouter({
     },
 
     {
+      path: '/qibla',
+      name: 'qibla',
+      component: () => import('@/views/QiblaView.vue'),
+      meta: {
+        title: 'اتجاه القبلة',
+        description: 'حدد اتجاه القبلة بسهولة باستخدام البوصلة الإلكترونية ومعرفة الاتجاه الصحيح للصلاة.',
+        keywords: ['قبلة', 'اتجاه القبلة', 'بوصلة', 'صلاة', 'مكة'],
+      },
+    },
+
+    {
       path: '/zakat',
       name: 'zakat',
       component: () => import('@/views/ZakatView.vue'),
