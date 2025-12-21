@@ -143,31 +143,25 @@ onUnmounted(() => {
       <!-- Compass visualization -->
       <div class="compass-wrapper" :class="{ 'facing-qibla': isFacingQibla }">
         <div class="compass" :style="{ transform: compassRotation }">
-          <!-- Compass background with cardinal directions -->
-          <div class="compass-face">
-            <!-- Cardinal directions -->
-            <span class="cardinal north">ش</span>
-            <span class="cardinal east">شر</span>
-            <span class="cardinal south">ج</span>
-            <span class="cardinal west">غ</span>
+          <!-- Cardinal directions -->
+          <span class="cardinal cardinal-north">ش</span>
+          <span class="cardinal cardinal-east">شر</span>
+          <span class="cardinal cardinal-south">ج</span>
+          <span class="cardinal cardinal-west">غ</span>
 
-            <!-- Degree markers -->
-            <div class="degree-markers">
-              <span v-for="i in 72" :key="i" class="degree-marker" :style="{ transform: `rotate(${i * 5}deg)` }"></span>
-            </div>
-
-            <!-- Qibla direction needle -->
-            <div class="qibla-needle" :style="{ transform: qiblaNeedleRotation }">
-              <div class="needle-body">
-                <div class="needle-tip"></div>
-                <div class="kaaba-icon">🕋</div>
-              </div>
+          <!-- Qibla indicator -->
+          <div class="qibla-indicator" :style="{ transform: `rotate(${qiblaDirection}deg)` }">
+            <div class="qibla-arrow">
+              <span class="kaaba-icon">🕋</span>
             </div>
           </div>
         </div>
 
         <!-- Center point -->
         <div class="compass-center"></div>
+
+        <!-- Direction pointer (fixed, points up) -->
+        <div class="direction-pointer"></div>
       </div>
 
       <!-- Qibla info -->
@@ -223,13 +217,18 @@ onUnmounted(() => {
 
 .compass-wrapper {
   position: relative;
-  width: min(300px, 80vw);
-  height: min(300px, 80vw);
+  width: 280px;
+  height: 280px;
   border-radius: 50%;
   background: var(--bs-body-bg);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 3px solid var(--bs-border-color);
+  border: 4px solid var(--bs-border-color);
   transition: border-color 0.3s, box-shadow 0.3s;
+
+  @media (max-width: 350px) {
+    width: 250px;
+    height: 250px;
+  }
 
   &.facing-qibla {
     border-color: var(--bs-success);
@@ -238,15 +237,13 @@ onUnmounted(() => {
 }
 
 .compass {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  transition: transform 0.1s ease-out;
-}
-
-.compass-face {
-  position: relative;
-  width: 100%;
-  height: 100%;
+  border-radius: 50%;
+  transition: transform 0.15s ease-out;
 }
 
 .cardinal {
@@ -254,87 +251,58 @@ onUnmounted(() => {
   font-weight: 700;
   font-size: 1.25rem;
   color: var(--bs-body-color);
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  &.north {
-    top: 8%;
+  &.cardinal-north {
+    top: 15px;
     left: 50%;
     transform: translateX(-50%);
     color: var(--bs-danger);
   }
 
-  &.south {
-    bottom: 8%;
+  &.cardinal-south {
+    bottom: 15px;
     left: 50%;
     transform: translateX(-50%);
   }
 
-  &.east {
-    right: 8%;
+  &.cardinal-east {
+    left: 15px;
     top: 50%;
     transform: translateY(-50%);
   }
 
-  &.west {
-    left: 8%;
+  &.cardinal-west {
+    right: 15px;
     top: 50%;
     transform: translateY(-50%);
   }
 }
 
-.degree-markers {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.degree-marker {
-  position: absolute;
-  top: 4%;
-  left: 50%;
-  width: 2px;
-  height: 8px;
-  background: var(--bs-secondary-color);
-  transform-origin: center calc(50vmin - 4%);
-
-  &:nth-child(18n) {
-    height: 12px;
-    width: 3px;
-    background: var(--bs-body-color);
-  }
-}
-
-.qibla-needle {
+.qibla-indicator {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 4px;
-  height: 45%;
+  width: 60px;
+  height: 120px;
+  margin-left: -30px;
+  margin-top: -120px;
   transform-origin: center bottom;
-  transform: translateX(-50%) translateY(-100%);
 }
 
-.needle-body {
-  position: relative;
-  width: 100%;
-  height: 100%;
+.qibla-arrow {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.needle-tip {
-  width: 0;
-  height: 0;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-bottom: 20px solid var(--bs-primary);
+  padding-top: 10px;
 }
 
 .kaaba-icon {
-  font-size: 1.5rem;
-  margin-top: 0.25rem;
+  font-size: 2rem;
 }
 
 .compass-center {
@@ -342,12 +310,25 @@ onUnmounted(() => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   background: var(--bs-primary);
   border-radius: 50%;
-  border: 2px solid var(--bs-body-bg);
+  border: 3px solid var(--bs-body-bg);
   z-index: 10;
+}
+
+.direction-pointer {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 16px solid var(--bs-primary);
+  z-index: 20;
 }
 
 .qibla-info {
