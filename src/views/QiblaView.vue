@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useCoordinatesStore } from '@/stores/coordinates'
 import { useFetch, useOnline } from '@vueuse/core'
 import { IconCompass, IconLocationFilled } from '@tabler/icons-vue'
@@ -10,16 +10,17 @@ import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import OfflineState from '@/components/OfflineState.vue'
 
-// Check if the user is online
 const online = useOnline()
-
-// Coordinates store
 const store = useCoordinatesStore()
 
-// Device heading (compass direction the phone is pointing)
-const deviceHeading = ref(0)
+// Compass state
+const rawHeading = ref(0)
+const smoothedHeading = ref(0)
 const hasCompassSupport = ref(false)
 const compassError = ref(null)
+
+// Smoothing factor (0-1, higher = smoother but slower response)
+const SMOOTHING = 0.15
 
 // API endpoint for Qibla direction
 const endpoint = computed(() => {
@@ -27,7 +28,6 @@ const endpoint = computed(() => {
   return `https://api.aladhan.com/v1/qibla/${store.latitude}/${store.longitude}`
 })
 
-// Fetch options
 const options = {
   refetch: true,
   beforeFetch: ({ url, cancel }) => {
@@ -35,47 +35,80 @@ const options = {
   },
 }
 
-// Fetch Qibla direction
 const { isFetching, data: qiblaData, error } = useFetch(endpoint, options).json().get()
 
-// Qibla direction in degrees from North
+// Qibla direction from API (degrees from North)
 const qiblaDirection = computed(() => {
   return qiblaData.value?.data?.direction || 0
 })
 
-// Compass rotation - rotates the entire compass based on device heading
-const compassRotation = computed(() => {
-  return `rotate(${-deviceHeading.value}deg)`
+// Calculate shortest rotation path (handles 0/360 wraparound)
+function normalizeAngle(angle) {
+  while (angle < 0) angle += 360
+  while (angle >= 360) angle -= 360
+  return angle
+}
+
+function getShortestRotation(from, to) {
+  const diff = normalizeAngle(to - from)
+  return diff > 180 ? diff - 360 : diff
+}
+
+// Apply smoothing with wraparound handling
+function smoothHeading(newValue) {
+  const delta = getShortestRotation(smoothedHeading.value, newValue)
+  smoothedHeading.value = normalizeAngle(smoothedHeading.value + delta * SMOOTHING)
+}
+
+// The rotation angle for the Qibla arrow
+// When facing Qibla, this should be 0 (pointing up)
+const needleRotation = computed(() => {
+  const angle = qiblaDirection.value - smoothedHeading.value
+  return normalizeAngle(angle)
 })
 
-// Qibla needle rotation - points to qibla relative to compass
-const qiblaNeedleRotation = computed(() => {
-  return `rotate(${qiblaDirection.value}deg)`
-})
-
-// Check if user is facing Qibla direction (within 10 degrees tolerance)
+// Check if facing Qibla (within 15 degrees)
 const isFacingQibla = computed(() => {
   if (!hasCompassSupport.value) return false
-  const diff = Math.abs(deviceHeading.value - qiblaDirection.value)
-  const normalizedDiff = diff > 180 ? 360 - diff : diff
-  return normalizedDiff <= 10
+  const angle = needleRotation.value
+  return angle <= 15 || angle >= 345
 })
 
-// Handle device orientation
+// Handle device orientation events
 function handleOrientation(event) {
-  // For iOS we need to use webkitCompassHeading
+  let heading = 0
+
+  // iOS: use webkitCompassHeading (degrees from magnetic north)
   if (event.webkitCompassHeading !== undefined) {
-    deviceHeading.value = event.webkitCompassHeading
-  } else if (event.alpha !== null) {
-    // For Android devices, calculate heading from alpha
-    // alpha is the rotation around the z-axis (0-360)
-    deviceHeading.value = 360 - event.alpha
+    heading = event.webkitCompassHeading
+  }
+  // Android/others: use alpha (but needs to be converted)
+  else if (event.alpha !== null) {
+    // alpha is rotation around z-axis, 0-360
+    // When device points North, alpha varies by device
+    // For absolute orientation, we need deviceorientationabsolute event
+    heading = normalizeAngle(360 - event.alpha)
+  }
+
+  rawHeading.value = heading
+  smoothHeading(heading)
+}
+
+// Handle absolute orientation (Android)
+function handleAbsoluteOrientation(event) {
+  if (event.alpha !== null) {
+    const heading = normalizeAngle(360 - event.alpha)
+    rawHeading.value = heading
+    smoothHeading(heading)
   }
 }
 
-// Request compass permission (required for iOS 13+)
 async function requestCompassPermission() {
-  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+  // iOS 13+ requires permission
+  if (
+    typeof DeviceOrientationEvent !== 'undefined' &&
+    typeof DeviceOrientationEvent.requestPermission === 'function'
+  ) {
     try {
       const permission = await DeviceOrientationEvent.requestPermission()
       if (permission === 'granted') {
@@ -84,13 +117,18 @@ async function requestCompassPermission() {
       } else {
         compassError.value = 'تم رفض إذن الوصول للبوصلة'
       }
-    } catch (err) {
+    } catch {
       compassError.value = 'فشل في طلب إذن البوصلة'
     }
   } else if (window.DeviceOrientationEvent) {
-    // Non-iOS devices or older iOS
     hasCompassSupport.value = true
-    window.addEventListener('deviceorientation', handleOrientation, true)
+
+    // Try absolute orientation first (better for Android)
+    if ('ondeviceorientationabsolute' in window) {
+      window.addEventListener('deviceorientationabsolute', handleAbsoluteOrientation, true)
+    } else {
+      window.addEventListener('deviceorientation', handleOrientation, true)
+    }
   } else {
     compassError.value = 'البوصلة غير مدعومة في هذا الجهاز'
   }
@@ -102,6 +140,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('deviceorientation', handleOrientation, true)
+  window.removeEventListener('deviceorientationabsolute', handleAbsoluteOrientation, true)
 })
 </script>
 
@@ -140,43 +179,35 @@ onUnmounted(() => {
 
     <!-- Qibla compass -->
     <div v-else-if="qiblaData" class="qibla-shell">
-      <!-- Compass visualization -->
-      <div class="compass-wrapper" :class="{ 'facing-qibla': isFacingQibla }">
-        <div class="compass" :style="{ transform: compassRotation }">
-          <!-- Cardinal directions -->
-          <span class="cardinal cardinal-north">ش</span>
-          <span class="cardinal cardinal-east">شر</span>
-          <span class="cardinal cardinal-south">ج</span>
-          <span class="cardinal cardinal-west">غ</span>
-
-          <!-- Qibla indicator -->
-          <div class="qibla-indicator" :style="{ transform: `rotate(${qiblaDirection}deg)` }">
-            <div class="qibla-arrow">
-              <span class="kaaba-icon">🕋</span>
-            </div>
-          </div>
+      <div class="compass-container" :class="{ 'facing-qibla': isFacingQibla }">
+        <!-- Qibla needle - points to Qibla direction -->
+        <div class="needle" :style="{ transform: `rotate(${needleRotation}deg)` }">
+          <div class="needle-pointer"></div>
+          <div class="kaaba-icon">🕋</div>
         </div>
 
-        <!-- Center point -->
-        <div class="compass-center"></div>
+        <!-- Center dot -->
+        <div class="center-dot"></div>
 
-        <!-- Direction pointer (fixed, points up) -->
-        <div class="direction-pointer"></div>
+        <!-- "You" indicator at bottom -->
+        <div class="you-indicator">
+          <span>أنت</span>
+        </div>
       </div>
 
-      <!-- Qibla info -->
+      <!-- Info section -->
       <div class="qibla-info">
         <div class="qibla-degree">
-          <IconCompass size="1.5rem" class="me-2" />
-          <span>{{ qiblaDirection.toFixed(1) }}°</span>
+          <IconCompass size="1.25rem" class="me-2" />
+          <span>{{ qiblaDirection.toFixed(1) }}° من الشمال</span>
         </div>
         <p class="qibla-hint">
           <template v-if="hasCompassSupport && !compassError">
-            <span v-if="isFacingQibla" class="text-success">أنت تواجه القبلة الآن!</span>
-            <span v-else>وجّه هاتفك نحو الكعبة</span>
+            <span v-if="isFacingQibla" class="text-success fw-bold">أنت تواجه القبلة!</span>
+            <span v-else>أدر هاتفك حتى تشير الكعبة للأعلى</span>
           </template>
           <template v-else>
-            <span class="text-warning">{{ compassError || 'البوصلة غير متاحة - اتجاه القبلة موضح أعلاه' }}</span>
+            <span class="text-warning">{{ compassError || 'البوصلة غير متاحة' }}</span>
           </template>
         </p>
       </div>
@@ -184,7 +215,7 @@ onUnmounted(() => {
       <!-- Enable compass button for iOS -->
       <button
         v-if="!hasCompassSupport && typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function'"
-        class="btn btn-primary mt-3"
+        class="btn btn-primary"
         @click="requestCompassPermission"
       >
         <IconCompass class="me-2" size="1.25rem" />
@@ -211,124 +242,87 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
-  padding: 2rem 1rem;
+  gap: 1.5rem;
+  padding: 1.5rem 1rem;
 }
 
-.compass-wrapper {
+.compass-container {
   position: relative;
-  width: 280px;
-  height: 280px;
+  width: 260px;
+  height: 260px;
   border-radius: 50%;
-  background: var(--bs-body-bg);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 4px solid var(--bs-border-color);
-  transition: border-color 0.3s, box-shadow 0.3s;
-
-  @media (max-width: 350px) {
-    width: 250px;
-    height: 250px;
-  }
+  background: linear-gradient(135deg, var(--bs-body-bg) 0%, var(--bs-secondary-bg) 100%);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.1),
+    inset 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 3px solid var(--bs-border-color);
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
 
   &.facing-qibla {
     border-color: var(--bs-success);
-    box-shadow: 0 0 30px rgba(var(--bs-success-rgb), 0.4);
+    box-shadow:
+      0 0 0 4px rgba(var(--bs-success-rgb), 0.2),
+      0 4px 20px rgba(0, 0, 0, 0.1);
   }
 }
 
-.compass {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  transition: transform 0.15s ease-out;
-}
-
-.cardinal {
-  position: absolute;
-  font-weight: 700;
-  font-size: 1.25rem;
-  color: var(--bs-body-color);
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &.cardinal-north {
-    top: 15px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: var(--bs-danger);
-  }
-
-  &.cardinal-south {
-    bottom: 15px;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  &.cardinal-east {
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-
-  &.cardinal-west {
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-}
-
-.qibla-indicator {
+.needle {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 60px;
-  height: 120px;
-  margin-left: -30px;
-  margin-top: -120px;
-  transform-origin: center bottom;
-}
-
-.qibla-arrow {
+  width: 4px;
+  height: 50%;
+  margin-left: -2px;
+  margin-top: -50%;
+  transform-origin: bottom center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 10px;
+  will-change: transform;
+}
+
+.needle-pointer {
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 24px solid var(--bs-primary);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .kaaba-icon {
-  font-size: 2rem;
+  font-size: 1.75rem;
+  margin-top: 4px;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.15));
 }
 
-.compass-center {
+.center-dot {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   background: var(--bs-primary);
   border-radius: 50%;
   border: 3px solid var(--bs-body-bg);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   z-index: 10;
 }
 
-.direction-pointer {
+.you-indicator {
   position: absolute;
-  top: -8px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 12px solid transparent;
-  border-right: 12px solid transparent;
-  border-top: 16px solid var(--bs-primary);
-  z-index: 20;
+  background: var(--bs-primary);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .qibla-info {
@@ -339,8 +333,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.1rem;
+  font-weight: 600;
   color: var(--bs-primary);
   margin-bottom: 0.5rem;
 }
@@ -348,5 +342,6 @@ onUnmounted(() => {
 .qibla-hint {
   color: var(--bs-secondary-color);
   margin: 0;
+  font-size: 0.95rem;
 }
 </style>
