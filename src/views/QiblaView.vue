@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useFetch, useOnline } from '@vueuse/core'
-import { IconCompass, IconLocationFilled } from '@tabler/icons-vue'
+import { useFetch, useOnline, useMediaQuery } from '@vueuse/core'
+import { IconCompass, IconLocationFilled, IconDeviceMobile } from '@tabler/icons-vue'
 
 import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
@@ -10,6 +10,9 @@ import ErrorState from '@/components/ErrorState.vue'
 import OfflineState from '@/components/OfflineState.vue'
 
 const online = useOnline()
+
+// Check if device is mobile (screen width < 992px, matching Bootstrap lg breakpoint)
+const isMobile = useMediaQuery('(max-width: 991.98px)')
 
 // Location state (fresh from navigator, not stored)
 const latitude = ref(null)
@@ -188,8 +191,15 @@ onUnmounted(() => {
       subtitle="حدد اتجاه القبلة بسهولة باستخدام البوصلة الإلكترونية."
     />
 
+    <!-- Desktop not supported -->
+    <div v-if="!isMobile" class="qibla-card text-center">
+      <IconDeviceMobile size="3rem" class="text-muted mb-3" />
+      <p class="h5 mb-2">هذه الميزة متاحة فقط على الهاتف</p>
+      <p class="text-muted mb-0">افتح التطبيق من هاتفك لاستخدام البوصلة</p>
+    </div>
+
     <!-- Offline state -->
-    <div v-if="!online" class="qibla-card">
+    <div v-else-if="!online" class="qibla-card">
       <OfflineState />
     </div>
 
