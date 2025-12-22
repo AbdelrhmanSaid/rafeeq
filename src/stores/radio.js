@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import radios from '@/exports/Radios.js'
 import { useLocalStorage } from '@vueuse/core'
+import { toast } from 'vue-sonner'
 
 export const useRadioStore = defineStore('radio', () => {
   const player = new Audio()
@@ -26,14 +27,30 @@ export const useRadioStore = defineStore('radio', () => {
     )
   }
 
+  const handlePlaybackError = () => {
+    if (!station.value) {
+      return
+    }
+
+    toast.error('تعذر تشغيل الإذاعة حالياً، حاول مرة أخرى لاحقاً.')
+    stop()
+  }
+
+  player.addEventListener('error', handlePlaybackError)
+  player.addEventListener('stalled', handlePlaybackError)
+
   function play(url) {
     player.src = url
-    player.play()
-
     station.value = url
+
+    const playPromise = player.play()
+    if (playPromise?.catch) {
+      playPromise.catch(handlePlaybackError)
+    }
   }
 
   function stop() {
+    player.pause()
     player.src = ''
 
     station.value = null
