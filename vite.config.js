@@ -11,6 +11,7 @@ export default defineConfig({
     vue(),
     VitePWA({
       registerType: 'prompt',
+      cleanupOutdatedCaches: false,
       devOptions: {
         enabled: true,
       },
