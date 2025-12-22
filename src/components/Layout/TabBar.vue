@@ -73,6 +73,13 @@ const toggleMode = () => {
 
         <div class="py-3">
           <RouterLink
+            :to="{ name: 'qibla' }"
+            class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item"
+            @click="closeMoreMenu"
+          >
+            اتجاه القبلة
+          </RouterLink>
+          <RouterLink
             :to="{ name: 'zakat' }"
             class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item"
             @click="closeMoreMenu"
