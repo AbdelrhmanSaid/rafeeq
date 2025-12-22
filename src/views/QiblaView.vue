@@ -21,13 +21,18 @@ const locationLoading = ref(true)
 const locationError = ref(null)
 
 // Compass state
-const rawHeading = ref(0)
 const smoothedHeading = ref(0)
 const hasCompassSupport = ref(false)
 const compassError = ref(null)
 
-// Smoothing factor (0-1, higher = smoother but slower response)
+// Smoothing factor for exponential moving average (0-1)
+// 0.15 provides good balance between responsiveness and stability
+// Lower values = smoother but slower, higher = faster but jittery
 const SMOOTHING = 0.15
+
+// Tolerance in degrees for "facing Qibla" detection
+// 15° allows for natural hand movement while being precise enough for prayer
+const FACING_TOLERANCE = 15
 
 // Request fresh location from navigator
 function requestLocation() {
@@ -56,7 +61,7 @@ function requestLocation() {
         locationError.value = 'فشل في تحديد الموقع'
       }
     },
-    { enableHighAccuracy: true, timeout: 10000 }
+    { enableHighAccuracy: true, timeout: 15000 }
   )
 }
 
@@ -77,7 +82,8 @@ const { isFetching, data: qiblaData, error } = useFetch(endpoint, fetchOptions).
 
 // Qibla direction from API (degrees from North)
 const qiblaDirection = computed(() => {
-  return qiblaData.value?.data?.direction || 0
+  const direction = qiblaData.value?.data?.direction
+  return typeof direction === 'number' ? direction : null
 })
 
 // Calculate shortest rotation path (handles 0/360 wraparound)
@@ -101,15 +107,25 @@ function smoothHeading(newValue) {
 // The rotation angle for the Qibla arrow
 // When facing Qibla, this should be 0 (pointing up)
 const needleRotation = computed(() => {
+  if (qiblaDirection.value === null) return 0
   const angle = qiblaDirection.value - smoothedHeading.value
   return normalizeAngle(angle)
 })
 
-// Check if facing Qibla (within 15 degrees)
+// Check if facing Qibla (within tolerance)
 const isFacingQibla = computed(() => {
-  if (!hasCompassSupport.value) return false
+  if (!hasCompassSupport.value || qiblaDirection.value === null) return false
   const angle = needleRotation.value
-  return angle <= 15 || angle >= 345
+  return angle <= FACING_TOLERANCE || angle >= (360 - FACING_TOLERANCE)
+})
+
+// Check if iOS permission request is available
+const canRequestiOSPermission = computed(() => {
+  return (
+    !hasCompassSupport.value &&
+    typeof DeviceOrientationEvent !== 'undefined' &&
+    typeof DeviceOrientationEvent.requestPermission === 'function'
+  )
 })
 
 // Handle device orientation events
@@ -128,7 +144,6 @@ function handleOrientation(event) {
     heading = normalizeAngle(360 - event.alpha)
   }
 
-  rawHeading.value = heading
   smoothHeading(heading)
 }
 
@@ -136,7 +151,6 @@ function handleOrientation(event) {
 function handleAbsoluteOrientation(event) {
   if (event.alpha !== null) {
     const heading = normalizeAngle(360 - event.alpha)
-    rawHeading.value = heading
     smoothHeading(heading)
   }
 }
@@ -155,7 +169,8 @@ async function requestCompassPermission() {
       } else {
         compassError.value = 'تم رفض إذن الوصول للبوصلة'
       }
-    } catch {
+    } catch (err) {
+      console.error('Compass permission error:', err)
       compassError.value = 'فشل في طلب إذن البوصلة'
     }
   } else if (window.DeviceOrientationEvent) {
@@ -192,42 +207,42 @@ onUnmounted(() => {
     />
 
     <!-- Desktop not supported -->
-    <div v-if="!isMobile" class="qibla-card text-center">
+    <div v-if="!isMobile" class="qibla-card qibla-card--static text-center">
       <IconDeviceMobile size="3rem" class="text-muted mb-3" />
       <p class="h5 mb-2">هذه الميزة متاحة فقط على الهاتف</p>
       <p class="text-muted mb-0">افتح التطبيق من هاتفك لاستخدام البوصلة</p>
     </div>
 
     <!-- Offline state -->
-    <div v-else-if="!online" class="qibla-card">
+    <div v-else-if="!online" class="qibla-card qibla-card--static">
       <OfflineState />
     </div>
 
     <!-- Location loading -->
-    <div v-else-if="locationLoading" class="qibla-card">
+    <div v-else-if="locationLoading" class="qibla-card qibla-card--static">
       <LoadingState />
       <p class="text-center text-muted mt-3 mb-0">جاري تحديد موقعك...</p>
     </div>
 
     <!-- Location error -->
-    <div v-else-if="locationError" class="qibla-card text-center" @click="requestLocation">
+    <div v-else-if="locationError" class="qibla-card qibla-card--clickable text-center" @click="requestLocation">
       <IconLocationFilled size="3rem" class="text-danger mb-3" />
       <p class="mb-2">{{ locationError }}</p>
       <p class="text-muted small mb-0">إضغط للمحاولة مرة أخرى</p>
     </div>
 
     <!-- Qibla API loading -->
-    <div v-else-if="isFetching" class="qibla-card">
+    <div v-else-if="isFetching" class="qibla-card qibla-card--static">
       <LoadingState />
     </div>
 
     <!-- Qibla API error -->
-    <div v-else-if="error" class="qibla-card">
+    <div v-else-if="error" class="qibla-card qibla-card--static">
       <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
     </div>
 
     <!-- Qibla compass -->
-    <div v-else-if="qiblaData" class="qibla-shell">
+    <div v-else-if="qiblaData && qiblaDirection !== null" class="qibla-shell">
       <div class="compass-container" :class="{ 'facing-qibla': isFacingQibla }">
         <!-- Qibla needle - points to Qibla direction -->
         <div class="needle" :style="{ transform: `rotate(${needleRotation}deg)` }">
@@ -263,7 +278,7 @@ onUnmounted(() => {
 
       <!-- Enable compass button for iOS -->
       <button
-        v-if="!hasCompassSupport && typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function'"
+        v-if="canRequestiOSPermission"
         class="btn btn-primary"
         @click="requestCompassPermission"
       >
@@ -279,11 +294,18 @@ onUnmounted(() => {
   border: 1px solid var(--bs-border-color);
   border-radius: 0.5rem;
   padding: 3rem;
-  cursor: pointer;
   transition: border-color 0.2s;
 
-  &:hover {
-    border-color: var(--bs-primary);
+  &--clickable {
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--bs-primary);
+    }
+  }
+
+  &--static {
+    cursor: default;
   }
 }
 
