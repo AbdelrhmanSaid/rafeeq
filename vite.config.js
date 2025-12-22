@@ -10,7 +10,8 @@ export default defineConfig({
   plugins: [
     vue(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
+      cleanupOutdatedCaches: false,
       devOptions: {
         enabled: true,
       },
