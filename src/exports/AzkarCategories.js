@@ -12,32 +12,16 @@ export default [
     name: 'تسابيح',
   },
   {
-    slug: 'home-entry-exit',
-    name: 'أذكار دخول وخروج المنزل',
-  },
-  {
-    slug: 'adhan-adhkar',
-    name: 'أذكار عند سماع الآذان',
-  },
-  {
     slug: 'sleep',
     name: 'أذكار النوم',
   },
   {
-    slug: 'wake',
-    name: 'أذكار الإستيقاظ',
+    slug: 'waking-up',
+    name: 'أذكار الاستيقاظ من النوم',
   },
   {
     slug: 'ruqya',
     name: 'الرقية الشرعية',
-  },
-  {
-    slug: 'prayer',
-    name: 'أذكار الصلاة',
-  },
-  {
-    slug: 'waking-up',
-    name: 'أذكار الاستيقاظ من النوم',
   },
   {
     slug: 'wearing-garment',
@@ -128,8 +112,8 @@ export default [
     name: 'الدعاء بعد التشهد الأخير قبل السلام',
   },
   {
-    slug: 'after-salam',
-    name: 'الأذكار بعد السلام من الصلاة',
+    slug: 'prayer',
+    name: 'أذكار الصلاة',
   },
   {
     slug: 'istikhara',
@@ -548,19 +532,7 @@ export default [
     name: 'من أنواع الخير والآداب الجامعة',
   },
   {
-    slug: 'ruqya-quran',
-    name: 'الرقية الشرعية من القرآن الكريم',
-  },
-  {
-    slug: 'ruqya-sunnah',
-    name: 'الرقية الشرعية من السنة النبوية',
-  },
-  {
     slug: 'waking-at-night',
     name: 'من تعار من الليل',
-  },
-  {
-    slug: 'answered-prayers-times',
-    name: 'أماكن وأوقات إجابة الدعاء',
   },
 ]
