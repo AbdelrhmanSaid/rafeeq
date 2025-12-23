@@ -7,9 +7,7 @@ const isBrowser = typeof window !== 'undefined'
 const loadTracker = () => {
   if (trackerPromise || !isBrowser || !measurementId) return trackerPromise
 
-  const existingScript = document.querySelector(
-    `script[src*="googletagmanager.com/gtag/js?id=${measurementId}"]`,
-  )
+  const existingScript = document.querySelector(`script[src*="googletagmanager.com/gtag/js?id=${measurementId}"]`)
 
   if (existingScript && typeof window.gtag === 'function') {
     trackerPromise = Promise.resolve(window.gtag)

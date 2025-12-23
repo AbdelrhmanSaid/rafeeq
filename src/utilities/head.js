@@ -4,7 +4,22 @@
 export const defaultMeta = {
   title: 'رفيق - زادك في الطريق',
   description: 'تطبيق إسلامي شامل للأذكار والقرآن الكريم ومواقيت الصلاة',
-  keywords: ['إسلام', 'أذكار', 'قرآن', 'مواقيت الصلاة', 'رفيق', 'تطبيق إسلامي', 'Azkar', 'Quran', 'Prayer Times', 'Islamic App', 'Muslim', 'أوقات الصلاة', 'دعاء', 'تسبيح']
+  keywords: [
+    'إسلام',
+    'أذكار',
+    'قرآن',
+    'مواقيت الصلاة',
+    'رفيق',
+    'تطبيق إسلامي',
+    'Azkar',
+    'Quran',
+    'Prayer Times',
+    'Islamic App',
+    'Muslim',
+    'أوقات الصلاة',
+    'دعاء',
+    'تسبيح',
+  ],
 }
 
 /**
@@ -40,7 +55,7 @@ export const setMetaTag = ({ name, property, content }) => {
  */
 export const useMeta = (meta) => {
   // Merge the default meta with the route meta
-  let { title, description, keywords } = Object.assign({}, defaultMeta, meta);
+  let { title, description, keywords } = Object.assign({}, defaultMeta, meta)
 
   // Append the app name to the title
   title = `${title} - رفيق`
