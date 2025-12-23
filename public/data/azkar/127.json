@@ -1,0 +1,20 @@
+{
+  "meta": {
+    "name": "دعاء التعجب والأمر السار",
+    "description": null
+  },
+  "content": [
+    {
+      "text": "((سُبْحَانَ اللَّهِ!)).",
+      "repeat": 1,
+      "reference": null,
+      "benefit": null
+    },
+    {
+      "text": "((اللَّهُ أَكْبَرُ!)).",
+      "repeat": 1,
+      "reference": null,
+      "benefit": null
+    }
+  ]
+}
