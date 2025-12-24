@@ -21,9 +21,9 @@ const { search, filtered } = useSearch(categories, ['name'])
     </div>
 
     <ul class="list-group">
-      <li v-for="category in filtered" :key="category.slug" class="list-group-item list-group-item-action py-3">
+      <li v-for="(category, index) in filtered" :key="category.slug" class="list-group-item list-group-item-action py-3">
         <div class="d-flex justify-content-between align-items-center">
-          <span>{{ category.name }}</span>
+          <span>{{ index + 1 }}. {{ category.name }}</span>
 
           <RouterLink
             :to="{ name: 'azkar-category', params: { category: category.slug } }"
