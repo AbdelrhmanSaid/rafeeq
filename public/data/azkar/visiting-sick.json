@@ -1,0 +1,20 @@
+{
+  "meta": {
+    "name": "الدعاء للمريض في عيادته",
+    "description": null
+  },
+  "content": [
+    {
+      "text": "لاَ بأْسَ طَهُورٌ إِنْ شَاءَ اللَّهُ",
+      "repeat": 1,
+      "reference": null,
+      "benefit": null
+    },
+    {
+      "text": "أَسْأَلُ اللَّهَ الْعَظيمَ رَبَّ الْعَرْشِ الْعَظِيمِ أَنْ يَشْفيَكَ",
+      "repeat": 7,
+      "reference": null,
+      "benefit": null
+    }
+  ]
+}

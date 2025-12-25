@@ -7,3 +7,9 @@
     box-shadow: none;
   }
 }
+
+html[dir='rtl'],
+[data-sonner-toaster][dir='rtl'] {
+  --toast-button-margin-start: auto !important;
+  --toast-button-margin-end: 0 !important;
+}

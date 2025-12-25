@@ -61,7 +61,7 @@ function requestLocation() {
         locationError.value = 'فشل في تحديد الموقع'
       }
     },
-    { enableHighAccuracy: true, timeout: 15000 }
+    { enableHighAccuracy: true, timeout: 15000 },
   )
 }
 
@@ -116,7 +116,7 @@ const needleRotation = computed(() => {
 const isFacingQibla = computed(() => {
   if (!hasCompassSupport.value || qiblaDirection.value === null) return false
   const angle = needleRotation.value
-  return angle <= FACING_TOLERANCE || angle >= (360 - FACING_TOLERANCE)
+  return angle <= FACING_TOLERANCE || angle >= 360 - FACING_TOLERANCE
 })
 
 // Check if iOS permission request is available
@@ -157,10 +157,7 @@ function handleAbsoluteOrientation(event) {
 
 async function requestCompassPermission() {
   // iOS 13+ requires permission
-  if (
-    typeof DeviceOrientationEvent !== 'undefined' &&
-    typeof DeviceOrientationEvent.requestPermission === 'function'
-  ) {
+  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
     try {
       const permission = await DeviceOrientationEvent.requestPermission()
       if (permission === 'granted') {
@@ -200,11 +197,7 @@ onUnmounted(() => {
 
 <template>
   <Page>
-    <Heading
-      class="mb-4"
-      title="اتجاه القبلة"
-      subtitle="حدد اتجاه القبلة بسهولة باستخدام البوصلة الإلكترونية."
-    />
+    <Heading class="mb-4" title="اتجاه القبلة" subtitle="حدد اتجاه القبلة بسهولة باستخدام البوصلة الإلكترونية." />
 
     <!-- Desktop not supported -->
     <div v-if="!isMobile" class="qibla-card qibla-card--static text-center">
@@ -277,11 +270,7 @@ onUnmounted(() => {
       </div>
 
       <!-- Enable compass button for iOS -->
-      <button
-        v-if="canRequestiOSPermission"
-        class="btn btn-primary"
-        @click="requestCompassPermission"
-      >
+      <button v-if="canRequestiOSPermission" class="btn btn-primary" @click="requestCompassPermission">
         <IconCompass class="me-2" size="1.25rem" />
         تفعيل البوصلة
       </button>

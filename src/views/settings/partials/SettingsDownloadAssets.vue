@@ -40,12 +40,12 @@ const downloadSurah = async (surah) => {
 }
 
 const downloadAzkarCategory = async (category) => {
-  downloadState.value.currentItem = `${category.name || category.id}`
-  const { data, error } = await useFetch(`/data/azkar/${category.id}.json`).json()
+  downloadState.value.currentItem = `${category.name || category.slug}`
+  const { data, error } = await useFetch(`/data/azkar/${category.slug}.json`).json()
   if (error.value) {
     throw error.value
   }
-  downloadedAzkar.value[category.id] = data.value
+  downloadedAzkar.value[category.slug] = data.value
 }
 
 const updateProgress = () => {
@@ -65,7 +65,7 @@ const downloadAllAssets = async () => {
       await delay(100)
     }
 
-    const azkarToDownload = azkarCategories.filter((category) => !downloadedAzkar.value[category.id])
+    const azkarToDownload = azkarCategories.filter((category) => !downloadedAzkar.value[category.slug])
     for (const category of azkarToDownload) {
       await downloadAzkarCategory(category)
       downloadState.value.completed++
