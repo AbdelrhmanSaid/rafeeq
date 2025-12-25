@@ -8,6 +8,11 @@ import Heading from '@/components/Heading.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import categories from '@/exports/AzkarCategories.js'
 
+// Append id to categories
+categories.forEach((category, index) => {
+  category.id = index + 1
+})
+
 const { search, filtered } = useSearch(categories, ['name'])
 </script>
 
@@ -21,9 +26,9 @@ const { search, filtered } = useSearch(categories, ['name'])
     </div>
 
     <ul class="list-group">
-      <li v-for="(category, index) in filtered" :key="category.slug" class="list-group-item list-group-item-action py-3">
+      <li v-for="category in filtered" :key="category.slug" class="list-group-item list-group-item-action py-3">
         <div class="d-flex justify-content-between align-items-center">
-          <span>{{ index + 1 }}. {{ category.name }}</span>
+          <span>{{ category.id }}. {{ category.name }}</span>
 
           <RouterLink
             :to="{ name: 'azkar-category', params: { category: category.slug } }"
