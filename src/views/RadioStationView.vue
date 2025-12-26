@@ -112,46 +112,49 @@ const shareStation = async () => {
           </div>
         </div>
 
-        <!-- Station Info -->
-        <div class="station-info">
-          <h1 class="station-name">{{ station.name }}</h1>
-          <p class="station-status">
-            <span class="status-dot" :class="{ live: isPlaying }"></span>
-            {{ isPlaying ? 'البث المباشر جارٍ الآن' : 'جاهز للتشغيل' }}
-          </p>
+        <!-- Station Details -->
+        <div class="station-details">
+          <!-- Station Info -->
+          <div class="station-info">
+            <h1 class="station-name">{{ station.name }}</h1>
+            <p class="station-status">
+              <span class="status-dot" :class="{ live: isPlaying }"></span>
+              {{ isPlaying ? 'البث المباشر جارٍ الآن' : 'جاهز للتشغيل' }}
+            </p>
+          </div>
+
+          <!-- Controls -->
+          <div class="controls-container">
+            <!-- Main Play Button -->
+            <button
+              class="play-btn"
+              :class="{ playing: isPlaying }"
+              type="button"
+              @click="isPlaying ? store.stop() : store.play(station.url)"
+            >
+              <div class="play-btn-bg"></div>
+              <div class="play-btn-icon">
+                <IconPlayerPause v-if="isPlaying" size="2.5rem" />
+                <IconPlayerPlay v-else size="2.5rem" />
+              </div>
+            </button>
+
+            <!-- Favorite Button -->
+            <button
+              class="favorite-btn"
+              :class="{ active: store.isFavorite(stationSlug) }"
+              type="button"
+              @click="store.toggleFavorite(stationSlug)"
+            >
+              <IconHeartFilled v-if="store.isFavorite(stationSlug)" size="1.5rem" />
+              <IconHeart v-else size="1.5rem" />
+              <span>{{ store.isFavorite(stationSlug) ? 'في المفضلة' : 'إضافة للمفضلة' }}</span>
+            </button>
+          </div>
+
+          <!-- Footer Note -->
+          <p class="footer-note">يتم تشغيل البث المباشر من مصدره الرسمي بجودة عالية</p>
         </div>
-
-        <!-- Controls -->
-        <div class="controls-container">
-          <!-- Main Play Button -->
-          <button
-            class="play-btn"
-            :class="{ playing: isPlaying }"
-            type="button"
-            @click="isPlaying ? store.stop() : store.play(station.url)"
-          >
-            <div class="play-btn-bg"></div>
-            <div class="play-btn-icon">
-              <IconPlayerPause v-if="isPlaying" size="2.5rem" />
-              <IconPlayerPlay v-else size="2.5rem" />
-            </div>
-          </button>
-
-          <!-- Favorite Button -->
-          <button
-            class="favorite-btn"
-            :class="{ active: store.isFavorite(stationSlug) }"
-            type="button"
-            @click="store.toggleFavorite(stationSlug)"
-          >
-            <IconHeartFilled v-if="store.isFavorite(stationSlug)" size="1.5rem" />
-            <IconHeart v-else size="1.5rem" />
-            <span>{{ store.isFavorite(stationSlug) ? 'في المفضلة' : 'إضافة للمفضلة' }}</span>
-          </button>
-        </div>
-
-        <!-- Footer Note -->
-        <p class="footer-note">يتم تشغيل البث المباشر من مصدره الرسمي بجودة عالية</p>
       </div>
     </div>
   </Page>
@@ -200,14 +203,7 @@ const shareStation = async () => {
 .player-wrapper {
   position: relative;
   width: 100%;
-  max-width: 500px;
-  margin: 0 auto;
   padding: 2rem 1.5rem;
-  border-radius: 2rem;
-  background: var(--bs-body-bg);
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 20px 50px -12px rgba(0, 0, 0, 0.25);
   overflow: hidden;
 }
 
@@ -306,10 +302,6 @@ const shareStation = async () => {
 .player-content {
   position: relative;
   z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
 }
 
 // Disc Container
@@ -317,7 +309,7 @@ const shareStation = async () => {
   position: relative;
   width: 200px;
   height: 200px;
-  margin-bottom: 2rem;
+  margin: 0 auto 2rem;
 }
 
 .disc {
@@ -420,6 +412,14 @@ const shareStation = async () => {
     transform: scale(1.5);
     opacity: 0;
   }
+}
+
+// Station Details
+.station-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 // Station Info
@@ -602,18 +602,46 @@ const shareStation = async () => {
     padding: 3rem 2.5rem;
   }
 
+  .player-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+    text-align: start;
+  }
+
   .disc-container {
-    width: 240px;
-    height: 240px;
+    width: 280px;
+    height: 280px;
+    margin: 0;
+    justify-self: center;
+  }
+
+  .station-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .station-info {
+    margin-bottom: 2rem;
   }
 
   .station-name {
-    font-size: 2rem;
+    font-size: 2.25rem;
+  }
+
+  .controls-container {
+    align-items: flex-start;
   }
 
   .play-btn {
     width: 90px;
     height: 90px;
+  }
+
+  .footer-note {
+    text-align: start;
   }
 }
 </style>
