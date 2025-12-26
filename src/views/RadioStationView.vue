@@ -60,7 +60,7 @@ const shareStation = async () => {
     <OfflineState />
   </Page>
 
-  <Page v-else class="radio-station-page">
+  <Page v-else class="radio-station-page" fluid>
     <!-- Not Found State -->
     <div v-if="!station" class="not-found-container">
       <div class="not-found-icon">📻</div>

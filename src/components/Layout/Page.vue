@@ -1,5 +1,14 @@
+<script setup>
+defineProps({
+  fluid: {
+    type: Boolean,
+    default: false,
+  },
+})
+</script>
+
 <template>
-  <main class="container page-container">
+  <main class="page-container" :class="fluid ? 'container-fluid' : 'container'">
     <slot />
   </main>
 </template>
