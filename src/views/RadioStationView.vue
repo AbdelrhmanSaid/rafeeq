@@ -95,63 +95,69 @@ const shareStation = async () => {
 
       <!-- Player Content -->
       <div class="player-content">
-        <!-- Vinyl/Disc Animation -->
-        <div class="disc-container">
-          <div class="disc" :class="{ spinning: isPlaying }">
-            <div class="disc-inner">
-              <div class="disc-label">
-                <IconRadio size="2rem" />
+        <div class="player-grid">
+          <div class="player-media">
+            <!-- Vinyl/Disc Animation -->
+            <div class="disc-container">
+              <div class="disc" :class="{ spinning: isPlaying }">
+                <div class="disc-inner">
+                  <div class="disc-label">
+                    <IconRadio size="2rem" />
+                  </div>
+                </div>
+                <div class="disc-grooves"></div>
+              </div>
+
+              <!-- Sound Waves -->
+              <div class="sound-waves" :class="{ active: isPlaying }">
+                <span v-for="i in 12" :key="i" class="wave" :style="{ '--i': i }"></span>
               </div>
             </div>
-            <div class="disc-grooves"></div>
           </div>
 
-          <!-- Sound Waves -->
-          <div class="sound-waves" :class="{ active: isPlaying }">
-            <span v-for="i in 12" :key="i" class="wave" :style="{ '--i': i }"></span>
-          </div>
-        </div>
-
-        <!-- Station Info -->
-        <div class="station-info">
-          <h1 class="station-name">{{ station.name }}</h1>
-          <p class="station-status">
-            <span class="status-dot" :class="{ live: isPlaying }"></span>
-            {{ isPlaying ? 'البث المباشر جارٍ الآن' : 'جاهز للتشغيل' }}
-          </p>
-        </div>
-
-        <!-- Controls -->
-        <div class="controls-container">
-          <!-- Main Play Button -->
-          <button
-            class="play-btn"
-            :class="{ playing: isPlaying }"
-            type="button"
-            @click="isPlaying ? store.stop() : store.play(station.url)"
-          >
-            <div class="play-btn-bg"></div>
-            <div class="play-btn-icon">
-              <IconPlayerPause v-if="isPlaying" size="2.5rem" />
-              <IconPlayerPlay v-else size="2.5rem" />
+          <div class="player-details">
+            <!-- Station Info -->
+            <div class="station-info">
+              <h1 class="station-name">{{ station.name }}</h1>
+              <p class="station-status">
+                <span class="status-dot" :class="{ live: isPlaying }"></span>
+                {{ isPlaying ? 'البث المباشر جارٍ الآن' : 'جاهز للتشغيل' }}
+              </p>
             </div>
-          </button>
 
-          <!-- Favorite Button -->
-          <button
-            class="favorite-btn"
-            :class="{ active: store.isFavorite(stationSlug) }"
-            type="button"
-            @click="store.toggleFavorite(stationSlug)"
-          >
-            <IconHeartFilled v-if="store.isFavorite(stationSlug)" size="1.5rem" />
-            <IconHeart v-else size="1.5rem" />
-            <span>{{ store.isFavorite(stationSlug) ? 'في المفضلة' : 'إضافة للمفضلة' }}</span>
-          </button>
+            <!-- Controls -->
+            <div class="controls-container">
+              <!-- Main Play Button -->
+              <button
+                class="play-btn"
+                :class="{ playing: isPlaying }"
+                type="button"
+                @click="isPlaying ? store.stop() : store.play(station.url)"
+              >
+                <div class="play-btn-bg"></div>
+                <div class="play-btn-icon">
+                  <IconPlayerPause v-if="isPlaying" size="2.5rem" />
+                  <IconPlayerPlay v-else size="2.5rem" />
+                </div>
+              </button>
+
+              <!-- Favorite Button -->
+              <button
+                class="favorite-btn"
+                :class="{ active: store.isFavorite(stationSlug) }"
+                type="button"
+                @click="store.toggleFavorite(stationSlug)"
+              >
+                <IconHeartFilled v-if="store.isFavorite(stationSlug)" size="1.5rem" />
+                <IconHeart v-else size="1.5rem" />
+                <span>{{ store.isFavorite(stationSlug) ? 'في المفضلة' : 'إضافة للمفضلة' }}</span>
+              </button>
+            </div>
+
+            <!-- Footer Note -->
+            <p class="footer-note">يتم تشغيل البث المباشر من مصدره الرسمي بجودة عالية</p>
+          </div>
         </div>
-
-        <!-- Footer Note -->
-        <p class="footer-note">يتم تشغيل البث المباشر من مصدره الرسمي بجودة عالية</p>
       </div>
     </div>
   </Page>
@@ -200,14 +206,9 @@ const shareStation = async () => {
 .player-wrapper {
   position: relative;
   width: 100%;
-  max-width: 500px;
+  max-width: none;
   margin: 0 auto;
   padding: 2rem 1.5rem;
-  border-radius: 2rem;
-  background: var(--bs-body-bg);
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 20px 50px -12px rgba(0, 0, 0, 0.25);
   overflow: hidden;
 }
 
@@ -306,6 +307,26 @@ const shareStation = async () => {
 .player-content {
   position: relative;
   z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+.player-grid {
+  display: grid;
+  gap: 2.5rem;
+  width: 100%;
+  align-items: center;
+  justify-items: center;
+}
+
+.player-media {
+  position: relative;
+}
+
+.player-details {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -614,6 +635,26 @@ const shareStation = async () => {
   .play-btn {
     width: 90px;
     height: 90px;
+  }
+}
+
+@media (min-width: 992px) {
+  .player-grid {
+    grid-template-columns: minmax(240px, 1fr) minmax(0, 1fr);
+    justify-items: stretch;
+  }
+
+  .player-details {
+    align-items: flex-start;
+    text-align: start;
+  }
+
+  .controls-container {
+    align-items: flex-start;
+  }
+
+  .footer-note {
+    max-width: none;
   }
 }
 </style>
