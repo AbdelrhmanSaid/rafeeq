@@ -64,7 +64,7 @@ const updateSW = registerSW({
   </div>
 
   <!-- Desktop Footer -->
-  <Footer class="d-none d-md-block mt-5" />
+  <Footer class="d-none d-md-block" />
 
   <!-- Mobile TabBar -->
   <TabBar class="d-block d-md-none" />
@@ -99,14 +99,14 @@ const updateSW = registerSW({
 }
 
 .main-content {
-  min-height: calc(100vh - 120px); /* Adjust for navbar and footer on desktop */
-  padding-bottom: 80px; /* Add padding for mobile tab bar */
+  min-height: calc(100vh - var(--tab-bar-height)); /* Adjust for navbar and footer on desktop */
+  padding-bottom: var(--tab-bar-height);
 }
 
 /* Desktop adjustments */
 @media (min-width: 992px) {
   .main-content {
-    min-height: calc(100vh - 200px);
+    min-height: calc(100vh - 400px);
     padding-bottom: 0;
   }
 }

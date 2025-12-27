@@ -5,6 +5,10 @@
 @import 'nprogress/nprogress';
 @import 'overrides';
 
+:root {
+  --tab-bar-height: 70px;
+}
+
 html,
 body {
   font-family:
