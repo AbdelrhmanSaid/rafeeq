@@ -109,6 +109,10 @@ const isRadioActive = computed(() => ['radio', 'radio-station'].includes(route.n
 </template>
 
 <style lang="scss" scoped>
+.navbar {
+  height: var(--navbar-height);
+}
+
 [data-bs-theme='dark'] {
   .navbar-brand {
     filter: brightness(0) invert(1);

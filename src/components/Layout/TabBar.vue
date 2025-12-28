@@ -182,7 +182,7 @@ const toggleMode = () => {
 
 <style lang="scss" scoped>
 .tab-bar {
-  height: var(--tab-bar-height);
+  height: var(--navbar-height);
   padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
   z-index: 1020;
 }
