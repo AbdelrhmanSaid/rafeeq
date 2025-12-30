@@ -99,8 +99,8 @@ const updateSW = registerSW({
 }
 
 .main-content {
-  min-height: calc(100vh - var(--tab-bar-height)); /* Adjust for navbar and footer on desktop */
-  padding-bottom: var(--tab-bar-height);
+  min-height: calc(100vh - var(--navbar-height)); /* Adjust for navbar and footer on desktop */
+  padding-bottom: var(--navbar-height);
 }
 
 /* Desktop adjustments */

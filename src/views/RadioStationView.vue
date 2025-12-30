@@ -152,7 +152,11 @@ const shareStation = async () => {
 <style lang="scss" scoped>
 .radio-station-page {
   margin-block: 0;
-  min-height: calc(100vh - var(--tab-bar-height));
+  min-height: calc(100vh - var(--navbar-height));
+
+  @media screen and (min-width: 768px) {
+    margin-block: 2rem;
+  }
 }
 
 .disc-container {
