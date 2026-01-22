@@ -135,6 +135,8 @@ const handleDownloadAll = () => {
 }
 
 const handleRemoveAll = () => {
+  clearAllDownloads()
+
   toast.warning('سيتم حذف جميع الملفات، متأكد؟', {
     position: 'bottom-center',
     duration: Infinity,
