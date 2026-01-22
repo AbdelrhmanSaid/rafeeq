@@ -1,98 +1,46 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useFetch, useStorage, useOnline } from '@vueuse/core'
-import { IconDownload, IconCheck, IconLoader2, IconX, IconWifiOff } from '@tabler/icons-vue'
+import { computed } from 'vue'
+import { useOnline } from '@vueuse/core'
+import {
+  IconDownload,
+  IconCheck,
+  IconLoader2,
+  IconPlayerPause,
+  IconPlayerPlay,
+  IconX,
+  IconWifiOff,
+} from '@tabler/icons-vue'
+import { toast } from 'vue-sonner'
+import { storeToRefs } from 'pinia'
 
 import surahs from '@/exports/QuranSurahs.js'
 import azkarCategories from '@/exports/AzkarCategories.js'
+import { useDownloadsStore } from '@/stores/downloads'
 
 const online = useOnline()
 
-const downloadedSurahs = useStorage('downloadedSurahs', {})
-const downloadedAzkar = useStorage('downloadedAzkar', {})
+const downloadsStore = useDownloadsStore()
+const {
+  downloadedSurahs,
+  downloadedAzkar,
+  downloadState,
+  totalAssets,
+  alreadyDownloadedCount,
+  progressPercentage,
+  isCompleted,
+  hasPartialDownloads,
+} = storeToRefs(downloadsStore)
 
-const downloadState = ref({
-  isDownloading: false,
-  currentItem: null,
-  progress: 0,
-  completed: 0,
-})
-
-const totalAssets = computed(() => surahs.length + azkarCategories.length)
-
-const alreadyDownloadedCount = computed(() => {
-  return Object.keys(downloadedSurahs.value).length + Object.keys(downloadedAzkar.value).length
-})
-
-const progressPercentage = computed(() => Math.round(downloadState.value.progress))
-const isCompleted = computed(() => alreadyDownloadedCount.value === totalAssets.value)
-const hasPartialDownloads = computed(() => alreadyDownloadedCount.value > 0 && !isCompleted.value)
-
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
-
-const downloadSurah = async (surah) => {
-  downloadState.value.currentItem = `${surah.name || surah.id}`
-  const { data, error } = await useFetch(`https://api.alquran.cloud/v1/surah/${surah.id}`).json()
-  if (error.value) {
-    throw error.value
-  }
-  downloadedSurahs.value[surah.id] = data.value
+const confirmClearAllDownloads = () => {
+  toast('هل أنت متأكد من حذف جميع التنزيلات؟', {
+    id: 'confirm-clear-downloads',
+    position: 'bottom-center',
+    action: {
+      label: 'تأكيد',
+      onClick: () => downloadsStore.clearAllDownloads(),
+    },
+  })
 }
-
-const downloadAzkarCategory = async (category) => {
-  downloadState.value.currentItem = `${category.name || category.slug}`
-  const { data, error } = await useFetch(`/data/azkar/${category.slug}.json`).json()
-  if (error.value) {
-    throw error.value
-  }
-  downloadedAzkar.value[category.slug] = data.value
-}
-
-const updateProgress = () => {
-  downloadState.value.progress = (downloadState.value.completed / totalAssets.value) * 100
-}
-
-const downloadAllAssets = async () => {
-  downloadState.value.isDownloading = true
-  downloadState.value.completed = alreadyDownloadedCount.value
-
-  try {
-    const surahsToDownload = surahs.filter((surah) => !downloadedSurahs.value[surah.id])
-    for (const surah of surahsToDownload) {
-      await downloadSurah(surah)
-      downloadState.value.completed++
-      updateProgress()
-      await delay(100)
-    }
-
-    const azkarToDownload = azkarCategories.filter((category) => !downloadedAzkar.value[category.slug])
-    for (const category of azkarToDownload) {
-      await downloadAzkarCategory(category)
-      downloadState.value.completed++
-      updateProgress()
-      await delay(100)
-    }
-  } catch (e) {
-    console.error('Download error:', e)
-  } finally {
-    downloadState.value.isDownloading = false
-    downloadState.value.currentItem = null
-  }
-}
-
-const clearAllDownloads = () => {
-  if (confirm('هل أنت متأكد من حذف جميع التنزيلات؟')) {
-    downloadedSurahs.value = {}
-    downloadedAzkar.value = {}
-    downloadState.value.completed = 0
-    downloadState.value.progress = 0
-  }
-}
-
-onMounted(() => {
-  downloadState.value.completed = alreadyDownloadedCount.value
-  downloadState.value.progress = (downloadState.value.completed / totalAssets.value) * 100
-})
 
 const downloadButtonText = computed(() => {
   if (downloadState.value.isDownloading) return 'جاري التحميل...'
@@ -178,7 +126,7 @@ const downloadButtonIcon = computed(() => {
         <button
           type="button"
           class="btn btn-primary d-flex align-items-center gap-2"
-          @click="downloadAllAssets"
+          @click="downloadsStore.downloadAllAssets"
           :disabled="downloadState.isDownloading || !online || isCompleted"
         >
           <component :is="downloadButtonIcon" size="1.25rem" :class="{ spin: downloadState.isDownloading }" />
@@ -186,10 +134,20 @@ const downloadButtonIcon = computed(() => {
         </button>
 
         <button
+          v-if="downloadState.isDownloading"
+          type="button"
+          class="btn btn-outline-secondary d-flex align-items-center gap-2"
+          @click="downloadState.isPaused ? downloadsStore.resumeDownloads() : downloadsStore.pauseDownloads()"
+        >
+          <component :is="downloadState.isPaused ? IconPlayerPlay : IconPlayerPause" size="1.25rem" />
+          <span>{{ downloadState.isPaused ? 'استئناف التحميل' : 'إيقاف مؤقت' }}</span>
+        </button>
+
+        <button
           v-if="alreadyDownloadedCount > 0"
           type="button"
           class="btn btn-outline-danger d-flex align-items-center gap-2"
-          @click="clearAllDownloads"
+          @click="confirmClearAllDownloads"
           :disabled="downloadState.isDownloading"
         >
           <IconX size="1.25rem" />
@@ -205,3 +163,18 @@ const downloadButtonIcon = computed(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+</style>
