@@ -90,7 +90,7 @@ const handleDownloadAll = () => {
 }
 
 const handleRemoveAll = () => {
-  clearAllDownloads()
+  cancelAllDownloads()
 
   toast.warning('سيتم حذف جميع الملفات، متأكد؟', {
     position: 'bottom-center',
