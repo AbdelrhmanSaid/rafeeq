@@ -25,13 +25,9 @@ const {
 
 const confirmClearAllDownloads = () => {
   toast('هل أنت متأكد من حذف جميع التنزيلات؟', {
-    id: 'confirm-clear-downloads',
     action: {
       label: 'تأكيد',
       onClick: () => downloadsStore.clearAllDownloads(),
-    },
-    cancel: {
-      label: 'إلغاء',
     },
   })
 }
