@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, shallowRef, onMounted, onUnmounted } from 'vue'
+import { ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import {
   IconDownload,
@@ -47,11 +47,6 @@ const {
 } = downloadStore
 
 const filterType = ref('all')
-const listContainer = shallowRef(null)
-const scrollTop = ref(0)
-
-const ITEM_HEIGHT = 56
-const VISIBLE_BUFFER = 5
 
 // Pre-compute status for all assets to avoid repeated lookups
 const assetsWithStatus = computed(() => {
@@ -87,48 +82,8 @@ const filteredAssets = computed(() => {
   return assetsWithStatus.value.filter((asset) => asset.type === filterType.value)
 })
 
-// Virtual scrolling
-const visibleRange = computed(() => {
-  const containerHeight = 400
-  const startIndex = Math.max(0, Math.floor(scrollTop.value / ITEM_HEIGHT) - VISIBLE_BUFFER)
-  const endIndex = Math.min(
-    filteredAssets.value.length,
-    Math.ceil((scrollTop.value + containerHeight) / ITEM_HEIGHT) + VISIBLE_BUFFER
-  )
-  return { startIndex, endIndex }
-})
-
-const visibleItems = computed(() => {
-  const { startIndex, endIndex } = visibleRange.value
-  return filteredAssets.value.slice(startIndex, endIndex).map((asset, i) => ({
-    ...asset,
-    virtualIndex: startIndex + i,
-  }))
-})
-
-const totalHeight = computed(() => filteredAssets.value.length * ITEM_HEIGHT)
-const offsetY = computed(() => visibleRange.value.startIndex * ITEM_HEIGHT)
-
 const surahCount = computed(() => 114)
 const azkarCount = computed(() => allAssets.value.length - 114)
-
-let scrollRAF = null
-const handleScroll = (e) => {
-  if (scrollRAF) return
-  scrollRAF = requestAnimationFrame(() => {
-    scrollTop.value = e.target.scrollTop
-    scrollRAF = null
-  })
-}
-
-onMounted(() => {
-  listContainer.value?.addEventListener('scroll', handleScroll, { passive: true })
-})
-
-onUnmounted(() => {
-  listContainer.value?.removeEventListener('scroll', handleScroll)
-  if (scrollRAF) cancelAnimationFrame(scrollRAF)
-})
 
 const handleDownloadAll = () => {
   queueAllAssets()
@@ -172,7 +127,7 @@ const handleAssetAction = (asset) => {
         </div>
 
         <div class="dm-stats">
-          <div class="dm-progress-ring">
+          <div class="d-none d-md-block dm-progress-ring">
             <svg viewBox="0 0 36 36">
               <circle class="ring-bg" cx="18" cy="18" r="15.9155" />
               <circle
@@ -279,39 +234,35 @@ const handleAssetAction = (asset) => {
       </div>
     </div>
 
-    <!-- Virtual List -->
-    <div ref="listContainer" class="dm-list">
-      <div class="dm-list-spacer" :style="{ height: totalHeight + 'px' }">
-        <div class="dm-list-content" :style="{ transform: `translateY(${offsetY}px)` }">
-          <div
-            v-for="asset in visibleItems"
-            :key="asset.id"
-            class="dm-item"
-            :class="asset.status"
-          >
-            <div class="dm-item-icon" :class="asset.type">
-              <IconBook2 v-if="asset.type === 'surah'" :size="18" />
-              <IconSparkles v-else :size="18" />
-            </div>
-
-            <div class="dm-item-info">
-              <span class="dm-item-name">{{ asset.name }}</span>
-              <span class="dm-item-type">{{ asset.type === 'surah' ? 'سورة' : 'أذكار' }}</span>
-            </div>
-
-            <button
-              class="dm-item-action"
-              :class="asset.status"
-              @click="handleAssetAction(asset)"
-              :disabled="asset.status === 'downloading' || (!online && asset.status === 'not-downloaded')"
-            >
-              <IconCheck v-if="asset.status === 'downloaded'" :size="16" />
-              <IconLoader2 v-else-if="asset.status === 'downloading'" :size="16" class="spin" />
-              <span v-else-if="asset.status === 'queued'" class="queued-dot"></span>
-              <IconDownload v-else :size="16" />
-            </button>
-          </div>
+    <!-- List -->
+    <div class="dm-list">
+      <div
+        v-for="asset in filteredAssets"
+        :key="asset.id"
+        class="dm-item"
+        :class="asset.status"
+      >
+        <div class="dm-item-icon" :class="asset.type">
+          <IconBook2 v-if="asset.type === 'surah'" :size="18" />
+          <IconSparkles v-else :size="18" />
         </div>
+
+        <div class="dm-item-info">
+          <span class="dm-item-name">{{ asset.name }}</span>
+          <span class="dm-item-type">{{ asset.type === 'surah' ? 'سورة' : 'أذكار' }}</span>
+        </div>
+
+        <button
+          class="dm-item-action"
+          :class="asset.status"
+          @click="handleAssetAction(asset)"
+          :disabled="asset.status === 'downloading' || (!online && asset.status === 'not-downloaded')"
+        >
+          <IconCheck v-if="asset.status === 'downloaded'" :size="16" />
+          <IconLoader2 v-else-if="asset.status === 'downloading'" :size="16" class="spin" />
+          <span v-else-if="asset.status === 'queued'" class="queued-dot"></span>
+          <IconDownload v-else :size="16" />
+        </button>
       </div>
     </div>
 
@@ -438,6 +389,15 @@ const handleAssetAction = (asset) => {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   font-size: 0.8rem;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.dm-status-bar > span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .dm-status-remaining {
@@ -539,19 +499,10 @@ const handleAssetAction = (asset) => {
   color: white;
 }
 
-/* Virtual List */
+/* List */
 .dm-list {
-  height: 400px;
+  max-height: 300px;
   overflow-y: auto;
-  contain: strict;
-}
-
-.dm-list-spacer {
-  position: relative;
-}
-
-.dm-list-content {
-  will-change: transform;
 }
 
 .dm-item {
@@ -559,10 +510,7 @@ const handleAssetAction = (asset) => {
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  height: 56px;
-  box-sizing: border-box;
   border-bottom: 1px solid var(--bs-border-color);
-  contain: layout style;
 }
 
 .dm-item:last-child {
