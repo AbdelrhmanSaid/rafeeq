@@ -7,10 +7,15 @@
 
 :root {
   --navbar-height: 70px;
+  --app-font-size: 16px;
 
   @media screen and (min-width: 768px) {
     --navbar-height: 85;
   }
+}
+
+html {
+  font-size: var(--app-font-size);
 }
 
 html,
