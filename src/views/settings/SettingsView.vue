@@ -23,7 +23,7 @@ import SettingsAppearance from './partials/SettingsAppearance.vue'
       <div class="col-12 col-md-6">
         <SettingsAppearance />
       </div>
-      <div class="col-12">
+      <div class="col-12 col-md-6">
         <SettingsNotifications />
       </div>
       <div class="col-12">

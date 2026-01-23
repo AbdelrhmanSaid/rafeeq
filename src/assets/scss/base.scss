@@ -6,11 +6,12 @@
 @import 'overrides';
 
 :root {
-  --navbar-height: 70px;
   --app-font-size: 16px;
+  --font-scale: calc(var(--app-font-size) / 16);
+  --navbar-height: calc(70px * var(--font-scale));
 
   @media screen and (min-width: 768px) {
-    --navbar-height: 85;
+    --navbar-height: calc(85px * var(--font-scale));
   }
 }
 
