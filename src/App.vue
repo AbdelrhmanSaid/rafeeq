@@ -8,11 +8,13 @@ import { ref, watch } from 'vue'
 import { useOnline } from '@vueuse/core'
 import { Toaster, toast } from 'vue-sonner'
 import { useModeStore } from './stores/mode'
+import { useAppearanceStore } from './stores/appearance'
 import { registerSW } from 'virtual:pwa-register'
 
 // Network status detection
 const online = useOnline()
 const modeStore = useModeStore()
+useAppearanceStore()
 
 // Offline banner visibility
 const showOfflineBanner = ref(true)

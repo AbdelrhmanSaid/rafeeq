@@ -6,6 +6,7 @@ import SettingsLocation from './partials/SettingsLocation.vue'
 import SettingsReciter from './partials/SettingsReciter.vue'
 import SettingsNotifications from './partials/SettingsNotifications.vue'
 import SettingsDownloadAssets from './partials/SettingsDownloadAssets.vue'
+import SettingsAppearance from './partials/SettingsAppearance.vue'
 </script>
 
 <template>
@@ -19,7 +20,10 @@ import SettingsDownloadAssets from './partials/SettingsDownloadAssets.vue'
       <div class="col-12 col-md-6">
         <SettingsReciter />
       </div>
-      <div class="col-12">
+      <div class="col-12 col-md-6">
+        <SettingsAppearance />
+      </div>
+      <div class="col-12 col-md-6">
         <SettingsNotifications />
       </div>
       <div class="col-12">
