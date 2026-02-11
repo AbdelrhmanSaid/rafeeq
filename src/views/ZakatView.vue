@@ -147,7 +147,7 @@ const formatCurrency = (num) => {
 
 <template>
   <Page>
-    <Heading :size="2" class="mb-4" title="حاسبة الزكاة" subtitle="خذ من أموالهم صدقة تطهرهم وتزكيهم بها" />
+    <Heading :size="2" class="mb-4" title="حاسبة الزكاة" subtitle="خذ من أموالهم صدقة تطهرهم وتزكيهم بها" :share="true" />
 
     <!-- Tabs Navigation -->
     <div class="row g-2 mb-4">

@@ -44,7 +44,7 @@ const { search, filtered } = useSearch(radios, ['name'])
   </Page>
 
   <Page v-else>
-    <Heading title="الإذاعة" subtitle="استمع لإذاعات القرآن الكريم المختلفة حول العالم" />
+    <Heading title="الإذاعة" subtitle="استمع لإذاعات القرآن الكريم المختلفة حول العالم" :share="true" />
 
     <div class="row g-3 mb-4">
       <div class="col">

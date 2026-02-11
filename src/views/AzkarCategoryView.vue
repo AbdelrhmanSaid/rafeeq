@@ -33,7 +33,7 @@ onFetchResponse(() => {
   </Page>
 
   <Page v-else-if="category">
-    <Heading class="mb-4" :title="category.meta.name" :subtitle="category.meta.description" />
+    <Heading class="mb-4" :title="category.meta.name" :subtitle="category.meta.description" :share="true" />
 
     <ZekrCard
       class="mb-3"

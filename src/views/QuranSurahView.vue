@@ -106,6 +106,7 @@ const isCurrentVerse = (verse) => {
     <Heading
       :title="surah.data.name"
       :subtitle="`عدد الآيات: ${surah.data.numberOfAyahs} آية - سورة ${surah.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`"
+      :share="true"
     />
 
     <!-- Audio Player -->

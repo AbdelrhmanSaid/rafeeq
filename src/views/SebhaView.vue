@@ -14,6 +14,7 @@ const sebha = ref(0)
       class="mb-4"
       title="السبحة الإلكترونية"
       subtitle="السبحة الإلكترونية هي تطبيق يساعدك على ذكر الله في أي وقت ومكان."
+      :share="true"
     />
 
     <div class="sebha-shell">

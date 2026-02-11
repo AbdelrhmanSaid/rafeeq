@@ -18,7 +18,7 @@ const { search, filtered } = useSearch(categories, ['name'])
 
 <template>
   <Page>
-    <Heading title="الأذكار" subtitle="اختر الباب الذي ترغب في البحث عن الأذكار المتعلقة به" />
+    <Heading title="الأذكار" subtitle="اختر الباب الذي ترغب في البحث عن الأذكار المتعلقة به" :share="true" />
 
     <div class="form-floating mb-4">
       <input v-model="search" type="text" class="form-control" placeholder="ابحث عن الباب" />

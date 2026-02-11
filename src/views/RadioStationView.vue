@@ -18,6 +18,7 @@ import Heading from '@/components/Heading.vue'
 import OfflineState from '@/components/OfflineState.vue'
 import radiosData from '@/exports/Radios.js'
 import { useRadioStore } from '@/stores/radio'
+import { toast } from 'vue-sonner'
 
 const route = useRoute()
 const online = useOnline()
@@ -43,14 +44,26 @@ const shareStation = async () => {
     return
   }
 
-  try {
-    await navigator.share({
-      title: station.value.name,
-      text: `استمع إلى ${station.value.name}`,
-      url: window.location.href,
-    })
-  } catch (error) {
-    // User canceled or share failed
+  const data = {
+    title: station.value.name,
+    text: `استمع إلى ${station.value.name}`,
+    url: window.location.href,
+  }
+
+  if (navigator.share) {
+    try {
+      await navigator.share(data)
+    } catch {
+      // User canceled or share failed
+    }
+  } else {
+    // Fallback to clipboard
+    try {
+      await navigator.clipboard.writeText(data.url)
+      toast.success('تم نسخ الرابط')
+    } catch {
+      toast.error('حدث خطأ أثناء نسخ الرابط')
+    }
   }
 }
 </script>

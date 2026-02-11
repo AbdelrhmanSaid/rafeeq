@@ -16,6 +16,7 @@ const { search, filtered } = useSearch(surahs, ['name'])
     <Heading
       title="القرآن الكريم"
       subtitle="إن له لحلاوة، وإن عليه لطلاوة، وإن أعلاه لمثمر، وإن أسفله لمغدق، وإنه يعلو ولا يعلى عليه."
+      :share="true"
     />
 
     <div class="form-floating mb-4">
