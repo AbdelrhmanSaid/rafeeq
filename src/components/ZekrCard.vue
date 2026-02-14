@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { useMediaQuery } from '@vueuse/core'
 import { IconDownload, IconShare3, IconCopy, IconHeartShare } from '@tabler/icons-vue'
 import { exportComponent } from '@/utilities/export'
 import { toast } from 'vue-sonner'
@@ -24,6 +25,15 @@ const props = defineProps({
 })
 
 const count = ref(0)
+const isMobile = useMediaQuery('(max-width: 991.98px)')
+
+const increment = () => {
+  if (count.value < props.repeat) count.value++
+}
+
+const onCardClick = () => {
+  if (isMobile.value) increment()
+}
 
 const exportAsImage = () => {
   let promise = () =>
@@ -67,8 +77,8 @@ const copyZekr = async () => {
 </script>
 
 <template>
-  <div class="zekr-card border rounded p-4">
-    <div class="action-menu dropdown">
+  <div class="zekr-card border rounded p-4" @click="onCardClick">
+    <div class="action-menu dropdown" @click.stop>
       <button class="btn p-0 bg-transparent" type="button" data-bs-toggle="dropdown">
         <IconHeartShare size="18" />
       </button>
@@ -99,7 +109,7 @@ const copyZekr = async () => {
       <div class="col-12 col-lg-auto">
         <button
           class="btn btn-counter border-flat"
-          @click="count < repeat && count++"
+          @click.stop="increment"
           :style="{ '--progress': count / repeat }"
           :data-content="`${count}/${repeat}`"
         ></button>
@@ -169,8 +179,13 @@ const copyZekr = async () => {
 }
 
 @media screen and (max-width: 992px) {
-  .zekr-card > .row {
-    flex-direction: column-reverse;
+  .zekr-card {
+    cursor: pointer;
+    user-select: none;
+
+    > .row {
+      flex-direction: column-reverse;
+    }
   }
 }
 </style>
