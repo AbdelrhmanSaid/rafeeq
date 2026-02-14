@@ -24,11 +24,16 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits(['increment'])
+
 const count = ref(0)
 const isMobile = useMediaQuery('(max-width: 991.98px)')
 
 const increment = () => {
-  if (count.value < props.repeat) count.value++
+  if (count.value < props.repeat) {
+    count.value++
+    emit('increment')
+  }
 }
 
 const onCardClick = () => {
