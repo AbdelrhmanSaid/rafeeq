@@ -2,7 +2,7 @@
 import { useRadioStore } from '@/stores/radio'
 import { IconPlayerPlay, IconPlayerPause, IconHeart, IconHeartFilled } from '@tabler/icons-vue'
 import { useSearch } from '@/composables/search'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useOnline } from '@vueuse/core'
 
 import Page from '@/components/Layout/Page.vue'
@@ -11,14 +11,9 @@ import EmptyState from '@/components/EmptyState.vue'
 import radiosData from '@/exports/Radios.js'
 import OfflineState from '@/components/OfflineState.vue'
 
-// Radio store
 const store = useRadioStore()
-
-// Check if the user is online
 const online = useOnline()
 
-// Favorites filter
-const favoritesOnly = ref(false)
 const radiosList = computed(() =>
   Object.entries(radiosData).map(([slug, station]) => ({
     slug,
@@ -26,16 +21,11 @@ const radiosList = computed(() =>
   })),
 )
 
-const radios = computed(() => {
-  if (favoritesOnly.value) {
-    return radiosList.value.filter((radio) => store.isFavorite(radio.slug))
-  }
+const { search, filtered } = useSearch(radiosList, ['name'])
 
-  return radiosList.value
-})
-
-// Filter radios by search
-const { search, filtered } = useSearch(radios, ['name'])
+const favorites = computed(() =>
+  radiosList.value.filter((radio) => store.isFavorite(radio.slug)),
+)
 </script>
 
 <template>
@@ -46,31 +36,52 @@ const { search, filtered } = useSearch(radios, ['name'])
   <Page v-else>
     <Heading title="الإذاعة" subtitle="استمع لإذاعات القرآن الكريم المختلفة حول العالم" :share="true" />
 
-    <div class="row g-3 mb-4">
-      <div class="col">
-        <div class="form-floating">
-          <input v-model="search" type="search" class="form-control" placeholder="ابحث عن إذاعة" />
-          <label>تبحث عن إذاعة معينة؟</label>
-        </div>
-      </div>
-
-      <div class="col-auto">
-        <button
-          class="btn btn-outline-primary h-100"
-          @click="favoritesOnly = !favoritesOnly"
-          :class="{ active: favoritesOnly }"
-        >
-          <IconHeartFilled v-if="favoritesOnly" size="1.25rem" class="me-2" />
-          <IconHeart v-else size="1.25rem" class="me-2" />
-          المفضلة ({{ store.favorites.length }})
-        </button>
-      </div>
+    <div class="form-floating mb-4">
+      <input v-model="search" type="search" class="form-control" placeholder="ابحث عن إذاعة" />
+      <label>تبحث عن إذاعة معينة؟</label>
     </div>
 
+    <div v-if="favorites.length && !search" class="mb-4">
+      <h5 class="mb-3">الإذاعات المفضلة</h5>
+      <ul class="list-group">
+        <li
+          v-for="(station, index) in favorites"
+          :key="station.slug"
+          class="list-group-item py-3"
+          :class="{ active: store.station === station.url }"
+        >
+          <div class="d-flex justify-content-between align-items-center">
+            <RouterLink :to="{ name: 'radio-station', params: { slug: station.slug } }" class="flex-grow-1 radio-link">
+              {{ index + 1 }}. {{ station.name }}
+            </RouterLink>
+
+            <div class="d-flex gap-2">
+              <button
+                class="btn btn-flat"
+                @click.stop="store.toggleFavorite(station.slug)"
+                title="إزالة من المفضلة"
+              >
+                <IconHeartFilled size="1.25rem" class="text-danger" />
+              </button>
+
+              <button class="btn btn-flat" @click.stop="store.stop()" v-if="store.station === station.url">
+                <IconPlayerPause size="1.25rem" />
+              </button>
+
+              <button class="btn btn-flat" @click.stop="store.play(station.url)" v-else>
+                <IconPlayerPlay size="1.25rem" />
+              </button>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <h5 v-if="favorites.length && !search" class="mb-3">كل الإذاعات</h5>
     <ul class="list-group">
       <li
         v-for="(station, index) in filtered"
-        :key="index"
+        :key="station.slug"
         class="list-group-item py-3"
         :class="{ active: store.station === station.url }"
       >
@@ -100,14 +111,8 @@ const { search, filtered } = useSearch(radios, ['name'])
         </div>
       </li>
 
-      <li v-if="filtered.length === 0 && (!favoritesOnly || store.favorites.length !== 0)" class="list-group-item">
+      <li v-if="filtered.length === 0" class="list-group-item">
         <EmptyState />
-      </li>
-
-      <li v-else-if="filtered.length === 0 && favoritesOnly" class="list-group-item text-center py-5">
-        <IconHeart size="3rem" class="text-muted mb-3" />
-        <h5 class="text-muted">لا توجد إذاعات مفضلة</h5>
-        <p class="text-muted">قم بإضافة إذاعاتك المفضلة بالضغط على أيقونة القلب</p>
       </li>
     </ul>
   </Page>
@@ -117,6 +122,9 @@ const { search, filtered } = useSearch(radios, ['name'])
 .radio-link {
   color: inherit;
   text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .list-group-item {
