@@ -55,59 +55,19 @@
 }
 
 @font-face {
-  font-family: 'Amiri';
+  font-family: 'Kitab';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('../fonts/Amiri-Regular.ttf') format('truetype');
+  src: url('../fonts/Kitab-Regular.ttf') format('truetype');
 }
 
 @font-face {
-  font-family: 'Amiri';
-  font-style: italic;
-  font-weight: 400;
-  font-display: swap;
-  src: url('../fonts/Amiri-Italic.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Amiri';
+  font-family: 'Kitab';
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('../fonts/Amiri-Bold.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Amiri';
-  font-style: italic;
-  font-weight: 700;
-  font-display: swap;
-  src: url('../fonts/Amiri-BoldItalic.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Uthmani';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('../fonts/Uthmani.woff') format('woff');
-}
-
-@font-face {
-  font-family: 'UthmanTahaNaskh';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('../fonts/UthmanTahaNaskh-Regular.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'UthmanTahaNaskh';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('../fonts/UthmanTahaNaskh-Bold.ttf') format('truetype');
+  src: url('../fonts/Kitab-Bold.ttf') format('truetype');
 }
 
 .font-body {
@@ -115,5 +75,5 @@
 }
 
 .font-quran {
-  font-family: 'UthmanTahaNaskh', 'Amiri', 'IBM Plex Sans Arabic', sans-serif;
+  font-family: 'Kitab', 'IBM Plex Sans Arabic', sans-serif;
 }
