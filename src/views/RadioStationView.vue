@@ -18,11 +18,13 @@ import Heading from '@/components/Heading.vue'
 import OfflineState from '@/components/OfflineState.vue'
 import radiosData from '@/exports/Radios.js'
 import { useRadioStore } from '@/stores/radio'
+import { useFavorites } from '@/composables/favorites'
 import { toast } from 'vue-sonner'
 
 const route = useRoute()
 const online = useOnline()
 const store = useRadioStore()
+const { isFavorite, toggleFavorite } = useFavorites('radioFavorites')
 
 const stationSlug = computed(() => route.params.slug.toLowerCase())
 const station = computed(() => radiosData[stationSlug.value])
@@ -143,13 +145,13 @@ const shareStation = async () => {
           <!-- Favorite Button -->
           <button
             class="btn btn-flat"
-            :class="store.isFavorite(stationSlug) ? 'text-danger' : 'text-body'"
+            :class="isFavorite(stationSlug) ? 'text-danger' : 'text-body'"
             type="button"
-            @click="store.toggleFavorite(stationSlug)"
+            @click="toggleFavorite(stationSlug)"
           >
-            <IconHeartFilled v-if="store.isFavorite(stationSlug)" size="1.5rem" class="me-2"/>
+            <IconHeartFilled v-if="isFavorite(stationSlug)" size="1.5rem" class="me-2"/>
             <IconHeart v-else size="1.5rem" class="me-2"/>
-            <span>{{ store.isFavorite(stationSlug) ? 'في المفضلة' : 'إضافة للمفضلة' }}</span>
+            <span>{{ isFavorite(stationSlug) ? 'في المفضلة' : 'إضافة للمفضلة' }}</span>
           </button>
         </div>
 

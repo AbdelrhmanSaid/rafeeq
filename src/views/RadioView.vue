@@ -2,6 +2,7 @@
 import { useRadioStore } from '@/stores/radio'
 import { IconPlayerPlay, IconPlayerPause, IconHeart, IconHeartFilled } from '@tabler/icons-vue'
 import { useSearch } from '@/composables/search'
+import { useFavorites } from '@/composables/favorites'
 import { computed } from 'vue'
 import { useOnline } from '@vueuse/core'
 
@@ -13,6 +14,7 @@ import OfflineState from '@/components/OfflineState.vue'
 
 const store = useRadioStore()
 const online = useOnline()
+const { isFavorite, toggleFavorite, filterFavorites } = useFavorites('radioFavorites')
 
 const radiosList = computed(() =>
   Object.entries(radiosData).map(([slug, station]) => ({
@@ -22,10 +24,7 @@ const radiosList = computed(() =>
 )
 
 const { search, filtered } = useSearch(radiosList, ['name'])
-
-const favorites = computed(() =>
-  radiosList.value.filter((radio) => store.isFavorite(radio.slug)),
-)
+const favorites = filterFavorites(radiosList, (r) => r.slug)
 </script>
 
 <template>
@@ -58,7 +57,7 @@ const favorites = computed(() =>
             <div class="d-flex gap-2">
               <button
                 class="btn btn-flat"
-                @click.stop="store.toggleFavorite(station.slug)"
+                @click.stop="toggleFavorite(station.slug)"
                 title="إزالة من المفضلة"
               >
                 <IconHeartFilled size="1.25rem" class="text-danger" />
@@ -93,10 +92,10 @@ const favorites = computed(() =>
           <div class="d-flex gap-2">
             <button
               class="btn btn-flat"
-              @click.stop="store.toggleFavorite(station.slug)"
-              :title="store.isFavorite(station.slug) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"
+              @click.stop="toggleFavorite(station.slug)"
+              :title="isFavorite(station.slug) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"
             >
-              <IconHeartFilled v-if="store.isFavorite(station.slug)" size="1.25rem" class="text-danger" />
+              <IconHeartFilled v-if="isFavorite(station.slug)" size="1.25rem" class="text-danger" />
               <IconHeart v-else size="1.25rem" />
             </button>
 
