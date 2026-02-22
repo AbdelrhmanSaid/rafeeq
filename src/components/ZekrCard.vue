@@ -12,9 +12,6 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  description: {
-    type: String,
-  },
   repeat: {
     type: Number,
     default: 1,
@@ -126,7 +123,6 @@ const copyZekr = async () => {
       <div class="col-12 col-lg">
         <p class="zekr-text font-quran m-0">{{ text }}</p>
 
-        <p v-if="description" class="text-muted m-0 mt-2">{{ description }}</p>
 
         <p class="text-muted m-0 pe-2" v-if="benefit || reference">
           <small v-if="reference">{{ reference }}</small>

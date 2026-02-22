@@ -10,7 +10,7 @@ categories.forEach((category, index) => {
   category.id = index + 1
 })
 
-const { search, filtered } = useSearch(categories, ['name'])
+const { search, filtered } = useSearch(categories, ['name', 'description'])
 </script>
 
 <template>
@@ -36,7 +36,8 @@ const { search, filtered } = useSearch(categories, ['name'])
           :to="{ name: 'azkar-category', params: { category: item.slug } }"
           class="stretched-link text-decoration-none text-reset"
         >
-          {{ item.id }}. {{ item.name }}
+          <div>{{ item.id }}. {{ item.name }}</div>
+          <small v-if="item.description" class="text-muted d-block mt-1">{{ item.description }}</small>
         </RouterLink>
       </template>
     </FavoriteList>
