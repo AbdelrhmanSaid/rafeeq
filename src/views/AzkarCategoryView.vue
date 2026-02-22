@@ -58,6 +58,7 @@ onBeforeRouteLeave(async () => {
       v-for="(zekr, index) in category.content"
       :key="index"
       :text="zekr.text"
+      :description="zekr.description"
       :repeat="zekr.repeat"
       :reference="zekr.reference"
       :benefit="zekr.benefit"
