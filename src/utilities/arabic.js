@@ -16,4 +16,9 @@ const normalize = (text) => {
   return text.toLowerCase()
 }
 
-export default { normalize }
+const toArabicNumerals = (value) =>
+  String(value).replace(/\d/g, (digit) => String.fromCharCode(0x660 + Number(digit)))
+
+export { toArabicNumerals }
+
+export default { normalize, toArabicNumerals }
