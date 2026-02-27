@@ -70,7 +70,6 @@ const ayat = computed(() => {
       return {
         ...ayah,
         text,
-        words: text.split(/\s+/).filter(Boolean),
       }
     })
   }
@@ -121,16 +120,13 @@ const isCurrentVerse = (verse) => {
       <span class="basmallah">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
 
       <template v-for="ayah in ayat" :key="ayah.number">
-        <template v-for="(word, wordIndex) in ayah.words" :key="`${ayah.number}-${wordIndex}`">
-          <span
-            class="ayah-word clickable-ayah"
-            :class="{ 'current-ayah': isCurrentVerse(ayah) }"
-            @click="playVerse(ayah)"
-            :title="'تشغيل الآية ' + ayah.numberInSurah"
-            >{{ word }}</span
-          >
-          <span class="ayah-space" aria-hidden="true"> </span>
-        </template>
+        <span
+          class="ayah clickable-ayah"
+          :class="{ 'current-ayah': isCurrentVerse(ayah) }"
+          @click="playVerse(ayah)"
+          :title="'تشغيل الآية ' + ayah.numberInSurah"
+          >{{ ayah.text }}</span
+        >
         <span class="ayah-number" aria-hidden="true">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
       </template>
     </div>
@@ -157,6 +153,7 @@ const isCurrentVerse = (verse) => {
     direction: rtl;
     text-align: justify;
     text-align-last: right;
+    text-justify: inter-word;
 
     .basmallah {
       display: block;
@@ -166,19 +163,17 @@ const isCurrentVerse = (verse) => {
       margin-bottom: 1rem;
     }
 
-    .ayah-word,
+    .ayah,
     .ayah-number {
       line-height: 2;
       font-size: 1.625rem;
       margin-bottom: 0.75rem;
     }
 
-    .ayah-word {
+    .ayah {
+      display: inline;
       text-wrap: pretty;
-    }
-
-    .ayah-space {
-      white-space: pre;
+      margin-inline: 0 0.2rem;
     }
 
     .ayah-number {
