@@ -150,9 +150,8 @@ const isCurrentVerse = (verse) => {
     padding: 1rem;
     border-radius: 5px;
     border: 1px solid var(--bs-border-color);
-    direction: rtl;
     text-align: justify;
-    text-align-last: right;
+    text-align-last: center;
     text-justify: inter-word;
 
     .basmallah {

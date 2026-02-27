@@ -1,4 +1,4 @@
-const normalize = (text) => {
+export const normalize = (text) => {
   // Get only Arabic characters, English characters, and numbers
   text = String(text).replace(/([^\u0621-\u063A\u0641-\u064A\u0660-\u0669a-zA-Z 0-9])/g, '')
 
@@ -16,9 +16,6 @@ const normalize = (text) => {
   return text.toLowerCase()
 }
 
-const toArabicNumerals = (value) =>
-  String(value).replace(/\d/g, (digit) => String.fromCharCode(0x660 + Number(digit)))
-
-export { toArabicNumerals }
-
-export default { normalize, toArabicNumerals }
+export const toArabicNumerals = (value) => {
+  return String(value).replace(/\d/g, (digit) => String.fromCharCode(0x660 + Number(digit)))
+}
