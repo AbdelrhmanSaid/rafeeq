@@ -60,15 +60,19 @@ const ayat = computed(() => {
       ayat = ayat.slice(1)
     }
 
-    return ayat.map((ayah) => ({
-      ...ayah,
-
+    return ayat.map((ayah) => {
       // Remove the Basmala from the first Ayah of other Surahs
-      text: (ayah.numberInSurah === 1
+      const text = (ayah.numberInSurah === 1
         ? ayah.text.replace('بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ', '')
         : ayah.text
-      ).trim(),
-    }))
+      ).trim()
+
+      return {
+        ...ayah,
+        text,
+        words: text.split(/\s+/).filter(Boolean),
+      }
+    })
   }
 
   return []
@@ -117,13 +121,16 @@ const isCurrentVerse = (verse) => {
       <span class="basmallah">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
 
       <template v-for="ayah in ayat" :key="ayah.number">
-        <span
-          class="ayah clickable-ayah rounded px-1"
-          :class="{ 'current-ayah': isCurrentVerse(ayah) }"
-          @click="playVerse(ayah)"
-          :title="'تشغيل الآية ' + ayah.numberInSurah"
-          >{{ ayah.text }}</span
-        >
+        <template v-for="(word, wordIndex) in ayah.words" :key="`${ayah.number}-${wordIndex}`">
+          <span
+            class="ayah-word clickable-ayah"
+            :class="{ 'current-ayah': isCurrentVerse(ayah) }"
+            @click="playVerse(ayah)"
+            :title="'تشغيل الآية ' + ayah.numberInSurah"
+            >{{ word }}</span
+          >
+          <span class="ayah-space" aria-hidden="true"> </span>
+        </template>
         <span class="ayah-number" aria-hidden="true">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
       </template>
     </div>
@@ -147,6 +154,9 @@ const isCurrentVerse = (verse) => {
     padding: 1rem;
     border-radius: 5px;
     border: 1px solid var(--bs-border-color);
+    direction: rtl;
+    text-align: justify;
+    text-align-last: right;
 
     .basmallah {
       display: block;
@@ -156,15 +166,19 @@ const isCurrentVerse = (verse) => {
       margin-bottom: 1rem;
     }
 
-    .ayah,
+    .ayah-word,
     .ayah-number {
       line-height: 2;
       font-size: 1.625rem;
       margin-bottom: 0.75rem;
     }
 
-    .ayah {
+    .ayah-word {
       text-wrap: pretty;
+    }
+
+    .ayah-space {
+      white-space: pre;
     }
 
     .ayah-number {
