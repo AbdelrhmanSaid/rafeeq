@@ -4,6 +4,7 @@ import DuhurIcon from '@/components/icons/Prayers/Duhur.vue'
 import MaghribIcon from '@/components/icons/Prayers/Maghrib.vue'
 import IshaaIcon from '@/components/icons/Prayers/Ishaa.vue'
 import { IconArrowBarToUp, IconArrowBarToDown } from '@tabler/icons-vue'
+import { toArabicNumerals } from '@/utilities/arabic'
 
 const prayers = [
   {
@@ -35,7 +36,7 @@ const prayers = [
 const formatRakaa = (value) => {
   if (value === '-') return '-'
   if (value === 2) return 'ركعتان'
-  return `${value} ركعات`
+  return `${toArabicNumerals(value)} ركعات`
 }
 </script>
 
