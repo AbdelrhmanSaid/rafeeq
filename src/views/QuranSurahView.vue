@@ -146,8 +146,6 @@ const isCurrentVerse = (verse) => {
   .ayat {
     padding: 1rem;
     border-radius: 5px;
-    text-align: right;
-    direction: rtl;
     border: 1px solid var(--bs-border-color);
 
     .basmallah {
