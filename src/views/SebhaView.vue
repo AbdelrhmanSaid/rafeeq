@@ -4,6 +4,7 @@ import { IconRefreshDot } from '@tabler/icons-vue'
 
 import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
+import { toArabicNumerals } from '@/utilities/arabic'
 
 const sebha = ref(0)
 </script>
@@ -19,7 +20,7 @@ const sebha = ref(0)
 
     <div class="sebha-shell">
       <button @click="sebha++" class="sebha-btn">
-        <span class="sebha-count">{{ sebha }}</span>
+        <span class="sebha-count">{{ toArabicNumerals(sebha) }}</span>
         <span class="sebha-label">اضغط للتسبيح</span>
       </button>
 

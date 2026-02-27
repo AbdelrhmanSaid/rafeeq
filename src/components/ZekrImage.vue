@@ -1,5 +1,6 @@
 <script setup>
 import Logo from '@/components/Logo.vue'
+import { toArabicNumerals } from '@/utilities/arabic'
 
 defineProps({
   text: {
@@ -41,7 +42,7 @@ defineProps({
     </div>
 
     <div class="mt-auto pt-3">
-      <span class="badge rounded-pill px-3 py-2 repeat-badge"> التكرار: {{ repeat }} مرة </span>
+      <span class="badge rounded-pill px-3 py-2 repeat-badge"> التكرار: {{ toArabicNumerals(repeat) }} مرة </span>
     </div>
   </div>
 </template>

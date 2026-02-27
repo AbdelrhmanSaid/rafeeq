@@ -8,6 +8,7 @@ import Heading from '@/components/Heading.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import OfflineState from '@/components/OfflineState.vue'
+import { toArabicNumerals } from '@/utilities/arabic'
 
 const online = useOnline()
 
@@ -256,7 +257,7 @@ onUnmounted(() => {
       <div class="qibla-info">
         <div class="qibla-degree">
           <IconCompass size="1.25rem" class="me-2" />
-          <span>{{ qiblaDirection.toFixed(1) }}° من الشمال</span>
+          <span>{{ toArabicNumerals(qiblaDirection.toFixed(1)) }}° من الشمال</span>
         </div>
         <p class="qibla-hint">
           <template v-if="hasCompassSupport && !compassError">

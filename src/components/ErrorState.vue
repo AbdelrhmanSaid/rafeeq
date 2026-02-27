@@ -1,4 +1,6 @@
 <script setup>
+import { toArabicNumerals } from '@/utilities/arabic'
+
 defineProps({
   code: {
     type: Number,
@@ -14,7 +16,7 @@ defineProps({
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-lg-6 text-center">
-        <h1 class="display-1">{{ code }}</h1>
+        <h1 class="display-1">{{ toArabicNumerals(code) }}</h1>
         <p class="lead">{{ message }}</p>
       </div>
     </div>

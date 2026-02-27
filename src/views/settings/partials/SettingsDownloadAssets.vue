@@ -16,6 +16,7 @@ import {
 } from '@tabler/icons-vue'
 import { useDownloadStore } from '@/stores/download.js'
 import { toast } from 'vue-sonner'
+import { toArabicNumerals } from '@/utilities/arabic'
 
 const downloadStore = useDownloadStore()
 
@@ -138,10 +139,10 @@ const handleAssetAction = (asset) => {
                 :stroke-dasharray="`${progressPercentage} 100`"
               />
             </svg>
-            <span class="ring-text">{{ progressPercentage }}%</span>
+            <span class="ring-text">{{ toArabicNumerals(progressPercentage) }}%</span>
           </div>
           <div class="dm-stats-text">
-            <span class="dm-stats-count">{{ downloadedCount }}/{{ totalAssets }}</span>
+            <span class="dm-stats-count">{{ toArabicNumerals(downloadedCount) }}/{{ toArabicNumerals(totalAssets) }}</span>
             <span class="dm-stats-label">ملف محمّل</span>
           </div>
         </div>
@@ -156,7 +157,7 @@ const handleAssetAction = (asset) => {
         <template v-else-if="isDownloading && currentItem">
           <IconLoader2 :size="16" class="spin" />
           <span>جاري تحميل: {{ currentItem.name }}</span>
-          <span class="dm-status-remaining">{{ pendingCount }} متبقي</span>
+          <span class="dm-status-remaining">{{ toArabicNumerals(pendingCount) }} متبقي</span>
         </template>
         <template v-else-if="isPaused">
           <IconPlayerPause :size="16" />
@@ -174,7 +175,7 @@ const handleAssetAction = (asset) => {
           @click="filterType = 'all'"
         >
           الكل
-          <span class="dm-filter-count">{{ totalAssets }}</span>
+          <span class="dm-filter-count">{{ toArabicNumerals(totalAssets) }}</span>
         </button>
         <button
           class="dm-filter-btn"
@@ -183,7 +184,7 @@ const handleAssetAction = (asset) => {
         >
           <IconBook2 :size="14" />
           السور
-          <span class="dm-filter-count">{{ surahCount }}</span>
+          <span class="dm-filter-count">{{ toArabicNumerals(surahCount) }}</span>
         </button>
         <button
           class="dm-filter-btn"
@@ -192,7 +193,7 @@ const handleAssetAction = (asset) => {
         >
           <IconSparkles :size="14" />
           الأذكار
-          <span class="dm-filter-count">{{ azkarCount }}</span>
+          <span class="dm-filter-count">{{ toArabicNumerals(azkarCount) }}</span>
         </button>
       </div>
 
