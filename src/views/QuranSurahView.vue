@@ -12,6 +12,7 @@ import ErrorState from '@/components/ErrorState.vue'
 import AudioPlayer from '@/components/QuranPlayer.vue'
 import { useQuranStore } from '@/stores/quran'
 import { useMeta } from '@/utilities/head'
+import { toArabicNumerals } from '@/utilities/arabic'
 
 const online = useOnline()
 
@@ -59,15 +60,18 @@ const ayat = computed(() => {
       ayat = ayat.slice(1)
     }
 
-    return ayat.map((ayah) => ({
-      ...ayah,
-
+    return ayat.map((ayah) => {
       // Remove the Basmala from the first Ayah of other Surahs
-      text: (ayah.numberInSurah === 1
+      const text = (ayah.numberInSurah === 1
         ? ayah.text.replace('بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ', '')
         : ayah.text
-      ).trim(),
-    }))
+      ).trim()
+
+      return {
+        ...ayah,
+        text,
+      }
+    })
   }
 
   return []
@@ -117,13 +121,13 @@ const isCurrentVerse = (verse) => {
 
       <template v-for="ayah in ayat" :key="ayah.number">
         <span
-          class="ayah clickable-ayah rounded px-1"
+          class="ayah clickable-ayah"
           :class="{ 'current-ayah': isCurrentVerse(ayah) }"
           @click="playVerse(ayah)"
           :title="'تشغيل الآية ' + ayah.numberInSurah"
           >{{ ayah.text }}</span
         >
-        <span class="ayah-number">﴿{{ ayah.numberInSurah }}﴾</span>
+        <span class="ayah-number" aria-hidden="true">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
       </template>
     </div>
 
@@ -145,8 +149,10 @@ const isCurrentVerse = (verse) => {
   .ayat {
     padding: 1rem;
     border-radius: 5px;
-    text-align: justify;
     border: 1px solid var(--bs-border-color);
+    text-align: justify;
+    text-align-last: center;
+    text-justify: inter-word;
 
     .basmallah {
       display: block;
@@ -160,13 +166,30 @@ const isCurrentVerse = (verse) => {
     .ayah-number {
       line-height: 2;
       font-size: 1.625rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .ayah {
+      display: inline;
+      text-wrap: pretty;
+      margin-inline: 0 0.2rem;
     }
 
     .ayah-number {
-      padding: 0.25rem 0.5rem;
+      width: 2.2rem;
+      height: 2.2rem;
+      margin-inline: 0.35rem 0.6rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--bs-border-color);
+      border-radius: 999px;
+      background-color: var(--bs-secondary-bg);
       color: var(--bs-gray-600);
       vertical-align: middle;
+      font-size: 1rem;
+      line-height: 1;
+      font-family: 'IBM Plex Sans Arabic', sans-serif;
     }
 
     .clickable-ayah {

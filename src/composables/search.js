@@ -1,5 +1,5 @@
 import { computed, ref, toValue } from 'vue'
-import ar from '@/utilities/arabic'
+import { normalize } from '@/utilities/arabic'
 
 export const useSearch = (items, keys = []) => {
   const search = ref('')
@@ -10,11 +10,11 @@ export const useSearch = (items, keys = []) => {
     if (!search.value) return itemsValue
 
     // Normalize the search value
-    const normalizedSearch = ar.normalize(search.value)
+    const normalizedSearch = normalize(search.value)
 
     return itemsValue.filter((item) => {
       return keys.some((key) => {
-        const value = ar.normalize(item[key])
+        const value = normalize(item[key])
 
         return value.includes(normalizedSearch)
       })
