@@ -28,7 +28,7 @@ const quranLoadingError = ref(null)
 onFetchResponse(async () => {
   useMeta({
     title: surah.value.data.name,
-    description: `قراءة وتلاوة سورة ${surah.value.data.name} - ${surah.value.data.numberOfAyahs} آية - سورة ${surah.value.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`,
+    description: `قراءة وتلاوة سورة ${surah.value.data.name} - ${toArabicNumerals(surah.value.data.numberOfAyahs)} آية - سورة ${surah.value.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`,
     keywords: ['قرآن', 'سورة', surah.value.data.name, 'تلاوة', 'قراءة', 'رفيق'],
   })
 
@@ -109,7 +109,7 @@ const isCurrentVerse = (verse) => {
   <Page class="quran-page" v-else-if="surah">
     <Heading
       :title="surah.data.name"
-      :subtitle="`عدد الآيات: ${surah.data.numberOfAyahs} آية - سورة ${surah.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`"
+      :subtitle="`عدد الآيات: ${toArabicNumerals(surah.data.numberOfAyahs)} آية - سورة ${surah.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`"
       :share="true"
     />
 
@@ -124,7 +124,7 @@ const isCurrentVerse = (verse) => {
           class="ayah clickable-ayah"
           :class="{ 'current-ayah': isCurrentVerse(ayah) }"
           @click="playVerse(ayah)"
-          :title="'تشغيل الآية ' + ayah.numberInSurah"
+          :title='`تشغيل الآية ${toArabicNumerals(ayah.numberInSurah)}`'
           >{{ ayah.text }}</span
         >
         <span class="ayah-number" aria-hidden="true">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
