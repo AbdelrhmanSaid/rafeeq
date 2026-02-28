@@ -133,9 +133,9 @@ const router = createRouter({
       name: 'not-found',
       component: NotFoundView,
       meta: {
-        title: '404 - الصفحة غير موجودة',
+        title: '٤٠٤ - الصفحة غير موجودة',
         description: 'عذراً، الصفحة التي تبحث عنها غير موجودة.',
-        keywords: ['404', 'صفحة غير موجودة'],
+        keywords: ['٤٠٤', 'صفحة غير موجودة'],
       },
     },
   ],

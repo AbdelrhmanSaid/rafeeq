@@ -3,6 +3,7 @@ import { ref, computed, watch, onUnmounted } from 'vue'
 import { useQuranStore } from '@/stores/quran'
 import { IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
 import { useRadioStore } from '@/stores/radio'
+import { toArabicNumerals } from '@/utilities/arabic'
 
 const quranStore = useQuranStore()
 const radioStore = useRadioStore()
@@ -60,10 +61,10 @@ const onAudioEnded = () => {
 }
 
 const formatTime = (seconds) => {
-  if (!seconds || seconds === 0) return '0:00'
+  if (!seconds || seconds === 0) return '٠:٠٠'
   const mins = Math.floor(seconds / 60)
   const secs = Math.floor(seconds % 60)
-  return `${mins}:${secs.toString().padStart(2, '0')}`
+  return toArabicNumerals(`${mins}:${secs.toString().padStart(2, '0')}`)
 }
 
 watch(
@@ -113,7 +114,7 @@ onUnmounted(() => {
       <div class="flex-grow-1">
         <template v-if="currentAudio">
           <span class="fw-semibold text-primary me-2">{{ currentAudio.surahName }}</span>
-          <span class="text-secondary small">آية {{ currentAudio.verseNumber }}</span>
+          <span class="text-secondary small">آية {{ toArabicNumerals(currentAudio.verseNumber) }}</span>
         </template>
         <span v-else class="text-muted">اضغط على آية للاستماع</span>
       </div>

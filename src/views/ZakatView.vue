@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
 import { IconCoins, IconWheat, IconGift, IconBuildingStore } from '@tabler/icons-vue'
+import { toArabicNumerals } from '@/utilities/arabic'
 
 const activeTab = ref('money')
 const moneyAmount = ref('')
@@ -41,11 +42,11 @@ const nisabValues = {
 
 // Zakat rates
 const zakatRates = {
-  money: 0.025, // 2.5%
+  money: 0.025, // ٢.٥%
   gold: 0.025,
   silver: 0.025,
   business: 0.025,
-  crops: 0.05, // 5% for rain-fed crops, 10% for irrigated
+  crops: 0.05, // ٥% for rain-fed crops, ١٠% for irrigated
 }
 
 // Money/Savings Zakat calculation
@@ -176,7 +177,7 @@ const formatCurrency = (num) => {
         <div class="row gy-3">
           <div class="col-md-8">
             <div class="mb-3">
-              <label class="form-label">سعر جرام الذهب (عيار 24) بالجنيه المصري</label>
+              <label class="form-label">سعر جرام الذهب (عيار ٢٤) بالجنيه المصري</label>
               <input
                 v-model="goldPrice"
                 type="number"
@@ -207,7 +208,7 @@ const formatCurrency = (num) => {
               <div class="display-6 text-primary">
                 {{ formatCurrency(moneyZakat) }}
               </div>
-              <small class="text-muted">2.5% من إجمالي المال</small>
+              <small class="text-muted">٢.٥% من إجمالي المال</small>
             </div>
           </div>
         </div>
@@ -243,7 +244,7 @@ const formatCurrency = (num) => {
                 min="0"
                 step="0.1"
               />
-              <div class="form-text">النصاب: {{ nisabValues.gold }} جرام</div>
+              <div class="form-text">النصاب: {{ toArabicNumerals(nisabValues.gold) }} جرام</div>
             </div>
           </div>
 
@@ -251,7 +252,7 @@ const formatCurrency = (num) => {
             <div class="alert alert-info">
               <h6 class="alert-heading">مقدار الزكاة</h6>
               <div class="display-6 text-primary">{{ formatNumber(goldZakat) }} جرام</div>
-              <small class="text-muted">2.5% من وزن الذهب</small>
+              <small class="text-muted">٢.٥% من وزن الذهب</small>
             </div>
           </div>
         </div>
@@ -259,7 +260,7 @@ const formatCurrency = (num) => {
         <div class="alert alert-light mt-3">
           <h6>شروط زكاة الذهب:</h6>
           <ul class="mb-0">
-            <li>أن يبلغ النصاب ({{ nisabValues.gold }} جرام)</li>
+            <li>أن يبلغ النصاب ({{ toArabicNumerals(nisabValues.gold) }} جرام)</li>
             <li>أن يحول عليه الحول الهجري</li>
             <li>لا زكاة في الذهب المُستعمل للزينة المعتادة</li>
           </ul>
@@ -287,7 +288,7 @@ const formatCurrency = (num) => {
                 min="0"
                 step="0.1"
               />
-              <div class="form-text">النصاب: {{ nisabValues.silver }} جرام</div>
+              <div class="form-text">النصاب: {{ toArabicNumerals(nisabValues.silver) }} جرام</div>
             </div>
           </div>
 
@@ -295,7 +296,7 @@ const formatCurrency = (num) => {
             <div class="alert alert-info">
               <h6 class="alert-heading">مقدار الزكاة</h6>
               <div class="display-6 text-primary">{{ formatNumber(silverZakat) }} جرام</div>
-              <small class="text-muted">2.5% من وزن الفضة</small>
+              <small class="text-muted">٢.٥% من وزن الفضة</small>
             </div>
           </div>
         </div>
@@ -303,7 +304,7 @@ const formatCurrency = (num) => {
         <div class="alert alert-light mt-3">
           <h6>شروط زكاة الفضة:</h6>
           <ul class="mb-0">
-            <li>أن يبلغ النصاب ({{ nisabValues.silver }} جرام)</li>
+            <li>أن يبلغ النصاب ({{ toArabicNumerals(nisabValues.silver) }} جرام)</li>
             <li>أن يحول عليه الحول الهجري</li>
             <li>لا زكاة في الفضة المُستعملة للزينة المعتادة</li>
           </ul>
@@ -324,20 +325,20 @@ const formatCurrency = (num) => {
             <div class="row g-3">
               <div class="col-md-4">
                 <label class="form-label">عدد الأبقار</label>
-                <input v-model="livestockCows" type="number" class="form-control" placeholder="0" min="0" />
-                <div class="form-text">النصاب: {{ nisabValues.cows }}</div>
+                <input v-model="livestockCows" type="number" class="form-control" placeholder="٠" min="0" />
+                <div class="form-text">النصاب: {{ toArabicNumerals(nisabValues.cows) }}</div>
               </div>
 
               <div class="col-md-4">
                 <label class="form-label">عدد الأغنام</label>
-                <input v-model="livestockSheep" type="number" class="form-control" placeholder="0" min="0" />
-                <div class="form-text">النصاب: {{ nisabValues.sheep }}</div>
+                <input v-model="livestockSheep" type="number" class="form-control" placeholder="٠" min="0" />
+                <div class="form-text">النصاب: {{ toArabicNumerals(nisabValues.sheep) }}</div>
               </div>
 
               <div class="col-md-4">
                 <label class="form-label">عدد الإبل</label>
-                <input v-model="livestockCamels" type="number" class="form-control" placeholder="0" min="0" />
-                <div class="form-text">النصاب: {{ nisabValues.camels }}</div>
+                <input v-model="livestockCamels" type="number" class="form-control" placeholder="٠" min="0" />
+                <div class="form-text">النصاب: {{ toArabicNumerals(nisabValues.camels) }}</div>
               </div>
             </div>
           </div>
@@ -345,7 +346,7 @@ const formatCurrency = (num) => {
           <div class="col-md-4">
             <div class="alert alert-info">
               <h6 class="alert-heading">مقدار الزكاة</h6>
-              <div class="display-6 text-primary">{{ livestockZakat }} رأس</div>
+              <div class="display-6 text-primary">{{ toArabicNumerals(livestockZakat) }} رأس</div>
               <small class="text-muted">حسب الأنصبة الشرعية</small>
             </div>
           </div>
@@ -383,7 +384,7 @@ const formatCurrency = (num) => {
                 min="0"
                 step="0.1"
               />
-              <div class="form-text">النصاب: {{ nisabValues.crops }} كيلوجرام</div>
+              <div class="form-text">النصاب: {{ toArabicNumerals(nisabValues.crops) }} كيلوجرام</div>
             </div>
           </div>
 
@@ -393,7 +394,7 @@ const formatCurrency = (num) => {
               <div class="display-6 text-primary">
                 {{ formatNumber(cropsZakat) }} ~ {{ formatNumber(cropsZakat * 2) }} كجم
               </div>
-              <small class="text-muted">10% (مطرية) أو 5% (مروية)</small>
+              <small class="text-muted">١٠% (مطرية) أو ٥% (مروية)</small>
             </div>
           </div>
         </div>
@@ -402,9 +403,9 @@ const formatCurrency = (num) => {
           <h6>شروط زكاة الزروع:</h6>
           <ul class="mb-0">
             <li>أن تكون من الحبوب أو الثمار القابلة للادخار</li>
-            <li>أن تبلغ النصاب ({{ nisabValues.crops }} كجم)</li>
-            <li>العشر (10%) فيما سقي بماء المطر أو الأنهار</li>
-            <li>نصف العشر (5%) فيما سقي بالآلات والتكلفة</li>
+            <li>أن تبلغ النصاب ({{ toArabicNumerals(nisabValues.crops) }} كجم)</li>
+            <li>العشر (١٠%) فيما سقي بماء المطر أو الأنهار</li>
+            <li>نصف العشر (٥%) فيما سقي بالآلات والتكلفة</li>
           </ul>
         </div>
       </div>
@@ -421,7 +422,7 @@ const formatCurrency = (num) => {
         <div class="row gy-3">
           <div class="col-md-8">
             <div class="mb-3">
-              <label class="form-label">سعر جرام الذهب (عيار 24) بالجنيه المصري</label>
+              <label class="form-label">سعر جرام الذهب (عيار ٢٤) بالجنيه المصري</label>
               <input
                 v-model="goldPrice"
                 type="number"
@@ -452,7 +453,7 @@ const formatCurrency = (num) => {
               <div class="display-6 text-primary">
                 {{ formatCurrency(businessZakat) }}
               </div>
-              <small class="text-muted">2.5% من قيمة البضائع</small>
+              <small class="text-muted">٢.٥% من قيمة البضائع</small>
             </div>
           </div>
         </div>

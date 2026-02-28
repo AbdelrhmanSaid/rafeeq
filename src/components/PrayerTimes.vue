@@ -6,6 +6,7 @@ import { useFetch, useDateFormat, useOnline, useNow } from '@vueuse/core'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import OfflineState from '@/components/OfflineState.vue'
+import { toArabicNumerals } from '@/utilities/arabic'
 
 // Import prayer icons
 import Fajr from '@/components/icons/Prayers/Fajr.vue'
@@ -54,7 +55,7 @@ const { isFetching, data: timings, error } = useFetch(endpoint, options).json().
 
 // Format time
 const formatTime = (time) => {
-  return useDateFormat(time, 'hh:mm A').value.replace('AM', 'ص').replace('PM', 'م')
+  return toArabicNumerals(useDateFormat(time, 'hh:mm A').value.replace('AM', 'ص').replace('PM', 'م'))
 }
 
 // Determine the next prayer
@@ -96,7 +97,7 @@ const remainingTime = computed(() => {
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
   const seconds = Math.floor((diff % (1000 * 60)) / 1000)
 
-  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+  return toArabicNumerals(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`)
 })
 </script>
 

@@ -5,6 +5,7 @@ import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
 import FavoriteList from '@/components/FavoriteList.vue'
 import categories from '@/exports/AzkarCategories.js'
+import { toArabicNumerals } from '@/utilities/arabic'
 
 categories.forEach((category, index) => {
   category.id = index + 1
@@ -36,7 +37,7 @@ const { search, filtered } = useSearch(categories, ['name'])
           :to="{ name: 'azkar-category', params: { category: item.slug } }"
           class="stretched-link text-decoration-none text-reset"
         >
-          {{ item.id }}. {{ item.name }}
+          {{ toArabicNumerals(item.id) }}. {{ item.name }}
         </RouterLink>
       </template>
     </FavoriteList>

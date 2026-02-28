@@ -4,6 +4,7 @@ import { useMediaQuery } from '@vueuse/core'
 import { IconDownload, IconShare3, IconCopy, IconHeartShare } from '@tabler/icons-vue'
 import { exportComponent } from '@/utilities/export'
 import { toast } from 'vue-sonner'
+import { toArabicNumerals } from '@/utilities/arabic'
 
 import ZekrImage from './ZekrImage.vue'
 
@@ -116,7 +117,7 @@ const copyZekr = async () => {
           class="btn btn-counter border-flat"
           @click.stop="increment"
           :style="{ '--progress': count / repeat }"
-          :data-content="`${count}/${repeat}`"
+          :data-content="toArabicNumerals(`${count}/${repeat}`)"
         ></button>
       </div>
 

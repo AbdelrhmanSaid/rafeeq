@@ -10,6 +10,7 @@ import Heading from '@/components/Heading.vue'
 import FavoriteList from '@/components/FavoriteList.vue'
 import radiosData from '@/exports/Radios.js'
 import OfflineState from '@/components/OfflineState.vue'
+import { toArabicNumerals } from '@/utilities/arabic'
 
 const store = useRadioStore()
 const online = useOnline()
@@ -54,7 +55,7 @@ const { search, filtered } = useSearch(radiosList, ['name'])
 
       <template #default="{ item, index }">
         <RouterLink :to="{ name: 'radio-station', params: { slug: item.slug } }" class="flex-grow-1 radio-link">
-          {{ index + 1 }}. {{ item.name }}
+          {{ toArabicNumerals(index + 1) }}. {{ item.name }}
         </RouterLink>
       </template>
 

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { toast } from 'vue-sonner'
+import { toArabicNumerals } from '@/utilities/arabic'
 
 export const useRadioStore = defineStore('radio', () => {
   const player = new Audio()
@@ -18,7 +19,7 @@ export const useRadioStore = defineStore('radio', () => {
       return
     }
     retries++
-    toast.info(`تعذر تشغيل الإذاعة، جارٍ إعادة الاتصال... (${retries}/3)`)
+    toast.info(`تعذر تشغيل الإذاعة، جارٍ إعادة الاتصال... (${toArabicNumerals(retries)}/٣)`)
     retryTimeout = setTimeout(() => {
       player.src = station.value
       player.play().catch(() => {})
