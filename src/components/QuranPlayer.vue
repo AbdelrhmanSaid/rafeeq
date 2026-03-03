@@ -113,8 +113,8 @@ onUnmounted(() => {
 
       <div class="flex-grow-1">
         <template v-if="currentAudio">
-          <span class="fw-semibold text-primary me-2">{{ currentAudio.surahName }}</span>
-          <span class="text-secondary small">آية {{ toArabicNumerals(currentAudio.verseNumber) }}</span>
+          <span class="d-inline-block fw-semibold text-primary me-2">{{ currentAudio.surahName }}</span>
+          <span class="d-inline-block text-secondary small">آية {{ toArabicNumerals(currentAudio.verseNumber) }}</span>
         </template>
         <span v-else class="text-muted">اضغط على آية للاستماع</span>
       </div>
