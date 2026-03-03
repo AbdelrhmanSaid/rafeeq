@@ -117,7 +117,7 @@ const isCurrentVerse = (verse) => {
     <AudioPlayer v-if="online" />
 
     <div class="ayat font-quran mb-4">
-      <span class="basmallah" v-if="surah.id != 9">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
+      <span class="basmallah" v-if="surahId != 9">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
 
       <template v-for="ayah in ayat" :key="ayah.number">
         <span
