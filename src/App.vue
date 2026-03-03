@@ -1,10 +1,10 @@
 <script setup>
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
 import Navbar from '@/components/Layout/Navbar.vue'
 import Footer from '@/components/Layout/Footer.vue'
 import TabBar from '@/components/Layout/TabBar.vue'
 import { IconWifiOff } from '@tabler/icons-vue'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useOnline } from '@vueuse/core'
 import { Toaster, toast } from 'vue-sonner'
 import { useModeStore } from './stores/mode'
@@ -13,6 +13,9 @@ import { registerSW } from 'virtual:pwa-register'
 // Network status detection
 const online = useOnline()
 const modeStore = useModeStore()
+
+const route = useRoute()
+const isEmbedRoute = computed(() => route.path.startsWith('/embed'))
 
 // Offline banner visibility
 const showOfflineBanner = ref(true)
@@ -56,18 +59,18 @@ const updateSW = registerSW({
   </div>
 
   <!-- Desktop Navbar -->
-  <Navbar class="d-none d-md-block" />
+  <Navbar v-if="!isEmbedRoute" class="d-none d-md-block" />
 
   <!-- Main Content -->
-  <div class="main-content">
+  <div :class="['main-content', { 'main-content--embed': isEmbedRoute }]">
     <RouterView />
   </div>
 
   <!-- Desktop Footer -->
-  <Footer class="d-none d-md-block" />
+  <Footer v-if="!isEmbedRoute" class="d-none d-md-block" />
 
   <!-- Mobile TabBar -->
-  <TabBar class="d-block d-md-none" />
+  <TabBar v-if="!isEmbedRoute" class="d-block d-md-none" />
 
   <!-- Toast -->
   <Toaster
@@ -101,6 +104,11 @@ const updateSW = registerSW({
 .main-content {
   min-height: calc(100vh - var(--navbar-height)); /* Adjust for navbar and footer on desktop */
   padding-bottom: var(--navbar-height);
+}
+
+.main-content--embed {
+  min-height: 100vh;
+  padding-bottom: 0;
 }
 
 /* Desktop adjustments */
