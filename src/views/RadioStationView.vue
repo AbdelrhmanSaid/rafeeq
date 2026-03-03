@@ -4,7 +4,6 @@ import { useRoute } from 'vue-router'
 import { useOnline } from '@vueuse/core'
 import { useMeta } from '@/utilities/head'
 import {
-  IconArrowLeft,
   IconHeart,
   IconHeartFilled,
   IconPlayerPause,
@@ -15,6 +14,7 @@ import {
 
 import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
+import BackButton from '@/components/BackButton.vue'
 import OfflineState from '@/components/OfflineState.vue'
 import radiosData from '@/exports/Radios.js'
 import { useRadioStore } from '@/stores/radio'
@@ -80,20 +80,14 @@ const shareStation = async () => {
     <div v-if="!station" class="text-center py-5 px-3">
       <div class="display-1 mb-4 opacity-50">📻</div>
       <Heading title="لم يتم العثور على الإذاعة" subtitle="يمكنك العودة لقائمة الإذاعات المتاحة." />
-      <RouterLink class="btn btn-primary" :to="{ name: 'radio' }">
-        <IconArrowLeft size="1.25rem" />
-        العودة إلى الإذاعات
-      </RouterLink>
+      <BackButton :to="{ name: 'radio' }" label="العودة إلى الإذاعات" button-class="btn-primary" />
     </div>
 
     <!-- Main Player -->
     <div v-else class="position-relative w-100 mx-auto" style="max-width: 500px">
       <!-- Navigation Header -->
       <div class="d-flex justify-content-between mb-4 position-relative z-1">
-        <RouterLink class="btn btn-flat" :to="{ name: 'radio' }">
-          <IconArrowLeft size="1.25rem" class="me-2"/>
-          <span>العودة</span>
-        </RouterLink>
+        <BackButton :to="{ name: 'radio' }" />
 
         <button v-if="canShare" class="btn btn-flat" type="button" @click="shareStation">
           <IconShare3 size="1.25rem" class="me-2"/>
