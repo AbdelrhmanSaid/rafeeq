@@ -41,36 +41,38 @@ const updateSW = registerSW({
 </script>
 
 <template>
-  <!-- Offline indicator -->
-  <div v-if="!online && showOfflineBanner" class="offline-banner">
-    <div class="container">
-      <div class="d-flex align-items-center text-white">
-        <IconWifiOff class="me-2" size="1.25rem" />
-        <span>لا يوجد اتصال بالإنترنت</span>
+  <div :class="['app-shell', { 'main-content-embed': isEmbedRoute }]">
+    <!-- Offline indicator -->
+    <div v-if="!online && showOfflineBanner" class="offline-banner">
+      <div class="container">
+        <div class="d-flex align-items-center text-white">
+          <IconWifiOff class="me-2" size="1.25rem" />
+          <span>لا يوجد اتصال بالإنترنت</span>
 
-        <button
-          type="button"
-          class="btn-close btn-close-white ms-auto"
-          aria-label="Close"
-          @click="showOfflineBanner = false"
-        ></button>
+          <button
+            type="button"
+            class="btn-close btn-close-white ms-auto"
+            aria-label="Close"
+            @click="showOfflineBanner = false"
+          ></button>
+        </div>
       </div>
     </div>
+
+    <!-- Desktop Navbar -->
+    <Navbar class="d-none d-md-block embed-hidden" />
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <RouterView />
+    </div>
+
+    <!-- Desktop Footer -->
+    <Footer class="d-none d-md-block embed-hidden" />
+
+    <!-- Mobile TabBar -->
+    <TabBar class="d-block d-md-none embed-hidden" />
   </div>
-
-  <!-- Desktop Navbar -->
-  <Navbar v-if="!isEmbedRoute" class="d-none d-md-block" />
-
-  <!-- Main Content -->
-  <div :class="['main-content', { 'main-content--embed': isEmbedRoute }]">
-    <RouterView />
-  </div>
-
-  <!-- Desktop Footer -->
-  <Footer v-if="!isEmbedRoute" class="d-none d-md-block" />
-
-  <!-- Mobile TabBar -->
-  <TabBar v-if="!isEmbedRoute" class="d-block d-md-none" />
 
   <!-- Toast -->
   <Toaster
@@ -106,7 +108,9 @@ const updateSW = registerSW({
   padding-bottom: var(--navbar-height);
 }
 
-.main-content--embed {
+
+/* Desktop adjustments */
+.main-content-embed .main-content {
   min-height: 100vh;
   padding-bottom: 0;
 }

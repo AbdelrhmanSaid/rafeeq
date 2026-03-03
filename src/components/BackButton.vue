@@ -1,6 +1,4 @@
 <script setup>
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
 import { IconArrowLeft } from '@tabler/icons-vue'
 
 const props = defineProps({
@@ -17,16 +15,12 @@ const props = defineProps({
     default: 'btn-flat',
   },
 })
-
-const route = useRoute()
-const isEmbedRoute = computed(() => route.path.startsWith('/embed'))
 </script>
 
 <template>
   <RouterLink
-    v-if="!isEmbedRoute"
     :to="props.to"
-    class="btn d-inline-flex align-items-center gap-2"
+    class="btn d-inline-flex align-items-center gap-2 embed-hidden"
     :class="props.buttonClass"
   >
     <IconArrowLeft size="1.25rem" />
