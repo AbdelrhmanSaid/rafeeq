@@ -1,12 +1,11 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { RouterLink } from 'vue-router'
-import { IconChevronLeft } from '@tabler/icons-vue'
 import { useFetch, useOnline } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
 
 import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
+import BackButton from '@/components/BackButton.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import AudioPlayer from '@/components/QuranPlayer.vue'
@@ -132,9 +131,7 @@ const isCurrentVerse = (verse) => {
     </div>
 
     <div class="d-flex justify-content-center">
-      <RouterLink :to="{ name: 'quran' }" class="btn btn-primary">
-        <IconChevronLeft size="1.25rem" />
-      </RouterLink>
+      <BackButton :to="{ name: 'quran' }" button-class="btn-primary" />
     </div>
   </Page>
 </template>
