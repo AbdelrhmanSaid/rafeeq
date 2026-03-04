@@ -118,7 +118,7 @@ const isCurrentVerse = (verse) => {
     <div class="ayat font-quran mb-4">
       <span class="basmallah" v-if="surahId != 9">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
 
-      <template v-for="ayah in ayat" :key="ayah.number">
+      <template v-for="(ayah, index) in ayat" :key="ayah.number">
         <span
           class="ayah clickable-ayah"
           :class="{ 'current-ayah': isCurrentVerse(ayah) }"
@@ -127,6 +127,12 @@ const isCurrentVerse = (verse) => {
           >{{ ayah.text }}</span
         >
         <span class="ayah-number" aria-hidden="true">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
+        <div
+          v-if="index < ayat.length - 1 && ayah.page !== ayat[index + 1].page"
+          class="page-separator"
+        >
+          <span class="page-number">{{ toArabicNumerals(ayah.page) }}</span>
+        </div>
       </template>
     </div>
 
@@ -187,6 +193,30 @@ const isCurrentVerse = (verse) => {
       font-size: 1rem;
       line-height: 1;
       font-family: 'IBM Plex Sans Arabic', sans-serif;
+    }
+
+    .page-separator {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      margin: 2rem 0;
+
+      &::before,
+      &::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid var(--bs-border-color);
+      }
+
+      .page-number {
+        padding: 0.15rem 0.75rem;
+        font-size: 0.875rem;
+        color: var(--bs-gray-600);
+        font-family: 'IBM Plex Sans Arabic', sans-serif;
+        white-space: nowrap;
+        border: 1px solid var(--bs-border-color);
+        border-radius: 999px;
+      }
     }
 
     .clickable-ayah {
