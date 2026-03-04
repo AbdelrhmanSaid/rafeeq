@@ -6,13 +6,19 @@ import NotFoundView from '@/views/NotFoundView.vue'
 import { trackPageview } from '@/utilities/analytics'
 import { useMeta } from '@/utilities/head'
 
+function withEmbedAliases(routes) {
+  return routes.map((route) => ({
+    ...route,
+    alias: [...(route.alias || []), `/embed${route.path}`],
+  }))
+}
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
+  routes: withEmbedAliases([
     {
       path: '/',
       name: 'home',
-      alias: ['/embed'],
       component: HomeView,
       meta: {
         title: 'الرئيسية',
@@ -25,7 +31,6 @@ const router = createRouter({
     {
       path: '/quran',
       name: 'quran',
-      alias: ['/embed/quran'],
       component: () => import('@/views/QuranView.vue'),
       meta: {
         title: 'القرآن الكريم',
@@ -37,14 +42,12 @@ const router = createRouter({
     {
       path: '/quran/:surah(\\d+)',
       name: 'quran-surah',
-      alias: ['/embed/quran/:surah(\\d+)'],
       component: () => import('@/views/QuranSurahView.vue'),
     },
 
     {
       path: '/azkar',
       name: 'azkar',
-      alias: ['/embed/azkar'],
       component: () => import('@/views/AzkarView.vue'),
       meta: {
         title: 'الأذكار',
@@ -57,14 +60,12 @@ const router = createRouter({
     {
       path: '/azkar/:category',
       name: 'azkar-category',
-      alias: ['/embed/azkar/:category'],
       component: () => import('@/views/AzkarCategoryView.vue'),
     },
 
     {
       path: '/radio',
       name: 'radio',
-      alias: ['/embed/radio'],
       component: () => import('@/views/RadioView.vue'),
       meta: {
         title: 'الإذاعة',
@@ -73,17 +74,16 @@ const router = createRouter({
         keywords: ['إذاعة القرآن', 'راديو إسلامي', 'بث مباشر', 'تلاوات'],
       },
     },
+
     {
       path: '/radio/:slug',
       name: 'radio-station',
-      alias: ['/embed/radio/:slug'],
       component: () => import('@/views/RadioStationView.vue'),
     },
 
     {
       path: '/sebha',
       name: 'sebha',
-      alias: ['/embed/sebha'],
       component: () => import('@/views/SebhaView.vue'),
       meta: {
         title: 'السبحة الإلكترونية',
@@ -95,7 +95,6 @@ const router = createRouter({
     {
       path: '/qibla',
       name: 'qibla',
-      alias: ['/embed/qibla'],
       component: () => import('@/views/QiblaView.vue'),
       meta: {
         title: 'اتجاه القبلة',
@@ -107,7 +106,6 @@ const router = createRouter({
     {
       path: '/zakat',
       name: 'zakat',
-      alias: ['/embed/zakat'],
       component: () => import('@/views/ZakatView.vue'),
       meta: {
         title: 'حساب الزكاة',
@@ -119,7 +117,6 @@ const router = createRouter({
     {
       path: '/settings',
       name: 'settings',
-      alias: ['/embed/settings'],
       component: () => import('@/views/settings/SettingsView.vue'),
       meta: {
         title: 'الإعدادات',
@@ -131,7 +128,6 @@ const router = createRouter({
     {
       path: '/prayer-times',
       name: 'prayer-times',
-      alias: ['/embed/prayer-times'],
       component: () => import('@/views/PrayerTimesView.vue'),
       meta: {
         title: 'مواقيت الصلاة',
@@ -140,11 +136,9 @@ const router = createRouter({
       },
     },
 
-
     {
       path: '/privacy',
       name: 'privacy',
-      alias: ['/embed/privacy'],
       component: () => import('@/views/PrivacyPolicyView.vue'),
       meta: {
         title: 'سياسة الخصوصية',
@@ -163,18 +157,7 @@ const router = createRouter({
         keywords: ['٤٠٤', 'صفحة غير موجودة'],
       },
     },
-
-    {
-      path: '/embed/:pathMatch(.*)*',
-      name: 'embed-not-found',
-      component: NotFoundView,
-      meta: {
-        title: '٤٠٤ - الصفحة غير موجودة',
-        description: 'عذراً، الصفحة التي تبحث عنها غير موجودة.',
-        keywords: ['٤٠٤', 'صفحة غير موجودة'],
-      },
-    },
-  ],
+  ]),
 })
 
 router.beforeEach(() => {
