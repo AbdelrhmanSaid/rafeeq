@@ -129,6 +129,18 @@ const router = createRouter({
     },
 
     {
+      path: '/prayer-times',
+      name: 'prayer-times',
+      component: () => import('@/views/PrayerTimesView.vue'),
+      meta: {
+        title: 'مواقيت الصلاة',
+        description: 'عرض مواقيت الصلاة اليومية حسب موقعك الحالي.',
+        keywords: ['مواقيت الصلاة', 'الصلاة', 'الفجر', 'الظهر', 'العصر', 'المغرب', 'العشاء'],
+      },
+    },
+
+
+    {
       path: '/privacy',
       name: 'privacy',
       alias: ['/embed/privacy'],
