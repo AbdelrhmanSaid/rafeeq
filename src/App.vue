@@ -1,10 +1,10 @@
 <script setup>
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
 import Navbar from '@/components/Layout/Navbar.vue'
 import Footer from '@/components/Layout/Footer.vue'
 import TabBar from '@/components/Layout/TabBar.vue'
 import { IconWifiOff } from '@tabler/icons-vue'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useOnline } from '@vueuse/core'
 import { Toaster, toast } from 'vue-sonner'
 import { useModeStore } from './stores/mode'
@@ -13,6 +13,9 @@ import { registerSW } from 'virtual:pwa-register'
 // Network status detection
 const online = useOnline()
 const modeStore = useModeStore()
+
+const route = useRoute()
+const isEmbedRoute = computed(() => route.path.startsWith('/embed'))
 
 // Offline banner visibility
 const showOfflineBanner = ref(true)
@@ -38,36 +41,38 @@ const updateSW = registerSW({
 </script>
 
 <template>
-  <!-- Offline indicator -->
-  <div v-if="!online && showOfflineBanner" class="offline-banner">
-    <div class="container">
-      <div class="d-flex align-items-center text-white">
-        <IconWifiOff class="me-2" size="1.25rem" />
-        <span>لا يوجد اتصال بالإنترنت</span>
+  <div :class="['app-shell', { 'main-content-embed': isEmbedRoute }]">
+    <!-- Offline indicator -->
+    <div v-if="!online && showOfflineBanner" class="offline-banner">
+      <div class="container">
+        <div class="d-flex align-items-center text-white">
+          <IconWifiOff class="me-2" size="1.25rem" />
+          <span>لا يوجد اتصال بالإنترنت</span>
 
-        <button
-          type="button"
-          class="btn-close btn-close-white ms-auto"
-          aria-label="Close"
-          @click="showOfflineBanner = false"
-        ></button>
+          <button
+            type="button"
+            class="btn-close btn-close-white ms-auto"
+            aria-label="Close"
+            @click="showOfflineBanner = false"
+          ></button>
+        </div>
       </div>
     </div>
+
+    <!-- Desktop Navbar -->
+    <Navbar class="d-none d-md-block embed-hidden" />
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <RouterView />
+    </div>
+
+    <!-- Desktop Footer -->
+    <Footer class="d-none d-md-block embed-hidden" />
+
+    <!-- Mobile TabBar -->
+    <TabBar class="d-block d-md-none embed-hidden" />
   </div>
-
-  <!-- Desktop Navbar -->
-  <Navbar class="d-none d-md-block" />
-
-  <!-- Main Content -->
-  <div class="main-content">
-    <RouterView />
-  </div>
-
-  <!-- Desktop Footer -->
-  <Footer class="d-none d-md-block" />
-
-  <!-- Mobile TabBar -->
-  <TabBar class="d-block d-md-none" />
 
   <!-- Toast -->
   <Toaster
@@ -101,6 +106,13 @@ const updateSW = registerSW({
 .main-content {
   min-height: calc(100vh - var(--navbar-height)); /* Adjust for navbar and footer on desktop */
   padding-bottom: var(--navbar-height);
+}
+
+
+/* Desktop adjustments */
+.main-content-embed .main-content {
+  min-height: 100vh;
+  padding-bottom: 0;
 }
 
 /* Desktop adjustments */

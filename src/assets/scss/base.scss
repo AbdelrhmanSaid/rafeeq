@@ -41,3 +41,12 @@ body {
 .cursor-pointer {
   cursor: pointer;
 }
+
+
+.main-content-embed .embed-hidden {
+  display: none !important;
+}
+
+.main-content-embed .embed-invisible {
+  visibility: hidden !important;
+}
