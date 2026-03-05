@@ -1,6 +1,6 @@
 <script setup>
-import { computed, ref } from 'vue'
-import { useFetch, useOnline } from '@vueuse/core'
+import { computed, ref, watch } from 'vue'
+import { useOnline } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
 
 import Page from '@/components/Layout/Page.vue'
@@ -9,6 +9,7 @@ import BackButton from '@/components/BackButton.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import AudioPlayer from '@/components/QuranPlayer.vue'
+import { useIndexedDbCache } from '@/composables/indexedDbCache.js'
 import { useQuranStore } from '@/stores/quran'
 import { useMeta } from '@/utilities/head'
 import { toArabicNumerals } from '@/utilities/arabic'
@@ -16,15 +17,18 @@ import { toArabicNumerals } from '@/utilities/arabic'
 const online = useOnline()
 
 const surahId = useRouteParams('surah')
-const endpoint = `https://api.alquran.cloud/v1/surah/${surahId.value}`
-const { isFetching, data: surah, error, onFetchResponse } = useFetch(endpoint).json().get()
+const quranCache = useIndexedDbCache('quran-downloads')
+
+const isFetching = ref(true)
+const surah = ref(null)
+const error = ref(null)
 
 const quranStore = useQuranStore()
 const quranSurah = ref(null)
 const quranLoading = ref(false)
 const quranLoadingError = ref(null)
 
-onFetchResponse(async () => {
+const fetchAudioSurah = async (surahNumber) => {
   useMeta({
     title: surah.value.data.name,
     description: `قراءة وتلاوة سورة ${surah.value.data.name} - ${toArabicNumerals(surah.value.data.numberOfAyahs)} آية - سورة ${surah.value.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`,
@@ -35,9 +39,11 @@ onFetchResponse(async () => {
     quranLoading.value = true
     quranLoadingError.value = null
 
-    const endpoint = `https://api.alquran.cloud/v1/surah/${surah.value.data.number}/${quranStore.currentReciter}`
-    const { data } = await useFetch(endpoint).json().get()
-    const audioData = data.value.data
+    const endpoint = `https://api.alquran.cloud/v1/surah/${surahNumber}/${quranStore.currentReciter}`
+    const response = await fetch(endpoint)
+    if (!response.ok) throw new Error('Failed to fetch recitation')
+    const data = await response.json()
+    const audioData = data.data
 
     quranSurah.value = audioData
     quranStore.playSurah(audioData)
@@ -47,7 +53,31 @@ onFetchResponse(async () => {
   } finally {
     quranLoading.value = false
   }
-})
+}
+
+const loadSurah = async () => {
+  isFetching.value = true
+  error.value = null
+
+  try {
+    const surahData = await quranCache.getOrInsert(String(surahId.value), async () => {
+      const response = await fetch(`https://api.alquran.cloud/v1/surah/${surahId.value}`)
+      if (!response.ok) throw new Error('Failed to fetch surah')
+      return response.json()
+    })
+
+    surah.value = surahData
+    await fetchAudioSurah(surahData.data.number)
+  } catch (err) {
+    error.value = err
+  } finally {
+    isFetching.value = false
+  }
+}
+
+watch(surahId, () => {
+  loadSurah()
+}, { immediate: true })
 
 // Prepare the ayat data
 const ayat = computed(() => {

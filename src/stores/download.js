@@ -4,6 +4,7 @@ import { useStorage, useOnline } from '@vueuse/core'
 
 import surahs from '@/exports/QuranSurahs.js'
 import azkarCategories from '@/exports/AzkarCategories.js'
+import { useIndexedDbCache } from '@/composables/indexedDbCache.js'
 
 export const useDownloadStore = defineStore('download', () => {
   const online = useOnline()
@@ -11,6 +12,9 @@ export const useDownloadStore = defineStore('download', () => {
   // Persisted downloaded data
   const downloadedSurahs = useStorage('downloadedSurahs', {})
   const downloadedAzkar = useStorage('downloadedAzkar', {})
+
+  const quranCache = useIndexedDbCache('quran-downloads')
+  const azkarCache = useIndexedDbCache('azkar-downloads')
 
   // Download queue and state
   const downloadQueue = ref([])
@@ -85,18 +89,26 @@ export const useDownloadStore = defineStore('download', () => {
 
   // Download a single surah
   const downloadSurah = async (surah) => {
-    const response = await fetch(`https://api.alquran.cloud/v1/surah/${surah.id}`)
-    if (!response.ok) throw new Error('Failed to fetch surah')
-    const json = await response.json()
-    downloadedSurahs.value[surah.id] = json
+    const surahData = await quranCache.getOrInsert(String(surah.id), async () => {
+      const response = await fetch(`https://api.alquran.cloud/v1/surah/${surah.id}`)
+      if (!response.ok) throw new Error('Failed to fetch surah')
+      return response.json()
+    })
+
+    downloadedSurahs.value[surah.id] = true
+    return surahData
   }
 
   // Download a single azkar category
   const downloadAzkarCategory = async (category) => {
-    const response = await fetch(`/data/azkar/${category.slug}.json`)
-    if (!response.ok) throw new Error('Failed to fetch azkar')
-    const json = await response.json()
-    downloadedAzkar.value[category.slug] = json
+    const azkarData = await azkarCache.getOrInsert(category.slug, async () => {
+      const response = await fetch(`/data/azkar/${category.slug}.json`)
+      if (!response.ok) throw new Error('Failed to fetch azkar')
+      return response.json()
+    })
+
+    downloadedAzkar.value[category.slug] = true
+    return azkarData
   }
 
   // Process download queue
@@ -161,20 +173,23 @@ export const useDownloadStore = defineStore('download', () => {
   }
 
   // Remove single asset
-  const removeAsset = (asset) => {
+  const removeAsset = async (asset) => {
     if (asset.type === 'surah') {
       const { [asset.key]: _, ...rest } = downloadedSurahs.value
       downloadedSurahs.value = rest
+      await quranCache.remove(String(asset.key))
     } else {
       const { [asset.key]: _, ...rest } = downloadedAzkar.value
       downloadedAzkar.value = rest
+      await azkarCache.remove(asset.key)
     }
   }
 
   // Remove all downloaded assets
-  const removeAllAssets = () => {
+  const removeAllAssets = async () => {
     downloadedSurahs.value = {}
     downloadedAzkar.value = {}
+    await Promise.all([quranCache.clear(), azkarCache.clear()])
   }
 
   // Pause downloads

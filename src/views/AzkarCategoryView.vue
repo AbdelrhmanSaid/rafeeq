@@ -1,7 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
-import { useFetch, useConfirmDialog } from '@vueuse/core'
+import { useConfirmDialog } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
 
 import Page from '@/components/Layout/Page.vue'
@@ -10,18 +10,44 @@ import BackButton from '@/components/BackButton.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import ZekrCard from '@/components/ZekrCard.vue'
+import { useIndexedDbCache } from '@/composables/indexedDbCache.js'
 import { useMeta } from '@/utilities/head'
 
 const slug = useRouteParams('category')
-const { isFetching, data: category, error, onFetchResponse } = useFetch(`/data/azkar/${slug.value}.json`).json().get()
+const azkarCache = useIndexedDbCache('azkar-downloads')
 
-onFetchResponse(() => {
-  useMeta({
-    title: category.value.meta.name,
-    description: category.value.meta.description,
-    keywords: ['أذكار', 'دعاء', category.value.meta.name, 'رفيق'],
-  })
-})
+const isFetching = ref(true)
+const category = ref(null)
+const error = ref(null)
+
+const loadCategory = async () => {
+  isFetching.value = true
+  error.value = null
+
+  try {
+    const categoryData = await azkarCache.getOrInsert(slug.value, async () => {
+      const response = await fetch(`/data/azkar/${slug.value}.json`)
+      if (!response.ok) throw new Error('Failed to fetch azkar')
+      return response.json()
+    })
+
+    category.value = categoryData
+
+    useMeta({
+      title: category.value.meta.name,
+      description: category.value.meta.description,
+      keywords: ['أذكار', 'دعاء', category.value.meta.name, 'رفيق'],
+    })
+  } catch (err) {
+    error.value = err
+  } finally {
+    isFetching.value = false
+  }
+}
+
+watch(slug, () => {
+  loadCategory()
+}, { immediate: true })
 
 // Track progress across all azkar
 const totalClicked = ref(0)
