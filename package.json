@@ -17,6 +17,7 @@
     "@vueuse/router": "^14.2.1",
     "bootstrap": "^5.3.8",
     "html2canvas": "^1.4.1",
+    "idb-keyval": "^6.2.2",
     "nprogress": "^0.2.0",
     "pinia": "^3.0.4",
     "rtlcss": "^4.3.0",
