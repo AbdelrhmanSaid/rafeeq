@@ -1,20 +1,25 @@
-import { clear as clearStore, createStore, del, get, keys, set } from 'idb-keyval'
-
-const DB_NAME = 'rafeeq-cache'
+import { del, keys } from 'idb-keyval'
+import { useIDBKeyval } from '@vueuse/integrations/useIDBKeyval'
 
 export const useCache = (storeName) => {
-  const store = createStore(DB_NAME, storeName)
+  const withStorePrefix = (key) => `${storeName}:${String(key)}`
 
   const getCachedItem = async (key, callback) => {
-    try {
-      const cachedValue = await get(key, store)
+    const cacheKey = withStorePrefix(key)
 
-      if (cachedValue !== undefined) {
-        return cachedValue
+    try {
+      const { data, isFinished, set } = useIDBKeyval(cacheKey, undefined, { writeDefaults: false })
+
+      while (!isFinished.value) {
+        await new Promise((resolve) => setTimeout(resolve, 0))
+      }
+
+      if (data.value !== undefined) {
+        return data.value
       }
 
       const newValue = await callback()
-      await set(key, newValue, store)
+      await set(newValue)
       return newValue
     } catch (error) {
       console.error(`IndexedDB cache fallback for key: ${key}`, error)
@@ -23,8 +28,11 @@ export const useCache = (storeName) => {
   }
 
   const setCachedItem = async (key, value) => {
+    const cacheKey = withStorePrefix(key)
+
     try {
-      await set(key, value, store)
+      const { set } = useIDBKeyval(cacheKey, undefined, { writeDefaults: false })
+      await set(value)
       return value
     } catch (error) {
       console.error(`Failed to set cache key: ${key}`, error)
@@ -33,9 +41,16 @@ export const useCache = (storeName) => {
   }
 
   const hasCachedItem = async (key) => {
+    const cacheKey = withStorePrefix(key)
+
     try {
-      const value = await get(key, store)
-      return value !== undefined
+      const { data, isFinished } = useIDBKeyval(cacheKey, undefined, { writeDefaults: false })
+
+      while (!isFinished.value) {
+        await new Promise((resolve) => setTimeout(resolve, 0))
+      }
+
+      return data.value !== undefined
     } catch (error) {
       console.error(`Failed to check cache key: ${key}`, error)
       return false
@@ -44,7 +59,12 @@ export const useCache = (storeName) => {
 
   const getCacheKeys = async () => {
     try {
-      return keys(store)
+      const allKeys = await keys()
+      const prefix = `${storeName}:`
+
+      return allKeys
+        .filter((key) => typeof key === 'string' && key.startsWith(prefix))
+        .map((key) => key.slice(prefix.length))
     } catch (error) {
       console.error(`Failed to get keys for cache store: ${storeName}`, error)
       return []
@@ -52,8 +72,10 @@ export const useCache = (storeName) => {
   }
 
   const removeCachedItem = async (key) => {
+    const cacheKey = withStorePrefix(key)
+
     try {
-      await del(key, store)
+      await del(cacheKey)
     } catch (error) {
       console.error(`Failed to remove cache key: ${key}`, error)
     }
@@ -61,7 +83,8 @@ export const useCache = (storeName) => {
 
   const clearCachedItems = async () => {
     try {
-      await clearStore(store)
+      const cacheKeys = await getCacheKeys()
+      await Promise.all(cacheKeys.map((key) => del(withStorePrefix(key))))
     } catch (error) {
       console.error(`Failed to clear cache store: ${storeName}`, error)
     }

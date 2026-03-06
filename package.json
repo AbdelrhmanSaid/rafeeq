@@ -14,6 +14,7 @@
     "@popperjs/core": "^2.11.8",
     "@tabler/icons-vue": "^3.37.1",
     "@vueuse/core": "^14.2.1",
+    "@vueuse/integrations": "^14.2.1",
     "@vueuse/router": "^14.2.1",
     "bootstrap": "^5.3.8",
     "html2canvas": "^1.4.1",
