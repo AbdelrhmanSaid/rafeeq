@@ -50,8 +50,8 @@ const runRequest = (request) => {
   })
 }
 
-export const useIndexedDbCache = (storeName) => {
-  const getOrInsert = async (key, callback) => {
+export const useCache = (storeName) => {
+  const get = async (key, callback) => {
     try {
       const database = await openDatabase(storeName)
       const readTransaction = database.transaction(storeName, 'readonly')
@@ -72,6 +72,44 @@ export const useIndexedDbCache = (storeName) => {
     } catch (error) {
       console.error(`IndexedDB cache fallback for key: ${key}`, error)
       return callback()
+    }
+  }
+
+  const set = async (key, value) => {
+    try {
+      const database = await openDatabase(storeName)
+      const transaction = database.transaction(storeName, 'readwrite')
+      const store = transaction.objectStore(storeName)
+      await runRequest(store.put(value, key))
+      return value
+    } catch (error) {
+      console.error(`Failed to set cache key: ${key}`, error)
+      return value
+    }
+  }
+
+  const has = async (key) => {
+    try {
+      const database = await openDatabase(storeName)
+      const transaction = database.transaction(storeName, 'readonly')
+      const store = transaction.objectStore(storeName)
+      const value = await runRequest(store.get(key))
+      return value !== undefined
+    } catch (error) {
+      console.error(`Failed to check cache key: ${key}`, error)
+      return false
+    }
+  }
+
+  const keys = async () => {
+    try {
+      const database = await openDatabase(storeName)
+      const transaction = database.transaction(storeName, 'readonly')
+      const store = transaction.objectStore(storeName)
+      return runRequest(store.getAllKeys())
+    } catch (error) {
+      console.error(`Failed to get keys for cache store: ${storeName}`, error)
+      return []
     }
   }
 
@@ -98,7 +136,10 @@ export const useIndexedDbCache = (storeName) => {
   }
 
   return {
-    getOrInsert,
+    get,
+    set,
+    has,
+    keys,
     remove,
     clear,
   }

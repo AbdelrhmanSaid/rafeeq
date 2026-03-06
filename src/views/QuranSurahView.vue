@@ -9,7 +9,8 @@ import BackButton from '@/components/BackButton.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import AudioPlayer from '@/components/QuranPlayer.vue'
-import { useIndexedDbCache } from '@/composables/indexedDbCache.js'
+import { useCache } from '@/composables/indexedDbCache.js'
+import { useDownloadStore } from '@/stores/download.js'
 import { useQuranStore } from '@/stores/quran'
 import { useMeta } from '@/utilities/head'
 import { toArabicNumerals } from '@/utilities/arabic'
@@ -17,7 +18,8 @@ import { toArabicNumerals } from '@/utilities/arabic'
 const online = useOnline()
 
 const surahId = useRouteParams('surah')
-const quranCache = useIndexedDbCache('quran-downloads')
+const quranCache = useCache('quran-downloads')
+const downloadStore = useDownloadStore()
 
 const isFetching = ref(true)
 const surah = ref(null)
@@ -60,13 +62,14 @@ const loadSurah = async () => {
   error.value = null
 
   try {
-    const surahData = await quranCache.getOrInsert(String(surahId.value), async () => {
+    const surahData = await quranCache.get(String(surahId.value), async () => {
       const response = await fetch(`https://api.alquran.cloud/v1/surah/${surahId.value}`)
       if (!response.ok) throw new Error('Failed to fetch surah')
       return response.json()
     })
 
     surah.value = surahData
+    downloadStore.markSurahAsDownloaded(surahId.value)
     await fetchAudioSurah(surahData.data.number)
   } catch (err) {
     error.value = err

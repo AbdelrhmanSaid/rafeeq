@@ -10,11 +10,13 @@ import BackButton from '@/components/BackButton.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import ZekrCard from '@/components/ZekrCard.vue'
-import { useIndexedDbCache } from '@/composables/indexedDbCache.js'
+import { useCache } from '@/composables/indexedDbCache.js'
+import { useDownloadStore } from '@/stores/download.js'
 import { useMeta } from '@/utilities/head'
 
 const slug = useRouteParams('category')
-const azkarCache = useIndexedDbCache('azkar-downloads')
+const azkarCache = useCache('azkar-downloads')
+const downloadStore = useDownloadStore()
 
 const isFetching = ref(true)
 const category = ref(null)
@@ -25,13 +27,14 @@ const loadCategory = async () => {
   error.value = null
 
   try {
-    const categoryData = await azkarCache.getOrInsert(slug.value, async () => {
+    const categoryData = await azkarCache.get(slug.value, async () => {
       const response = await fetch(`/data/azkar/${slug.value}.json`)
       if (!response.ok) throw new Error('Failed to fetch azkar')
       return response.json()
     })
 
     category.value = categoryData
+    downloadStore.markAzkarAsDownloaded(slug.value)
 
     useMeta({
       title: category.value.meta.name,
