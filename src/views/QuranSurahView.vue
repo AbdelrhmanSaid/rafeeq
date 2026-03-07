@@ -86,7 +86,7 @@ const ayat = computed(() => {
 
     return ayat.map((ayah) => {
       const text = (ayah.numberInSurah === 1
-        ? ayah.text.replace('بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ', '')
+        ? ayah.text.replace('بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ', '')
         : ayah.text
       ).trim()
 
