@@ -25,8 +25,8 @@ const {
   allAssets,
   totalAssets,
   downloadedCount,
-  downloadedSurahs,
-  downloadedAzkar,
+  quranKeys,
+  azkarKeys,
   downloadQueue,
   isCompleted,
   progressPercentage,
@@ -49,19 +49,18 @@ const {
 
 const filterType = ref('all')
 
-// Pre-compute status for all assets to avoid repeated lookups
 const assetsWithStatus = computed(() => {
-  const downloaded = downloadedSurahs.value
-  const downloadedAz = downloadedAzkar.value
+  const qKeys = quranKeys.value
+  const aKeys = azkarKeys.value
   const queue = downloadQueue.value
   const current = currentItem.value
 
   return allAssets.value.map((asset) => {
     let status
     if (asset.type === 'surah') {
-      status = downloaded[asset.key] ? 'downloaded' : null
+      status = qKeys.includes(asset.key) ? 'downloaded' : null
     } else {
-      status = downloadedAz[asset.key] ? 'downloaded' : null
+      status = aKeys.includes(asset.key) ? 'downloaded' : null
     }
 
     if (!status) {

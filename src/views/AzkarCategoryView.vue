@@ -1,7 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
-import { useFetch, useConfirmDialog } from '@vueuse/core'
+import { useConfirmDialog } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
 
 import Page from '@/components/Layout/Page.vue'
@@ -11,16 +11,38 @@ import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import ZekrCard from '@/components/ZekrCard.vue'
 import { useMeta } from '@/utilities/head'
+import { useAzkarService } from '@/services/azkarService'
 
 const slug = useRouteParams('category')
-const { isFetching, data: category, error, onFetchResponse } = useFetch(`/data/azkar/${slug.value}.json`).json().get()
+const { fetchCategory } = useAzkarService()
 
-onFetchResponse(() => {
-  useMeta({
-    title: category.value.meta.name,
-    description: category.value.meta.description,
-    keywords: ['أذكار', 'دعاء', category.value.meta.name, 'رفيق'],
-  })
+const category = ref(null)
+const isFetching = ref(true)
+const error = ref(null)
+
+async function loadCategory() {
+  isFetching.value = true
+  error.value = null
+
+  try {
+    category.value = await fetchCategory(slug.value)
+  } catch (e) {
+    error.value = e
+  } finally {
+    isFetching.value = false
+  }
+}
+
+loadCategory()
+
+watch(category, (val) => {
+  if (val) {
+    useMeta({
+      title: val.meta.name,
+      description: val.meta.description,
+      keywords: ['أذكار', 'دعاء', val.meta.name, 'رفيق'],
+    })
+  }
 })
 
 // Track progress across all azkar

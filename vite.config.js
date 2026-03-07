@@ -18,22 +18,6 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,woff,woff2}'],
         runtimeCaching: [
-          // Cache Azkar JSON files
-          {
-            urlPattern: /^.*\/data\/azkar\/.*\.json$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'azkar-cache',
-            },
-          },
-          // Cache Quran API responses
-          {
-            urlPattern: /^https:\/\/api\.alquran\.cloud\/v1\/.*/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'quran-api-cache',
-            },
-          },
           // Cache Prayer Times API responses
           {
             urlPattern: /^https:\/\/api\.aladhan\.com\/v1\/.*/,

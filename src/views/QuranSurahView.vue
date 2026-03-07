@@ -1,6 +1,6 @@
 <script setup>
-import { computed, ref } from 'vue'
-import { useFetch, useOnline } from '@vueuse/core'
+import { computed, ref, watch } from 'vue'
+import { useOnline } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
 
 import Page from '@/components/Layout/Page.vue'
@@ -12,57 +12,81 @@ import AudioPlayer from '@/components/QuranPlayer.vue'
 import { useQuranStore } from '@/stores/quran'
 import { useMeta } from '@/utilities/head'
 import { toArabicNumerals } from '@/utilities/arabic'
+import { useQuranService } from '@/services/quranService'
 
 const online = useOnline()
-
 const surahId = useRouteParams('surah')
-const endpoint = `https://api.alquran.cloud/v1/surah/${surahId.value}`
-const { isFetching, data: surah, error, onFetchResponse } = useFetch(endpoint).json().get()
-
 const quranStore = useQuranStore()
+const { fetchSurah } = useQuranService()
+
+const surah = ref(null)
+const isFetching = ref(true)
+const error = ref(null)
+
 const quranSurah = ref(null)
 const quranLoading = ref(false)
 const quranLoadingError = ref(null)
 
-onFetchResponse(async () => {
-  useMeta({
-    title: surah.value.data.name,
-    description: `قراءة وتلاوة سورة ${surah.value.data.name} - ${toArabicNumerals(surah.value.data.numberOfAyahs)} آية - سورة ${surah.value.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`,
-    keywords: ['قرآن', 'سورة', surah.value.data.name, 'تلاوة', 'قراءة', 'رفيق'],
-  })
+async function loadSurah() {
+  isFetching.value = true
+  error.value = null
+
+  try {
+    surah.value = await fetchSurah(surahId.value)
+    loadAudio()
+  } catch (e) {
+    error.value = e
+  } finally {
+    isFetching.value = false
+  }
+}
+
+async function loadAudio() {
+  if (!online.value || !surah.value) return
 
   try {
     quranLoading.value = true
     quranLoadingError.value = null
 
-    const endpoint = `https://api.alquran.cloud/v1/surah/${surah.value.data.number}/${quranStore.currentReciter}`
-    const { data } = await useFetch(endpoint).json().get()
-    const audioData = data.value.data
+    const response = await fetch(
+      `https://api.alquran.cloud/v1/surah/${surah.value.data.number}/${quranStore.currentReciter}`,
+    )
+    if (!response.ok) throw new Error('Failed to fetch audio')
+    const data = await response.json()
 
-    quranSurah.value = audioData
-    quranStore.playSurah(audioData)
+    quranSurah.value = data.data
+    quranStore.playSurah(data.data)
     quranStore.currentAudio = null
   } catch (err) {
     quranLoadingError.value = err.message
   } finally {
     quranLoading.value = false
   }
+}
+
+loadSurah()
+
+watch(surah, (val) => {
+  if (val) {
+    useMeta({
+      title: val.data.name,
+      description: `قراءة وتلاوة سورة ${val.data.name} - ${toArabicNumerals(val.data.numberOfAyahs)} آية - سورة ${val.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`,
+      keywords: ['قرآن', 'سورة', val.data.name, 'تلاوة', 'قراءة', 'رفيق'],
+    })
+  }
 })
 
-// Prepare the ayat data
 const ayat = computed(() => {
   if (surah.value) {
     let ayat = surah.value.data.ayahs
 
-    // Remove the Basmala from the Al-Fatiha
     if (surah.value.data.number === 1) {
       ayat = ayat.slice(1)
     }
 
     return ayat.map((ayah) => {
-      // Remove the Basmala from the first Ayah of other Surahs
       const text = (ayah.numberInSurah === 1
-        ? ayah.text.replace('بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ', '')
+        ? ayah.text.replace('بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ', '')
         : ayah.text
       ).trim()
 
@@ -116,7 +140,7 @@ const isCurrentVerse = (verse) => {
     <AudioPlayer v-if="online" />
 
     <div class="ayat font-quran mb-4">
-      <span class="basmallah" v-if="surahId != 9">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
+      <span class="basmallah" v-if="surahId != 9">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
 
       <template v-for="(ayah, index) in ayat" :key="ayah.number">
         <span

@@ -12,11 +12,13 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
-    "@tabler/icons-vue": "^3.37.1",
+    "@tabler/icons-vue": "^3.39.0",
     "@vueuse/core": "^14.2.1",
+    "@vueuse/integrations": "^14.2.1",
     "@vueuse/router": "^14.2.1",
     "bootstrap": "^5.3.8",
     "html2canvas": "^1.4.1",
+    "idb-keyval": "^6.2.2",
     "nprogress": "^0.2.0",
     "pinia": "^3.0.4",
     "rtlcss": "^4.3.0",
@@ -28,11 +30,11 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.4",
     "@vue/eslint-config-prettier": "^10.2.0",
-    "eslint": "^10.0.2",
+    "eslint": "^10.0.3",
     "eslint-plugin-vue": "^10.8.0",
     "prettier": "3.8.1",
     "vite": "^7.3.1",
     "vite-plugin-pwa": "^1.2.0",
-    "vite-plugin-vue-devtools": "^8.0.6"
+    "vite-plugin-vue-devtools": "^8.0.7"
   }
 }
