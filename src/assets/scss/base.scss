@@ -50,3 +50,7 @@ body {
 .main-content-embed .embed-invisible {
   visibility: hidden !important;
 }
+
+.main-content-embed .main-content > * {
+  width: 100%;
+}

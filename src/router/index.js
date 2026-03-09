@@ -162,8 +162,11 @@ const router = createRouter({
   ]),
 })
 
-router.beforeEach(() => {
-  nProgress.start()
+router.beforeEach((to) => {
+  // If the page is not an embed page, show the progress bar
+  if (!to.path.includes('/embed')) {
+    nProgress.start()
+  }
 })
 
 router.afterEach((to) => {

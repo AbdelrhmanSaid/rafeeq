@@ -111,8 +111,11 @@ const updateSW = registerSW({
 
 /* Embed adjustments */
 .main-content-embed .main-content {
-  min-height: unset;
+  min-height: 100vh;
   padding-bottom: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Desktop adjustments */
