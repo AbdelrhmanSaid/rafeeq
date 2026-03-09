@@ -196,7 +196,7 @@ const shareStation = async () => {
       width: 80px;
       height: 80px;
       border-radius: 50%;
-      background: linear-gradient(145deg, var(--bs-primary), #5d4037);
+      background: linear-gradient(145deg, var(--bs-primary), color-mix(in srgb, var(--bs-primary) 88%, #000));
       display: flex;
       align-items: center;
       justify-content: center;

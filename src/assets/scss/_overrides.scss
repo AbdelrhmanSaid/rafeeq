@@ -13,3 +13,55 @@ html[dir='rtl'],
   --toast-button-margin-start: auto !important;
   --toast-button-margin-end: 0 !important;
 }
+
+/* Keep Bootstrap primary buttons in sync with runtime primary color overrides. */
+.btn-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: color-mix(in srgb, var(--bs-primary) 88%, #000);
+  --bs-btn-hover-border-color: color-mix(in srgb, var(--bs-primary) 80%, #000);
+  --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: color-mix(in srgb, var(--bs-primary) 78%, #000);
+  --bs-btn-active-border-color: color-mix(in srgb, var(--bs-primary) 70%, #000);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: var(--bs-primary);
+  --bs-btn-disabled-border-color: var(--bs-primary);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--bs-primary);
+  --bs-btn-hover-border-color: var(--bs-primary);
+  --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: color-mix(in srgb, var(--bs-primary) 88%, #000);
+  --bs-btn-active-border-color: color-mix(in srgb, var(--bs-primary) 80%, #000);
+  --bs-btn-disabled-color: var(--bs-primary);
+  --bs-btn-disabled-bg: transparent;
+  --bs-btn-disabled-border-color: var(--bs-primary);
+}
+
+/* Keep progress bar in sync with runtime primary color. */
+.progress,
+.progress-stacked {
+  --bs-progress-bar-bg: var(--bs-primary);
+  --bs-progress-bar-color: #fff;
+}
+
+/* Keep checkbox/radio checked + focus outline in sync with runtime primary color. */
+.form-check-input:checked {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+.form-check-input:focus,
+.form-control:focus,
+.form-select:focus {
+  border-color: color-mix(in srgb, var(--bs-primary) 65%, #fff);
+  box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+}
