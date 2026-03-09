@@ -29,6 +29,12 @@ watch(online, (isOnline) => {
 
 const updateSW = registerSW({
   onNeedRefresh() {
+    // If on embed route, update the page automatically
+    if (isEmbedRoute.value) {
+      updateSW(true)
+      return
+    }
+
     toast('يتوفر تحديث جديد للتطبيق.', {
       action: {
         label: 'تحديث الآن',
