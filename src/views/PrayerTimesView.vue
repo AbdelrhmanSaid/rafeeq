@@ -17,7 +17,6 @@ useMeta({
       :size="2"
       class="mb-4"
       title="مواقيت الصلاة"
-      subtitle="إن الصلاة كانت على المؤمنين كتابا موقوتا."
     />
 
     <PrayerTimes />

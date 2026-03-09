@@ -86,7 +86,7 @@ const shareStation = async () => {
     <!-- Main Player -->
     <div v-else class="position-relative w-100 mx-auto" style="max-width: 500px">
       <!-- Navigation Header -->
-      <div class="d-flex justify-content-between mb-4 position-relative z-1">
+      <div class="d-flex justify-content-between mb-4 position-relative z-1 embed-hidden">
         <BackButton :to="{ name: 'radio' }" />
 
         <button v-if="canShare" class="btn btn-flat" type="button" @click="shareStation">
@@ -138,7 +138,7 @@ const shareStation = async () => {
 
           <!-- Favorite Button -->
           <button
-            class="btn btn-flat"
+            class="btn btn-flat embed-hidden"
             :class="isFavorite(stationSlug) ? 'text-danger' : 'text-body'"
             type="button"
             @click="toggleFavorite(stationSlug)"
@@ -162,6 +162,10 @@ const shareStation = async () => {
 .radio-station-page {
   margin-block: 0;
   min-height: calc(100vh - var(--navbar-height));
+
+  .main-content-embed & {
+    min-height: 100vh;
+  }
 
   @media screen and (min-width: 768px) {
     margin-block: 2rem;

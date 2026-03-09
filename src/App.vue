@@ -109,7 +109,7 @@ const updateSW = registerSW({
 }
 
 
-/* Desktop adjustments */
+/* Embed adjustments */
 .main-content-embed .main-content {
   min-height: unset;
   padding-bottom: unset;
