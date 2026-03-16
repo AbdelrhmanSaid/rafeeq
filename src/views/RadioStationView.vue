@@ -151,8 +151,6 @@ const shareStation = async () => {
 
 <style lang="scss" scoped>
 .radio-station-page {
-  margin-block: 0;
-  padding-block: 2rem;
   min-height: calc(100vh - var(--navbar-height));
 
   .main-content-embed & {
