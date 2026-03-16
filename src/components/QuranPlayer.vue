@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useQuranStore } from '@/stores/quran'
 import { IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
 import { useRadioStore } from '@/stores/radio'
@@ -14,14 +14,20 @@ const loading = ref(false)
 const currentTime = ref(0)
 const duration = ref(0)
 
-const currentAudio = computed(() => quranStore.currentAudio)
-
 const progressPercentage = computed(() => (duration.value ? (currentTime.value / duration.value) * 100 : 0))
+
+const currentAyahDisplay = computed(() => {
+  const ayah = quranStore.currentAyah
+  if (!ayah || !quranStore.surahName) return null
+  return {
+    surahName: quranStore.surahName,
+    ayahNumber: ayah.ayah,
+  }
+})
 
 const togglePlayPause = async () => {
   if (!audioElement.value) return
 
-  // Make sure radio is paused if it was playing
   if (radioStore.isPlaying) {
     radioStore.stop()
   }
@@ -29,9 +35,6 @@ const togglePlayPause = async () => {
   if (isPlaying.value) {
     audioElement.value.pause()
     isPlaying.value = false
-  } else if (!currentAudio.value && quranStore.currentPlaylist.length > 0) {
-    quranStore.jumpToVerse(0)
-    quranStore.shouldAutoPlay = true
   } else {
     try {
       await audioElement.value.play()
@@ -45,6 +48,9 @@ const togglePlayPause = async () => {
 const updateProgress = () => {
   if (audioElement.value) {
     currentTime.value = audioElement.value.currentTime
+    if (isPlaying.value) {
+      quranStore.updateCurrentAyahFromTime(currentTime.value * 1000)
+    }
   }
 }
 
@@ -57,7 +63,6 @@ const onLoadedMetadata = () => {
 const onAudioEnded = () => {
   isPlaying.value = false
   currentTime.value = 0
-  quranStore.playNext()
 }
 
 const formatTime = (seconds) => {
@@ -67,29 +72,53 @@ const formatTime = (seconds) => {
   return toArabicNumerals(`${mins}:${secs.toString().padStart(2, '0')}`)
 }
 
-watch(
-  currentAudio,
-  async (newAudio) => {
-    if (!audioElement.value || !newAudio) return
-    audioElement.value.src = newAudio.audioUrl
-    audioElement.value.load()
-
-    if (quranStore.shouldAutoPlay) {
-      try {
-        await audioElement.value.play()
-        isPlaying.value = true
-      } catch {
-        isPlaying.value = false
-      }
-      quranStore.shouldAutoPlay = false
-    } else {
+async function seekToAyah(ayahNumber) {
+  const startTime = quranStore.getAyahStartTime(ayahNumber)
+  if (startTime !== null && audioElement.value) {
+    if (radioStore.isPlaying) {
+      radioStore.stop()
+    }
+    audioElement.value.currentTime = startTime
+    quranStore.updateCurrentAyahFromTime(startTime * 1000)
+    try {
+      await audioElement.value.play()
+      isPlaying.value = true
+    } catch {
       isPlaying.value = false
     }
+  }
+}
 
-    currentTime.value = 0
-  },
-  { immediate: true },
+defineExpose({ seekToAyah })
+
+async function loadAudioSource(url) {
+  if (!audioElement.value || !url) return
+  audioElement.value.src = url
+  audioElement.value.load()
+  isPlaying.value = false
+  currentTime.value = 0
+
+  if (quranStore.shouldAutoPlay) {
+    try {
+      await audioElement.value.play()
+      isPlaying.value = true
+    } catch {
+      isPlaying.value = false
+    }
+    quranStore.shouldAutoPlay = false
+  }
+}
+
+watch(
+  () => quranStore.surahAudioUrl,
+  (newUrl) => loadAudioSource(newUrl),
 )
+
+onMounted(() => {
+  if (quranStore.surahAudioUrl) {
+    loadAudioSource(quranStore.surahAudioUrl)
+  }
+})
 
 onUnmounted(() => {
   if (audioElement.value) {
@@ -104,7 +133,7 @@ onUnmounted(() => {
       <button
         @click="togglePlayPause"
         class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center"
-        :disabled="loading"
+        :disabled="loading || !quranStore.surahAudioUrl"
         style="width: 40px; height: 40px"
       >
         <IconPlayerPlay v-if="!isPlaying" />
@@ -112,10 +141,13 @@ onUnmounted(() => {
       </button>
 
       <div class="flex-grow-1">
-        <template v-if="currentAudio">
-          <span class="d-inline-block fw-semibold text-primary me-2">{{ currentAudio.surahName }}</span>
-          <span class="d-inline-block text-secondary small">آية {{ toArabicNumerals(currentAudio.verseNumber) }}</span>
+        <template v-if="currentAyahDisplay">
+          <span class="d-inline-block fw-semibold text-primary me-2">{{ currentAyahDisplay.surahName }}</span>
+          <span v-if="currentAyahDisplay.ayahNumber > 0" class="d-inline-block text-secondary small"
+            >آية {{ toArabicNumerals(currentAyahDisplay.ayahNumber) }}</span
+          >
         </template>
+        <span v-else-if="quranStore.surahName" class="text-muted">{{ quranStore.surahName }}</span>
         <span v-else class="text-muted">اضغط على آية للاستماع</span>
       </div>
     </div>

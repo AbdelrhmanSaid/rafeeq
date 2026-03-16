@@ -39,9 +39,7 @@ export const useDownloadStore = defineStore('download', () => {
 
   const totalAssets = computed(() => allAssets.value.length)
 
-  const downloadedCount = computed(
-    () => quranService.downloadedCount.value + azkarService.downloadedCount.value,
-  )
+  const downloadedCount = computed(() => quranService.downloadedCount.value + azkarService.downloadedCount.value)
 
   const isCompleted = computed(() => downloadedCount.value === totalAssets.value)
 
@@ -53,9 +51,7 @@ export const useDownloadStore = defineStore('download', () => {
   const pendingCount = computed(() => downloadQueue.value.length)
 
   const isAssetDownloaded = (asset) => {
-    return asset.type === 'surah'
-      ? quranService.isDownloaded(asset.key)
-      : azkarService.isDownloaded(asset.key)
+    return asset.type === 'surah' ? quranService.isDownloaded(asset.key) : azkarService.isDownloaded(asset.key)
   }
 
   const isAssetInQueue = (asset) => downloadQueue.value.some((item) => item.id === asset.id)

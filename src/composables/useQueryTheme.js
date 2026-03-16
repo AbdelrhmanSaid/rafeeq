@@ -85,11 +85,6 @@ export const applyQueryTheme = ({ fgParam, bgParam }) => {
 
     setCssVars(targets, bgVars)
   } else {
-    removeCssVars(targets, [
-      '--bs-body-bg',
-      '--bs-body-bg-rgb',
-      '--bs-secondary-bg',
-      '--bs-tertiary-bg',
-    ])
+    removeCssVars(targets, ['--bs-body-bg', '--bs-body-bg-rgb', '--bs-secondary-bg', '--bs-tertiary-bg'])
   }
 }

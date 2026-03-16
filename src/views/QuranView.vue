@@ -33,10 +33,15 @@ const { search, filtered } = useSearch(surahs, ['name'])
       </template>
 
       <template #default="{ item }">
-        <RouterLink :to="{ name: 'quran-surah', params: { surah: item.id } }" class="stretched-link text-decoration-none text-reset">
+        <RouterLink
+          :to="{ name: 'quran-surah', params: { surah: item.id } }"
+          class="stretched-link text-decoration-none text-reset"
+        >
           <p class="d-flex flex-column m-0">
             <span>{{ toArabicNumerals(item.id) }}. {{ item.name }}</span>
-            <small> عدد الآيات: {{ toArabicNumerals(item.numberOfAyahs) }} - {{ item.isMeccan ? 'مكية' : 'مدنية' }} </small>
+            <small>
+              عدد الآيات: {{ toArabicNumerals(item.numberOfAyahs) }} - {{ item.isMeccan ? 'مكية' : 'مدنية' }}
+            </small>
           </p>
         </RouterLink>
       </template>

@@ -13,11 +13,7 @@ useMeta({
 
 <template>
   <Page>
-    <Heading
-      :size="2"
-      class="mb-4"
-      title="مواقيت الصلاة"
-    />
+    <Heading :size="2" class="mb-4" title="مواقيت الصلاة" />
 
     <PrayerTimes />
   </Page>

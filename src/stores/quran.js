@@ -1,78 +1,110 @@
 import { useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+import reciters from '@/exports/QuranReciters.js'
+
+const DEFAULT_RECITER_ID = 123
 
 export const useQuranStore = defineStore('audio', () => {
-  const currentAudio = ref(null)
-  const currentPlaylist = ref([])
-  const currentIndex = ref(0)
-  const currentReciter = useLocalStorage('currentReciter', 'ar.alafasy')
+  const currentReciter = useLocalStorage('currentReciter', DEFAULT_RECITER_ID)
   const shouldAutoPlay = ref(false)
 
-  const hasNext = computed(() => {
-    return currentIndex.value < currentPlaylist.value.length - 1
+  const surahAudioUrl = ref(null)
+  const surahName = ref(null)
+  const currentSurahNumber = ref(null)
+  const ayahTimings = ref([])
+  const currentAyahIndex = ref(-1)
+
+  const reciter = computed(() => {
+    const id = Number(currentReciter.value)
+    return reciters.find((r) => r.id === id)
   })
 
-  const hasPrevious = computed(() => {
-    return currentIndex.value > 0
+  watch(
+    reciter,
+    (r) => {
+      if (!r) currentReciter.value = DEFAULT_RECITER_ID
+    },
+    { immediate: true },
+  )
+
+  const currentAyah = computed(() => {
+    if (currentAyahIndex.value < 0 || currentAyahIndex.value >= ayahTimings.value.length) return null
+    return ayahTimings.value[currentAyahIndex.value]
   })
 
-  const mapper = (verse, surahInfo) => {
-    return {
-      audioUrl: verse.audio,
-      audioSecondary: verse.audioSecondary,
-      verseNumber: verse.numberInSurah,
-      surahName: surahInfo.name,
-      surahEnglishName: surahInfo.englishName,
-      verse: verse,
+  function getSurahAudioUrl(surahNumber) {
+    const r = reciter.value
+    if (!r) return null
+    const paddedNumber = String(surahNumber).padStart(3, '0')
+    return `${r.folder_url}${paddedNumber}.mp3`
+  }
+
+  async function fetchTimings(surahNumber) {
+    const r = reciter.value
+    if (!r) return []
+
+    const response = await fetch(`https://www.mp3quran.net/api/v3/ayat_timing?surah=${surahNumber}&read=${r.id}`)
+    if (!response.ok) throw new Error('Failed to fetch ayah timings')
+    return await response.json()
+  }
+
+  async function loadSurahAudio(surahNumber, name) {
+    currentSurahNumber.value = surahNumber
+    surahName.value = name
+    surahAudioUrl.value = getSurahAudioUrl(surahNumber)
+    currentAyahIndex.value = -1
+
+    try {
+      const timings = await fetchTimings(surahNumber)
+      ayahTimings.value = timings
+    } catch {
+      ayahTimings.value = []
     }
   }
 
-  const playVerse = (verse, surahInfo) => {
-    currentAudio.value = mapper(verse, surahInfo)
-  }
+  function updateCurrentAyahFromTime(timeMs) {
+    const timings = ayahTimings.value
+    if (!timings.length) return
 
-  const playSurah = (surahData) => {
-    const playlist = surahData.ayahs.map((verse) => mapper(verse, surahData))
-
-    currentPlaylist.value = playlist
-    currentIndex.value = 0
-    currentAudio.value = playlist[0]
-  }
-
-  const playNext = () => {
-    if (hasNext.value) {
-      currentIndex.value++
-      currentAudio.value = currentPlaylist.value[currentIndex.value]
-      shouldAutoPlay.value = true
+    for (let i = timings.length - 1; i >= 0; i--) {
+      if (timeMs >= timings[i].start_time) {
+        if (currentAyahIndex.value !== i) {
+          currentAyahIndex.value = i
+        }
+        return
+      }
     }
+    currentAyahIndex.value = 0
   }
 
-  const jumpToVerse = (verseIndex) => {
-    if (currentPlaylist.value.length > 0 && verseIndex >= 0 && verseIndex < currentPlaylist.value.length) {
-      currentIndex.value = verseIndex
-      currentAudio.value = currentPlaylist.value[verseIndex]
+  function getAyahStartTime(ayahNumber) {
+    const timing = ayahTimings.value.find((t) => t.ayah === ayahNumber)
+    return timing ? timing.start_time / 1000 : null
+  }
+
+  async function changeReciter(reciterId) {
+    currentReciter.value = reciterId
+    if (currentSurahNumber.value && surahName.value) {
+      await loadSurahAudio(currentSurahNumber.value, surahName.value)
     }
-  }
-
-  const changeReciter = (reciter) => {
-    currentReciter.value = reciter
   }
 
   return {
-    currentAudio,
-    currentPlaylist,
-    currentIndex,
     currentReciter,
     shouldAutoPlay,
+    surahAudioUrl,
+    surahName,
+    currentSurahNumber,
+    ayahTimings,
+    currentAyahIndex,
 
-    hasNext,
-    hasPrevious,
+    reciter,
+    currentAyah,
 
-    playVerse,
-    playSurah,
-    playNext,
-    jumpToVerse,
+    loadSurahAudio,
+    updateCurrentAyahFromTime,
+    getAyahStartTime,
     changeReciter,
   }
 })

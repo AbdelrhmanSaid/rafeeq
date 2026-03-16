@@ -114,7 +114,6 @@ const updateSW = registerSW({
   padding-bottom: var(--navbar-height);
 }
 
-
 /* Embed adjustments */
 .main-content-embed .main-content {
   min-height: 100vh;
