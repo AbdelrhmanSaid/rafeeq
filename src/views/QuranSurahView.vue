@@ -8,6 +8,7 @@ import Heading from '@/components/Heading.vue'
 import BackButton from '@/components/BackButton.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
+import OfflineState from '@/components/OfflineState.vue'
 import AudioPlayer from '@/components/QuranPlayer.vue'
 import { useQuranStore } from '@/stores/quran'
 import { useMeta } from '@/utilities/head'
@@ -93,7 +94,8 @@ const isCurrentVerse = (verse) => {
   </Page>
 
   <Page v-else-if="error">
-    <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
+    <OfflineState v-if="!online" />
+    <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." v-else />
   </Page>
 
   <Page class="quran-page" v-else-if="surah">

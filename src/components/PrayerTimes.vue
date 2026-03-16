@@ -113,7 +113,8 @@ const remainingTime = computed(() => {
   </div>
 
   <div v-else-if="error" class="border rounded p-5">
-    <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
+    <OfflineState v-if="!online" />
+    <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." v-else />
   </div>
 
   <div v-else-if="timings" class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2">
@@ -136,10 +137,6 @@ const remainingTime = computed(() => {
         </div>
       </div>
     </div>
-  </div>
-
-  <div v-else-if="!online" class="border rounded p-5">
-    <OfflineState />
   </div>
 </template>
 

@@ -231,7 +231,8 @@ onUnmounted(() => {
 
     <!-- Qibla API error -->
     <div v-else-if="error" class="qibla-card qibla-card--static">
-      <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
+      <OfflineState v-if="!online" />
+      <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." v-else />
     </div>
 
     <!-- Qibla compass -->
