@@ -60,9 +60,15 @@ const onLoadedMetadata = () => {
   }
 }
 
-const onAudioEnded = () => {
+const resetPlayer = () => {
+  if (audioElement.value) {
+    audioElement.value.pause()
+    audioElement.value.currentTime = 0
+  }
+
   isPlaying.value = false
   currentTime.value = 0
+  quranStore.currentAyahIndex = -1
 }
 
 const formatTime = (seconds) => {
@@ -73,6 +79,11 @@ const formatTime = (seconds) => {
 }
 
 async function seekToAyah(ayahNumber) {
+  if (isPlaying.value && quranStore.currentAyah?.ayah === ayahNumber) {
+    resetPlayer()
+    return
+  }
+
   const startTime = quranStore.getAyahStartTime(ayahNumber)
   if (startTime !== null && audioElement.value) {
     if (radioStore.isPlaying) {
@@ -167,7 +178,7 @@ onUnmounted(() => {
       @loadstart="loading = true"
       @canplay="loading = false"
       @timeupdate="updateProgress"
-      @ended="onAudioEnded"
+      @ended="resetPlayer"
       @loadedmetadata="onLoadedMetadata"
       preload="metadata"
     ></audio>

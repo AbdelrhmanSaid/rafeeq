@@ -13,7 +13,7 @@ export default defineConfig({
       registerType: 'prompt',
       cleanupOutdatedCaches: false,
       devOptions: {
-        enabled: true,
+        enabled: false,
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,woff,woff2}'],

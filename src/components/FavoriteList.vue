@@ -5,21 +5,32 @@ import { useFavorites } from '@/composables/favorites'
 import EmptyState from '@/components/EmptyState.vue'
 
 const props = defineProps({
-  items: { type: Array, required: true },
-  search: { type: String, default: '' },
-  itemKey: { type: String, required: true },
-  favoritesKey: { type: String, required: true },
-  itemClass: { type: Function, default: () => ({}) },
+  items: {
+    type: Array,
+    required: true,
+  },
+  search: {
+    type: String,
+    default: '',
+  },
+  itemKey: {
+    type: String,
+    required: true,
+  },
+  favoritesKey: {
+    type: String,
+    required: true,
+  },
+  itemClass: {
+    type: Function,
+    default: () => ({}),
+  },
 })
 
-defineSlots()
-
 const { isFavorite, toggleFavorite, filterFavorites } = useFavorites(props.favoritesKey)
+
 const getKey = (item) => item[props.itemKey]
-const favorites = filterFavorites(
-  computed(() => props.items),
-  (item) => getKey(item),
-)
+const favorites = filterFavorites(() => props.items, (item) => getKey(item))
 </script>
 
 <template>

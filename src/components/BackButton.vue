@@ -14,11 +14,15 @@ const props = defineProps({
     type: [String, Array, Object],
     default: 'btn-flat',
   },
+  embedHidden: {
+    type: Boolean,
+    default: true,
+  },
 })
 </script>
 
 <template>
-  <RouterLink :to="props.to" class="btn d-inline-flex align-items-center gap-2 embed-hidden" :class="props.buttonClass">
+  <RouterLink :to="props.to" class="btn d-inline-flex align-items-center gap-2" :class="[props.buttonClass, { 'embed-hidden': embedHidden }]">
     <IconArrowLeft size="1.25rem" />
     <span>{{ props.label }}</span>
   </RouterLink>
