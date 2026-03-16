@@ -137,8 +137,6 @@ export const useDownloadStore = defineStore('download', () => {
 
   return {
     online,
-    quranKeys: quranService.keys,
-    azkarKeys: azkarService.keys,
     downloadQueue,
     isDownloading,
     isPaused,
@@ -149,6 +147,7 @@ export const useDownloadStore = defineStore('download', () => {
     isCompleted,
     progressPercentage,
     pendingCount,
+    isDownloaded,
     queueAsset,
     queueAllAssets,
     removeAsset,

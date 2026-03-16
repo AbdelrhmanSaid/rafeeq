@@ -25,8 +25,6 @@ const {
   allAssets,
   totalAssets,
   downloadedCount,
-  quranKeys,
-  azkarKeys,
   downloadQueue,
   isCompleted,
   progressPercentage,
@@ -37,6 +35,7 @@ const {
 } = storeToRefs(downloadStore)
 
 const {
+  isDownloaded,
   queueAsset,
   queueAllAssets,
   removeAsset,
@@ -50,27 +49,19 @@ const {
 const filterType = ref('all')
 
 const assetsWithStatus = computed(() => {
-  const qKeys = quranKeys.value
-  const aKeys = azkarKeys.value
   const queue = downloadQueue.value
   const current = currentItem.value
 
   return allAssets.value.map((asset) => {
     let status
-    if (asset.type === 'surah') {
-      status = qKeys.includes(asset.key) ? 'downloaded' : null
+    if (isDownloaded(asset)) {
+      status = 'downloaded'
+    } else if (current?.id === asset.id) {
+      status = 'downloading'
+    } else if (queue.some((item) => item.id === asset.id)) {
+      status = 'queued'
     } else {
-      status = aKeys.includes(asset.key) ? 'downloaded' : null
-    }
-
-    if (!status) {
-      if (current?.id === asset.id) {
-        status = 'downloading'
-      } else if (queue.some((item) => item.id === asset.id)) {
-        status = 'queued'
-      } else {
-        status = 'not-downloaded'
-      }
+      status = 'not-downloaded'
     }
 
     return { ...asset, status }
