@@ -59,6 +59,8 @@ export function removeVars(names) {
 export function applyPrimaryColor(color) {
   const fg = normalizeColor(color)
 
+  let themeColorMeta = document.querySelector('meta[name="theme-color"]')
+
   if (fg) {
     const vars = {
       '--bs-primary': fg,
@@ -71,8 +73,15 @@ export function applyPrimaryColor(color) {
     const rgb = toRgbValue(fg)
     if (rgb) vars['--bs-primary-rgb'] = rgb
     setVars(vars)
+
+    // Update the theme color meta tag
+    themeColorMeta?.setAttribute('content', fg)
   } else {
     removeVars(PRIMARY_COLOR_VARS)
+
+    // Remove the theme color meta tag
+    let primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--bs-primary')
+    themeColorMeta?.setAttribute('content', normalizeColor(primaryColor))
   }
 }
 
