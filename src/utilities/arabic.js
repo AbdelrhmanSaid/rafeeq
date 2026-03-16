@@ -20,18 +20,11 @@ export const toArabicNumerals = (value) => {
   return String(value).replace(/\d/g, (digit) => String.fromCharCode(0x660 + Number(digit)))
 }
 
-export const formatTime = (time) => {
-  if (!time || time === 0) return '٠٠:٠٠:٠٠'
+export const formatTime = (seconds) => {
+  if (!seconds || seconds <= 0) return '٠٠:٠٠:٠٠'
+  const h = Math.floor(seconds / 3600).toString().padStart(2, '0')
+  const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0')
+  const s = Math.floor(seconds % 60).toString().padStart(2, '0')
 
-  const hours = Math.floor(time / (1000 * 60 * 60))
-    .toString()
-    .padStart(2, '0')
-  const minutes = Math.floor((time % (1000 * 60 * 60)) / (1000 * 60))
-    .toString()
-    .padStart(2, '0')
-  const seconds = Math.floor((time % (1000 * 60)) / 1000)
-    .toString()
-    .padStart(2, '0')
-
-  return toArabicNumerals(`${hours}:${minutes}:${seconds}`)
+  return toArabicNumerals(`${h}:${m}:${s}`)
 }

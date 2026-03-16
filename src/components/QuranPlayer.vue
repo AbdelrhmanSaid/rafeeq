@@ -63,15 +63,15 @@ async function seekToAyah(ayahNumber) {
   if (startTime === null || !audio.value) return
 
   audio.value.currentTime = startTime
-  quranStore.updateCurrentAyahFromTime(startTime)
+  quranStore.updateCurrentAyahFromTime(startTime * 1000)
   await tryPlay()
 }
 
 function onTimeUpdate() {
   if (!audio.value) return
-  currentTime.value = audio.value.currentTime * 1000
+  currentTime.value = audio.value.currentTime
   if (isPlaying.value) {
-    quranStore.updateCurrentAyahFromTime(currentTime.value)
+    quranStore.updateCurrentAyahFromTime(currentTime.value * 1000)
   }
 }
 
@@ -136,7 +136,7 @@ defineExpose({ seekToAyah })
       @canplay="loading = false"
       @timeupdate="onTimeUpdate"
       @ended="stop"
-      @loadedmetadata="duration = $event.target.duration * 1000"
+      @loadedmetadata="duration = $event.target.duration"
       preload="metadata"
     ></audio>
   </div>

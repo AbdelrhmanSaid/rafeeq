@@ -91,7 +91,7 @@ const remainingTime = computed(() => {
     nextPrayerTime.setDate(nextPrayerTime.getDate() + 1)
   }
 
-  return formatTime(nextPrayerTime - currentTime)
+  return formatTime((nextPrayerTime - currentTime) / 1000)
 })
 </script>
 
