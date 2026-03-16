@@ -150,14 +150,6 @@ const shareStation = async () => {
 </template>
 
 <style lang="scss" scoped>
-.radio-station-page {
-  min-height: calc(100vh - var(--navbar-height));
-
-  .main-content-embed & {
-    min-height: 100vh;
-  }
-}
-
 .disc-container {
   width: 240px;
   height: 240px;
