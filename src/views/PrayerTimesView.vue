@@ -1,8 +1,13 @@
 <script setup>
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
 import PrayerTimes from '@/components/PrayerTimes.vue'
 import { useMeta } from '@/utilities/head'
+
+const route = useRoute()
+const isEmbedRoute = computed(() => route.path.startsWith('/embed'))
 
 useMeta({
   title: 'مواقيت الصلاة',
@@ -12,7 +17,7 @@ useMeta({
 </script>
 
 <template>
-  <Page>
+  <Page v-if="!isEmbedRoute">
     <Heading
       :size="2"
       class="mb-4"
@@ -21,4 +26,6 @@ useMeta({
 
     <PrayerTimes />
   </Page>
+
+  <PrayerTimes v-else />
 </template>

@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { useCoordinatesStore } from '@/stores/coordinates'
 import { useFetch, useDateFormat, useOnline, useNow } from '@vueuse/core'
 
@@ -15,6 +16,10 @@ import Duhur from '@/components/icons/Prayers/Duhur.vue'
 import Asr from '@/components/icons/Prayers/Asr.vue'
 import Maghrib from '@/components/icons/Prayers/Maghrib.vue'
 import Ishaa from '@/components/icons/Prayers/Ishaa.vue'
+
+// Route for layout detection
+const route = useRoute()
+const isVertical = computed(() => route.query.layout === 'vertical')
 
 // Reactive state for current time
 const now = useNow()
@@ -57,6 +62,13 @@ const { isFetching, data: timings, error } = useFetch(endpoint, options).json().
 const formatTime = (time) => {
   return toArabicNumerals(useDateFormat(time, 'hh:mm A').value.replace('AM', 'ص').replace('PM', 'م'))
 }
+
+// Hijri date from API response
+const hijriDate = computed(() => {
+  let date = timings.value?.data?.date?.hijri
+  if (!date) return ''
+  return toArabicNumerals(`${date.day} ${date.month.ar} ${date.year}`)
+})
 
 // Determine the next prayer
 const nextPrayerKey = computed(() => {
@@ -118,6 +130,45 @@ const remainingTime = computed(() => {
     <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
   </div>
 
+  <!-- Vertical Layout -->
+  <div v-else-if="timings && isVertical" class="prayer-times">
+    <div class="prayer-header">
+      <div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="icon-container">
+            <component v-if="nextPrayerKey" :is="timingsMap[nextPrayerKey]?.icon" />
+          </span>
+          <span>{{ nextPrayerKey ? timingsMap[nextPrayerKey]?.label : '-' }}</span>
+        </div>
+        <div class="prayer-countdown">{{ remainingTime || '-' }}</div>
+      </div>
+      <div class="text-end">
+        <div class="mb-1 d-flex align-items-center gap-1">
+          <IconMapPin :size="16" />
+          <b>موقعك الحالي</b>
+        </div>
+        <small>{{ hijriDate }}</small>
+      </div>
+    </div>
+    <div class="d-flex flex-column gap-1">
+      <div
+        v-for="(timing, key) in timingsMap"
+        :key="key"
+        class="prayer-row"
+        :class="{ next: key === nextPrayerKey }"
+      >
+        <div class="d-flex align-items-center gap-2">
+          <span class="icon-container">
+            <component :is="timing.icon" />
+          </span>
+          <b>{{ timing.label }}</b>
+        </div>
+        <b>{{ formatTime(timings.data.timings[key]) }}</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- Default Theme -->
   <div v-else-if="timings" class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2">
     <div v-for="(timing, key) in timingsMap" :key="key">
       <div class="card" :class="{ active: key === nextPrayerKey }">
@@ -158,5 +209,49 @@ const remainingTime = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Vertical Layout Styles */
+.prayer-times {
+  display: flex;
+  flex-direction: column;
+}
+
+.prayer-times .prayer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: linear-gradient(135deg, var(--bs-primary, #166534) 0%, color-mix(in srgb, var(--bs-primary, #166534) 85%, #000) 100%);
+  border-radius: 5px;
+  color: #fff;
+  margin-bottom: 5px;
+}
+
+.prayer-times .prayer-countdown {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.prayer-times .prayer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: var(--bs-body-color, #374151);
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: var(--bs-body-bg, #fff);
+  margin-bottom: 2px;
+  border: 1px solid transparent;
+}
+
+.prayer-times .prayer-row.next {
+  color: var(--bs-primary, #166534);
+  background: var(--bs-primary-bg-subtle, #f0fdf4);
+  border: 1px solid var(--bs-primary-border-subtle, #bbf7d0);
+  font-weight: bold;
+  margin: 0 1px;
 }
 </style>
