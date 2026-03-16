@@ -6,8 +6,7 @@ import { useQuranService } from '@/services/quranService'
 import { useAzkarService } from '@/services/azkarService'
 import surahs from '@/exports/QuranSurahs.js'
 import azkarCategories from '@/exports/AzkarCategories.js'
-
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+import { sleep } from '@/utilities/async'
 
 export const useDownloadStore = defineStore('download', () => {
   const online = useOnline()
