@@ -159,7 +159,7 @@ const shareStation = async () => {
   }
 
   @media screen and (min-width: 768px) {
-    margin-block: 2rem;
+    padding-block: 2rem;
   }
 }
 
