@@ -1,23 +1,37 @@
 <script setup>
 import { computed } from 'vue'
 import { IconHeart, IconHeartFilled } from '@tabler/icons-vue'
-import { useFavorites } from '@/composables/favorites'
+import { useFavorites } from '@/composables/useFavorites'
 import EmptyState from '@/components/EmptyState.vue'
 
 const props = defineProps({
-  items: { type: Array, required: true },
-  search: { type: String, default: '' },
-  itemKey: { type: String, required: true },
-  favoritesKey: { type: String, required: true },
-  itemClass: { type: Function, default: () => ({}) },
+  items: {
+    type: Array,
+    required: true,
+  },
+  search: {
+    type: String,
+    default: '',
+  },
+  itemKey: {
+    type: String,
+    required: true,
+  },
+  favoritesKey: {
+    type: String,
+    required: true,
+  },
+  itemClass: {
+    type: Function,
+    default: () => ({}),
+  },
 })
 
-defineSlots()
-
 const { isFavorite, toggleFavorite, filterFavorites } = useFavorites(props.favoritesKey)
+
 const getKey = (item) => item[props.itemKey]
 const favorites = filterFavorites(
-  computed(() => props.items),
+  () => props.items,
   (item) => getKey(item),
 )
 </script>

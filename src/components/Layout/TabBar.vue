@@ -1,7 +1,7 @@
 <script setup>
 import { RouterLink, useRoute } from 'vue-router'
 import { computed, ref } from 'vue'
-import { useModeStore } from '@/stores/mode'
+import { useThemeStore } from '@/stores/theme'
 import { useRadioStore } from '@/stores/radio'
 
 import {
@@ -10,13 +10,10 @@ import {
   IconSparkles,
   IconRadio,
   IconDotsCircleHorizontal,
-  IconMoonStars,
-  IconSunFilled,
   IconBrandTelegram,
   IconX,
 } from '@tabler/icons-vue'
 
-const mode = useModeStore()
 const radio = useRadioStore()
 const route = useRoute()
 const showMoreMenu = ref(false)
@@ -43,10 +40,6 @@ const closeMoreMenu = () => {
   }, 300) // Match animation duration
 }
 
-const toggleMode = () => {
-  mode.toggle()
-  closeMoreMenu()
-}
 </script>
 
 <template>
@@ -102,21 +95,6 @@ const toggleMode = () => {
           </RouterLink>
 
           <hr class="my-3" />
-
-          <a
-            href="#"
-            class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item"
-            @click.prevent="toggleMode"
-          >
-            <span v-if="mode.isDark" class="d-flex align-items-center">
-              <IconSunFilled class="me-2" size="1.25rem" />
-              الوضع الفاتح
-            </span>
-            <span v-else class="d-flex align-items-center">
-              <IconMoonStars class="me-2" size="1.25rem" />
-              الوضع الداكن
-            </span>
-          </a>
 
           <a
             href="https://t.me/rafeeqme"

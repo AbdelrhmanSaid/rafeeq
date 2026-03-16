@@ -6,7 +6,7 @@ import { useFetch, useDateFormat, useOnline, useNow } from '@vueuse/core'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import OfflineState from '@/components/OfflineState.vue'
-import { toArabicNumerals } from '@/utilities/arabic'
+import { formatTime, toArabicNumerals } from '@/utilities/arabic'
 
 // Import prayer icons
 import Fajr from '@/components/icons/Prayers/Fajr.vue'
@@ -54,7 +54,7 @@ const options = {
 const { isFetching, data: timings, error } = useFetch(endpoint, options).json().get()
 
 // Format time
-const formatTime = (time) => {
+const formatTiming = (time) => {
   return toArabicNumerals(useDateFormat(time, 'hh:mm A').value.replace('AM', 'ص').replace('PM', 'م'))
 }
 
@@ -91,19 +91,17 @@ const remainingTime = computed(() => {
     nextPrayerTime.setDate(nextPrayerTime.getDate() + 1)
   }
 
-  const diff = nextPrayerTime - currentTime
-
-  const hours = Math.floor(diff / (1000 * 60 * 60))
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-  const seconds = Math.floor((diff % (1000 * 60)) / 1000)
-
-  return toArabicNumerals(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`)
+  return formatTime((nextPrayerTime - currentTime) / 1000)
 })
 </script>
 
 <template>
+  <div v-if="store.isDetecting" class="border rounded p-5">
+    <LoadingState message="جاري تحديد موقعك..." />
+  </div>
+
   <div
-    v-if="store.latitude === 0 || store.longitude === 0"
+    v-else-if="store.latitude === 0 || store.longitude === 0"
     class="border rounded p-5 text-center cursor-pointer"
     @click="store.detect"
   >
@@ -111,7 +109,7 @@ const remainingTime = computed(() => {
   </div>
 
   <div v-else-if="isFetching" class="border rounded p-5">
-    <LoadingState />
+    <LoadingState message="جاري تحميل مواقيت الصلاة..." />
   </div>
 
   <div v-else-if="error" class="border rounded p-5">
@@ -129,7 +127,7 @@ const remainingTime = computed(() => {
             <h5 class="card-title mb-0">{{ timing.label }}</h5>
           </div>
           <p class="card-text d-flex justify-content-between align-items-end">
-            <span>{{ formatTime(timings.data.timings[key]) }}</span>
+            <span>{{ formatTiming(timings.data.timings[key]) }}</span>
 
             <small v-if="key === nextPrayerKey">
               {{ remainingTime }}

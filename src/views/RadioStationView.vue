@@ -3,14 +3,7 @@ import { computed, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import { useOnline } from '@vueuse/core'
 import { useMeta } from '@/utilities/head'
-import {
-  IconHeart,
-  IconHeartFilled,
-  IconPlayerPause,
-  IconPlayerPlay,
-  IconShare3,
-  IconRadio,
-} from '@tabler/icons-vue'
+import { IconHeart, IconHeartFilled, IconPlayerPause, IconPlayerPlay, IconShare3, IconRadio } from '@tabler/icons-vue'
 
 import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
@@ -18,7 +11,7 @@ import BackButton from '@/components/BackButton.vue'
 import OfflineState from '@/components/OfflineState.vue'
 import radiosData from '@/exports/Radios.js'
 import { useRadioStore } from '@/stores/radio'
-import { useFavorites } from '@/composables/favorites'
+import { useFavorites } from '@/composables/useFavorites'
 import { toast } from 'vue-sonner'
 
 const route = useRoute()
@@ -90,7 +83,7 @@ const shareStation = async () => {
         <BackButton :to="{ name: 'radio' }" />
 
         <button v-if="canShare" class="btn btn-flat" type="button" @click="shareStation">
-          <IconShare3 size="1.25rem" class="me-2"/>
+          <IconShare3 size="1.25rem" class="me-2" />
           <span>مشاركة</span>
         </button>
       </div>
@@ -143,16 +136,14 @@ const shareStation = async () => {
             type="button"
             @click="toggleFavorite(stationSlug)"
           >
-            <IconHeartFilled v-if="isFavorite(stationSlug)" size="1.5rem" class="me-2"/>
-            <IconHeart v-else size="1.5rem" class="me-2"/>
+            <IconHeartFilled v-if="isFavorite(stationSlug)" size="1.5rem" class="me-2" />
+            <IconHeart v-else size="1.5rem" class="me-2" />
             <span>{{ isFavorite(stationSlug) ? 'في المفضلة' : 'إضافة للمفضلة' }}</span>
           </button>
         </div>
 
         <!-- Footer Note -->
-        <p class="small text-secondary opacity-75">
-          يتم تشغيل البث المباشر من مصدره الرسمي بجودة عالية
-        </p>
+        <p class="small text-secondary opacity-75">يتم تشغيل البث المباشر من مصدره الرسمي بجودة عالية</p>
       </div>
     </div>
   </Page>
@@ -161,14 +152,11 @@ const shareStation = async () => {
 <style lang="scss" scoped>
 .radio-station-page {
   margin-block: 0;
+  padding-block: 2rem;
   min-height: calc(100vh - var(--navbar-height));
 
   .main-content-embed & {
     min-height: 100vh;
-  }
-
-  @media screen and (min-width: 768px) {
-    margin-block: 2rem;
   }
 }
 

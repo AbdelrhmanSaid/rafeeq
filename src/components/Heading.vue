@@ -47,11 +47,11 @@ const sharePage = async () => {
 <template>
   <div>
     <p :class="`h${size}`">
-        {{ title }}
-        <button v-if="share" class="btn btn-flat p-0 bg-transparent" type="button" @click="sharePage">
-          <IconShare3 size="18" />
-        </button>
-      </p>
+      {{ title }}
+      <button v-if="share" class="btn btn-flat p-0 bg-transparent" type="button" @click="sharePage">
+        <IconShare3 size="18" />
+      </button>
+    </p>
 
     <p class="lead" v-if="subtitle">{{ subtitle }}</p>
   </div>

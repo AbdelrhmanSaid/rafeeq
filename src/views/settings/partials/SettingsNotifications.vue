@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useNotifications } from '@/composables/useNotifications'
 import { IconBell } from '@tabler/icons-vue'
+import { toast } from 'vue-sonner'
 
 const {
   isSupported,
@@ -35,7 +36,7 @@ const permissionClass = computed(() => {
 async function handleRequestPermission() {
   const granted = await requestPermission()
   if (!granted) {
-    alert('تم رفض إذن الإشعارات. يمكنك تفعيلها من إعدادات المتصفح.')
+    toast.error('تم رفض إذن الإشعارات. يمكنك تفعيلها من إعدادات المتصفح.')
   }
 }
 </script>
@@ -49,6 +50,10 @@ async function handleRequestPermission() {
       </div>
 
       <p class="card-text text-muted mb-3">تلقي تذكيرات يومية لأذكار الصباح والمساء في الأوقات المحددة</p>
+
+      <div class="alert alert-info py-2 mb-3">
+        <small>هذه الميزة تجريبية (Beta) — الإشعارات لن تعمل إذا كان التطبيق مغلقاً.</small>
+      </div>
 
       <!-- Status Messages -->
       <div v-if="!isSupported || isDenied" class="mb-3">

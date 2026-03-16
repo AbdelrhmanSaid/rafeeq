@@ -135,10 +135,6 @@ const copyZekr = async () => {
 </template>
 
 <style lang="scss" scoped>
-[data-bs-theme='dark'] .zekr-card {
-  --bs-primary-bg-subtle: rgba(255, 255, 255, 0.1);
-}
-
 .zekr-card {
   position: relative;
 
@@ -152,7 +148,7 @@ const copyZekr = async () => {
 
     background:
       radial-gradient(closest-side, var(--bs-body-bg) 79%, transparent 80% 100%),
-      conic-gradient(var(--bs-primary) calc(var(--progress) * 100%), var(--bs-primary-bg-subtle) 0);
+      conic-gradient(var(--bs-primary) calc(var(--progress) * 100%), var(--bs-secondary-bg) 0);
 
     &::before {
       content: attr(data-content);

@@ -1,101 +1,98 @@
 <script setup>
-import { ref, computed, watch, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useQuranStore } from '@/stores/quran'
-import { IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
 import { useRadioStore } from '@/stores/radio'
-import { toArabicNumerals } from '@/utilities/arabic'
+import { IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
+import { toArabicNumerals, formatTime } from '@/utilities/arabic'
 
 const quranStore = useQuranStore()
 const radioStore = useRadioStore()
 
-const audioElement = ref(null)
+const audio = ref(null)
 const isPlaying = ref(false)
 const loading = ref(false)
 const currentTime = ref(0)
 const duration = ref(0)
 
-const currentAudio = computed(() => quranStore.currentAudio)
+const progress = computed(() => (duration.value ? (currentTime.value / duration.value) * 100 : 0))
 
-const progressPercentage = computed(() => (duration.value ? (currentTime.value / duration.value) * 100 : 0))
+const currentAyahDisplay = computed(() => {
+  const ayah = quranStore.currentAyah
+  if (!ayah || !quranStore.surahName) return null
+  return { surahName: quranStore.surahName, ayahNumber: ayah.ayah }
+})
 
-const togglePlayPause = async () => {
-  if (!audioElement.value) return
-
-  // Make sure radio is paused if it was playing
-  if (radioStore.isPlaying) {
-    radioStore.stop()
-  }
-
-  if (isPlaying.value) {
-    audioElement.value.pause()
+async function tryPlay() {
+  if (!audio.value) return
+  if (radioStore.isPlaying) radioStore.stop()
+  try {
+    await audio.value.play()
+    isPlaying.value = true
+  } catch {
     isPlaying.value = false
-  } else if (!currentAudio.value && quranStore.currentPlaylist.length > 0) {
-    quranStore.jumpToVerse(0)
-    quranStore.shouldAutoPlay = true
-  } else {
-    try {
-      await audioElement.value.play()
-      isPlaying.value = true
-    } catch {
-      isPlaying.value = false
-    }
   }
 }
 
-const updateProgress = () => {
-  if (audioElement.value) {
-    currentTime.value = audioElement.value.currentTime
+function stop() {
+  if (audio.value) {
+    audio.value.pause()
+    audio.value.currentTime = 0
   }
-}
-
-const onLoadedMetadata = () => {
-  if (audioElement.value) {
-    duration.value = audioElement.value.duration
-  }
-}
-
-const onAudioEnded = () => {
   isPlaying.value = false
   currentTime.value = 0
-  quranStore.playNext()
+  quranStore.resetAyahTracking()
 }
 
-const formatTime = (seconds) => {
-  if (!seconds || seconds === 0) return '٠:٠٠'
-  const mins = Math.floor(seconds / 60)
-  const secs = Math.floor(seconds % 60)
-  return toArabicNumerals(`${mins}:${secs.toString().padStart(2, '0')}`)
-}
-
-watch(
-  currentAudio,
-  async (newAudio) => {
-    if (!audioElement.value || !newAudio) return
-    audioElement.value.src = newAudio.audioUrl
-    audioElement.value.load()
-
-    if (quranStore.shouldAutoPlay) {
-      try {
-        await audioElement.value.play()
-        isPlaying.value = true
-      } catch {
-        isPlaying.value = false
-      }
-      quranStore.shouldAutoPlay = false
-    } else {
-      isPlaying.value = false
-    }
-
-    currentTime.value = 0
-  },
-  { immediate: true },
-)
-
-onUnmounted(() => {
-  if (audioElement.value) {
-    audioElement.value.pause()
+async function togglePlayPause() {
+  if (!audio.value) return
+  if (isPlaying.value) {
+    audio.value.pause()
+    isPlaying.value = false
+  } else {
+    await tryPlay()
   }
-})
+}
+
+async function seekToAyah(ayahNumber) {
+  if (isPlaying.value && quranStore.currentAyah?.ayah === ayahNumber) {
+    stop()
+    return
+  }
+
+  const startTime = quranStore.getAyahStartTime(ayahNumber)
+  if (startTime === null || !audio.value) return
+
+  audio.value.currentTime = startTime
+  quranStore.updateCurrentAyahFromTime(startTime * 1000)
+  await tryPlay()
+}
+
+function onTimeUpdate() {
+  if (!audio.value) return
+  currentTime.value = audio.value.currentTime
+  if (isPlaying.value) {
+    quranStore.updateCurrentAyahFromTime(currentTime.value * 1000)
+  }
+}
+
+async function loadSource(url) {
+  if (!audio.value || !url) return
+  audio.value.src = url
+  audio.value.load()
+  isPlaying.value = false
+  currentTime.value = 0
+
+  if (quranStore.shouldAutoPlay) {
+    await tryPlay()
+    quranStore.shouldAutoPlay = false
+  }
+}
+
+watch(() => quranStore.surahAudioUrl, loadSource)
+onMounted(() => loadSource(quranStore.surahAudioUrl))
+onUnmounted(() => audio.value?.pause())
+
+defineExpose({ seekToAyah })
 </script>
 
 <template>
@@ -104,7 +101,7 @@ onUnmounted(() => {
       <button
         @click="togglePlayPause"
         class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center"
-        :disabled="loading"
+        :disabled="loading || !quranStore.surahAudioUrl"
         style="width: 40px; height: 40px"
       >
         <IconPlayerPlay v-if="!isPlaying" />
@@ -112,17 +109,20 @@ onUnmounted(() => {
       </button>
 
       <div class="flex-grow-1">
-        <template v-if="currentAudio">
-          <span class="d-inline-block fw-semibold text-primary me-2">{{ currentAudio.surahName }}</span>
-          <span class="d-inline-block text-secondary small">آية {{ toArabicNumerals(currentAudio.verseNumber) }}</span>
+        <template v-if="currentAyahDisplay">
+          <span class="d-inline-block fw-semibold text-primary me-2">{{ currentAyahDisplay.surahName }}</span>
+          <span v-if="currentAyahDisplay.ayahNumber > 0" class="d-inline-block text-secondary small"
+            >آية {{ toArabicNumerals(currentAyahDisplay.ayahNumber) }}</span
+          >
         </template>
+        <span v-else-if="quranStore.surahName" class="text-muted">{{ quranStore.surahName }}</span>
         <span v-else class="text-muted">اضغط على آية للاستماع</span>
       </div>
     </div>
 
     <div class="px-3 pb-3">
       <div class="progress" style="height: 0.25rem">
-        <div class="progress-bar" :style="{ width: progressPercentage + '%' }"></div>
+        <div class="progress-bar" :style="{ width: progress + '%' }"></div>
       </div>
       <div class="d-flex justify-content-between small text-muted mt-1">
         <span>{{ formatTime(currentTime) }}</span>
@@ -131,12 +131,12 @@ onUnmounted(() => {
     </div>
 
     <audio
-      ref="audioElement"
+      ref="audio"
       @loadstart="loading = true"
       @canplay="loading = false"
-      @timeupdate="updateProgress"
-      @ended="onAudioEnded"
-      @loadedmetadata="onLoadedMetadata"
+      @timeupdate="onTimeUpdate"
+      @ended="stop"
+      @loadedmetadata="duration = $event.target.duration"
       preload="metadata"
     ></audio>
   </div>

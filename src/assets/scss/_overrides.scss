@@ -65,3 +65,9 @@ html[dir='rtl'],
   border-color: color-mix(in srgb, var(--bs-primary) 65%, #fff);
   box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
 }
+
+/* Keep dropdown active item in sync with runtime primary color. */
+.dropdown-menu {
+  --bs-dropdown-link-active-bg: var(--bs-primary);
+  --bs-dropdown-link-active-color: #fff;
+}

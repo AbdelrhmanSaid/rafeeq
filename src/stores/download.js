@@ -6,6 +6,7 @@ import { useQuranService } from '@/services/quranService'
 import { useAzkarService } from '@/services/azkarService'
 import surahs from '@/exports/QuranSurahs.js'
 import azkarCategories from '@/exports/AzkarCategories.js'
+import { sleep } from '@/utilities/async'
 
 export const useDownloadStore = defineStore('download', () => {
   const online = useOnline()
@@ -17,65 +18,59 @@ export const useDownloadStore = defineStore('download', () => {
   const isPaused = ref(false)
   const currentItem = ref(null)
 
-  const allAssets = computed(() => {
-    const surahAssets = surahs.map((surah) => ({
-      id: `surah-${surah.id}`,
+  function serviceFor(asset) {
+    return asset.type === 'surah' ? quranService : azkarService
+  }
+
+  const allAssets = computed(() => [
+    ...surahs.map((s) => ({
+      id: `surah-${s.id}`,
       type: 'surah',
-      name: surah.name,
-      key: String(surah.id),
-      data: surah,
-    }))
-
-    const azkarAssets = azkarCategories.map((category) => ({
-      id: `azkar-${category.slug}`,
+      name: s.name,
+      key: String(s.id),
+      data: s,
+    })),
+    ...azkarCategories.map((c) => ({
+      id: `azkar-${c.slug}`,
       type: 'azkar',
-      name: category.name,
-      key: category.slug,
-      data: category,
-    }))
-
-    return [...surahAssets, ...azkarAssets]
-  })
+      name: c.name,
+      key: c.slug,
+      data: c,
+    })),
+  ])
 
   const totalAssets = computed(() => allAssets.value.length)
-
-  const downloadedCount = computed(
-    () => quranService.downloadedCount.value + azkarService.downloadedCount.value,
-  )
-
+  const downloadedCount = computed(() => quranService.downloadedCount.value + azkarService.downloadedCount.value)
   const isCompleted = computed(() => downloadedCount.value === totalAssets.value)
-
-  const progressPercentage = computed(() => {
-    if (totalAssets.value === 0) return 0
-    return Math.round((downloadedCount.value / totalAssets.value) * 100)
-  })
-
+  const progressPercentage = computed(() =>
+    totalAssets.value === 0 ? 0 : Math.round((downloadedCount.value / totalAssets.value) * 100),
+  )
   const pendingCount = computed(() => downloadQueue.value.length)
 
-  const isAssetDownloaded = (asset) => {
-    return asset.type === 'surah'
-      ? quranService.isDownloaded(asset.key)
-      : azkarService.isDownloaded(asset.key)
+  function isDownloaded(asset) {
+    return serviceFor(asset).isDownloaded(asset.key)
   }
 
-  const isAssetInQueue = (asset) => downloadQueue.value.some((item) => item.id === asset.id)
-  const isAssetDownloading = (asset) => currentItem.value?.id === asset.id
-
-  const getAssetStatus = (asset) => {
-    if (isAssetDownloaded(asset)) return 'downloaded'
-    if (isAssetDownloading(asset)) return 'downloading'
-    if (isAssetInQueue(asset)) return 'queued'
-    return 'not-downloaded'
+  function isInQueue(asset) {
+    return downloadQueue.value.some((item) => item.id === asset.id)
   }
 
-  const processQueue = async () => {
+  async function fetchAsset(asset) {
+    if (asset.type === 'surah') {
+      await quranService.fetchSurah(asset.data.id)
+    } else {
+      await azkarService.fetchCategory(asset.data.slug)
+    }
+  }
+
+  async function processQueue() {
     if (isDownloading.value || isPaused.value || downloadQueue.value.length === 0) return
 
     isDownloading.value = true
 
     while (downloadQueue.value.length > 0 && !isPaused.value) {
       if (!online.value) {
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+        await sleep(1000)
         continue
       }
 
@@ -83,19 +78,14 @@ export const useDownloadStore = defineStore('download', () => {
       currentItem.value = asset
 
       try {
-        if (asset.type === 'surah') {
-          await quranService.fetchSurah(asset.data.id)
-        } else {
-          await azkarService.fetchCategory(asset.data.slug)
-        }
-
+        await fetchAsset(asset)
         downloadQueue.value.shift()
-        await new Promise((resolve) => setTimeout(resolve, 100))
+        await sleep(100)
       } catch (error) {
         console.error(`Failed to download ${asset.name}:`, error)
         downloadQueue.value.shift()
         downloadQueue.value.push(asset)
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+        await sleep(1000)
       }
     }
 
@@ -103,55 +93,49 @@ export const useDownloadStore = defineStore('download', () => {
     currentItem.value = null
   }
 
-  const queueAsset = (asset) => {
-    if (!isAssetDownloaded(asset) && !isAssetInQueue(asset)) {
+  function queueAsset(asset) {
+    if (!isDownloaded(asset) && !isInQueue(asset)) {
       downloadQueue.value.push(asset)
       processQueue()
     }
   }
 
-  const queueAllAssets = () => {
-    const notDownloaded = allAssets.value.filter((a) => !isAssetDownloaded(a) && !isAssetInQueue(a))
-    downloadQueue.value.push(...notDownloaded)
+  function queueAllAssets() {
+    const pending = allAssets.value.filter((a) => !isDownloaded(a) && !isInQueue(a))
+    downloadQueue.value.push(...pending)
     processQueue()
   }
 
-  const removeAsset = async (asset) => {
-    if (asset.type === 'surah') {
-      await quranService.remove(asset.key)
-    } else {
-      await azkarService.remove(asset.key)
-    }
+  async function removeAsset(asset) {
+    await serviceFor(asset).remove(asset.key)
   }
 
-  const removeAllAssets = async () => {
+  async function removeAllAssets() {
     await quranService.removeAll()
     await azkarService.removeAll()
   }
 
-  const pauseDownloads = () => {
+  function pauseDownloads() {
     isPaused.value = true
   }
 
-  const resumeDownloads = () => {
+  function resumeDownloads() {
     isPaused.value = false
     processQueue()
   }
 
-  const cancelAllDownloads = () => {
+  function cancelAllDownloads() {
     downloadQueue.value = []
     isPaused.value = false
   }
 
-  const removeFromQueue = (asset) => {
+  function removeFromQueue(asset) {
     const index = downloadQueue.value.findIndex((item) => item.id === asset.id)
     if (index > -1) downloadQueue.value.splice(index, 1)
   }
 
   return {
     online,
-    quranKeys: quranService.keys,
-    azkarKeys: azkarService.keys,
     downloadQueue,
     isDownloading,
     isPaused,
@@ -162,10 +146,7 @@ export const useDownloadStore = defineStore('download', () => {
     isCompleted,
     progressPercentage,
     pendingCount,
-    isAssetDownloaded,
-    isAssetInQueue,
-    isAssetDownloading,
-    getAssetStatus,
+    isDownloaded,
     queueAsset,
     queueAllAssets,
     removeAsset,

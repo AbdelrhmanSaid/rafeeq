@@ -25,8 +25,6 @@ const {
   allAssets,
   totalAssets,
   downloadedCount,
-  quranKeys,
-  azkarKeys,
   downloadQueue,
   isCompleted,
   progressPercentage,
@@ -37,6 +35,7 @@ const {
 } = storeToRefs(downloadStore)
 
 const {
+  isDownloaded,
   queueAsset,
   queueAllAssets,
   removeAsset,
@@ -50,27 +49,19 @@ const {
 const filterType = ref('all')
 
 const assetsWithStatus = computed(() => {
-  const qKeys = quranKeys.value
-  const aKeys = azkarKeys.value
   const queue = downloadQueue.value
   const current = currentItem.value
 
   return allAssets.value.map((asset) => {
     let status
-    if (asset.type === 'surah') {
-      status = qKeys.includes(asset.key) ? 'downloaded' : null
+    if (isDownloaded(asset)) {
+      status = 'downloaded'
+    } else if (current?.id === asset.id) {
+      status = 'downloading'
+    } else if (queue.some((item) => item.id === asset.id)) {
+      status = 'queued'
     } else {
-      status = aKeys.includes(asset.key) ? 'downloaded' : null
-    }
-
-    if (!status) {
-      if (current?.id === asset.id) {
-        status = 'downloading'
-      } else if (queue.some((item) => item.id === asset.id)) {
-        status = 'queued'
-      } else {
-        status = 'not-downloaded'
-      }
+      status = 'not-downloaded'
     }
 
     return { ...asset, status }
@@ -130,18 +121,14 @@ const handleAssetAction = (asset) => {
           <div class="d-none d-md-block dm-progress-ring">
             <svg viewBox="0 0 36 36">
               <circle class="ring-bg" cx="18" cy="18" r="15.9155" />
-              <circle
-                class="ring-fill"
-                cx="18"
-                cy="18"
-                r="15.9155"
-                :stroke-dasharray="`${progressPercentage} 100`"
-              />
+              <circle class="ring-fill" cx="18" cy="18" r="15.9155" :stroke-dasharray="`${progressPercentage} 100`" />
             </svg>
             <span class="ring-text">{{ toArabicNumerals(progressPercentage) }}%</span>
           </div>
           <div class="dm-stats-text">
-            <span class="dm-stats-count">{{ toArabicNumerals(downloadedCount) }}/{{ toArabicNumerals(totalAssets) }}</span>
+            <span class="dm-stats-count"
+              >{{ toArabicNumerals(downloadedCount) }}/{{ toArabicNumerals(totalAssets) }}</span
+            >
             <span class="dm-stats-label">ملف محمّل</span>
           </div>
         </div>
@@ -168,28 +155,16 @@ const handleAssetAction = (asset) => {
     <!-- Toolbar -->
     <div class="dm-toolbar">
       <div class="dm-filters">
-        <button
-          class="dm-filter-btn"
-          :class="{ active: filterType === 'all' }"
-          @click="filterType = 'all'"
-        >
+        <button class="dm-filter-btn" :class="{ active: filterType === 'all' }" @click="filterType = 'all'">
           الكل
           <span class="dm-filter-count">{{ toArabicNumerals(totalAssets) }}</span>
         </button>
-        <button
-          class="dm-filter-btn"
-          :class="{ active: filterType === 'surah' }"
-          @click="filterType = 'surah'"
-        >
+        <button class="dm-filter-btn" :class="{ active: filterType === 'surah' }" @click="filterType = 'surah'">
           <IconBook2 :size="14" />
           السور
           <span class="dm-filter-count">{{ toArabicNumerals(surahCount) }}</span>
         </button>
-        <button
-          class="dm-filter-btn"
-          :class="{ active: filterType === 'azkar' }"
-          @click="filterType = 'azkar'"
-        >
+        <button class="dm-filter-btn" :class="{ active: filterType === 'azkar' }" @click="filterType = 'azkar'">
           <IconSparkles :size="14" />
           الأذكار
           <span class="dm-filter-count">{{ toArabicNumerals(azkarCount) }}</span>
@@ -205,12 +180,7 @@ const handleAssetAction = (asset) => {
           <component :is="isPaused ? IconPlayerPlay : IconPlayerPause" :size="16" />
         </button>
 
-        <button
-          v-if="pendingCount > 0"
-          class="dm-action-btn"
-          @click="cancelAllDownloads"
-          title="إلغاء"
-        >
+        <button v-if="pendingCount > 0" class="dm-action-btn" @click="cancelAllDownloads" title="إلغاء">
           <IconX :size="16" />
         </button>
 
@@ -236,12 +206,7 @@ const handleAssetAction = (asset) => {
 
     <!-- List -->
     <div class="dm-list">
-      <div
-        v-for="asset in filteredAssets"
-        :key="asset.id"
-        class="dm-item"
-        :class="asset.status"
-      >
+      <div v-for="asset in filteredAssets" :key="asset.id" class="dm-item" :class="asset.status">
         <div class="dm-item-icon" :class="asset.type">
           <IconBook2 v-if="asset.type === 'surah'" :size="18" />
           <IconSparkles v-else :size="18" />
@@ -432,7 +397,9 @@ const handleAssetAction = (asset) => {
   font-size: 0.8rem;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .dm-filter-btn:hover {
@@ -471,7 +438,10 @@ const handleAssetAction = (asset) => {
   font-size: 0.8rem;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .dm-action-btn:hover:not(:disabled) {
@@ -573,7 +543,9 @@ const handleAssetAction = (asset) => {
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
   flex-shrink: 0;
 }
 
@@ -638,13 +610,22 @@ const handleAssetAction = (asset) => {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 /* Scrollbar */
