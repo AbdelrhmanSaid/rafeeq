@@ -96,8 +96,12 @@ const remainingTime = computed(() => {
 </script>
 
 <template>
+  <div v-if="store.isDetecting" class="border rounded p-5">
+    <LoadingState message="جاري تحديد موقعك..." />
+  </div>
+
   <div
-    v-if="store.latitude === 0 || store.longitude === 0"
+    v-else-if="store.latitude === 0 || store.longitude === 0"
     class="border rounded p-5 text-center cursor-pointer"
     @click="store.detect"
   >
@@ -105,7 +109,7 @@ const remainingTime = computed(() => {
   </div>
 
   <div v-else-if="isFetching" class="border rounded p-5">
-    <LoadingState />
+    <LoadingState message="جاري تحميل مواقيت الصلاة..." />
   </div>
 
   <div v-else-if="error" class="border rounded p-5">

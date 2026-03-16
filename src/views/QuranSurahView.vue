@@ -89,7 +89,7 @@ const isCurrentVerse = (verse) => {
 
 <template>
   <Page v-if="isFetching">
-    <LoadingState />
+    <LoadingState message="جاري تحميل السورة..." />
   </Page>
 
   <Page v-else-if="error">

@@ -65,7 +65,7 @@ onBeforeRouteLeave(async () => {
 
 <template>
   <Page v-if="isFetching">
-    <LoadingState />
+    <LoadingState message="جاري تحميل الأذكار..." />
   </Page>
 
   <Page v-else-if="error">
