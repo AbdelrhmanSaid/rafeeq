@@ -7,12 +7,12 @@ import { IconWifiOff } from '@tabler/icons-vue'
 import { computed, ref, watch } from 'vue'
 import { useOnline } from '@vueuse/core'
 import { Toaster, toast } from 'vue-sonner'
-import { useModeStore } from './stores/mode'
+import { useThemeStore } from '@/stores/theme'
 import { registerSW } from 'virtual:pwa-register'
 
 // Network status detection
 const online = useOnline()
-const modeStore = useModeStore()
+const themeStore = useThemeStore()
 
 const route = useRoute()
 const isEmbedRoute = computed(() => route.path.startsWith('/embed'))
@@ -82,7 +82,7 @@ const updateSW = registerSW({
 
   <!-- Toast -->
   <Toaster
-    :theme="modeStore.mode"
+    :theme="themeStore.mode"
     position="bottom-left"
     offset="20px"
     :toast-options="{

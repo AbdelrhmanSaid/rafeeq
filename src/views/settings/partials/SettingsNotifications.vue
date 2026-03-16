@@ -51,6 +51,10 @@ async function handleRequestPermission() {
 
       <p class="card-text text-muted mb-3">تلقي تذكيرات يومية لأذكار الصباح والمساء في الأوقات المحددة</p>
 
+      <div class="alert alert-info py-2 mb-3">
+        <small>هذه الميزة تجريبية (Beta) — الإشعارات لن تعمل إذا كان التطبيق مغلقاً.</small>
+      </div>
+
       <!-- Status Messages -->
       <div v-if="!isSupported || isDenied" class="mb-3">
         <div v-if="!isSupported" class="alert alert-secondary py-2">

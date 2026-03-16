@@ -5,8 +5,7 @@ import HomeView from '@/views/HomeView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
 import { trackPageview } from '@/utilities/analytics'
 import { useMeta } from '@/utilities/head'
-import { applyQueryTheme } from '@/composables/useQueryTheme'
-import { useModeStore } from '@/stores/mode'
+import { useThemeStore } from '@/stores/theme'
 
 function withEmbedAliases(routes) {
   return routes.map((route) => ({
@@ -170,16 +169,7 @@ router.beforeEach((to) => {
 })
 
 router.afterEach((to) => {
-  const modeStore = useModeStore()
-  const modeParam = to.query.mode
-  if (modeParam === 'light' || modeParam === 'dark') {
-    modeStore.setMode(modeParam)
-  }
-
-  applyQueryTheme({
-    fgParam: to.query.fg,
-    bgParam: to.query.bg,
-  })
+  useThemeStore().applyQueryOverrides(to.query)
 
   // Close the mobile menu after clicking on a link
   document.querySelector('.navbar-collapse')?.classList?.remove('show')

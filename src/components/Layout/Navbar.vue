@@ -1,7 +1,7 @@
 <script setup>
 import { RouterLink, useRoute } from 'vue-router'
 import { computed } from 'vue'
-import { useModeStore } from '@/stores/mode'
+import { useThemeStore } from '@/stores/theme'
 import { useRadioStore } from '@/stores/radio'
 
 import {
@@ -17,7 +17,6 @@ import {
 
 import Logo from '@/components/Logo.vue'
 
-const mode = useModeStore()
 const radio = useRadioStore()
 const route = useRoute()
 
@@ -82,20 +81,6 @@ const isRadioActive = computed(() => ['radio', 'radio-station'].includes(route.n
         </ul>
 
         <ul class="navbar-nav ms-auto gap-2">
-          <li class="nav-item">
-            <a href="#" class="nav-link" @click.prevent="mode.toggle()">
-              <span v-if="mode.isDark">
-                <IconSunFilled class="me-2" size="1.25rem" />
-                <span>الوضع الفاتح</span>
-              </span>
-
-              <span v-else>
-                <IconMoonStars class="me-2" size="1.25rem" />
-                <span>الوضع الداكن</span>
-              </span>
-            </a>
-          </li>
-
           <li class="nav-item">
             <a href="https://t.me/rafeeqme" target="_blank" class="nav-link">
               <IconBrandTelegram class="me-2" size="1.25rem" />
