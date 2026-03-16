@@ -16,6 +16,7 @@ const BG_COLOR_VARS = ['--bs-body-bg', '--bs-body-bg-rgb', '--bs-secondary-bg', 
 
 function normalizeColor(value) {
   if (!value) return null
+
   const raw = Array.isArray(value) ? value[0] : value
   if (!raw || typeof raw !== 'string') return null
 
@@ -60,8 +61,6 @@ function removeVars(names) {
 }
 
 function applyPrimaryColor(color) {
-  if (!color) return
-
   const fg = normalizeColor(color)
 
   if (fg) {
@@ -82,8 +81,6 @@ function applyPrimaryColor(color) {
 }
 
 function applyBgColor(color) {
-  if (!color) return
-
   const bg = normalizeColor(color)
 
   if (bg) {
@@ -137,7 +134,7 @@ export const useThemeStore = defineStore('theme', () => {
   })
 
   watchEffect(() => {
-    applyPrimaryColor(primaryColor.value)
+    applyPrimaryColor(primaryColor.value || null)
   })
 
   return {

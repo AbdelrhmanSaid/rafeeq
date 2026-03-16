@@ -212,7 +212,7 @@ const isCurrentVerse = (verse) => {
     }
 
     .current-ayah {
-      background-color: var(--bs-primary-bg-subtle);
+      background-color: var(--bs-secondary-bg);
     }
   }
 }
