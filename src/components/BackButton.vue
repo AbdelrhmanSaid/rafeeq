@@ -22,7 +22,11 @@ const props = defineProps({
 </script>
 
 <template>
-  <RouterLink :to="props.to" class="btn d-inline-flex align-items-center gap-2" :class="[props.buttonClass, { 'embed-hidden': embedHidden }]">
+  <RouterLink
+    :to="props.to"
+    class="btn d-inline-flex align-items-center gap-2"
+    :class="[props.buttonClass, { 'embed-hidden': embedHidden }]"
+  >
     <IconArrowLeft size="1.25rem" />
     <span>{{ props.label }}</span>
   </RouterLink>

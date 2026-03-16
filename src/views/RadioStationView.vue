@@ -11,7 +11,7 @@ import BackButton from '@/components/BackButton.vue'
 import OfflineState from '@/components/OfflineState.vue'
 import radiosData from '@/exports/Radios.js'
 import { useRadioStore } from '@/stores/radio'
-import { useFavorites } from '@/composables/favorites'
+import { useFavorites } from '@/composables/useFavorites'
 import { toast } from 'vue-sonner'
 
 const route = useRoute()

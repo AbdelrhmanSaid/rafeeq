@@ -3,9 +3,9 @@ import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import reciters from '@/exports/QuranReciters.js'
 
-const DEFAULT_RECITER_ID = 123
+const DEFAULT_RECITER_ID = 259
 
-export const useQuranStore = defineStore('audio', () => {
+export const useQuranStore = defineStore('quran', () => {
   const currentReciter = useLocalStorage('currentReciter', DEFAULT_RECITER_ID)
   const shouldAutoPlay = ref(false)
 
@@ -83,6 +83,10 @@ export const useQuranStore = defineStore('audio', () => {
     return timing ? timing.start_time / 1000 : null
   }
 
+  function resetAyahTracking() {
+    currentAyahIndex.value = -1
+  }
+
   async function changeReciter(reciterId) {
     currentReciter.value = reciterId
     if (currentSurahNumber.value && surahName.value) {
@@ -97,7 +101,6 @@ export const useQuranStore = defineStore('audio', () => {
     surahName,
     currentSurahNumber,
     ayahTimings,
-    currentAyahIndex,
 
     reciter,
     currentAyah,
@@ -105,6 +108,7 @@ export const useQuranStore = defineStore('audio', () => {
     loadSurahAudio,
     updateCurrentAyahFromTime,
     getAyahStartTime,
+    resetAyahTracking,
     changeReciter,
   }
 })

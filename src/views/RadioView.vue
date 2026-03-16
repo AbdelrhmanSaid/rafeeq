@@ -1,7 +1,7 @@
 <script setup>
 import { useRadioStore } from '@/stores/radio'
 import { IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
-import { useSearch } from '@/composables/search'
+import { useSearch } from '@/composables/useSearch'
 import { computed } from 'vue'
 import { useOnline } from '@vueuse/core'
 

@@ -1,5 +1,5 @@
 <script setup>
-import { useSearch } from '@/composables/search'
+import { useSearch } from '@/composables/useSearch'
 
 import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'

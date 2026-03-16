@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useNotifications } from '@/composables/useNotifications'
 import { IconBell } from '@tabler/icons-vue'
+import { toast } from 'vue-sonner'
 
 const {
   isSupported,
@@ -35,7 +36,7 @@ const permissionClass = computed(() => {
 async function handleRequestPermission() {
   const granted = await requestPermission()
   if (!granted) {
-    alert('تم رفض إذن الإشعارات. يمكنك تفعيلها من إعدادات المتصفح.')
+    toast.error('تم رفض إذن الإشعارات. يمكنك تفعيلها من إعدادات المتصفح.')
   }
 }
 </script>
