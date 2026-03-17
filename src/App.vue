@@ -66,7 +66,7 @@ const updateSW = registerSW({
     </div>
 
     <!-- Desktop Navbar -->
-    <Navbar class="d-none d-md-block embed-hidden" />
+    <Navbar class="d-none d-md-block" v-if="!isEmbedRoute" />
 
     <!-- Main Content -->
     <div class="main-content">
@@ -74,10 +74,10 @@ const updateSW = registerSW({
     </div>
 
     <!-- Desktop Footer -->
-    <Footer class="d-none d-md-block embed-hidden" />
+    <Footer class="d-none d-md-block" v-if="!isEmbedRoute" />
 
     <!-- Mobile TabBar -->
-    <TabBar class="d-block d-md-none embed-hidden" />
+    <TabBar class="d-block d-md-none" v-if="!isEmbedRoute" />
   </div>
 
   <!-- Toast -->
