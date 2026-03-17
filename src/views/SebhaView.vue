@@ -10,7 +10,7 @@ const sebha = ref(0)
 </script>
 
 <template>
-  <Page>
+  <Page class="sebha-page full-height">
     <Heading
       class="mb-4"
       title="السبحة الإلكترونية"
@@ -36,10 +36,16 @@ const sebha = ref(0)
 </template>
 
 <style lang="scss" scoped>
+.sebha-page {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
 .sebha-shell {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 1.75rem;
   padding: 2rem 1rem 3rem;
   text-align: center;
