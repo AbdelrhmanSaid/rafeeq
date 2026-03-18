@@ -13,11 +13,17 @@ export function useOfflineData(namespace) {
     watch(isFinished, async (done) => {
       if (!done) return
       const stored = await allIdbKeys()
-      const dataKeys = stored.filter((k) => typeof k === 'string' && k.startsWith(prefix)).map((k) => k.slice(prefix.length))
+      const dataKeys = stored
+        .filter((k) => typeof k === 'string' && k.startsWith(prefix))
+        .map((k) => k.slice(prefix.length))
       const dataSet = new Set(dataKeys)
       const trackedSet = new Set(keys.value)
 
-      if (dataKeys.length !== keys.value.length || dataKeys.some((k) => !trackedSet.has(k)) || keys.value.some((k) => !dataSet.has(k))) {
+      if (
+        dataKeys.length !== keys.value.length ||
+        dataKeys.some((k) => !trackedSet.has(k)) ||
+        keys.value.some((k) => !dataSet.has(k))
+      ) {
         keys.value = dataKeys
       }
     })

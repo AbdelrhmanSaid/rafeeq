@@ -39,7 +39,6 @@ const closeMoreMenu = () => {
     isClosing.value = false
   }, 300) // Match animation duration
 }
-
 </script>
 
 <template>

@@ -13,7 +13,7 @@ function withEmbedAliases(routes) {
       route.alias = [...(route.alias || []), `/embed${route.path}`]
     }
 
-    return route;
+    return route
   })
 }
 

@@ -8,19 +8,19 @@ const sebha = ref(0)
 
 <template>
   <div class="sebha-shell">
-      <button @click="sebha++" class="sebha-btn">
-        <span class="sebha-count">{{ toArabicNumerals(sebha) }}</span>
-        <span class="sebha-label">اضغط للتسبيح</span>
-      </button>
+    <button @click="sebha++" class="sebha-btn">
+      <span class="sebha-count">{{ toArabicNumerals(sebha) }}</span>
+      <span class="sebha-label">اضغط للتسبيح</span>
+    </button>
 
-      <div class="sebha-actions">
-        <button @click="sebha = 0" class="btn btn-outline-primary">
-          <IconRefreshDot class="me-2" size="1.25rem" />
-          <span>إعادة العداد</span>
-        </button>
-        <span class="sebha-hint">استمر بالذكر، واحتسب الأجر</span>
-      </div>
+    <div class="sebha-actions">
+      <button @click="sebha = 0" class="btn btn-outline-primary">
+        <IconRefreshDot class="me-2" size="1.25rem" />
+        <span>إعادة العداد</span>
+      </button>
+      <span class="sebha-hint">استمر بالذكر، واحتسب الأجر</span>
     </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>

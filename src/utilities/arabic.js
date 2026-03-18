@@ -22,9 +22,15 @@ export const toArabicNumerals = (value) => {
 
 export const formatTime = (seconds) => {
   if (!seconds || seconds <= 0) return '٠٠:٠٠:٠٠'
-  const h = Math.floor(seconds / 3600).toString().padStart(2, '0')
-  const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0')
-  const s = Math.floor(seconds % 60).toString().padStart(2, '0')
+  const h = Math.floor(seconds / 3600)
+    .toString()
+    .padStart(2, '0')
+  const m = Math.floor((seconds % 3600) / 60)
+    .toString()
+    .padStart(2, '0')
+  const s = Math.floor(seconds % 60)
+    .toString()
+    .padStart(2, '0')
 
   return toArabicNumerals(`${h}:${m}:${s}`)
 }
