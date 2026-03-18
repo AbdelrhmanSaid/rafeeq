@@ -39,7 +39,6 @@ const closeMoreMenu = () => {
     isClosing.value = false
   }, 300) // Match animation duration
 }
-
 </script>
 
 <template>
@@ -60,7 +59,7 @@ const closeMoreMenu = () => {
         <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
           <h5 class="mb-0">المزيد</h5>
           <button class="btn btn-sm" @click="closeMoreMenu">
-            <IconX size="1.25rem" />
+            <IconX :size="20" />
           </button>
         </div>
 
@@ -102,7 +101,7 @@ const closeMoreMenu = () => {
             class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item"
             @click="closeMoreMenu"
           >
-            <IconBrandTelegram class="me-2" size="1.25rem" />
+            <IconBrandTelegram class="me-2" :size="20" />
             قناة التليجرام
           </a>
         </div>
@@ -110,49 +109,49 @@ const closeMoreMenu = () => {
     </div>
 
     <!-- Tab Bar -->
-    <nav class="position-fixed bottom-0 start-0 end-0 bg-body border-top d-flex justify-content-around py-2 tab-bar">
+    <nav class="position-fixed bottom-0 start-0 end-0 bg-body border-top d-flex justify-content-around tab-bar">
       <RouterLink
         :to="{ name: 'home' }"
-        class="d-flex flex-column align-items-center text-decoration-none text-secondary px-2 py-1 rounded tab-item"
+        class="d-flex flex-column align-items-center text-decoration-none text-secondary rounded tab-item"
       >
-        <IconHome size="1.5rem" />
-        <span class="mt-1 small">الرئيسية</span>
+        <IconHome :size="24" />
+        <span>الرئيسية</span>
       </RouterLink>
 
       <RouterLink
         :to="{ name: 'quran' }"
-        class="d-flex flex-column align-items-center text-decoration-none text-secondary px-2 py-1 rounded tab-item"
+        class="d-flex flex-column align-items-center text-decoration-none text-secondary rounded tab-item"
         :class="{ 'is-active': isQuranActive }"
       >
-        <IconBook size="1.5rem" />
-        <span class="mt-1 small">القرآن</span>
+        <IconBook :size="24" />
+        <span>القرآن</span>
       </RouterLink>
 
       <RouterLink
         :to="{ name: 'azkar' }"
-        class="d-flex flex-column align-items-center text-decoration-none text-secondary px-2 py-1 rounded tab-item"
+        class="d-flex flex-column align-items-center text-decoration-none text-secondary rounded tab-item"
         :class="{ 'is-active': isAzkarActive }"
       >
-        <IconSparkles size="1.5rem" />
-        <span class="mt-1 small">الأذكار</span>
+        <IconSparkles :size="24" />
+        <span>الأذكار</span>
       </RouterLink>
 
       <RouterLink
         :to="{ name: 'radio' }"
-        class="d-flex flex-column align-items-center text-decoration-none text-secondary px-2 py-1 rounded position-relative tab-item"
+        class="d-flex flex-column align-items-center text-decoration-none text-secondary rounded position-relative tab-item"
         :class="{ 'is-active': isRadioActive }"
       >
-        <IconRadio size="1.5rem" />
-        <span class="mt-1 small">الإذاعة</span>
+        <IconRadio :size="24" />
+        <span>الإذاعة</span>
         <span class="position-absolute top-0 end-0 radio-status" v-if="radio.isPlaying"></span>
       </RouterLink>
 
       <button
-        class="d-flex flex-column align-items-center text-secondary bg-transparent border-0 px-2 py-1 rounded tab-item"
+        class="d-flex flex-column align-items-center text-secondary bg-transparent border-0 rounded tab-item"
         @click="toggleMoreMenu"
       >
-        <IconDotsCircleHorizontal size="1.5rem" />
-        <span class="mt-1 small">المزيد</span>
+        <IconDotsCircleHorizontal :size="24" />
+        <span>المزيد</span>
       </button>
     </nav>
   </div>
@@ -161,17 +160,19 @@ const closeMoreMenu = () => {
 <style lang="scss" scoped>
 .tab-bar {
   height: var(--navbar-height);
-  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+  padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
   z-index: 1020;
 }
 
 .tab-item {
   transition: color 0.2s;
   min-width: 60px;
-  font-size: 0.75rem;
+  padding: 4px 8px;
+  font-size: 12px;
 
   span:not(.radio-status) {
-    font-size: 0.7rem;
+    margin-top: 4px;
+    font-size: 11px;
   }
 
   &:hover,

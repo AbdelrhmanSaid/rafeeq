@@ -3,9 +3,14 @@ import { computed, watchEffect } from 'vue'
 import { useLocalStorage, usePreferredDark } from '@vueuse/core'
 import { applyPrimaryColor, applyBgColor } from '@/utilities/css'
 
+const DEFAULT_FONT_SIZE = 16
+const MIN_FONT_SIZE = 12
+const MAX_FONT_SIZE = 24
+
 export const useThemeStore = defineStore('theme', () => {
   const mode = useLocalStorage('mode', 'system')
   const primaryColor = useLocalStorage('theme-primary', '')
+  const fontSize = useLocalStorage('app-font-size', DEFAULT_FONT_SIZE)
   const prefersDark = usePreferredDark()
 
   const resolvedMode = computed(() => {
@@ -29,6 +34,11 @@ export const useThemeStore = defineStore('theme', () => {
     primaryColor.value = color || ''
   }
 
+  function setFontSize(size) {
+    const clamped = Math.min(MAX_FONT_SIZE, Math.max(MIN_FONT_SIZE, Number(size) || DEFAULT_FONT_SIZE))
+    fontSize.value = clamped
+  }
+
   function applyQueryOverrides({ mode: modeParam, fg, bg }) {
     if (modeParam === 'light' || modeParam === 'dark') setMode(modeParam)
     if (fg) applyPrimaryColor(fg)
@@ -43,13 +53,22 @@ export const useThemeStore = defineStore('theme', () => {
     applyPrimaryColor(primaryColor.value || null)
   })
 
+  watchEffect(() => {
+    document.documentElement.style.setProperty('--app-font-size', `${fontSize.value}px`)
+  })
+
   return {
     mode,
     primaryColor,
+    fontSize,
     isDark,
     setMode,
     toggle,
     setPrimaryColor,
+    setFontSize,
     applyQueryOverrides,
+    MIN_FONT_SIZE,
+    MAX_FONT_SIZE,
+    DEFAULT_FONT_SIZE,
   }
 })
