@@ -172,7 +172,7 @@ const remainingTime = computed(() => {
           </span>
           <b>{{ timing.label }}</b>
         </div>
-        <b>{{ formatTime(timings.data.timings[key]) }}</b>
+        <b>{{ formatTiming(timings.data.timings[key]) }}</b>
       </div>
     </div>
   </div>
