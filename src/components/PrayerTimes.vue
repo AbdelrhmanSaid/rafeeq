@@ -16,6 +16,7 @@ import Duhur from '@/components/icons/Prayers/Duhur.vue'
 import Asr from '@/components/icons/Prayers/Asr.vue'
 import Maghrib from '@/components/icons/Prayers/Maghrib.vue'
 import Ishaa from '@/components/icons/Prayers/Ishaa.vue'
+import { IconMapPin } from '@tabler/icons-vue'
 
 const props = defineProps({
   lat: { type: [Number, String], default: null },
