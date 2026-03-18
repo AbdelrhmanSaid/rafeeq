@@ -9,6 +9,7 @@ import Heading from '@/components/Heading.vue'
 import BackButton from '@/components/BackButton.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
+import OfflineState from '@/components/OfflineState.vue'
 import ZekrCard from '@/components/ZekrCard.vue'
 import { useMeta } from '@/utilities/head'
 import { useAzkarService } from '@/services/azkarService'
@@ -65,11 +66,12 @@ onBeforeRouteLeave(async () => {
 
 <template>
   <Page v-if="isFetching">
-    <LoadingState />
+    <LoadingState message="جاري تحميل الأذكار..." />
   </Page>
 
   <Page v-else-if="error">
-    <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
+    <OfflineState v-if="!online" />
+    <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." v-else />
   </Page>
 
   <Page v-else-if="category">

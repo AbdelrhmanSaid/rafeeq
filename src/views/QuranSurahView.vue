@@ -8,6 +8,7 @@ import Heading from '@/components/Heading.vue'
 import BackButton from '@/components/BackButton.vue'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
+import OfflineState from '@/components/OfflineState.vue'
 import AudioPlayer from '@/components/QuranPlayer.vue'
 import { useQuranStore } from '@/stores/quran'
 import { useMeta } from '@/utilities/head'
@@ -22,10 +23,7 @@ const { fetchSurah } = useQuranService()
 const surah = ref(null)
 const isFetching = ref(true)
 const error = ref(null)
-
-const quranSurah = ref(null)
-const quranLoading = ref(false)
-const quranLoadingError = ref(null)
+const playerRef = ref(null)
 
 async function loadSurah() {
   isFetching.value = true
@@ -33,34 +31,13 @@ async function loadSurah() {
 
   try {
     surah.value = await fetchSurah(surahId.value)
-    loadAudio()
+    if (online.value && surah.value) {
+      await quranStore.loadSurahAudio(surah.value.data.number, surah.value.data.name)
+    }
   } catch (e) {
     error.value = e
   } finally {
     isFetching.value = false
-  }
-}
-
-async function loadAudio() {
-  if (!online.value || !surah.value) return
-
-  try {
-    quranLoading.value = true
-    quranLoadingError.value = null
-
-    const response = await fetch(
-      `https://api.alquran.cloud/v1/surah/${surah.value.data.number}/${quranStore.currentReciter}`,
-    )
-    if (!response.ok) throw new Error('Failed to fetch audio')
-    const data = await response.json()
-
-    quranSurah.value = data.data
-    quranStore.playSurah(data.data)
-    quranStore.currentAudio = null
-  } catch (err) {
-    quranLoadingError.value = err.message
-  } finally {
-    quranLoading.value = false
   }
 }
 
@@ -85,9 +62,8 @@ const ayat = computed(() => {
     }
 
     return ayat.map((ayah) => {
-      const text = (ayah.numberInSurah === 1
-        ? ayah.text.replace('بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ', '')
-        : ayah.text
+      const text = (
+        ayah.numberInSurah === 1 ? ayah.text.replace('بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ', '') : ayah.text
       ).trim()
 
       return {
@@ -101,32 +77,25 @@ const ayat = computed(() => {
 })
 
 const playVerse = (verse) => {
-  if (!quranSurah.value) return
-
-  const verseIndex = quranSurah.value.ayahs.findIndex((ayah) => ayah.numberInSurah === verse.numberInSurah)
-
-  if (verseIndex === -1) return
-  if (quranStore.currentPlaylist.length === 0) quranStore.playSurah(quranSurah.value)
-
-  quranStore.jumpToVerse(verseIndex)
-  quranStore.shouldAutoPlay = true
+  if (!playerRef.value) return
+  playerRef.value.seekToAyah(verse.numberInSurah)
 }
 
 const isCurrentVerse = (verse) => {
-  const currentAudio = quranStore.currentAudio
-  if (!currentAudio || !surah.value) return false
-
-  return currentAudio.verseNumber === verse.numberInSurah && currentAudio.surahName === surah.value.data.name
+  const currentAyah = quranStore.currentAyah
+  if (!currentAyah || !surah.value) return false
+  return currentAyah.ayah === verse.numberInSurah
 }
 </script>
 
 <template>
   <Page v-if="isFetching">
-    <LoadingState />
+    <LoadingState message="جاري تحميل السورة..." />
   </Page>
 
   <Page v-else-if="error">
-    <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
+    <OfflineState v-if="!online" />
+    <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." v-else />
   </Page>
 
   <Page class="quran-page" v-else-if="surah">
@@ -137,7 +106,7 @@ const isCurrentVerse = (verse) => {
     />
 
     <!-- Audio Player -->
-    <AudioPlayer v-if="online" />
+    <AudioPlayer v-if="online" ref="playerRef" />
 
     <div class="ayat font-quran mb-4">
       <span class="basmallah" v-if="surahId != 9">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
@@ -147,14 +116,11 @@ const isCurrentVerse = (verse) => {
           class="ayah clickable-ayah"
           :class="{ 'current-ayah': isCurrentVerse(ayah) }"
           @click="playVerse(ayah)"
-          :title='`تشغيل الآية ${toArabicNumerals(ayah.numberInSurah)}`'
+          :title="`تشغيل الآية ${toArabicNumerals(ayah.numberInSurah)}`"
           >{{ ayah.text }}</span
         >
         <span class="ayah-number" aria-hidden="true">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
-        <div
-          v-if="index < ayat.length - 1 && ayah.page !== ayat[index + 1].page"
-          class="page-separator"
-        >
+        <div v-if="index < ayat.length - 1 && ayah.page !== ayat[index + 1].page" class="page-separator">
           <span class="page-number">{{ toArabicNumerals(ayah.page) }}</span>
         </div>
       </template>
@@ -248,7 +214,7 @@ const isCurrentVerse = (verse) => {
     }
 
     .current-ayah {
-      background-color: var(--bs-primary-bg-subtle);
+      background-color: var(--bs-secondary-bg);
     }
   }
 }

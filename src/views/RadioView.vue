@@ -1,7 +1,7 @@
 <script setup>
 import { useRadioStore } from '@/stores/radio'
 import { IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
-import { useSearch } from '@/composables/search'
+import { useSearch } from '@/composables/useSearch'
 import { computed } from 'vue'
 import { useOnline } from '@vueuse/core'
 
@@ -97,8 +97,7 @@ const { search, filtered } = useSearch(radiosList, ['name'])
   }
 
   &:hover:not(.active) {
-    background-color: var(--bs-primary-bg-subtle);
-    color: var(--bs-primary);
+    background-color: var(--bs-tertiary-bg);
   }
 }
 </style>

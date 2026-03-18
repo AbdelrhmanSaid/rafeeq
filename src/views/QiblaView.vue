@@ -214,8 +214,7 @@ onUnmounted(() => {
 
     <!-- Location loading -->
     <div v-else-if="locationLoading" class="qibla-card qibla-card--static">
-      <LoadingState />
-      <p class="text-center text-muted mt-3 mb-0">جاري تحديد موقعك...</p>
+      <LoadingState message="جاري تحديد موقعك..." />
     </div>
 
     <!-- Location error -->
@@ -227,12 +226,13 @@ onUnmounted(() => {
 
     <!-- Qibla API loading -->
     <div v-else-if="isFetching" class="qibla-card qibla-card--static">
-      <LoadingState />
+      <LoadingState message="جاري تحديد اتجاه القبلة..." />
     </div>
 
     <!-- Qibla API error -->
     <div v-else-if="error" class="qibla-card qibla-card--static">
-      <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
+      <OfflineState v-if="!online" />
+      <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." v-else />
     </div>
 
     <!-- Qibla compass -->

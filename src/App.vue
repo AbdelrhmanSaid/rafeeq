@@ -7,12 +7,12 @@ import { IconWifiOff } from '@tabler/icons-vue'
 import { computed, ref, watch } from 'vue'
 import { useOnline } from '@vueuse/core'
 import { Toaster, toast } from 'vue-sonner'
-import { useModeStore } from './stores/mode'
+import { useThemeStore } from '@/stores/theme'
 import { registerSW } from 'virtual:pwa-register'
 
 // Network status detection
 const online = useOnline()
-const modeStore = useModeStore()
+const themeStore = useThemeStore()
 
 const route = useRoute()
 const isEmbedRoute = computed(() => route.path.startsWith('/embed'))
@@ -66,7 +66,7 @@ const updateSW = registerSW({
     </div>
 
     <!-- Desktop Navbar -->
-    <Navbar class="d-none d-md-block embed-hidden" />
+    <Navbar class="d-none d-md-block" v-if="!isEmbedRoute" />
 
     <!-- Main Content -->
     <div class="main-content">
@@ -74,15 +74,15 @@ const updateSW = registerSW({
     </div>
 
     <!-- Desktop Footer -->
-    <Footer class="d-none d-md-block embed-hidden" />
+    <Footer class="d-none d-md-block" v-if="!isEmbedRoute" />
 
     <!-- Mobile TabBar -->
-    <TabBar class="d-block d-md-none embed-hidden" />
+    <TabBar class="d-block d-md-none" v-if="!isEmbedRoute" />
   </div>
 
   <!-- Toast -->
   <Toaster
-    :theme="modeStore.mode"
+    :theme="themeStore.mode"
     position="bottom-left"
     offset="20px"
     :toast-options="{
@@ -113,7 +113,6 @@ const updateSW = registerSW({
   min-height: calc(100vh - var(--navbar-height)); /* Adjust for navbar and footer on desktop */
   padding-bottom: var(--navbar-height);
 }
-
 
 /* Embed adjustments */
 .main-content-embed .main-content {

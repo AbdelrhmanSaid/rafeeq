@@ -19,3 +19,18 @@ export const normalize = (text) => {
 export const toArabicNumerals = (value) => {
   return String(value).replace(/\d/g, (digit) => String.fromCharCode(0x660 + Number(digit)))
 }
+
+export const formatTime = (seconds) => {
+  if (!seconds || seconds <= 0) return '٠٠:٠٠:٠٠'
+  const h = Math.floor(seconds / 3600)
+    .toString()
+    .padStart(2, '0')
+  const m = Math.floor((seconds % 3600) / 60)
+    .toString()
+    .padStart(2, '0')
+  const s = Math.floor(seconds % 60)
+    .toString()
+    .padStart(2, '0')
+
+  return toArabicNumerals(`${h}:${m}:${s}`)
+}

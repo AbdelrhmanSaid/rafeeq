@@ -42,7 +42,6 @@ body {
   cursor: pointer;
 }
 
-
 .main-content-embed .embed-hidden {
   display: none !important;
 }
@@ -53,4 +52,8 @@ body {
 
 .main-content-embed .main-content > * {
   width: 100%;
+}
+
+.full-height {
+  min-height: calc(100vh - var(--navbar-height));
 }

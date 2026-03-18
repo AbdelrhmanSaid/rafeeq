@@ -7,7 +7,7 @@ import { useFetch, useDateFormat, useOnline, useNow } from '@vueuse/core'
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import OfflineState from '@/components/OfflineState.vue'
-import { toArabicNumerals } from '@/utilities/arabic'
+import { formatTime, toArabicNumerals } from '@/utilities/arabic'
 
 // Import prayer icons
 import Fajr from '@/components/icons/Prayers/Fajr.vue'
@@ -16,6 +16,13 @@ import Duhur from '@/components/icons/Prayers/Duhur.vue'
 import Asr from '@/components/icons/Prayers/Asr.vue'
 import Maghrib from '@/components/icons/Prayers/Maghrib.vue'
 import Ishaa from '@/components/icons/Prayers/Ishaa.vue'
+
+const props = defineProps({
+  lat: { type: [Number, String], default: null },
+  long: { type: [Number, String], default: null },
+})
+
+const hasPropsCoords = computed(() => props.lat != null && props.long != null)
 
 // Route for layout detection
 const route = useRoute()
@@ -40,11 +47,14 @@ const timingsMap = {
 // Coordinates store
 const store = useCoordinatesStore()
 
+const latitude = computed(() => (hasPropsCoords.value ? props.lat : store.latitude))
+const longitude = computed(() => (hasPropsCoords.value ? props.long : store.longitude))
+
 // API endpoint
 const endpoint = computed(() => {
-  if (!store.latitude || !store.longitude) return null
+  if (!latitude.value || !longitude.value) return null
   const today = new Date().toISOString().split('T')[0].split('-').reverse().join('-')
-  return `https://api.aladhan.com/v1/timings/${today}?latitude=${store.latitude}&longitude=${store.longitude}&iso8601=true`
+  return `https://api.aladhan.com/v1/timings/${today}?latitude=${latitude.value}&longitude=${longitude.value}&iso8601=true`
 })
 
 // Fetch options
@@ -59,7 +69,7 @@ const options = {
 const { isFetching, data: timings, error } = useFetch(endpoint, options).json().get()
 
 // Format time
-const formatTime = (time) => {
+const formatTiming = (time) => {
   return toArabicNumerals(useDateFormat(time, 'hh:mm A').value.replace('AM', 'ص').replace('PM', 'م'))
 }
 
@@ -103,19 +113,17 @@ const remainingTime = computed(() => {
     nextPrayerTime.setDate(nextPrayerTime.getDate() + 1)
   }
 
-  const diff = nextPrayerTime - currentTime
-
-  const hours = Math.floor(diff / (1000 * 60 * 60))
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-  const seconds = Math.floor((diff % (1000 * 60)) / 1000)
-
-  return toArabicNumerals(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`)
+  return formatTime((nextPrayerTime - currentTime) / 1000)
 })
 </script>
 
 <template>
+  <div v-if="!hasPropsCoords && store.isDetecting" class="border rounded p-5">
+    <LoadingState message="جاري تحديد موقعك..." />
+  </div>
+
   <div
-    v-if="store.latitude === 0 || store.longitude === 0"
+    v-else-if="!hasPropsCoords && (store.latitude === 0 || store.longitude === 0)"
     class="border rounded p-5 text-center cursor-pointer"
     @click="store.detect"
   >
@@ -123,11 +131,12 @@ const remainingTime = computed(() => {
   </div>
 
   <div v-else-if="isFetching" class="border rounded p-5">
-    <LoadingState />
+    <LoadingState message="جاري تحميل مواقيت الصلاة..." />
   </div>
 
   <div v-else-if="error" class="border rounded p-5">
-    <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
+    <OfflineState v-if="!online" />
+    <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." v-else />
   </div>
 
   <!-- Vertical Layout -->
@@ -180,7 +189,7 @@ const remainingTime = computed(() => {
             <h5 class="card-title mb-0">{{ timing.label }}</h5>
           </div>
           <p class="card-text d-flex justify-content-between align-items-end">
-            <span>{{ formatTime(timings.data.timings[key]) }}</span>
+            <span>{{ formatTiming(timings.data.timings[key]) }}</span>
 
             <small v-if="key === nextPrayerKey">
               {{ remainingTime }}
@@ -189,10 +198,6 @@ const remainingTime = computed(() => {
         </div>
       </div>
     </div>
-  </div>
-
-  <div v-else-if="!online" class="border rounded p-5">
-    <OfflineState />
   </div>
 </template>
 
