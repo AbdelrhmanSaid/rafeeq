@@ -1,14 +1,13 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, defineAsyncComponent } from 'vue'
 import { useRoute } from 'vue-router'
 import Heading from '@/components/Heading.vue'
 import Page from '@/components/Layout/Page.vue'
-import PrayerTimes from '@/components/PrayerTimes.vue'
-import SunnahPrayers from '@/components/SunnahPrayers.vue'
 
 const components = {
-  'prayer-times': PrayerTimes,
-  'sunnah-prayers': SunnahPrayers,
+  'prayer-times': defineAsyncComponent(() => import('@/components/PrayerTimes.vue')),
+  'sunnah-prayers': defineAsyncComponent(() => import('@/components/SunnahPrayers.vue')),
+  'sebha': defineAsyncComponent(() => import('@/components/Sebha.vue')),
 }
 
 const schema = {
