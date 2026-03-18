@@ -148,9 +148,9 @@ const remainingTime = computed(() => {
           <span class="icon-container">
             <component v-if="nextPrayerKey" :is="timingsMap[nextPrayerKey]?.icon" />
           </span>
-          <span>{{ nextPrayerKey ? timingsMap[nextPrayerKey]?.label : '-' }}</span>
+          <span v-if="nextPrayerKey">{{ timingsMap[nextPrayerKey]?.label }}</span>
         </div>
-        <div class="prayer-countdown">{{ remainingTime || '-' }}</div>
+        <div class="prayer-countdown">{{ remainingTime }}</div>
       </div>
       <div class="text-end">
         <div class="mb-1 d-flex align-items-center gap-1">
