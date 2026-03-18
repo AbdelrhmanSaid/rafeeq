@@ -3,6 +3,8 @@ import { computed, defineAsyncComponent } from 'vue'
 import { useRoute } from 'vue-router'
 import Heading from '@/components/Heading.vue'
 import Page from '@/components/Layout/Page.vue'
+import ErrorState from '@/components/ErrorState.vue'
+import { IconAlertTriangle } from '@tabler/icons-vue'
 
 const components = {
   'prayer-times': defineAsyncComponent(() => import('@/components/PrayerTimes.vue')),
@@ -31,7 +33,11 @@ const params = computed(() => {
 
 <template>
   <Page>
-    <Heading v-if="params.title" :size="2" class="mb-4" :title="params.title" :subtitle="params.subtitle" />
-    <component v-if="component" :is="component" />
+    <template v-if="component">
+      <Heading v-if="params.title" :size="2" class="mb-4" :title="params.title" :subtitle="params.subtitle" />
+      <component :is="component" />
+    </template>
+
+    <ErrorState v-else :icon="IconAlertTriangle" message="خطأ في الإعدادات: المكوّن غير موجود." />
   </Page>
 </template>
