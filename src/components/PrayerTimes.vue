@@ -16,6 +16,13 @@ import Asr from '@/components/icons/Prayers/Asr.vue'
 import Maghrib from '@/components/icons/Prayers/Maghrib.vue'
 import Ishaa from '@/components/icons/Prayers/Ishaa.vue'
 
+const props = defineProps({
+  lat: { type: [Number, String], default: null },
+  long: { type: [Number, String], default: null },
+})
+
+const hasPropsCoords = computed(() => props.lat != null && props.long != null)
+
 // Reactive state for current time
 const now = useNow()
 
@@ -35,11 +42,14 @@ const timingsMap = {
 // Coordinates store
 const store = useCoordinatesStore()
 
+const latitude = computed(() => (hasPropsCoords.value ? props.lat : store.latitude))
+const longitude = computed(() => (hasPropsCoords.value ? props.long : store.longitude))
+
 // API endpoint
 const endpoint = computed(() => {
-  if (!store.latitude || !store.longitude) return null
+  if (!latitude.value || !longitude.value) return null
   const today = new Date().toISOString().split('T')[0].split('-').reverse().join('-')
-  return `https://api.aladhan.com/v1/timings/${today}?latitude=${store.latitude}&longitude=${store.longitude}&iso8601=true`
+  return `https://api.aladhan.com/v1/timings/${today}?latitude=${latitude.value}&longitude=${longitude.value}&iso8601=true`
 })
 
 // Fetch options
@@ -96,12 +106,12 @@ const remainingTime = computed(() => {
 </script>
 
 <template>
-  <div v-if="store.isDetecting" class="border rounded p-5">
+  <div v-if="!hasPropsCoords && store.isDetecting" class="border rounded p-5">
     <LoadingState message="جاري تحديد موقعك..." />
   </div>
 
   <div
-    v-else-if="store.latitude === 0 || store.longitude === 0"
+    v-else-if="!hasPropsCoords && (store.latitude === 0 || store.longitude === 0)"
     class="border rounded p-5 text-center cursor-pointer"
     @click="store.detect"
   >

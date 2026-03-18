@@ -14,6 +14,10 @@ const schema = {
 const components = {
   'prayer-times': {
     component: defineAsyncComponent(() => import('@/components/PrayerTimes.vue')),
+    schema: {
+      lat: { type: Number, default: null },
+      long: { type: Number, default: null },
+    },
   },
   'sunnah-prayers': {
     component: defineAsyncComponent(() => import('@/components/SunnahPrayers.vue')),
