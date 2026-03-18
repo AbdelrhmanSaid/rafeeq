@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useOnline } from '@vueuse/core'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals } from '@/utilities/arabic'
@@ -17,24 +17,28 @@ const tafsirText = ref('')
 const surahName = ref('')
 const ayahNumber = ref(0)
 const tafsirSource = ref('')
+
+// Remove the bismillah from the ayah text
+const displayText = computed(() => (ayahText.value || '').replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ\s*/u, '').trim())
+
 async function fetchRandomAyah() {
   loading.value = true
   error.value = false
 
   try {
     const num = Math.floor(Math.random() * 6236) + 1
-    const res = await fetch(
-      `https://api.alquran.cloud/v1/ayah/${num}/editions/quran-uthmani,ar.muyassar`,
-    )
+    const res = await fetch(`https://api.alquran.cloud/v1/ayah/${num}/editions/quran-uthmani,ar.muyassar`)
     const json = await res.json()
 
-    if (json.code === 200) {
-      ayahText.value = json.data[0].text
-      surahName.value = json.data[0].surah.name
-      ayahNumber.value = json.data[0].numberInSurah
+    if (json.code === 200 && json.data?.length >= 2) {
+      // Ayah
+      ayahText.value = json.data[0]?.text || ''
+      surahName.value = json.data[0]?.surah?.name || ''
+      ayahNumber.value = json.data[0]?.numberInSurah || 0
 
-      tafsirText.value = json.data[1].text
-      tafsirSource.value = json.data[1].edition.name
+      // Tafsir
+      tafsirText.value = json.data[1]?.text || ''
+      tafsirSource.value = json.data[1]?.edition?.name || ''
     } else {
       error.value = true
     }
@@ -55,7 +59,10 @@ function copyAyah() {
   })
 }
 
-fetchRandomAyah()
+
+onMounted(() => {
+  fetchRandomAyah()
+})
 </script>
 
 <template>
@@ -68,25 +75,25 @@ fetchRandomAyah()
     <ErrorState v-else :code="500" message="حدث خطأ أثناء تحميل الآية، برجاء المحاولة مرة أخرى." />
   </div>
 
-  <div v-else-if="ayahText" class="ayah-card border rounded">
+  <div v-else-if="ayahText" class="border rounded">
     <!-- Header -->
     <div class="ayah-header">
       <span class="fw-semibold">{{ surahName }}</span>
 
       <div class="d-flex align-items-center gap-1">
-        <button class="ayah-action-btn" @click="fetchRandomAyah" title="آية جديدة">
+        <button class="btn btn-flat" @click="fetchRandomAyah" title="آية جديدة" aria-label="تحميل آية جديدة">
           <IconRefresh size="18" />
         </button>
-        <button class="ayah-action-btn" @click="copyAyah" title="نسخ الآية">
+        <button class="btn btn-flat" @click="copyAyah" title="نسخ الآية" aria-label="نسخ الآية">
           <IconCopy size="18" />
         </button>
       </div>
     </div>
 
     <!-- Content -->
-    <div class="ayah-body">
+    <div class="p-3">
       <p class="ayah-text font-quran">
-        {{ ayahText }} <span class="ayah-number">{{ toArabicNumerals(ayahNumber) }}</span>
+        {{ displayText }} <span class="ayah-number">{{ toArabicNumerals(ayahNumber) }}</span>
       </p>
 
       <div class="ayah-tafsir">
@@ -98,10 +105,6 @@ fetchRandomAyah()
 </template>
 
 <style lang="scss" scoped>
-.ayah-card {
-  overflow: hidden;
-}
-
 .ayah-header {
   display: flex;
   align-items: center;
@@ -109,21 +112,6 @@ fetchRandomAyah()
   padding: 0.875rem 1.25rem;
   border-bottom: 1px solid var(--bs-border-color);
   background: var(--bs-tertiary-bg);
-}
-
-.ayah-action-btn {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  border: none;
-  background: transparent;
-  color: var(--bs-secondary-color);
-  border-radius: 8px;
-}
-
-.ayah-body {
-  padding: 1.5rem 1.25rem;
 }
 
 .ayah-text {
