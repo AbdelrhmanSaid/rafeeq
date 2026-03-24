@@ -1,6 +1,5 @@
 <script setup>
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
 import { useCoordinatesStore } from '@/stores/coordinates'
 import { useFetch, useDateFormat, useOnline, useNow } from '@vueuse/core'
 
@@ -16,18 +15,15 @@ import Duhur from '@/components/icons/Prayers/Duhur.vue'
 import Asr from '@/components/icons/Prayers/Asr.vue'
 import Maghrib from '@/components/icons/Prayers/Maghrib.vue'
 import Ishaa from '@/components/icons/Prayers/Ishaa.vue'
-import { IconMapPin } from '@tabler/icons-vue'
+
 
 const props = defineProps({
   lat: { type: [Number, String], default: null },
   long: { type: [Number, String], default: null },
+  vertical: { type: Boolean, default: false },
 })
 
 const hasPropsCoords = computed(() => props.lat != null && props.long != null)
-
-// Route for layout detection
-const route = useRoute()
-const isVertical = computed(() => route.query.layout === 'vertical')
 
 // Reactive state for current time
 const now = useNow()
@@ -80,6 +76,8 @@ const hijriDate = computed(() => {
   if (!date) return ''
   return toArabicNumerals(`${date.day} ${date.month.ar} ${date.year}`)
 })
+
+const hijriDay = computed(() => timings.value?.data?.date?.hijri?.weekday?.ar ?? '')
 
 // Determine the next prayer
 const nextPrayerKey = computed(() => {
@@ -141,8 +139,8 @@ const remainingTime = computed(() => {
   </div>
 
   <!-- Vertical Layout -->
-  <div v-else-if="timings && isVertical" class="prayer-times">
-    <div class="prayer-header">
+  <div v-else-if="timings && vertical" class="d-flex flex-column">
+    <div class="prayer-header d-flex align-items-center justify-content-between p-3 rounded text-white mb-1">
       <div>
         <div class="d-flex align-items-center gap-2">
           <span class="icon-container">
@@ -150,12 +148,11 @@ const remainingTime = computed(() => {
           </span>
           <span v-if="nextPrayerKey">{{ timingsMap[nextPrayerKey]?.label }}</span>
         </div>
-        <div class="prayer-countdown">{{ remainingTime }}</div>
+        <div class="fs-4 fw-bold">{{ remainingTime }}</div>
       </div>
       <div class="text-end">
-        <div class="mb-1 d-flex align-items-center gap-1">
-          <IconMapPin :size="16" />
-          <b>موقعك الحالي</b>
+        <div class="mb-1">
+          <b>{{ hijriDay }}</b>
         </div>
         <small>{{ hijriDate }}</small>
       </div>
@@ -164,8 +161,10 @@ const remainingTime = computed(() => {
       <div
         v-for="(timing, key) in timingsMap"
         :key="key"
-        class="prayer-row"
-        :class="{ next: key === nextPrayerKey }"
+        class="d-flex align-items-center justify-content-between px-3 py-1 rounded-2 small"
+        :class="key === nextPrayerKey
+          ? 'text-primary bg-primary-subtle border border-primary-subtle fw-bold'
+          : 'bg-body'"
       >
         <div class="d-flex align-items-center gap-2">
           <span class="icon-container">
@@ -217,47 +216,7 @@ const remainingTime = computed(() => {
   justify-content: center;
 }
 
-/* Vertical Layout Styles */
-.prayer-times {
-  display: flex;
-  flex-direction: column;
-}
-
-.prayer-times .prayer-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px;
-  background: linear-gradient(135deg, var(--bs-primary, #166534) 0%, color-mix(in srgb, var(--bs-primary, #166534) 85%, #000) 100%);
-  border-radius: 5px;
-  color: #fff;
-  margin-bottom: 5px;
-}
-
-.prayer-times .prayer-countdown {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.prayer-times .prayer-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 12px;
-  border-radius: 6px;
-  color: var(--bs-body-color, #374151);
-  font-size: 14px;
-  transition: all 0.3s ease;
-  background: var(--bs-body-bg, #fff);
-  margin-bottom: 2px;
-  border: 1px solid transparent;
-}
-
-.prayer-times .prayer-row.next {
-  color: var(--bs-primary, #166534);
-  background: var(--bs-primary-bg-subtle, #f0fdf4);
-  border: 1px solid var(--bs-primary-border-subtle, #bbf7d0);
-  font-weight: bold;
-  margin: 0 1px;
+.prayer-header {
+  background: linear-gradient(135deg, var(--bs-primary) 0%, color-mix(in srgb, var(--bs-primary) 85%, #000) 100%);
 }
 </style>

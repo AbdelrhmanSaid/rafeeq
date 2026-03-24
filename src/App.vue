@@ -123,10 +123,6 @@ const updateSW = registerSW({
   justify-content: center;
 }
 
-.main-content-embed .page-container {
-  padding: 0;
-}
-
 /* Desktop adjustments */
 @media (min-width: 992px) {
   .main-content {
