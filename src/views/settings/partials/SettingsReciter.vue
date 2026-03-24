@@ -4,18 +4,18 @@ import { useQuranStore } from '@/stores/quran.js'
 import { computed } from 'vue'
 
 const quranStore = useQuranStore()
+const normalize = (s) => s.replace(/\s+/g, ' ')
 
-const recitersByRewaya = computed(() => {
-  const groups = new Map()
-  for (const r of reciters) {
-    if (r.soar_count < 114) continue
-    const key = r.rewaya.replace(/\s+/g, ' ')
-    if (!groups.has(key)) groups.set(key, [])
-    groups.get(key).push(r)
-  }
+const fullReciters = reciters.filter((r) => r.soar_count >= 114).map((r) => ({ ...r, rewaya: normalize(r.rewaya) }))
 
-  return groups
-})
+const rewayat = computed(() => [...new Set(fullReciters.map((r) => r.rewaya))])
+const currentRewaya = computed(() => normalize(quranStore.reciter?.rewaya ?? '') || rewayat.value[0])
+const filteredReciters = computed(() => fullReciters.filter((r) => r.rewaya === currentRewaya.value))
+
+function onRewayaChange(value) {
+  const first = fullReciters.find((r) => r.rewaya === value)
+  if (first) quranStore.changeReciter(first.id)
+}
 </script>
 
 <template>
@@ -23,21 +23,38 @@ const recitersByRewaya = computed(() => {
     <div class="card-body">
       <h6 class="card-title mb-3">القرآن الكريم</h6>
 
-      <span class="d-block mb-2">القارئ</span>
-      <div class="form-floating">
-        <select
-          class="form-select"
-          id="currentReciter"
-          :value="Number(quranStore.currentReciter)"
-          @change="quranStore.changeReciter(Number($event.target.value))"
-        >
-          <optgroup v-for="[rewaya, group] in recitersByRewaya" :key="rewaya" :label="rewaya">
-            <option v-for="reciter in group" :key="reciter.id" :value="reciter.id">
+      <div class="mb-3">
+        <span class="d-block mb-2">الرواية</span>
+        <div class="form-floating">
+          <select
+            class="form-select"
+            id="currentRewaya"
+            :value="currentRewaya"
+            @change="onRewayaChange($event.target.value)"
+          >
+            <option v-for="rewaya in rewayat" :key="rewaya" :value="rewaya">
+              {{ rewaya }}
+            </option>
+          </select>
+          <label for="currentRewaya">الرواية</label>
+        </div>
+      </div>
+
+      <div>
+        <span class="d-block mb-2">القارئ</span>
+        <div class="form-floating">
+          <select
+            class="form-select"
+            id="currentReciter"
+            :value="Number(quranStore.currentReciter)"
+            @change="quranStore.changeReciter(Number($event.target.value))"
+          >
+            <option v-for="reciter in filteredReciters" :key="reciter.id" :value="reciter.id">
               {{ reciter.name }}
             </option>
-          </optgroup>
-        </select>
-        <label for="currentReciter">القارئ الحالي</label>
+          </select>
+          <label for="currentReciter">القارئ الحالي</label>
+        </div>
       </div>
     </div>
   </div>
