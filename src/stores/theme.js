@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
-import { computed, watchEffect } from 'vue'
+import { computed, nextTick, watchEffect } from 'vue'
 import { useLocalStorage, usePreferredDark } from '@vueuse/core'
-import { applyPrimaryColor, applyBgColor } from '@/utilities/css'
+import { applyPrimaryColor, applyBgColor, syncMetaThemeColor } from '@/utilities/css'
 
 export const useThemeStore = defineStore('theme', () => {
   const mode = useLocalStorage('mode', 'system')
@@ -41,6 +41,12 @@ export const useThemeStore = defineStore('theme', () => {
 
   watchEffect(() => {
     applyPrimaryColor(primaryColor.value || null)
+  })
+
+  watchEffect(() => {
+    void resolvedMode.value
+    void primaryColor.value
+    nextTick(syncMetaThemeColor)
   })
 
   return {
