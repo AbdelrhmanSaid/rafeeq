@@ -105,3 +105,7 @@ export function applyBgColor(color) {
     removeVars(BG_COLOR_VARS)
   }
 }
+
+export function applyMode(mode) {
+  document.body.setAttribute('data-bs-theme', mode)
+}
