@@ -15,20 +15,20 @@ const colors = [
 </script>
 
 <template>
-  <div class="card">
+  <div class="card h-100">
     <div class="card-body">
       <h6 class="card-title mb-3">المظهر</h6>
 
-      <div class="mode-toggle mb-3">
-        <button class="mode-btn" :class="{ active: theme.mode === 'light' }" @click="theme.setMode('light')">
+      <div class="btn-group-toggle mb-3">
+        <button class="btn-toggle" :class="{ active: theme.mode === 'light' }" @click="theme.setMode('light')">
           <IconSunFilled :size="16" />
           <span>فاتح</span>
         </button>
-        <button class="mode-btn" :class="{ active: theme.mode === 'dark' }" @click="theme.setMode('dark')">
+        <button class="btn-toggle" :class="{ active: theme.mode === 'dark' }" @click="theme.setMode('dark')">
           <IconMoonStars :size="16" />
           <span>داكن</span>
         </button>
-        <button class="mode-btn" :class="{ active: theme.mode === 'system' }" @click="theme.setMode('system')">
+        <button class="btn-toggle" :class="{ active: theme.mode === 'system' }" @click="theme.setMode('system')">
           <IconDeviceLaptop :size="16" />
           <span>تلقائي</span>
         </button>
@@ -56,37 +56,6 @@ const colors = [
 </template>
 
 <style scoped>
-.mode-toggle {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.mode-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.6rem;
-  border: 1px solid var(--bs-border-color);
-  border-radius: 0.5rem;
-  background: none;
-  color: var(--bs-secondary-color);
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.mode-btn:hover {
-  background: var(--bs-tertiary-bg);
-}
-
-.mode-btn.active {
-  background: var(--bs-primary);
-  border-color: var(--bs-primary);
-  color: #fff;
-}
-
 .color-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));

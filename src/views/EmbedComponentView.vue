@@ -17,6 +17,7 @@ const components = {
     schema: {
       lat: { type: Number, default: null },
       long: { type: Number, default: null },
+      vertical: { type: Boolean, default: false },
     },
   },
   'sunnah-prayers': {
