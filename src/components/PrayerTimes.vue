@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { useCoordinatesStore } from '@/stores/coordinates'
+import { usePrayersStore } from '@/stores/prayers'
 import { useFetch, useDateFormat, useOnline, useNow } from '@vueuse/core'
 
 import LoadingState from '@/components/LoadingState.vue'
@@ -15,7 +15,6 @@ import Duhur from '@/components/icons/Prayers/Duhur.vue'
 import Asr from '@/components/icons/Prayers/Asr.vue'
 import Maghrib from '@/components/icons/Prayers/Maghrib.vue'
 import Ishaa from '@/components/icons/Prayers/Ishaa.vue'
-
 
 const props = defineProps({
   lat: { type: [Number, String], default: null },
@@ -41,8 +40,7 @@ const timingsMap = {
   Isha: { label: 'العشاء', icon: Ishaa },
 }
 
-// Coordinates store
-const store = useCoordinatesStore()
+const store = usePrayersStore()
 
 const latitude = computed(() => (hasPropsCoords.value ? props.lat : store.latitude))
 const longitude = computed(() => (hasPropsCoords.value ? props.long : store.longitude))
@@ -162,9 +160,9 @@ const remainingTime = computed(() => {
         v-for="(timing, key) in timingsMap"
         :key="key"
         class="d-flex align-items-center justify-content-between px-3 py-1 rounded-2 small"
-        :class="key === nextPrayerKey
-          ? 'text-primary bg-primary-subtle border border-primary-subtle fw-bold'
-          : 'bg-body'"
+        :class="
+          key === nextPrayerKey ? 'text-primary bg-primary-subtle border border-primary-subtle fw-bold' : 'bg-body'
+        "
       >
         <div class="d-flex align-items-center gap-2">
           <span class="icon-container">
