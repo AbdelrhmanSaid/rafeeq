@@ -18,14 +18,3 @@ import QuickAzkar from '@/components/QuickAzkar.vue'
     <QuickAzkar />
   </Page>
 </template>
-
-<style lang="scss" scoped>
-.icon-container {
-  width: 1.75rem;
-  height: 1.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--bs-primary);
-}
-</style>
