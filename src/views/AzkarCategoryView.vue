@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
-import { useConfirmDialog } from '@vueuse/core'
+import { useConfirmDialog, useOnline } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
 
 import Page from '@/components/Layout/Page.vue'
@@ -15,6 +15,7 @@ import { useMeta } from '@/utilities/head'
 import { useAzkarService } from '@/services/azkarService'
 
 const slug = useRouteParams('category')
+const online = useOnline()
 const { fetchCategory } = useAzkarService()
 
 const category = ref(null)

@@ -42,7 +42,7 @@ async function handleRequestPermission() {
 </script>
 
 <template>
-  <div class="card">
+  <div class="card h-100">
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h6 class="card-title mb-0">إشعارات الأذكار</h6>

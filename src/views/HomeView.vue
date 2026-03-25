@@ -4,12 +4,15 @@ import Heading from '@/components/Heading.vue'
 import PrayerTimes from '@/components/PrayerTimes.vue'
 import SunnahPrayers from '@/components/SunnahPrayers.vue'
 import QuickAzkar from '@/components/QuickAzkar.vue'
+import { usePrayersStore } from '@/stores/prayers'
+
+const prayersStore = usePrayersStore()
 </script>
 
 <template>
   <Page>
     <Heading :size="2" class="mb-4" title="مواقيت الصلاة" subtitle="إن الصلاة كانت على المؤمنين كتابا موقوتا." />
-    <PrayerTimes class="mb-5" />
+    <PrayerTimes class="mb-5" :vertical="prayersStore.vertical" />
 
     <Heading :size="2" class="mb-4" title="السنن الرواتب" subtitle="وما يزال عبدي يتقرب إلي بالنوافل حتى أحبه." />
     <SunnahPrayers class="mb-5" />
@@ -18,14 +21,3 @@ import QuickAzkar from '@/components/QuickAzkar.vue'
     <QuickAzkar />
   </Page>
 </template>
-
-<style lang="scss" scoped>
-.icon-container {
-  width: 1.75rem;
-  height: 1.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--bs-primary);
-}
-</style>

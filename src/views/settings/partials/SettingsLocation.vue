@@ -1,9 +1,9 @@
 <script setup>
 import { computed } from 'vue'
-import { useCoordinatesStore } from '@/stores/coordinates'
+import { usePrayersStore } from '@/stores/prayers'
 import { IconRefreshDot, IconTrash } from '@tabler/icons-vue'
 
-const store = useCoordinatesStore()
+const store = usePrayersStore()
 
 const location = computed(() => {
   if (store.latitude === 0 || store.longitude === 0) {
