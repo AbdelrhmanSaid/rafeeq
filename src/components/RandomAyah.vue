@@ -9,14 +9,11 @@ import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 
 const TOTAL_AYAHS = 6236
-
 const currentAyahNumber = ref(Math.floor(Math.random() * TOTAL_AYAHS) + 1)
-
 const endpoint = computed(() => `https://api.alquran.cloud/v1/ayah/${currentAyahNumber.value}/editions/quran-uthmani,ar.muyassar`)
 const { isFetching, data, error } = useFetch(endpoint, { refetch: true }).json().get()
 const ayahData = computed(() => data.value?.data?.[0])
 const tafsirData = computed(() => data.value?.data?.[1])
-
 
 // Remove the bismillah from the ayah text
 const displayText = computed(() => currentAyahNumber.value !== 1 ? ayahData.value?.text.replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ\s*/u, '').trim() : ayahData.value?.text)
