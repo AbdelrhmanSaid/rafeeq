@@ -1,56 +1,40 @@
 <script setup>
-import { computed, ref, onMounted } from 'vue'
-import { useOnline } from '@vueuse/core'
+import { computed, ref } from 'vue'
+import { useFetch } from '@vueuse/core'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals } from '@/utilities/arabic'
-import { IconRefresh, IconCopy } from '@tabler/icons-vue'
+import { IconRefresh, IconCopy, IconChevronRight, IconChevronLeft } from '@tabler/icons-vue'
 
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
-import OfflineState from '@/components/OfflineState.vue'
 
-const online = useOnline()
-const loading = ref(false)
-const error = ref(false)
-const ayahText = ref('')
-const tafsirText = ref('')
-const surahName = ref('')
-const ayahNumber = ref(0)
-const tafsirSource = ref('')
+const TOTAL_AYAHS = 6236
+
+const currentAyahNumber = ref(Math.floor(Math.random() * TOTAL_AYAHS) + 1)
+
+const endpoint = computed(() => `https://api.alquran.cloud/v1/ayah/${currentAyahNumber.value}/editions/quran-uthmani,ar.muyassar`)
+const { isFetching, data, error } = useFetch(endpoint, { refetch: true }).json().get()
+const ayahData = computed(() => data.value?.data?.[0])
+const tafsirData = computed(() => data.value?.data?.[1])
+
 
 // Remove the bismillah from the ayah text
-const displayText = computed(() => (ayahText.value || '').replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ\s*/u, '').trim())
+const displayText = computed(() => currentAyahNumber.value !== 1 ? ayahData.value?.text.replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ\s*/u, '').trim() : ayahData.value?.text)
 
-async function fetchRandomAyah() {
-  loading.value = true
-  error.value = false
+function fetchRandomAyah() {
+  currentAyahNumber.value = Math.floor(Math.random() * TOTAL_AYAHS) + 1
+}
 
-  try {
-    const num = Math.floor(Math.random() * 6236) + 1
-    const res = await fetch(`https://api.alquran.cloud/v1/ayah/${num}/editions/quran-uthmani,ar.muyassar`)
-    const json = await res.json()
+function nextAyah() {
+  currentAyahNumber.value = currentAyahNumber.value >= TOTAL_AYAHS ? 1 : currentAyahNumber.value + 1
+}
 
-    if (json.code === 200 && json.data?.length >= 2) {
-      // Ayah
-      ayahText.value = json.data[0]?.text || ''
-      surahName.value = json.data[0]?.surah?.name || ''
-      ayahNumber.value = json.data[0]?.numberInSurah || 0
-
-      // Tafsir
-      tafsirText.value = json.data[1]?.text || ''
-      tafsirSource.value = json.data[1]?.edition?.name || ''
-    } else {
-      error.value = true
-    }
-  } catch {
-    error.value = true
-  } finally {
-    loading.value = false
-  }
+function prevAyah() {
+  currentAyahNumber.value = currentAyahNumber.value <= 1 ? TOTAL_AYAHS : currentAyahNumber.value - 1
 }
 
 function copyAyah() {
-  const text = `${ayahText.value}\n\n﴿ ${surahName.value} - آية ${toArabicNumerals(ayahNumber.value)} ﴾`
+  const text = `${displayText.value}\n\n﴿ ${ayahData.value?.surah.name} - آية ${toArabicNumerals(ayahData.value?.numberInSurah)} ﴾`
 
   toast.promise(() => navigator.clipboard.writeText(text), {
     loading: 'جاري النسخ...',
@@ -58,29 +42,29 @@ function copyAyah() {
     error: 'حدث خطأ أثناء نسخ الآية',
   })
 }
-
-
-onMounted(() => {
-  fetchRandomAyah()
-})
 </script>
 
 <template>
-  <div v-if="loading" class="border rounded p-5">
+  <div v-if="isFetching" class="border rounded p-5">
     <LoadingState message="جاري تحميل آية..." />
   </div>
 
   <div v-else-if="error" class="border rounded p-5">
-    <OfflineState v-if="!online" />
-    <ErrorState v-else :code="500" message="حدث خطأ أثناء تحميل الآية، برجاء المحاولة مرة أخرى." />
+    <ErrorState :code="500" message="حدث خطأ أثناء تحميل الآية، برجاء المحاولة مرة أخرى." />
   </div>
 
-  <div v-else-if="ayahText" class="border rounded">
+  <div v-else-if="ayahData && tafsirData" class="border rounded">
     <!-- Header -->
-    <div class="ayah-header">
-      <span class="fw-semibold">{{ surahName }}</span>
+    <div class="d-flex align-items-center justify-content-between px-4 py-3 border-bottom bg-body-tertiary">
+      <span class="fw-semibold">{{ ayahData.surah.name }}</span>
 
       <div class="d-flex align-items-center gap-1">
+        <button class="btn btn-flat" @click="prevAyah" title="الآية السابقة" aria-label="الآية السابقة">
+          <IconChevronRight size="18" />
+        </button>
+        <button class="btn btn-flat" @click="nextAyah" title="الآية التالية" aria-label="الآية التالية">
+          <IconChevronLeft size="18" />
+        </button>
         <button class="btn btn-flat" @click="fetchRandomAyah" title="آية جديدة" aria-label="تحميل آية جديدة">
           <IconRefresh size="18" />
         </button>
@@ -92,34 +76,19 @@ onMounted(() => {
 
     <!-- Content -->
     <div class="p-3">
-      <p class="ayah-text font-quran">
-        {{ displayText }} <span class="ayah-number">{{ toArabicNumerals(ayahNumber) }}</span>
+      <p class="fs-2 text-center lh-lg font-quran">
+        {{ displayText }} <span class="ayah-number">{{ toArabicNumerals(ayahData.numberInSurah) }}</span>
       </p>
 
-      <div class="ayah-tafsir">
-        <span class="tafsir-label">{{ tafsirSource }}</span>
-        <p class="tafsir-text">{{ tafsirText }}</p>
+      <div class="bg-body-tertiary rounded-3 p-3 px-4">
+        <span class="d-block small fw-semibold text-secondary mb-2">{{ tafsirData.edition.name }}</span>
+        <p class="small mb-0">{{ tafsirData.text }}</p>
       </div>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.ayah-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.875rem 1.25rem;
-  border-bottom: 1px solid var(--bs-border-color);
-  background: var(--bs-tertiary-bg);
-}
-
-.ayah-text {
-  font-size: 1.75rem;
-  line-height: 2.2;
-  text-align: center;
-}
-
 .ayah-number {
   width: 2.2rem;
   height: 2.2rem;
@@ -135,25 +104,5 @@ onMounted(() => {
   font-size: 1rem;
   line-height: 1;
   font-family: 'IBM Plex Sans Arabic', sans-serif;
-}
-
-.ayah-tafsir {
-  background: var(--bs-tertiary-bg);
-  border-radius: 10px;
-  padding: 1rem 1.25rem;
-}
-
-.tafsir-label {
-  display: block;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--bs-secondary-color);
-  margin-bottom: 0.5rem;
-}
-
-.tafsir-text {
-  font-size: 0.95rem;
-  line-height: 1.9;
-  margin: 0;
 }
 </style>

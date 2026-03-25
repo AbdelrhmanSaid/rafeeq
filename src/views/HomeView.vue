@@ -5,6 +5,9 @@ import PrayerTimes from '@/components/PrayerTimes.vue'
 import RandomAyah from '@/components/RandomAyah.vue'
 import SunnahPrayers from '@/components/SunnahPrayers.vue'
 import QuickAzkar from '@/components/QuickAzkar.vue'
+import { useOnline } from '@vueuse/core'
+
+const online = useOnline()
 </script>
 
 <template>
@@ -12,8 +15,8 @@ import QuickAzkar from '@/components/QuickAzkar.vue'
     <Heading :size="2" class="mb-4" title="مواقيت الصلاة" subtitle="إن الصلاة كانت على المؤمنين كتابا موقوتا." />
     <PrayerTimes class="mb-5" />
 
-    <Heading :size="2" class="mb-4" title="آية من القرآن" subtitle="ونزل من القرآن ما هو شفاء ورحمة للمؤمنين." />
-    <RandomAyah class="mb-5" />
+    <Heading v-if="online" :size="2" class="mb-4" title="آية من القرآن" subtitle="وننزل من القرآن ما هو شفاء ورحمة للمؤمنين." />
+    <RandomAyah v-if="online" class="mb-5" />
 
     <Heading :size="2" class="mb-4" title="السنن الرواتب" subtitle="وما يزال عبدي يتقرب إلي بالنوافل حتى أحبه." />
     <SunnahPrayers class="mb-5" />
