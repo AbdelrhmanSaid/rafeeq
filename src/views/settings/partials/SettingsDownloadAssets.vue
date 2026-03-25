@@ -13,6 +13,7 @@ import {
   IconBook2,
   IconSparkles,
   IconCloudDownload,
+  IconQuote,
 } from '@tabler/icons-vue'
 import { useDownloadStore } from '@/stores/download.js'
 import { toast } from 'vue-sonner'
@@ -74,7 +75,8 @@ const filteredAssets = computed(() => {
 })
 
 const surahCount = computed(() => 114)
-const azkarCount = computed(() => allAssets.value.length - 114)
+const hadithCount = computed(() => 42)
+const azkarCount = computed(() => allAssets.value.length - (114 + 42))
 
 const handleDownloadAll = () => {
   queueAllAssets()
@@ -169,6 +171,11 @@ const handleAssetAction = (asset) => {
           الأذكار
           <span class="dm-filter-count">{{ toArabicNumerals(azkarCount) }}</span>
         </button>
+        <button class="dm-filter-btn" :class="{ active: filterType === 'hadith' }" @click="filterType = 'hadith'">
+          <IconQuote :size="14" />
+          الأحاديث
+          <span class="dm-filter-count">{{ toArabicNumerals(hadithCount) }}</span>
+        </button>
       </div>
 
       <div class="dm-actions">
@@ -209,12 +216,13 @@ const handleAssetAction = (asset) => {
       <div v-for="asset in filteredAssets" :key="asset.id" class="dm-item" :class="asset.status">
         <div class="dm-item-icon" :class="asset.type">
           <IconBook2 v-if="asset.type === 'surah'" :size="18" />
-          <IconSparkles v-else :size="18" />
+          <IconSparkles v-else-if="asset.type === 'azkar'" :size="18" />
+          <IconQuote v-else :size="18" />
         </div>
 
         <div class="dm-item-info">
           <span class="dm-item-name">{{ asset.name }}</span>
-          <span class="dm-item-type">{{ asset.type === 'surah' ? 'سورة' : 'أذكار' }}</span>
+          <span class="dm-item-type">{{ asset.type === 'surah' ? 'سورة' : asset.type === 'azkar' ? 'أذكار' : 'حديث'}}</span>
         </div>
 
         <button
@@ -513,6 +521,11 @@ const handleAssetAction = (asset) => {
 .dm-item-icon.azkar {
   background: color-mix(in srgb, var(--bs-success) 15%, transparent);
   color: var(--bs-success);
+}
+
+.dm-item-icon.hadith {
+  background: color-mix(in srgb, var(--bs-warning) 15%, transparent);
+  color: var(--bs-warning);
 }
 
 .dm-item-info {

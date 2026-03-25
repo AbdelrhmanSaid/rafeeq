@@ -86,6 +86,23 @@ const router = createRouter({
     },
 
     {
+      path: '/hadith',
+      name: 'hadith',
+      component: () => import('@/views/HadithView.vue'),
+      meta: {
+        title: 'الأربعون النووية',
+        description: 'تصفح الأربعين حديثاً النووية للإمام النووي مع الشرح والفوائد.',
+        keywords: ['أحاديث', 'الأربعون النووية', 'حديث', 'سنة', 'رفيق'],
+      },
+    },
+
+    {
+      path: '/hadith/:id(\\d+)',
+      name: 'hadith-detail',
+      component: () => import('@/views/HadithDetailView.vue'),
+    },
+
+    {
       path: '/sebha',
       name: 'sebha',
       component: () => import('@/views/SebhaView.vue'),
