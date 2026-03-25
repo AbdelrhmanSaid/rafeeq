@@ -3,9 +3,10 @@ import { useLocalStorage } from '@vueuse/core'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 
-export const useCoordinatesStore = defineStore('coordinates', function () {
+export const usePrayersStore = defineStore('prayers', function () {
   const longitude = useLocalStorage('longitude', 0)
   const latitude = useLocalStorage('latitude', 0)
+  const vertical = useLocalStorage('prayer-times-vertical', false)
   const isDetecting = ref(false)
 
   function detect() {
@@ -47,6 +48,7 @@ export const useCoordinatesStore = defineStore('coordinates', function () {
   return {
     longitude,
     latitude,
+    vertical,
     isDetecting,
     detect,
     clear,
