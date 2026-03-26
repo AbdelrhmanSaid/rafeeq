@@ -12,11 +12,7 @@ const { search, filtered } = useSearch(hadiths, ['title'])
 
 <template>
   <Page>
-    <Heading
-      title="الأربعون النووية"
-      subtitle="الأحاديث النووية الأربعون للإمام النووي رحمه الله"
-      :share="true"
-    />
+    <Heading title="الأربعون النووية" subtitle="الأحاديث النووية الأربعون للإمام النووي رحمه الله" :share="true"/>
 
     <div class="form-floating mb-4">
       <input v-model="search" type="text" class="form-control" placeholder="ابحث عن حديث" />
