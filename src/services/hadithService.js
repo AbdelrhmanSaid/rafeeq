@@ -7,14 +7,14 @@ export function useHadithService() {
     const offline = useOfflineData('hadith')
 
     async function fetchHadith(id) {
-      const cached = await offline.get(id)
-      if (cached) return cached
+      // const cached = await offline.get(id)
+      // if (cached) return cached
 
       const response = await fetch(`/data/hadith/${id}.json`)
       if (!response.ok) throw new Error('Failed to fetch hadith')
       const data = await response.json()
 
-      await offline.save(id, data)
+      // await offline.save(id, data)
       return data
     }
 
