@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useFetch, useOnline } from '@vueuse/core'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals, removeBismillah } from '@/utilities/arabic'
@@ -16,9 +16,15 @@ const TOTAL_AYAHS = 6236
 const current = ref(Math.floor(Math.random() * TOTAL_AYAHS) + 1)
 const endpoint = computed(() => `https://api.alquran.cloud/v1/ayah/${current.value}/editions/quran-uthmani,ar.muyassar`)
 
-const { isFetching, data, error } = useFetch(endpoint, { refetch: true }).json().get()
+const { isFetching, data, error, execute } = useFetch(endpoint, { refetch: true }).json().get()
 const ayah = computed(() => data.value?.data?.[0])
 const tafsir = computed(() => data.value?.data?.[1])
+
+
+watch(online, (isOnline, wasOnline) => {
+  if (isOnline && !wasOnline && error.value)
+    execute()
+})
 
 // Remove the bismillah from the ayah text
 const displayText = computed(() => (current.value !== 1 ? removeBismillah(ayah.value?.text) : ayah.value?.text))
