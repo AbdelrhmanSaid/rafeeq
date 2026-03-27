@@ -26,6 +26,9 @@ const components = {
   'sebha': {
     component: defineAsyncComponent(() => import('@/components/Sebha.vue')),
   },
+  'random-ayah': {
+    component: defineAsyncComponent(() => import('@/components/RandomAyah.vue')),
+  },
 }
 
 function resolveProps(schema, query) {
