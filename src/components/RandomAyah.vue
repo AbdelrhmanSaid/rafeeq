@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { useFetch } from '@vueuse/core'
+import { useFetch, useOnline } from '@vueuse/core'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals, removeBismillah } from '@/utilities/arabic'
 import { IconRefresh, IconCopy, IconChevronRight, IconChevronLeft } from '@tabler/icons-vue'
@@ -8,6 +8,9 @@ import { IconRefresh, IconCopy, IconChevronRight, IconChevronLeft } from '@table
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import OfflineState from '@/components/OfflineState.vue'
+
+// Check if the user is online
+const online = useOnline()
 
 const TOTAL_AYAHS = 6236
 const current = ref(Math.floor(Math.random() * TOTAL_AYAHS) + 1)
@@ -45,11 +48,11 @@ function copyAyah() {
 
 <template>
   <div class="card">
-    <div v-if="isFetching" class="card-body">
+    <div v-if="isFetching" class="card-body p-5">
       <LoadingState message="جاري تحميل آية..." />
     </div>
 
-    <div v-else-if="error" class="card-body">
+    <div v-else-if="error" class="card-body p-5">
       <OfflineState v-if="!online" />
       <ErrorState :code="500" message="حدث خطأ أثناء تحميل الآية، برجاء المحاولة مرة أخرى." v-else />
     </div>
