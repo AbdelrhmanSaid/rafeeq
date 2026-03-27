@@ -51,7 +51,7 @@ function copyAyah() {
 
     <div v-else-if="error" class="card-body">
       <OfflineState v-if="!online" />
-      <ErrorState :code="500" message="حدث خطأ أثناء تحميل الآية، برجاء المحاولة مرة أخرى." />
+      <ErrorState :code="500" message="حدث خطأ أثناء تحميل الآية، برجاء المحاولة مرة أخرى." v-else />
     </div>
 
     <template v-else-if="ayah && tafsir">
