@@ -86,7 +86,7 @@ export function syncMetaThemeColor() {
     document.querySelector('meta[name="msapplication-TileColor"]'),
   ]
 
-  metas.forEach(meta => meta?.setAttribute('content', color))
+  metas.forEach((meta) => meta?.setAttribute('content', color))
 }
 
 export function applyBgColor(color) {

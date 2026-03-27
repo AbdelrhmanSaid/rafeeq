@@ -12,7 +12,7 @@ import OfflineState from '@/components/OfflineState.vue'
 import AudioPlayer from '@/components/QuranPlayer.vue'
 import { useQuranStore } from '@/stores/quran'
 import { useMeta } from '@/utilities/head'
-import { toArabicNumerals } from '@/utilities/arabic'
+import { toArabicNumerals, removeBismillah } from '@/utilities/arabic'
 import { useQuranService } from '@/services/quranService'
 
 const online = useOnline()
@@ -62,9 +62,7 @@ const ayat = computed(() => {
     }
 
     return ayat.map((ayah) => {
-      const text = (
-        ayah.numberInSurah === 1 ? ayah.text.replace('بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ', '') : ayah.text
-      ).trim()
+      const text = (ayah.numberInSurah === 1 ? removeBismillah(ayah.text) : ayah.text).trim()
 
       return {
         ...ayah,
@@ -133,6 +131,8 @@ const isCurrentVerse = (verse) => {
 </template>
 
 <style lang="scss" scoped>
+@import '@/assets/scss/quran.css';
+
 .quran-page {
   display: flex;
   flex-direction: column;
@@ -160,29 +160,6 @@ const isCurrentVerse = (verse) => {
       line-height: 2;
       font-size: 1.625rem;
       margin-bottom: 0.75rem;
-    }
-
-    .ayah {
-      display: inline;
-      text-wrap: pretty;
-      margin-inline: 0 0.2rem;
-    }
-
-    .ayah-number {
-      width: 2.2rem;
-      height: 2.2rem;
-      margin-inline: 0.35rem 0.6rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid var(--bs-border-color);
-      border-radius: 999px;
-      background-color: var(--bs-secondary-bg);
-      color: var(--bs-gray-600);
-      vertical-align: middle;
-      font-size: 1rem;
-      line-height: 1;
-      font-family: 'IBM Plex Sans Arabic', sans-serif;
     }
 
     .page-separator {
