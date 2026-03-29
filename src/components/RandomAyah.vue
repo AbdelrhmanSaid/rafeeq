@@ -3,7 +3,7 @@ import { computed, ref, watch, onUnmounted } from 'vue'
 import { useFetch, useOnline } from '@vueuse/core'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals, removeBismillah } from '@/utilities/arabic'
-import { IconRefresh, IconCopy, IconChevronRight, IconChevronLeft, IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
+import { IconRefresh, IconChevronRight, IconChevronLeft, IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
 
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
@@ -88,15 +88,6 @@ async function toggleAyahPlayback() {
   }
 }
 
-function copyAyah() {
-  const text = `${displayText.value}\n\n﴿ ${ayah.value?.surah.name} - آية ${toArabicNumerals(ayah.value?.numberInSurah)} ﴾`
-
-  toast.promise(() => navigator.clipboard.writeText(text), {
-    loading: 'جاري النسخ...',
-    success: 'تم نسخ الآية بنجاح',
-    error: 'حدث خطأ أثناء نسخ الآية',
-  })
-}
 </script>
 
 <template>
@@ -138,9 +129,6 @@ function copyAyah() {
             <IconRefresh size="18" />
           </button>
 
-          <button class="btn btn-flat" @click="copyAyah" title="نسخ الآية" aria-label="نسخ الآية">
-            <IconCopy size="18" />
-          </button>
         </div>
       </div>
 
