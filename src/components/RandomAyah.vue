@@ -1,9 +1,9 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onUnmounted } from 'vue'
 import { useFetch, useOnline } from '@vueuse/core'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals, removeBismillah } from '@/utilities/arabic'
-import { IconRefresh, IconCopy, IconChevronRight, IconChevronLeft } from '@tabler/icons-vue'
+import { IconRefresh, IconChevronRight, IconChevronLeft, IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
 
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
@@ -14,16 +14,47 @@ const online = useOnline()
 
 const TOTAL_AYAHS = 6236
 const current = ref(Math.floor(Math.random() * TOTAL_AYAHS) + 1)
-const endpoint = computed(() => `https://api.alquran.cloud/v1/ayah/${current.value}/editions/quran-uthmani,ar.muyassar`)
+const endpoint = computed(() => `https://api.alquran.cloud/v1/ayah/${current.value}/editions/quran-uthmani,ar.muyassar,ar.alafasy`)
 
 const { isFetching, data, error, execute } = useFetch(endpoint, { refetch: true }).json().get()
 const ayah = computed(() => data.value?.data?.[0])
 const tafsir = computed(() => data.value?.data?.[1])
+const recitation = computed(() => data.value?.data?.[2])
 
+const audio = new Audio()
+const isPlaying = ref(false)
 
 watch(online, (isOnline, wasOnline) => {
   if (isOnline && !wasOnline && error.value)
     execute()
+})
+
+watch(current, () => {
+  audio.pause()
+  audio.currentTime = 0
+  isPlaying.value = false
+})
+
+watch(recitation, (value) => {
+  if (value?.audio)
+    audio.src = value.audio
+})
+
+audio.addEventListener('play', () => {
+  isPlaying.value = true
+})
+
+audio.addEventListener('pause', () => {
+  isPlaying.value = false
+})
+
+audio.addEventListener('ended', () => {
+  isPlaying.value = false
+})
+
+onUnmounted(() => {
+  audio.pause()
+  audio.currentTime = 0
 })
 
 // Remove the bismillah from the ayah text
@@ -41,15 +72,22 @@ function prevAyah() {
   current.value = current.value <= 1 ? TOTAL_AYAHS : current.value - 1
 }
 
-function copyAyah() {
-  const text = `${displayText.value}\n\n﴿ ${ayah.value?.surah.name} - آية ${toArabicNumerals(ayah.value?.numberInSurah)} ﴾`
+async function toggleAyahPlayback() {
+  if (!recitation.value?.audio)
+    return
 
-  toast.promise(() => navigator.clipboard.writeText(text), {
-    loading: 'جاري النسخ...',
-    success: 'تم نسخ الآية بنجاح',
-    error: 'حدث خطأ أثناء نسخ الآية',
-  })
+  if (isPlaying.value) {
+    audio.pause()
+    return
+  }
+
+  try {
+    await audio.play()
+  } catch {
+    toast.error('تعذر تشغيل التلاوة، برجاء المحاولة مرة أخرى')
+  }
 }
+
 </script>
 
 <template>
@@ -76,13 +114,21 @@ function copyAyah() {
             <IconChevronLeft size="18" />
           </button>
 
+          <button
+            class="btn btn-flat"
+            @click="toggleAyahPlayback"
+            :disabled="!recitation?.audio"
+            :title="isPlaying ? 'إيقاف التلاوة' : 'تشغيل التلاوة'"
+            :aria-label="isPlaying ? 'إيقاف التلاوة' : 'تشغيل التلاوة'"
+          >
+            <IconPlayerPause v-if="isPlaying" size="18" />
+            <IconPlayerPlay v-else size="18" />
+          </button>
+
           <button class="btn btn-flat" @click="fetchRandomAyah" title="آية جديدة" aria-label="تحميل آية جديدة">
             <IconRefresh size="18" />
           </button>
 
-          <button class="btn btn-flat" @click="copyAyah" title="نسخ الآية" aria-label="نسخ الآية">
-            <IconCopy size="18" />
-          </button>
         </div>
       </div>
 
