@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import { useOnline } from '@vueuse/core'
+import { ref, computed, watch } from 'vue'
+import { useOnline, useStorage } from '@vueuse/core'
 
 import { useQuranService } from '@/services/quranService'
 import { useAzkarService } from '@/services/azkarService'
@@ -17,6 +17,8 @@ export const useDownloadStore = defineStore('download', () => {
   const isDownloading = ref(false)
   const isPaused = ref(false)
   const currentItem = ref(null)
+
+  const autoUpdate = useStorage('download-auto-update', true)
 
   function serviceFor(asset) {
     return asset.type === 'surah' ? quranService : azkarService
@@ -129,6 +131,16 @@ export const useDownloadStore = defineStore('download', () => {
     isPaused.value = false
   }
 
+  watch(
+    [autoUpdate, online],
+    ([isAutoUpdateEnabled, isOnline]) => {
+      if (isAutoUpdateEnabled && isOnline) {
+        queueAllAssets()
+      }
+    },
+    { immediate: true },
+  )
+
   function removeFromQueue(asset) {
     const index = downloadQueue.value.findIndex((item) => item.id === asset.id)
     if (index > -1) downloadQueue.value.splice(index, 1)
@@ -140,6 +152,7 @@ export const useDownloadStore = defineStore('download', () => {
     isDownloading,
     isPaused,
     currentItem,
+    autoUpdate,
     allAssets,
     totalAssets,
     downloadedCount,

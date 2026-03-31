@@ -32,6 +32,7 @@ const {
   isPaused,
   currentItem,
   pendingCount,
+  autoUpdate,
 } = storeToRefs(downloadStore)
 
 const {
@@ -202,6 +203,15 @@ const handleAssetAction = (asset) => {
           <span>تحميل الكل</span>
         </button>
       </div>
+    </div>
+
+
+    <div class="dm-preferences">
+      <div class="form-check form-switch">
+        <input id="autoUpdateAssets" v-model="autoUpdate" class="form-check-input" type="checkbox" />
+        <label class="form-check-label" for="autoUpdateAssets">التحديث التلقائي للملفات</label>
+      </div>
+      <small class="text-muted">يتم البحث عن الملفات غير المحملة وتنزيلها تلقائياً عند الاتصال بالإنترنت.</small>
     </div>
 
     <!-- List -->
@@ -467,6 +477,21 @@ const handleAssetAction = (asset) => {
   background: var(--bs-danger);
   border-color: var(--bs-danger);
   color: white;
+}
+
+
+.dm-preferences {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--bs-border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  flex-wrap: wrap;
+}
+
+.dm-preferences .form-check {
+  margin-bottom: 0;
 }
 
 /* List */
