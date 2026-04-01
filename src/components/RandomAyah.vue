@@ -20,13 +20,19 @@ const { isFetching, data, error, execute } = useFetch(endpoint, { refetch: true 
 const ayah = computed(() => data.value?.data?.[0])
 const tafsir = computed(() => data.value?.data?.[1])
 const recitation = computed(() => data.value?.data?.[2])
+const isRecoveringOnReconnect = ref(false)
 
 const audio = new Audio()
 const isPlaying = ref(false)
 
-watch(online, (isOnline, wasOnline) => {
-  if (isOnline && !wasOnline && error.value)
-    execute()
+watch(online, async (isOnline, wasOnline) => {
+  if (!isOnline || wasOnline === undefined || isOnline === wasOnline) return
+  isRecoveringOnReconnect.value = true
+  try {
+    await execute()
+  } finally {
+    isRecoveringOnReconnect.value = false
+  }
 })
 
 watch(current, () => {
@@ -92,7 +98,7 @@ async function toggleAyahPlayback() {
 
 <template>
   <div class="card">
-    <div v-if="isFetching" class="card-body p-5">
+    <div v-if="isFetching || isRecoveringOnReconnect" class="card-body p-5">
       <LoadingState message="جاري تحميل آية..." />
     </div>
 
