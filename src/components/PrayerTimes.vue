@@ -1,7 +1,8 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { usePrayersStore } from '@/stores/prayers'
 import { useFetch, useDateFormat, useOnline, useNow } from '@vueuse/core'
+import { useReconnectExecute } from '@/composables/useReconnectExecute'
 
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
@@ -62,17 +63,7 @@ const options = {
 
 // Fetch prayer timings
 const { isFetching, data: timings, error, execute } = useFetch(endpoint, options).json().get()
-const isRecoveringOnReconnect = ref(false)
-
-watch(online, async (isOnline, wasOnline) => {
-  if (!isOnline || wasOnline === undefined || isOnline === wasOnline) return
-  isRecoveringOnReconnect.value = true
-  try {
-    await execute()
-  } finally {
-    isRecoveringOnReconnect.value = false
-  }
-})
+const { isRecoveringOnReconnect } = useReconnectExecute(online, execute)
 
 // Format time
 const formatTiming = (time) => {
