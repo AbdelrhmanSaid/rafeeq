@@ -1,0 +1,22 @@
+.ayah {
+  display: inline;
+  text-wrap: pretty;
+  margin-inline: 0 0.2rem;
+}
+
+.ayah-number {
+  width: 2.2rem;
+  height: 2.2rem;
+  margin-inline: 0.35rem 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 999px;
+  background-color: var(--bs-secondary-bg);
+  color: var(--bs-gray-600);
+  vertical-align: middle;
+  font-size: 1rem;
+  line-height: 1;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+}

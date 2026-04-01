@@ -59,8 +59,6 @@ export function removeVars(names) {
 export function applyPrimaryColor(color) {
   const fg = normalizeColor(color)
 
-  let themeColorMeta = document.querySelector('meta[name="theme-color"]')
-
   if (fg) {
     const vars = {
       '--bs-primary': fg,
@@ -73,16 +71,22 @@ export function applyPrimaryColor(color) {
     const rgb = toRgbValue(fg)
     if (rgb) vars['--bs-primary-rgb'] = rgb
     setVars(vars)
-
-    // Update the theme color meta tag
-    themeColorMeta?.setAttribute('content', fg)
   } else {
     removeVars(PRIMARY_COLOR_VARS)
-
-    // Remove the theme color meta tag
-    let primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--bs-primary')
-    themeColorMeta?.setAttribute('content', normalizeColor(primaryColor))
   }
+}
+
+export function syncMetaThemeColor() {
+  const fg = getComputedStyle(document.documentElement).getPropertyValue('--bs-primary').trim()
+  const color = normalizeColor(fg)
+  if (!color) return
+
+  const metas = [
+    document.querySelector('meta[name="theme-color"]'),
+    document.querySelector('meta[name="msapplication-TileColor"]'),
+  ]
+
+  metas.forEach((meta) => meta?.setAttribute('content', color))
 }
 
 export function applyBgColor(color) {
@@ -100,4 +104,8 @@ export function applyBgColor(color) {
   } else {
     removeVars(BG_COLOR_VARS)
   }
+}
+
+export function applyMode(mode) {
+  document.body.setAttribute('data-bs-theme', mode)
 }

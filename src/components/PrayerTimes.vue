@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { useCoordinatesStore } from '@/stores/coordinates'
+import { usePrayersStore } from '@/stores/prayers'
 import { useFetch, useDateFormat, useOnline, useNow } from '@vueuse/core'
 
 import LoadingState from '@/components/LoadingState.vue'
@@ -15,6 +15,14 @@ import Duhur from '@/components/icons/Prayers/Duhur.vue'
 import Asr from '@/components/icons/Prayers/Asr.vue'
 import Maghrib from '@/components/icons/Prayers/Maghrib.vue'
 import Ishaa from '@/components/icons/Prayers/Ishaa.vue'
+
+const props = defineProps({
+  lat: { type: [Number, String], default: null },
+  long: { type: [Number, String], default: null },
+  vertical: { type: Boolean, default: false },
+})
+
+const hasPropsCoords = computed(() => props.lat != null && props.long != null)
 
 // Reactive state for current time
 const now = useNow()
@@ -32,14 +40,16 @@ const timingsMap = {
   Isha: { label: 'العشاء', icon: Ishaa },
 }
 
-// Coordinates store
-const store = useCoordinatesStore()
+const store = usePrayersStore()
+
+const latitude = computed(() => (hasPropsCoords.value ? props.lat : store.latitude))
+const longitude = computed(() => (hasPropsCoords.value ? props.long : store.longitude))
 
 // API endpoint
 const endpoint = computed(() => {
-  if (!store.latitude || !store.longitude) return null
+  if (!latitude.value || !longitude.value) return null
   const today = new Date().toISOString().split('T')[0].split('-').reverse().join('-')
-  return `https://api.aladhan.com/v1/timings/${today}?latitude=${store.latitude}&longitude=${store.longitude}&iso8601=true`
+  return `https://api.aladhan.com/v1/timings/${today}?latitude=${latitude.value}&longitude=${longitude.value}&iso8601=true`
 })
 
 // Fetch options
@@ -57,6 +67,15 @@ const { isFetching, data: timings, error } = useFetch(endpoint, options).json().
 const formatTiming = (time) => {
   return toArabicNumerals(useDateFormat(time, 'hh:mm A').value.replace('AM', 'ص').replace('PM', 'م'))
 }
+
+// Hijri date from API response
+const hijriDate = computed(() => {
+  let date = timings.value?.data?.date?.hijri
+  if (!date) return ''
+  return toArabicNumerals(`${date.day} ${date.month.ar} ${date.year}`)
+})
+
+const hijriDay = computed(() => timings.value?.data?.date?.hijri?.weekday?.ar ?? '')
 
 // Determine the next prayer
 const nextPrayerKey = computed(() => {
@@ -96,12 +115,12 @@ const remainingTime = computed(() => {
 </script>
 
 <template>
-  <div v-if="store.isDetecting" class="border rounded p-5">
+  <div v-if="!hasPropsCoords && store.isDetecting" class="border rounded p-5">
     <LoadingState message="جاري تحديد موقعك..." />
   </div>
 
   <div
-    v-else-if="store.latitude === 0 || store.longitude === 0"
+    v-else-if="!hasPropsCoords && (store.latitude === 0 || store.longitude === 0)"
     class="border rounded p-5 text-center cursor-pointer"
     @click="store.detect"
   >
@@ -117,6 +136,46 @@ const remainingTime = computed(() => {
     <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." v-else />
   </div>
 
+  <!-- Vertical Layout -->
+  <div v-else-if="timings && vertical" class="d-flex flex-column">
+    <div class="prayer-header d-flex align-items-center justify-content-between p-3 rounded text-white mb-1">
+      <div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="icon-container">
+            <component v-if="nextPrayerKey" :is="timingsMap[nextPrayerKey]?.icon" />
+          </span>
+          <span v-if="nextPrayerKey">{{ timingsMap[nextPrayerKey]?.label }}</span>
+        </div>
+        <div class="fs-4 fw-bold">{{ remainingTime }}</div>
+      </div>
+      <div class="text-end">
+        <div class="mb-1">
+          <b>{{ hijriDay }}</b>
+        </div>
+        <small>{{ hijriDate }}</small>
+      </div>
+    </div>
+    <div class="d-flex flex-column gap-1">
+      <div
+        v-for="(timing, key) in timingsMap"
+        :key="key"
+        class="d-flex align-items-center justify-content-between px-3 py-1 rounded-2 small"
+        :class="
+          key === nextPrayerKey ? 'text-primary bg-primary-subtle border border-primary-subtle fw-bold' : 'bg-body'
+        "
+      >
+        <div class="d-flex align-items-center gap-2">
+          <span class="icon-container">
+            <component :is="timing.icon" />
+          </span>
+          <b>{{ timing.label }}</b>
+        </div>
+        <b>{{ formatTiming(timings.data.timings[key]) }}</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- Default Theme -->
   <div v-else-if="timings" class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2">
     <div v-for="(timing, key) in timingsMap" :key="key">
       <div class="card" :class="{ active: key === nextPrayerKey }">
@@ -153,5 +212,9 @@ const remainingTime = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.prayer-header {
+  background: linear-gradient(135deg, var(--bs-primary) 0%, color-mix(in srgb, var(--bs-primary) 85%, #000) 100%);
 }
 </style>

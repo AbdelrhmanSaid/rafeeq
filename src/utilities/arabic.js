@@ -16,6 +16,10 @@ export const normalize = (text) => {
   return text.toLowerCase()
 }
 
+export const removeBismillah = (text) => {
+  return text.replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ\s*/u, '').trim()
+}
+
 export const toArabicNumerals = (value) => {
   return String(value).replace(/\d/g, (digit) => String.fromCharCode(0x660 + Number(digit)))
 }

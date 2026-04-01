@@ -71,3 +71,8 @@ html[dir='rtl'],
   --bs-dropdown-link-active-bg: var(--bs-primary);
   --bs-dropdown-link-active-color: #fff;
 }
+
+/* Keep card border color in sync with runtime border color. */
+.card {
+  --bs-card-border-color: var(--bs-border-color);
+}

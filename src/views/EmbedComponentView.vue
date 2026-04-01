@@ -1,38 +1,71 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, defineAsyncComponent } from 'vue'
 import { useRoute } from 'vue-router'
 import Heading from '@/components/Heading.vue'
 import Page from '@/components/Layout/Page.vue'
-import PrayerTimes from '@/components/PrayerTimes.vue'
-import SunnahPrayers from '@/components/SunnahPrayers.vue'
-
-const components = {
-  'prayer-times': PrayerTimes,
-  'sunnah-prayers': SunnahPrayers,
-}
+import ErrorState from '@/components/ErrorState.vue'
+import { IconAlertTriangle } from '@tabler/icons-vue'
 
 const schema = {
   title: { type: String, default: null },
   subtitle: { type: String, default: null },
 }
 
-const route = useRoute()
-const component = computed(() => components[route.params.component])
+const components = {
+  'prayer-times': {
+    component: defineAsyncComponent(() => import('@/components/PrayerTimes.vue')),
+    schema: {
+      lat: { type: Number, default: null },
+      long: { type: Number, default: null },
+      vertical: { type: Boolean, default: false },
+    },
+  },
+  'sunnah-prayers': {
+    component: defineAsyncComponent(() => import('@/components/SunnahPrayers.vue')),
+  },
+  'sebha': {
+    component: defineAsyncComponent(() => import('@/components/Sebha.vue')),
+  },
+  'random-ayah': {
+    component: defineAsyncComponent(() => import('@/components/RandomAyah.vue')),
+  },
+}
 
-const params = computed(() => {
+function resolveProps(schema, query) {
   const result = {}
 
   for (const key in schema) {
-    result[key] = route.query[key] ?? schema[key].default
+    const raw = query[key]
+    const { type, default: defaultValue } = schema[key]
+
+    if (raw == null) {
+      result[key] = defaultValue
+      continue
+    }
+
+    if (type === Number) result[key] = Number(raw)
+    else if (type === Boolean) result[key] = raw !== 'false' && raw !== '0'
+    else result[key] = raw
   }
 
   return result
-})
+}
+
+const route = useRoute()
+const entry = computed(() => components[route.params.component])
+const component = computed(() => entry.value?.component)
+
+const props = computed(() => resolveProps(schema, route.query))
+const componentProps = computed(() => resolveProps(entry.value?.schema ?? {}, route.query))
 </script>
 
 <template>
   <Page>
-    <Heading v-if="params.title" :size="2" class="mb-4" :title="params.title" :subtitle="params.subtitle" />
-    <component v-if="component" :is="component" />
+    <template v-if="component">
+      <Heading v-if="props.title" :size="2" class="mb-4" :title="props.title" :subtitle="props.subtitle" />
+      <component :is="component" v-bind="componentProps" />
+    </template>
+
+    <ErrorState v-else :icon="IconAlertTriangle" message="خطأ في الإعدادات: المكوّن غير موجود." />
   </Page>
 </template>
