@@ -129,7 +129,6 @@ export const useDownloadStore = defineStore('download', () => {
     isPaused.value = false
   }
 
-
   function removeFromQueue(asset) {
     const index = downloadQueue.value.findIndex((item) => item.id === asset.id)
     if (index > -1) downloadQueue.value.splice(index, 1)

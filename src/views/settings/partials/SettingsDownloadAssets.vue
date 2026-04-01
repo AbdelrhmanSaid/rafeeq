@@ -204,7 +204,6 @@ const handleAssetAction = (asset) => {
       </div>
     </div>
 
-
     <!-- List -->
     <div class="dm-list">
       <div v-for="asset in filteredAssets" :key="asset.id" class="dm-item" :class="asset.status">
@@ -469,7 +468,6 @@ const handleAssetAction = (asset) => {
   border-color: var(--bs-danger);
   color: white;
 }
-
 
 /* List */
 .dm-list {

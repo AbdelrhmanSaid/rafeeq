@@ -25,10 +25,10 @@ import SettingsAppUpdates from './partials/SettingsAppUpdates.vue'
         <SettingsTheme />
       </div>
       <div class="col-12 col-md-6">
-        <SettingsNotifications />
-      </div>
-      <div class="col-12 col-md-6">
         <SettingsAppUpdates />
+      </div>
+      <div class="col-12">
+        <SettingsNotifications />
       </div>
       <div class="col-12">
         <SettingsDownloadAssets />
