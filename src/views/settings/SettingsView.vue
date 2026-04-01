@@ -7,7 +7,7 @@ import {
   IconCloudDownload,
   IconDeviceMobileCog,
   IconMoonStars,
-  IconQuran,
+  IconBook2,
   IconSettings2,
   IconSunHigh,
 } from '@tabler/icons-vue'
@@ -82,7 +82,7 @@ const sectionLinks = [
 
           <section id="settings-downloads" class="settings-section">
             <div class="d-flex align-items-center gap-2 mb-2 text-muted small fw-semibold">
-              <IconQuran :size="16" />
+              <IconBook2 :size="16" />
               <span>المحتوى المحمّل</span>
             </div>
             <SettingsDownloadAssets />
