@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { usePrayersStore } from '@/stores/prayers'
 import { useFetch, useDateFormat, useOnline, useNow } from '@vueuse/core'
+import { useReconnectExecute } from '@/composables/useReconnectExecute'
 
 import LoadingState from '@/components/LoadingState.vue'
 import ErrorState from '@/components/ErrorState.vue'
@@ -61,7 +62,8 @@ const options = {
 }
 
 // Fetch prayer timings
-const { isFetching, data: timings, error } = useFetch(endpoint, options).json().get()
+const { isFetching, data: timings, error, execute } = useFetch(endpoint, options).json().get()
+const { isRecoveringOnReconnect } = useReconnectExecute(online, execute)
 
 // Format time
 const formatTiming = (time) => {
@@ -127,7 +129,7 @@ const remainingTime = computed(() => {
     <span>إضغط هنا لتحديد الموقع الخاص بك وعرض مواقيت الصلاة</span>
   </div>
 
-  <div v-else-if="isFetching" class="border rounded p-5">
+  <div v-else-if="isFetching || isRecoveringOnReconnect" class="border rounded p-5">
     <LoadingState message="جاري تحميل مواقيت الصلاة..." />
   </div>
 
