@@ -7,6 +7,7 @@ import SettingsPrayerTimes from './partials/SettingsPrayerTimes.vue'
 import SettingsTheme from './partials/SettingsTheme.vue'
 import SettingsNotifications from './partials/SettingsNotifications.vue'
 import SettingsDownloadAssets from './partials/SettingsDownloadAssets.vue'
+import SettingsAppUpdates from './partials/SettingsAppUpdates.vue'
 </script>
 
 <template>
@@ -25,6 +26,9 @@ import SettingsDownloadAssets from './partials/SettingsDownloadAssets.vue'
       </div>
       <div class="col-12 col-md-6">
         <SettingsNotifications />
+      </div>
+      <div class="col-12 col-md-6">
+        <SettingsAppUpdates />
       </div>
       <div class="col-12">
         <SettingsDownloadAssets />

@@ -8,11 +8,13 @@ import { computed, ref, watch } from 'vue'
 import { useOnline } from '@vueuse/core'
 import { Toaster, toast } from 'vue-sonner'
 import { useThemeStore } from '@/stores/theme'
+import { useAppStore } from '@/stores/app'
 import { registerSW } from 'virtual:pwa-register'
 
 // Network status detection
 const online = useOnline()
 const themeStore = useThemeStore()
+const appStore = useAppStore()
 
 const route = useRoute()
 const isEmbedRoute = computed(() => route.path.startsWith('/embed'))
@@ -29,8 +31,7 @@ watch(online, (isOnline) => {
 
 const updateSW = registerSW({
   onNeedRefresh() {
-    // If on embed route, update the page automatically
-    if (isEmbedRoute.value) {
+    if (isEmbedRoute.value || appStore.autoUpdateServiceWorker) {
       updateSW(true)
       return
     }
