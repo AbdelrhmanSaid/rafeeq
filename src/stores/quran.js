@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import reciters from '@/exports/QuranReciters.js'
 
-const DEFAULT_RECITER_ID = 20
+const DEFAULT_RECITER_ID = 51
 
 export const useQuranStore = defineStore('quran', () => {
   const currentReciter = useLocalStorage('currentReciter', DEFAULT_RECITER_ID)
