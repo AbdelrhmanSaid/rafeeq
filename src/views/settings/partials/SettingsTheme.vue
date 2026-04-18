@@ -1,6 +1,6 @@
 <script setup>
 import { useThemeStore } from '@/stores/theme'
-import { IconCheck, IconSunFilled, IconMoonStars, IconDeviceLaptop } from '@tabler/icons-vue'
+import { IconCheck, IconSunFilled, IconMoonStars, IconDeviceLaptop, IconTextSize } from '@tabler/icons-vue'
 
 const theme = useThemeStore()
 
@@ -32,6 +32,39 @@ const colors = [
           <IconDeviceLaptop :size="16" />
           <span>تلقائي</span>
         </button>
+      </div>
+
+      <div class="mb-3">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <span class="d-flex align-items-center gap-1">
+            <IconTextSize :size="16" />
+            حجم الخط
+          </span>
+          <div class="d-flex align-items-center gap-2">
+            <button
+              v-if="theme.fontSize !== theme.DEFAULT_FONT_SIZE"
+              class="btn btn-outline-secondary rounded-pill py-0 px-2"
+              style="font-size: 0.7rem"
+              @click="theme.setFontSize(theme.DEFAULT_FONT_SIZE)"
+            >
+              إعادة للافتراضي
+            </button>
+            <span class="text-secondary small fw-medium">{{ theme.fontSize }}px</span>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="font-size-label">أ</span>
+          <input
+            type="range"
+            class="form-range flex-grow-1"
+            :min="theme.MIN_FONT_SIZE"
+            :max="theme.MAX_FONT_SIZE"
+            step="1"
+            :value="theme.fontSize"
+            @input="theme.setFontSize($event.target.value)"
+          />
+          <span class="font-size-label font-size-label-lg">أ</span>
+        </div>
       </div>
 
       <div>
@@ -97,5 +130,16 @@ const colors = [
 .color-label {
   font-size: 0.7rem;
   color: var(--bs-secondary-color);
+}
+
+.font-size-label {
+  font-size: 0.75rem;
+  color: var(--bs-secondary-color);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.font-size-label-lg {
+  font-size: 1.25rem;
 }
 </style>

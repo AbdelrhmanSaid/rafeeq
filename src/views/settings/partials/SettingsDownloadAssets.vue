@@ -260,6 +260,7 @@ const handleAssetAction = (asset) => {
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .dm-title {
@@ -272,6 +273,7 @@ const handleAssetAction = (asset) => {
   width: 40px;
   height: 40px;
   opacity: 0.9;
+  flex-shrink: 0;
 }
 
 .dm-title h3 {
@@ -375,7 +377,7 @@ const handleAssetAction = (asset) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
   padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--bs-border-color);
   flex-wrap: wrap;
@@ -383,6 +385,7 @@ const handleAssetAction = (asset) => {
 
 .dm-filters {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.25rem;
 }
 
@@ -397,6 +400,7 @@ const handleAssetAction = (asset) => {
   font-size: 0.8rem;
   border-radius: 8px;
   cursor: pointer;
+  white-space: nowrap;
   transition:
     background 0.15s,
     color 0.15s;
@@ -424,6 +428,7 @@ const handleAssetAction = (asset) => {
 
 .dm-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
@@ -438,6 +443,7 @@ const handleAssetAction = (asset) => {
   font-size: 0.8rem;
   border-radius: 8px;
   cursor: pointer;
+  white-space: nowrap;
   transition:
     background 0.15s,
     color 0.15s,
