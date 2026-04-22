@@ -7,7 +7,7 @@ export const useRadioStore = defineStore('radio', () => {
   const player = new Audio()
 
   const station = ref(null)
-  const isPlaying = computed(() => station.value !== null)
+  const isPlaying = computed(() => station.value !== null && !player.paused && !player.ended)
 
   let retries = 0
   let retryTimeout = null
