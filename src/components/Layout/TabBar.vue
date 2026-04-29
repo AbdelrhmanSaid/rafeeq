@@ -65,6 +65,13 @@ const closeMoreMenu = () => {
 
         <div class="py-3">
           <RouterLink
+            :to="{ name: 'hadith' }"
+            class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item"
+            @click="closeMoreMenu"
+          >
+            الأربعون النووية
+          </RouterLink>
+          <RouterLink
             :to="{ name: 'qibla' }"
             class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item"
             @click="closeMoreMenu"

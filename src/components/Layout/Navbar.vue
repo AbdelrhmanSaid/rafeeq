@@ -73,6 +73,7 @@ const isRadioActive = computed(() => ['radio', 'radio-station'].includes(route.n
               <span>المزيد</span>
             </a>
             <ul class="dropdown-menu">
+              <li><RouterLink class="dropdown-item" :to="{ name: 'hadith' }">الأربعون النووية</RouterLink></li>
               <li><RouterLink class="dropdown-item" :to="{ name: 'zakat' }">حاسبة الزكاة</RouterLink></li>
               <li><RouterLink class="dropdown-item" :to="{ name: 'sebha' }">السبحة الإلكترونية</RouterLink></li>
               <li><RouterLink class="dropdown-item" :to="{ name: 'settings' }">الإعدادات</RouterLink></li>
