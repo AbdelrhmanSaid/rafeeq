@@ -1,7 +1,8 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onBeforeUnmount } from 'vue'
 import { useOnline } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
+import { toast } from 'vue-sonner'
 
 import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
@@ -24,6 +25,15 @@ const surah = ref(null)
 const isFetching = ref(true)
 const error = ref(null)
 const playerRef = ref(null)
+const isTafsirOpen = ref(false)
+const tafsirAyah = ref(null)
+const tafsirText = ref('')
+const tafsirSource = ref('')
+const isFetchingTafsir = ref(false)
+const tafsirCache = new Map()
+
+let longPressTimer = null
+let longPressTriggered = false
 
 async function loadSurah() {
   isFetching.value = true
@@ -75,6 +85,11 @@ const ayat = computed(() => {
 })
 
 const playVerse = (verse) => {
+  if (longPressTriggered) {
+    longPressTriggered = false
+    return
+  }
+
   if (!playerRef.value) return
   playerRef.value.seekToAyah(verse.numberInSurah)
 }
@@ -84,6 +99,78 @@ const isCurrentVerse = (verse) => {
   if (!currentAyah || !surah.value) return false
   return currentAyah.ayah === verse.numberInSurah
 }
+
+const tafsirEndpoint = (verse) => `https://api.alquran.cloud/v1/ayah/${surah.value.data.number}:${verse.numberInSurah}/editions/ar.muyassar`
+
+const openTafsir = async (verse) => {
+  if (!surah.value) return
+
+  const cacheKey = `${surah.value.data.number}:${verse.numberInSurah}`
+  tafsirAyah.value = verse
+  isTafsirOpen.value = true
+
+  if (tafsirCache.has(cacheKey)) {
+    const cached = tafsirCache.get(cacheKey)
+    tafsirText.value = cached.text
+    tafsirSource.value = cached.source
+    return
+  }
+
+  isFetchingTafsir.value = true
+  tafsirText.value = ''
+  tafsirSource.value = ''
+
+  try {
+    const response = await fetch(tafsirEndpoint(verse))
+    if (!response.ok) throw new Error('Failed to fetch tafsir')
+
+    const data = await response.json()
+    const tafsir = data?.data?.[0]
+
+    if (!tafsir?.text) throw new Error('Tafsir is not available')
+
+    const payload = {
+      text: tafsir.text,
+      source: tafsir.edition?.name || 'التفسير الميسر',
+    }
+
+    tafsirCache.set(cacheKey, payload)
+    tafsirText.value = payload.text
+    tafsirSource.value = payload.source
+  } catch {
+    isTafsirOpen.value = false
+    toast.error('تعذر تحميل التفسير، برجاء المحاولة مرة أخرى')
+  } finally {
+    isFetchingTafsir.value = false
+  }
+}
+
+const closeTafsir = () => {
+  isTafsirOpen.value = false
+}
+
+const handleContextMenu = (event, verse) => {
+  event.preventDefault()
+  openTafsir(verse)
+}
+
+const startLongPress = (verse) => {
+  longPressTriggered = false
+  clearTimeout(longPressTimer)
+
+  longPressTimer = setTimeout(() => {
+    longPressTriggered = true
+    openTafsir(verse)
+  }, 600)
+}
+
+const endLongPress = () => {
+  clearTimeout(longPressTimer)
+}
+
+onBeforeUnmount(() => {
+  clearTimeout(longPressTimer)
+})
 </script>
 
 <template>
@@ -114,6 +201,11 @@ const isCurrentVerse = (verse) => {
           class="ayah clickable-ayah"
           :class="{ 'current-ayah': isCurrentVerse(ayah) }"
           @click="playVerse(ayah)"
+          @contextmenu="handleContextMenu($event, ayah)"
+          @touchstart.passive="startLongPress(ayah)"
+          @touchend="endLongPress"
+          @touchcancel="endLongPress"
+          @touchmove="endLongPress"
           :title="`تشغيل الآية ${toArabicNumerals(ayah.numberInSurah)}`"
           >{{ ayah.text }}</span
         >
@@ -128,6 +220,36 @@ const isCurrentVerse = (verse) => {
       <BackButton :to="{ name: 'quran' }" button-class="btn-primary" />
     </div>
   </Page>
+
+  <Teleport to="body">
+    <div v-if="isTafsirOpen" class="modal-backdrop show" @click="closeTafsir"></div>
+    <div v-if="isTafsirOpen" class="modal d-block" tabindex="-1" @click.self="closeTafsir">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title fs-5">
+              تفسير الآية {{ toArabicNumerals(tafsirAyah?.numberInSurah || 0) }}
+            </h2>
+            <button type="button" class="btn-close" @click="closeTafsir" aria-label="إغلاق"></button>
+          </div>
+          <div class="modal-body">
+            <p class="font-quran fs-3 text-center lh-lg mb-4">
+              {{ tafsirAyah?.text }}
+            </p>
+
+            <div v-if="isFetchingTafsir" class="text-center py-4">
+              <LoadingState message="جاري تحميل التفسير..." />
+            </div>
+
+            <div v-else class="bg-body-tertiary rounded-3 p-3 px-4">
+              <span class="d-block small fw-semibold text-secondary mb-2">{{ tafsirSource }}</span>
+              <p class="small mb-0 lh-lg">{{ tafsirText }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <style lang="scss" scoped>
