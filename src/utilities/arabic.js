@@ -17,7 +17,16 @@ export const normalize = (text) => {
 }
 
 export const removeBismillah = (text) => {
-  return text.replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ\s*/u, '').trim()
+  let samples = [
+    'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
+    'بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ',
+  ];
+
+  for (let sample of samples) {
+    text = text.replace(new RegExp(`^${sample}\\s*`, 'u'), '').trim()
+  }
+
+  return text
 }
 
 export const toArabicNumerals = (value) => {
