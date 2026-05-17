@@ -58,7 +58,7 @@ export const useMeta = (meta) => {
   let { title, description, keywords } = Object.assign({}, defaultMeta, meta)
 
   // Append the app name to the title
-  title = `${title} - رفيق`
+  if (title !== defaultMeta.title) title = `${title} - رفيق`
 
   // Update the meta tags
   document.title = title
