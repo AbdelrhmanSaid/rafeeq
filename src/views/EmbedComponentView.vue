@@ -1,10 +1,14 @@
 <script setup>
-import { computed, defineAsyncComponent } from 'vue'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Heading from '@/components/Heading.vue'
 import Page from '@/components/Layout/Page.vue'
 import ErrorState from '@/components/ErrorState.vue'
 import { IconAlertTriangle } from '@tabler/icons-vue'
+import PrayerTimes from '@/components/PrayerTimes.vue'
+import SunnahPrayers from '@/components/SunnahPrayers.vue'
+import Sebha from '@/components/Sebha.vue'
+import RandomAyah from '@/components/RandomAyah.vue'
 
 const schema = {
   title: { type: String, default: null },
@@ -13,7 +17,7 @@ const schema = {
 
 const components = {
   'prayer-times': {
-    component: defineAsyncComponent(() => import('@/components/PrayerTimes.vue')),
+    component: PrayerTimes,
     schema: {
       lat: { type: Number, default: null },
       long: { type: Number, default: null },
@@ -21,13 +25,13 @@ const components = {
     },
   },
   'sunnah-prayers': {
-    component: defineAsyncComponent(() => import('@/components/SunnahPrayers.vue')),
+    component: SunnahPrayers,
   },
   'sebha': {
-    component: defineAsyncComponent(() => import('@/components/Sebha.vue')),
+    component: Sebha,
   },
   'random-ayah': {
-    component: defineAsyncComponent(() => import('@/components/RandomAyah.vue')),
+    component: RandomAyah,
   },
 }
 
