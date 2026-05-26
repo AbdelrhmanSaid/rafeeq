@@ -87,6 +87,7 @@ onBeforeRouteLeave(async () => {
       :reference="zekr.reference"
       :benefit="zekr.benefit"
       @increment="totalClicked++"
+      @reset="totalClicked -= $event"
     />
 
     <div class="d-flex justify-content-center">
