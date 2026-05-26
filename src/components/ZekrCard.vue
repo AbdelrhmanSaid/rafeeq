@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
-import { IconDownload, IconShare3, IconCopy, IconHeartShare } from '@tabler/icons-vue'
+import { IconDownload, IconShare3, IconCopy, IconHeartShare, IconRestore } from '@tabler/icons-vue'
 import { exportComponent } from '@/utilities/export'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals } from '@/utilities/arabic'
@@ -25,7 +25,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['increment'])
+const emit = defineEmits(['increment', 'reset'])
 
 const count = ref(0)
 const isMobile = useMediaQuery('(max-width: 991.98px)')
@@ -34,6 +34,13 @@ const increment = () => {
   if (count.value < props.repeat) {
     count.value++
     emit('increment')
+  }
+}
+
+const reset = () => {
+  if (count.value > 0) {
+    emit('reset', count.value)
+    count.value = 0
   }
 }
 
@@ -106,6 +113,17 @@ const copyZekr = async () => {
           <button class="dropdown-item d-flex align-items-center gap-2" @click="copyZekr">
             <IconCopy size="18" />
             <span>نسخ</span>
+          </button>
+        </li>
+        <li><hr class="dropdown-divider" /></li>
+        <li>
+          <button
+            class="dropdown-item d-flex align-items-center gap-2"
+            :disabled="count === 0"
+            @click="reset"
+          >
+            <IconRestore size="18" />
+            <span>تصفير</span>
           </button>
         </li>
       </ul>
