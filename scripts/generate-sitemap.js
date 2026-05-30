@@ -12,6 +12,7 @@ const staticRoutes = [
   '/',
   '/quran',
   '/azkar',
+  '/hadith',
   '/radio',
   '/sebha',
   '/zakat',
@@ -38,6 +39,11 @@ azkarFiles.forEach(file => {
   const category = file.replace('.json', '')
   sitemap.push(`${BASE_URL}/azkar/${category}`)
 })
+
+// Add Hadith ids
+for (let i = 1; i <= 42; i++) {
+  sitemap.push(`${BASE_URL}/hadith/${i}`)
+}
 
 // Add Radios
 Object.keys(Radios).forEach(slug => {
