@@ -33,6 +33,17 @@ export const toArabicNumerals = (value) => {
   return String(value).replace(/\d/g, (digit) => String.fromCharCode(0x660 + Number(digit)))
 }
 
+export const formatHijriDate = (date = new Date()) => {
+  // Use the Umm al-Qura calendar (the official Hijri calendar) localized in Arabic.
+  // This works fully offline and does not depend on the prayer times API.
+  return new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(date)
+}
+
 export const formatTime = (seconds) => {
   if (!seconds || seconds <= 0) return '٠٠:٠٠:٠٠'
   const h = Math.floor(seconds / 3600)

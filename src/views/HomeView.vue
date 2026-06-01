@@ -1,6 +1,7 @@
 <script setup>
 import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
+import HijriDate from '@/components/HijriDate.vue'
 import PrayerTimes from '@/components/PrayerTimes.vue'
 import RandomAyah from '@/components/RandomAyah.vue'
 import SunnahPrayers from '@/components/SunnahPrayers.vue'
@@ -12,7 +13,8 @@ const prayersStore = usePrayersStore()
 
 <template>
   <Page>
-    <Heading :size="2" class="mb-4" title="مواقيت الصلاة" subtitle="إن الصلاة كانت على المؤمنين كتابا موقوتا." />
+    <Heading :size="2" class="mb-2" title="مواقيت الصلاة" subtitle="إن الصلاة كانت على المؤمنين كتابا موقوتا." />
+    <HijriDate class="mb-4" />
     <PrayerTimes class="mb-5" :vertical="prayersStore.vertical" />
 
     <Heading :size="2" class="mb-4" title="السنن الرواتب" subtitle="وما يزال عبدي يتقرب إلي بالنوافل حتى أحبه." />
