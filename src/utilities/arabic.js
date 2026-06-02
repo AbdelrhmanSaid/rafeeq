@@ -17,10 +17,13 @@ export const normalize = (text) => {
 }
 
 export const removeBismillah = (text) => {
+  text = String(text ?? '').replace(/^\uFEFF/, '')
+
   let samples = [
     'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
+    'بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ',
     'بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ',
-  ];
+  ]
 
   for (let sample of samples) {
     text = text.replace(new RegExp(`^${sample}\\s*`, 'u'), '').trim()

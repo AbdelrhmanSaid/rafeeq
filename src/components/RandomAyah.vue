@@ -54,8 +54,15 @@ onUnmounted(() => {
   audio.currentTime = 0
 })
 
-// Remove the bismillah from the ayah text
-const displayText = computed(() => (current.value !== 1 ? removeBismillah(ayah.value?.text) : ayah.value?.text))
+const displayText = computed(() => {
+  if (!ayah.value?.text) return ''
+
+  if (ayah.value.surah.number !== 1 && ayah.value.numberInSurah === 1) {
+    return removeBismillah(ayah.value.text)
+  }
+
+  return ayah.value.text.trim()
+})
 
 function fetchRandomAyah() {
   current.value = Math.floor(Math.random() * TOTAL_AYAHS) + 1
