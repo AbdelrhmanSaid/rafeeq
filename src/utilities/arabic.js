@@ -16,16 +16,16 @@ export const normalize = (text) => {
   return text.toLowerCase()
 }
 
+export const bismillahSamples = [
+  'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
+  'بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ',
+  'بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ',
+]
+
 export const removeBismillah = (text) => {
   text = String(text ?? '').replace(/^\uFEFF/, '')
 
-  let samples = [
-    'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
-    'بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ',
-    'بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ',
-  ]
-
-  for (let sample of samples) {
+  for (let sample of bismillahSamples) {
     text = text.replace(new RegExp(`^${sample}\\s*`, 'u'), '').trim()
   }
 

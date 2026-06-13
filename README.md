@@ -42,6 +42,22 @@ bun run dev
 ```
 The application will be available at `http://localhost:5173`.
 
+## Testing
+The project uses [Vitest](https://vitest.dev/) (with `happy-dom` and `@vue/test-utils`) for unit and component tests. Tests live under the `tests/` directory and mirror the `src/` structure.
+
+```bash
+# Run the full suite once
+bun run test:run
+
+# Watch mode while developing
+bun run test
+
+# Run with a coverage report (output in ./coverage)
+bun run test:coverage
+```
+
+Tests run automatically on every push and pull request via the `Tests` GitHub Actions workflow.
+
 ## Analytics
 To enable Google Analytics without impacting performance or the PWA, set this environment variable before building or running the app:
 
