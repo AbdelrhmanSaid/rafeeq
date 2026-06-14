@@ -4,22 +4,31 @@ import { useOnline } from '@vueuse/core'
 
 import { useQuranService } from '@/services/quranService'
 import { useAzkarService } from '@/services/azkarService'
+import { useHadithService } from '@/services/hadithService'
 import surahs from '@/exports/QuranSurahs.js'
 import azkarCategories from '@/exports/AzkarCategories.js'
+import hadithList from '@/exports/HadithList.js'
 import { sleep } from '@/utilities/async'
 
 export const useDownloadStore = defineStore('download', () => {
   const online = useOnline()
   const quranService = useQuranService()
   const azkarService = useAzkarService()
+  const hadithService = useHadithService()
 
   const downloadQueue = ref([])
   const isDownloading = ref(false)
   const isPaused = ref(false)
   const currentItem = ref(null)
 
+  const serviceMap = {
+    surah: quranService,
+    azkar: azkarService,
+    hadith: hadithService,
+  }
+
   function serviceFor(asset) {
-    return asset.type === 'surah' ? quranService : azkarService
+    return serviceMap[asset.type]
   }
 
   const allAssets = computed(() => [
@@ -37,10 +46,17 @@ export const useDownloadStore = defineStore('download', () => {
       key: c.slug,
       data: c,
     })),
+    ...hadithList.map((h) => ({
+      id: `hadith-${h.id}`,
+      type: 'hadith',
+      name: h.title,
+      key: String(h.id),
+      data: h,
+    })),
   ])
 
   const totalAssets = computed(() => allAssets.value.length)
-  const downloadedCount = computed(() => quranService.downloadedCount.value + azkarService.downloadedCount.value)
+  const downloadedCount = computed(() => quranService.downloadedCount.value + azkarService.downloadedCount.value + hadithService.downloadedCount.value)
   const isCompleted = computed(() => downloadedCount.value === totalAssets.value)
   const progressPercentage = computed(() =>
     totalAssets.value === 0 ? 0 : Math.round((downloadedCount.value / totalAssets.value) * 100),
@@ -58,8 +74,10 @@ export const useDownloadStore = defineStore('download', () => {
   async function fetchAsset(asset) {
     if (asset.type === 'surah') {
       await quranService.fetchSurah(asset.data.id)
-    } else {
+    } else if (asset.type === 'azkar') {
       await azkarService.fetchCategory(asset.data.slug)
+    } else if (asset.type === 'hadith') {
+      await hadithService.fetchHadith(asset.data.id)
     }
   }
 
@@ -113,6 +131,7 @@ export const useDownloadStore = defineStore('download', () => {
   async function removeAllAssets() {
     await quranService.removeAll()
     await azkarService.removeAll()
+    await hadithService.removeAll()
   }
 
   function pauseDownloads() {
