@@ -10,6 +10,18 @@ const PRIMARY_COLOR_VARS = [
 
 const BG_COLOR_VARS = ['--bs-body-bg', '--bs-body-bg-rgb', '--bs-secondary-bg', '--bs-tertiary-bg']
 
+function ensureMeta(name) {
+  let meta = document.querySelector(`meta[name="${name}"]`)
+
+  if (!meta) {
+    meta = document.createElement('meta')
+    meta.setAttribute('name', name)
+    document.head.appendChild(meta)
+  }
+
+  return meta
+}
+
 export function normalizeColor(value) {
   if (!value) return null
 
@@ -77,16 +89,16 @@ export function applyPrimaryColor(color) {
 }
 
 export function syncMetaThemeColor() {
-  const fg = getComputedStyle(document.documentElement).getPropertyValue('--bs-primary').trim()
-  const color = normalizeColor(fg)
-  if (!color) return
+  const styles = getComputedStyle(document.body)
+  const bg = normalizeColor(styles.backgroundColor || styles.getPropertyValue('--bs-body-bg'))
+  if (!bg) return
 
-  const metas = [
-    document.querySelector('meta[name="theme-color"]'),
-    document.querySelector('meta[name="msapplication-TileColor"]'),
-  ]
+  ensureMeta('theme-color').setAttribute('content', bg)
+  ensureMeta('msapplication-TileColor').setAttribute('content', bg)
 
-  metas.forEach((meta) => meta?.setAttribute('content', color))
+  const colorScheme = document.body.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light'
+  ensureMeta('color-scheme').setAttribute('content', colorScheme)
+  document.documentElement.style.colorScheme = colorScheme
 }
 
 export function applyBgColor(color) {
