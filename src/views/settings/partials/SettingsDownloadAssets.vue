@@ -110,7 +110,9 @@ const handleAssetAction = (asset) => {
     <div class="dm-header">
       <div class="dm-header-content">
         <div class="dm-title">
-          <IconCloudDownload class="dm-title-icon" />
+          <span class="dm-title-icon">
+            <IconCloudDownload :size="20" />
+          </span>
           <div>
             <h3>التنزيلات</h3>
             <p>للاستخدام بدون إنترنت</p>
@@ -241,18 +243,17 @@ const handleAssetAction = (asset) => {
 
 <style scoped>
 .download-manager {
-  background: var(--bs-body-bg);
+  background: var(--bs-card-bg, var(--bs-body-bg));
   border: 1px solid var(--bs-border-color);
-  border-radius: 16px;
+  border-radius: var(--bs-border-radius);
   overflow: hidden;
   contain: layout style;
 }
 
 /* Header */
 .dm-header {
-  background: linear-gradient(135deg, var(--bs-primary) 0%, color-mix(in srgb, var(--bs-primary) 80%, #000) 100%);
-  color: white;
-  padding: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--bs-border-color);
 }
 
 .dm-header-content {
@@ -265,25 +266,31 @@ const handleAssetAction = (asset) => {
 .dm-title {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
 
 .dm-title-icon {
-  width: 40px;
-  height: 40px;
-  opacity: 0.9;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bs-primary) 12%, transparent);
+  color: var(--bs-primary);
 }
 
 .dm-title h3 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 600;
 }
 
 .dm-title p {
-  margin: 0;
+  margin: 0.15rem 0 0;
   font-size: 0.8rem;
-  opacity: 0.8;
+  color: var(--bs-secondary-color);
 }
 
 .dm-stats {
@@ -306,13 +313,13 @@ const handleAssetAction = (asset) => {
 
 .ring-bg {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.2);
+  stroke: color-mix(in srgb, var(--bs-primary) 18%, transparent);
   stroke-width: 3;
 }
 
 .ring-fill {
   fill: none;
-  stroke: white;
+  stroke: var(--bs-primary);
   stroke-width: 3;
   stroke-linecap: round;
   stroke-dashoffset: 0;
@@ -326,6 +333,7 @@ const handleAssetAction = (asset) => {
   transform: translate(-50%, -50%);
   font-size: 0.75rem;
   font-weight: 600;
+  color: var(--bs-primary);
 }
 
 .dm-stats-text {
@@ -341,7 +349,7 @@ const handleAssetAction = (asset) => {
 
 .dm-stats-label {
   font-size: 0.75rem;
-  opacity: 0.8;
+  color: var(--bs-secondary-color);
 }
 
 /* Status Bar */
@@ -351,7 +359,8 @@ const handleAssetAction = (asset) => {
   gap: 0.5rem;
   margin-top: 1rem;
   padding: 0.5rem 0.75rem;
-  background: rgba(255, 255, 255, 0.15);
+  background: color-mix(in srgb, var(--bs-primary) 10%, transparent);
+  color: var(--bs-body-color);
   border-radius: 8px;
   font-size: 0.8rem;
   overflow: hidden;

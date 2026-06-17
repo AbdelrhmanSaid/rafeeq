@@ -157,12 +157,12 @@ const formatCurrency = (num) => {
     />
 
     <!-- Tabs Navigation -->
-    <div class="btn-group-toggle flex-wrap mb-4">
+    <div class="tab-pills mb-3">
       <button
         v-for="tab in tabs"
         :key="tab.id"
         type="button"
-        class="btn-toggle"
+        class="tab-pill"
         :class="{ active: activeTab === tab.id }"
         @click="activeTab = tab.id"
       >
@@ -498,10 +498,6 @@ const formatCurrency = (num) => {
 </template>
 
 <style lang="scss" scoped>
-.btn-group-toggle .btn-toggle {
-  flex: 0 1 auto;
-}
-
 .icon-container {
   display: grid;
   place-items: center;

@@ -48,10 +48,6 @@ const hasBody = computed(() => {
 </template>
 
 <style scoped>
-.settings-section {
-  border-radius: 14px;
-}
-
 .settings-section-header {
   display: flex;
   align-items: center;

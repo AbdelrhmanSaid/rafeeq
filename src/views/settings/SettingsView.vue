@@ -41,12 +41,12 @@ const activeTab = computed(() => route.params.tab || 'appearance')
 
     <div class="settings-layout">
       <!-- Tabs navigation -->
-      <nav class="settings-nav" aria-label="أقسام الإعدادات">
+      <nav class="settings-nav tab-pills" aria-label="أقسام الإعدادات">
         <RouterLink
           v-for="tab in tabs"
           :key="tab.id"
           :to="{ name: 'settings', params: { tab: tab.id } }"
-          class="settings-nav-item"
+          class="settings-nav-item tab-pill"
           :class="{ active: activeTab === tab.id }"
         >
           <component :is="tab.icon" :size="20" />
@@ -88,44 +88,21 @@ const activeTab = computed(() => route.params.tab || 'appearance')
 
 /* Navigation — sidebar on desktop */
 .settings-nav {
-  display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  overflow-x: visible;
+  padding: 0;
+  margin: 0;
   position: sticky;
   top: calc(var(--navbar-height) + 1rem);
 }
 
 .settings-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
   width: 100%;
-  padding: 0.7rem 0.9rem;
-  border: 1px solid transparent;
-  border-radius: 12px;
-  background: transparent;
-  color: var(--bs-secondary-color);
+  flex-shrink: 1;
+  padding-block: 0.7rem;
+  border-color: transparent;
   font-size: 0.9rem;
-  font-weight: 500;
-  text-align: start;
-  text-decoration: none;
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-
-.settings-nav-item:hover {
-  background: rgba(var(--bs-secondary-rgb), 0.1);
-  color: var(--bs-body-color);
-}
-
-.settings-nav-item.active {
-  background: color-mix(in srgb, var(--bs-primary) 12%, transparent);
-}
-
-.settings-nav-item svg {
-  flex-shrink: 0;
 }
 
 .settings-content {
@@ -150,21 +127,16 @@ const activeTab = computed(() => route.params.tab || 'appearance')
     position: static;
     gap: 0.5rem;
     overflow-x: auto;
+    padding-top: 0;
     padding-bottom: 0.35rem;
     margin-inline: -0.25rem;
     padding-inline: 0.25rem;
-    scrollbar-width: none;
-  }
-
-  .settings-nav::-webkit-scrollbar {
-    display: none;
   }
 
   .settings-nav-item {
     width: auto;
     flex-shrink: 0;
     border-color: var(--bs-border-color);
-    border-radius: 999px;
     padding: 0.5rem 0.9rem;
     font-size: 0.85rem;
   }
