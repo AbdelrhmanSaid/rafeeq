@@ -1,13 +1,14 @@
 <script setup>
-import { ref } from 'vue'
-
 import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
 import Sebha from '@/components/Sebha.vue'
+import { useMediaQuery } from '@vueuse/core'
+
+const isMobile = useMediaQuery('(max-width: 768px)')
 </script>
 
 <template>
-  <Page class="sebha-page full-height">
+  <Page :class="{ 'sebha-page': true, 'full-height': isMobile }">
     <Heading
       class="mb-4"
       title="السبحة الإلكترونية"
