@@ -131,11 +131,7 @@ const copyZekr = async () => {
         </li>
         <li><hr class="dropdown-divider" /></li>
         <li>
-          <button
-            class="dropdown-item d-flex align-items-center gap-2"
-            :disabled="count === 0"
-            @click="reset"
-          >
+          <button class="dropdown-item d-flex align-items-center gap-2" :disabled="count === 0" @click="reset">
             <IconRestore size="18" />
             <span>تصفير</span>
           </button>

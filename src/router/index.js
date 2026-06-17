@@ -119,7 +119,7 @@ const router = createRouter({
     },
 
     {
-      path: '/settings',
+      path: '/settings/:tab(appearance|prayer|quran|azkar|app|downloads)?',
       name: 'settings',
       component: () => import('@/views/settings/SettingsView.vue'),
       meta: {

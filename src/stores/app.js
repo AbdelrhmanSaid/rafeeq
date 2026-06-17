@@ -7,7 +7,7 @@ export const useAppStore = defineStore('app', () => {
   const zekrVibrationIntensity = useLocalStorage('zekr-vibration-intensity', 60)
 
   if (!Number.isFinite(zekrVibrationIntensity.value)) {
-    zekrVibrationIntensity.value = 60
+    zekrVibrationIntensity.value = 20
   }
 
   return {

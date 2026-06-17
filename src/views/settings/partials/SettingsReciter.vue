@@ -2,6 +2,8 @@
 import reciters from '@/exports/QuranReciters.js'
 import { useQuranStore } from '@/stores/quran.js'
 import { computed } from 'vue'
+import { IconMicrophone2 } from '@tabler/icons-vue'
+import SettingsSection from './SettingsSection.vue'
 
 const quranStore = useQuranStore()
 const normalize = (s) => s.replace(/\s+/g, ' ')
@@ -19,43 +21,39 @@ function onRewayaChange(value) {
 </script>
 
 <template>
-  <div class="card h-100">
-    <div class="card-body">
-      <h6 class="card-title mb-3">القرآن الكريم</h6>
-
-      <div class="mb-3">
-        <span class="d-block mb-2">الرواية</span>
-        <div class="form-floating">
-          <select
-            class="form-select"
-            id="currentRewaya"
-            :value="currentRewaya"
-            @change="onRewayaChange($event.target.value)"
-          >
-            <option v-for="rewaya in rewayat" :key="rewaya" :value="rewaya">
-              {{ rewaya }}
-            </option>
-          </select>
-          <label for="currentRewaya">الرواية</label>
-        </div>
-      </div>
-
-      <div>
-        <span class="d-block mb-2">القارئ</span>
-        <div class="form-floating">
-          <select
-            class="form-select"
-            id="currentReciter"
-            :value="Number(quranStore.currentReciter)"
-            @change="quranStore.changeReciter(Number($event.target.value))"
-          >
-            <option v-for="reciter in filteredReciters" :key="reciter.id" :value="reciter.id">
-              {{ reciter.name }}
-            </option>
-          </select>
-          <label for="currentReciter">القارئ الحالي</label>
-        </div>
+  <SettingsSection title="القرآن الكريم" description="اختر الرواية والقارئ المفضل لديك" :icon="IconMicrophone2">
+    <div class="mb-3">
+      <span class="d-block mb-2">الرواية</span>
+      <div class="form-floating">
+        <select
+          class="form-select"
+          id="currentRewaya"
+          :value="currentRewaya"
+          @change="onRewayaChange($event.target.value)"
+        >
+          <option v-for="rewaya in rewayat" :key="rewaya" :value="rewaya">
+            {{ rewaya }}
+          </option>
+        </select>
+        <label for="currentRewaya">الرواية</label>
       </div>
     </div>
-  </div>
+
+    <div>
+      <span class="d-block mb-2">القارئ</span>
+      <div class="form-floating">
+        <select
+          class="form-select"
+          id="currentReciter"
+          :value="Number(quranStore.currentReciter)"
+          @change="quranStore.changeReciter(Number($event.target.value))"
+        >
+          <option v-for="reciter in filteredReciters" :key="reciter.id" :value="reciter.id">
+            {{ reciter.name }}
+          </option>
+        </select>
+        <label for="currentReciter">القارئ الحالي</label>
+      </div>
+    </div>
+  </SettingsSection>
 </template>

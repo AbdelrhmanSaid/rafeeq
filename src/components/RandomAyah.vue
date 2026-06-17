@@ -15,7 +15,8 @@ const online = useOnline()
 
 const TOTAL_AYAHS = 6236
 const current = ref(Math.floor(Math.random() * TOTAL_AYAHS) + 1)
-const endpoint = computed(() => `https://api.alquran.cloud/v1/ayah/${current.value}/editions/quran-uthmani,ar.muyassar,ar.alafasy`)
+const editions = ['quran-uthmani', 'ar.muyassar', 'ar.alafasy']
+const endpoint = computed(() => `https://api.alquran.cloud/v1/ayah/${current.value}/editions/${editions.join(',')}`)
 
 const { isFetching, data, error, execute } = useFetch(endpoint, { refetch: true }).json().get()
 const ayah = computed(() => data.value?.data?.[0])
@@ -33,8 +34,7 @@ watch(current, () => {
 })
 
 watch(recitation, (value) => {
-  if (value?.audio)
-    audio.src = value.audio
+  if (value?.audio) audio.src = value.audio
 })
 
 audio.addEventListener('play', () => {
@@ -77,8 +77,7 @@ function prevAyah() {
 }
 
 async function toggleAyahPlayback() {
-  if (!recitation.value?.audio)
-    return
+  if (!recitation.value?.audio) return
 
   if (isPlaying.value) {
     audio.pause()
@@ -91,7 +90,6 @@ async function toggleAyahPlayback() {
     toast.error('تعذر تشغيل التلاوة، برجاء المحاولة مرة أخرى')
   }
 }
-
 </script>
 
 <template>
@@ -132,7 +130,6 @@ async function toggleAyahPlayback() {
           <button class="btn btn-flat" @click="fetchRandomAyah" title="آية جديدة" aria-label="تحميل آية جديدة">
             <IconRefresh size="18" />
           </button>
-
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 <script setup>
 import { useThemeStore } from '@/stores/theme'
-import { IconCheck, IconSunFilled, IconMoonStars, IconDeviceLaptop } from '@tabler/icons-vue'
+import { IconCheck, IconSunFilled, IconMoonStars, IconDeviceLaptop, IconPalette } from '@tabler/icons-vue'
+import SettingsSection from './SettingsSection.vue'
 
 const theme = useThemeStore()
 
@@ -15,44 +16,40 @@ const colors = [
 </script>
 
 <template>
-  <div class="card h-100">
-    <div class="card-body">
-      <h6 class="card-title mb-3">المظهر</h6>
+  <SettingsSection title="المظهر" description="اختر وضع العرض واللون الأساسي للتطبيق" :icon="IconPalette">
+    <div class="btn-group-toggle mb-3">
+      <button class="btn-toggle" :class="{ active: theme.mode === 'light' }" @click="theme.setMode('light')">
+        <IconSunFilled :size="16" />
+        <span>فاتح</span>
+      </button>
+      <button class="btn-toggle" :class="{ active: theme.mode === 'dark' }" @click="theme.setMode('dark')">
+        <IconMoonStars :size="16" />
+        <span>داكن</span>
+      </button>
+      <button class="btn-toggle" :class="{ active: theme.mode === 'system' }" @click="theme.setMode('system')">
+        <IconDeviceLaptop :size="16" />
+        <span>تلقائي</span>
+      </button>
+    </div>
 
-      <div class="btn-group-toggle mb-3">
-        <button class="btn-toggle" :class="{ active: theme.mode === 'light' }" @click="theme.setMode('light')">
-          <IconSunFilled :size="16" />
-          <span>فاتح</span>
+    <div>
+      <span class="d-block mb-2">اللون الأساسي</span>
+      <div class="color-grid">
+        <button
+          v-for="color in colors"
+          :key="color.value"
+          class="color-option"
+          :class="{ active: theme.primaryColor === color.value }"
+          @click="theme.setPrimaryColor(color.value)"
+        >
+          <span class="color-dot" :style="{ background: color.value || '#795547' }">
+            <IconCheck v-if="theme.primaryColor === color.value" :size="14" />
+          </span>
+          <span class="color-label">{{ color.label }}</span>
         </button>
-        <button class="btn-toggle" :class="{ active: theme.mode === 'dark' }" @click="theme.setMode('dark')">
-          <IconMoonStars :size="16" />
-          <span>داكن</span>
-        </button>
-        <button class="btn-toggle" :class="{ active: theme.mode === 'system' }" @click="theme.setMode('system')">
-          <IconDeviceLaptop :size="16" />
-          <span>تلقائي</span>
-        </button>
-      </div>
-
-      <div>
-        <span class="d-block mb-2">اللون الأساسي</span>
-        <div class="color-grid">
-          <button
-            v-for="color in colors"
-            :key="color.value"
-            class="color-option"
-            :class="{ active: theme.primaryColor === color.value }"
-            @click="theme.setPrimaryColor(color.value)"
-          >
-            <span class="color-dot" :style="{ background: color.value || '#795547' }">
-              <IconCheck v-if="theme.primaryColor === color.value" :size="14" />
-            </span>
-            <span class="color-label">{{ color.label }}</span>
-          </button>
-        </div>
       </div>
     </div>
-  </div>
+  </SettingsSection>
 </template>
 
 <style scoped>
