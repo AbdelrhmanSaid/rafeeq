@@ -8,6 +8,7 @@ import SettingsTheme from './partials/SettingsTheme.vue'
 import SettingsNotifications from './partials/SettingsNotifications.vue'
 import SettingsDownloadAssets from './partials/SettingsDownloadAssets.vue'
 import SettingsAppUpdates from './partials/SettingsAppUpdates.vue'
+import SettingsZekr from './partials/SettingsZekr.vue'
 </script>
 
 <template>
@@ -26,6 +27,9 @@ import SettingsAppUpdates from './partials/SettingsAppUpdates.vue'
       </div>
       <div class="col-12 col-md-6">
         <SettingsAppUpdates />
+      </div>
+      <div class="col-12 col-md-6">
+        <SettingsZekr />
       </div>
       <div class="col-12">
         <SettingsNotifications />
