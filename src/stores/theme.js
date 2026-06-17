@@ -1,11 +1,20 @@
 import { defineStore } from 'pinia'
 import { computed, nextTick, watchEffect } from 'vue'
 import { useLocalStorage, usePreferredDark } from '@vueuse/core'
-import { applyPrimaryColor, applyBgColor, applyMode, syncMetaThemeColor } from '@/utilities/css'
+import {
+  applyPrimaryColor,
+  applyBgColor,
+  applyMode,
+  applyFontScale,
+  clampFontScale,
+  syncMetaThemeColor,
+  DEFAULT_FONT_SCALE,
+} from '@/utilities/css'
 
 export const useThemeStore = defineStore('theme', () => {
   const mode = useLocalStorage('mode', 'system')
   const primaryColor = useLocalStorage('theme-primary', '')
+  const fontScale = useLocalStorage('font-scale', DEFAULT_FONT_SCALE)
   const prefersDark = usePreferredDark()
 
   const resolvedMode = computed(() => {
@@ -29,6 +38,14 @@ export const useThemeStore = defineStore('theme', () => {
     primaryColor.value = color || ''
   }
 
+  function setFontScale(next) {
+    fontScale.value = clampFontScale(next)
+  }
+
+  function resetFontScale() {
+    fontScale.value = DEFAULT_FONT_SCALE
+  }
+
   function applyQueryOverrides({ mode: modeParam, fg, bg }) {
     if (modeParam === 'light' || modeParam === 'dark') applyMode(modeParam)
     if (fg) applyPrimaryColor(fg)
@@ -44,6 +61,10 @@ export const useThemeStore = defineStore('theme', () => {
   })
 
   watchEffect(() => {
+    applyFontScale(fontScale.value)
+  })
+
+  watchEffect(() => {
     void resolvedMode.value
     void primaryColor.value
     nextTick(syncMetaThemeColor)
@@ -52,10 +73,13 @@ export const useThemeStore = defineStore('theme', () => {
   return {
     mode,
     primaryColor,
+    fontScale,
     isDark,
     setMode,
     toggle,
     setPrimaryColor,
+    setFontScale,
+    resetFontScale,
     applyQueryOverrides,
   }
 })

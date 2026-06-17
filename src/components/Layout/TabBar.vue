@@ -158,7 +158,11 @@ const closeMoreMenu = () => {
 
 <style lang="scss" scoped>
 .tab-bar {
-  height: var(--navbar-height);
+  /* min-height so labels/icons at large font scales grow the bar, not clip. */
+  min-height: var(--navbar-height);
+  /* center items vertically so short content (small font) doesn't stick to
+     the top of the bar. */
+  align-items: center;
   padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
   z-index: 1020;
 }

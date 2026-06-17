@@ -169,8 +169,10 @@ const copyZekr = async () => {
   .btn-counter {
     position: relative;
     border-radius: 50%;
-    width: 120px;
-    height: 120px;
+    /* rem (not px) so the progress circle scales with the font and the
+       counter text (e.g. "100/100") stays centered without overflowing. */
+    width: 7.5rem;
+    height: 7.5rem;
     font-size: 1.25rem;
     border: none;
 

@@ -14,6 +14,7 @@ import Page from '@/components/Layout/Page.vue'
 import Heading from '@/components/Heading.vue'
 
 import SettingsTheme from './partials/SettingsTheme.vue'
+import SettingsFontSize from './partials/SettingsFontSize.vue'
 import SettingsPrayerTimes from './partials/SettingsPrayerTimes.vue'
 import SettingsReciter from './partials/SettingsReciter.vue'
 import SettingsZekr from './partials/SettingsZekr.vue'
@@ -55,7 +56,10 @@ const activeTab = computed(() => route.params.tab || 'appearance')
 
       <!-- Tab content -->
       <div class="settings-content">
-        <SettingsTheme v-if="activeTab === 'appearance'" />
+        <div v-if="activeTab === 'appearance'" class="settings-stack">
+          <SettingsTheme />
+          <SettingsFontSize />
+        </div>
 
         <SettingsPrayerTimes v-else-if="activeTab === 'prayer'" />
 

@@ -51,8 +51,10 @@ const sebha = ref(0)
 }
 
 .sebha-btn {
-  width: min(220px, 70vw);
-  height: min(220px, 70vw);
+  /* rem (not px) so the circle grows with the font scale and the counter
+     never overflows; still capped by viewport width on small screens. */
+  width: min(13.75rem, 70vw);
+  height: min(13.75rem, 70vw);
   border-radius: 50%;
   border: 1px solid var(--bs-border-color);
   background: var(--bs-body-bg);

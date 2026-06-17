@@ -10,6 +10,14 @@ const PRIMARY_COLOR_VARS = [
 
 const BG_COLOR_VARS = ['--bs-body-bg', '--bs-body-bg-rgb', '--bs-secondary-bg', '--bs-tertiary-bg']
 
+// Global font scaling. The whole app sizes in `rem`, so changing the root
+// `<html>` font-size proportionally scales every text and rem-based spacing.
+// 100 = browser default (≈16px). Bounds keep layouts usable at the extremes.
+export const MIN_FONT_SCALE = 80
+export const MAX_FONT_SCALE = 130
+export const DEFAULT_FONT_SCALE = 100
+export const FONT_SCALE_STEP = 5
+
 function ensureMeta(name) {
   let meta = document.querySelector(`meta[name="${name}"]`)
 
@@ -120,4 +128,14 @@ export function applyBgColor(color) {
 
 export function applyMode(mode) {
   document.body.setAttribute('data-bs-theme', mode)
+}
+
+export function clampFontScale(value) {
+  const n = Math.round(Number(value))
+  if (!Number.isFinite(n)) return DEFAULT_FONT_SCALE
+  return Math.min(MAX_FONT_SCALE, Math.max(MIN_FONT_SCALE, n))
+}
+
+export function applyFontScale(scale) {
+  document.documentElement.style.fontSize = `${clampFontScale(scale)}%`
 }

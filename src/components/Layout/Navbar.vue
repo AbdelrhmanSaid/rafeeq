@@ -93,7 +93,9 @@ const isRadioActive = computed(() => ['radio', 'radio-station'].includes(route.n
 
 <style lang="scss" scoped>
 .navbar {
-  height: var(--navbar-height);
+  /* min-height (not height) so taller content at large font scales grows the
+     bar instead of clipping. */
+  min-height: var(--navbar-height);
 }
 
 [data-bs-theme='dark'] {

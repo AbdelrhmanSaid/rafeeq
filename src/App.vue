@@ -97,7 +97,7 @@ const updateSW = registerSW({
 
 <style lang="scss" scoped>
 .offline-banner {
-  height: 50px;
+  min-height: 50px;
   background-color: #dc3545;
   padding: 0.75rem 0;
   position: sticky;
