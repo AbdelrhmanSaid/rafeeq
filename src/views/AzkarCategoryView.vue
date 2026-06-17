@@ -105,7 +105,7 @@ onBeforeRouteLeave(async () => {
             <p class="mb-4 fs-5 lh-lg">لم تنتهِ من جميع الأذكار بعد، هل تريد المغادرة؟</p>
             <div class="d-flex justify-content-center gap-2">
               <button class="btn btn-primary" @click="cancel">البقاء</button>
-              <button class="btn btn-outline-danger" @click="confirm">مغادرة</button>
+              <button class="btn btn-danger" @click="confirm">مغادرة</button>
             </div>
           </div>
         </div>

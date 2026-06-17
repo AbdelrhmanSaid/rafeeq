@@ -79,9 +79,9 @@ async function handleRequestPermission() {
                 <input v-model="morningEnabled" class="form-check-input" type="checkbox" id="morningNotification" />
               </div>
             </div>
-            <div v-if="morningEnabled" class="d-flex gap-2 align-items-center">
+            <div v-if="morningEnabled" class="d-flex gap-1 align-items-center">
               <input v-model="morningTime" type="time" class="form-control" />
-              <button class="btn btn-outline-primary" @click="showTestNotification('morning')" title="تجربة">
+              <button class="btn btn-flat" @click="showTestNotification('morning')" title="تجربة">
                 <IconBell size="1rem" />
               </button>
             </div>
@@ -97,9 +97,9 @@ async function handleRequestPermission() {
                 <input v-model="eveningEnabled" class="form-check-input" type="checkbox" id="eveningNotification" />
               </div>
             </div>
-            <div v-if="eveningEnabled" class="d-flex gap-2 align-items-center">
+            <div v-if="eveningEnabled" class="d-flex gap-1 align-items-center">
               <input v-model="eveningTime" type="time" class="form-control" />
-              <button class="btn btn-outline-primary" @click="showTestNotification('evening')" title="تجربة">
+              <button class="btn btn-flat" @click="showTestNotification('evening')" title="تجربة">
                 <IconBell size="1rem" />
               </button>
             </div>

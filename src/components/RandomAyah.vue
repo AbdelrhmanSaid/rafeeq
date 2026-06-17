@@ -104,7 +104,7 @@ async function toggleAyahPlayback() {
     </div>
 
     <template v-else-if="ayah && tafsir">
-      <div class="card-header d-flex align-items-center justify-content-between py-3 bg-body-tertiary">
+      <div class="card-header d-flex align-items-center justify-content-between py-3">
         <span class="fw-semibold">{{ ayah.surah.name }}</span>
 
         <div class="d-flex align-items-center gap-1">
@@ -138,10 +138,8 @@ async function toggleAyahPlayback() {
           {{ displayText }} <span class="ayah-number">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
         </p>
 
-        <div class="bg-body-tertiary rounded-3 p-3 px-4">
-          <span class="d-block small fw-semibold text-secondary mb-2">{{ tafsir.edition.name }}</span>
-          <p class="small mb-0">{{ tafsir.text }}</p>
-        </div>
+        <span class="d-block small fw-semibold text-secondary mb-2">{{ tafsir.edition.name }}</span>
+        <p class="small mb-0">{{ tafsir.text }}</p>
       </div>
     </template>
   </div>

@@ -63,7 +63,7 @@ const azkar = [
   transition: background-color 0.3s ease;
 
   &:hover {
-    background-color: var(--bs-secondary-bg);
+    background-color: rgba(var(--bs-secondary-rgb), 0.1);
   }
 }
 </style>

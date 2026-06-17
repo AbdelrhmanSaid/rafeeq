@@ -14,7 +14,7 @@ const sebha = ref(0)
     </button>
 
     <div class="sebha-actions">
-      <button @click="sebha = 0" class="btn btn-outline-primary">
+      <button @click="sebha = 0" class="btn btn-flat">
         <IconRefreshDot class="me-2" size="1.25rem" />
         <span>إعادة العداد</span>
       </button>

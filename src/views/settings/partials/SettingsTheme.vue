@@ -73,11 +73,11 @@ const colors = [
 }
 
 .color-option:hover {
-  background: var(--bs-tertiary-bg);
+  background: rgba(var(--bs-secondary-rgb), 0.1);
 }
 
 .color-option.active {
-  background: var(--bs-tertiary-bg);
+  background: rgba(var(--bs-secondary-rgb), 0.1);
   border-color: var(--bs-border-color);
 }
 

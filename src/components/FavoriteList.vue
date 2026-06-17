@@ -96,3 +96,9 @@ const favorites = filterFavorites(
     </li>
   </ul>
 </template>
+
+<style lang="scss" scoped>
+.list-group-item:hover {
+  background-color: rgba(var(--bs-secondary-rgb), 0.1);
+}
+</style>

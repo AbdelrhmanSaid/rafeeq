@@ -103,6 +103,10 @@ const formatRakaa = (value) => {
   border-radius: var(--bs-border-radius);
 }
 
+[data-bs-theme='dark'] .info-block {
+  background-color: rgba(var(--bs-secondary-rgb), 0.1);
+}
+
 .info-label {
   display: inline-flex;
   align-items: center;

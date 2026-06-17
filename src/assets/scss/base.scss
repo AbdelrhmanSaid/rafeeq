@@ -79,7 +79,7 @@ body {
   transition: all 0.2s;
 
   &:hover {
-    background: var(--bs-tertiary-bg);
+    background: rgba(var(--bs-secondary-rgb), 0.1);
   }
 
   &.active {

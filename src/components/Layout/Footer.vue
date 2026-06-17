@@ -49,7 +49,7 @@ const support = [
           <p class="h5">المواد المستخدمة</p>
           <ul class="list-unstyled text-small">
             <li v-for="(resource, index) in resources" :key="index">
-              <a :href="resource.link" class="text-muted text-decoration-none" target="_blank">
+              <a :href="resource.link" class="footer-link" target="_blank">
                 {{ resource.title }}
               </a>
             </li>
@@ -60,7 +60,7 @@ const support = [
           <p class="h5">الدعم والمساهمة</p>
           <ul class="list-unstyled text-small">
             <li v-for="(item, index) in support" :key="index">
-              <a :href="item.link" class="text-muted text-decoration-none" target="_blank">
+              <a :href="item.link" class="footer-link" target="_blank">
                 {{ item.title }}
               </a>
             </li>
@@ -70,3 +70,19 @@ const support = [
     </div>
   </footer>
 </template>
+
+<style lang="scss" scoped>
+.footer-link {
+  color: var(--bs-secondary-color);
+  text-decoration: none;
+  transition: color 0.2s;
+
+  &:hover {
+    color: var(--bs-primary);
+  }
+}
+
+[data-bs-theme='dark'] .footer-link:hover {
+  color: #fff;
+}
+</style>

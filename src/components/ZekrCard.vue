@@ -176,7 +176,7 @@ const copyZekr = async () => {
 
     background:
       radial-gradient(closest-side, var(--bs-body-bg) 79%, transparent 80% 100%),
-      conic-gradient(var(--bs-primary) calc(var(--progress) * 100%), var(--bs-secondary-bg) 0);
+      conic-gradient(var(--bs-primary) calc(var(--progress) * 100%), rgba(var(--bs-secondary-rgb), 0.1) 0);
 
     &::before {
       content: attr(data-content);

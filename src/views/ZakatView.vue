@@ -157,31 +157,30 @@ const formatCurrency = (num) => {
     />
 
     <!-- Tabs Navigation -->
-    <div class="row g-2 mb-4">
-      <div v-for="tab in tabs" :key="tab.id" class="col-6 col-md-4 col-lg-2">
-        <button
-          @click="activeTab = tab.id"
-          :class="[
-            'btn w-100 d-flex flex-column align-items-center p-3',
-            activeTab === tab.id ? 'btn-primary' : 'btn-outline-primary',
-          ]"
-        >
-          <component :is="tab.icon" size="1.5rem" class="mb-2" />
-          <span class="small">{{ tab.title }}</span>
-        </button>
-      </div>
+    <div class="btn-group-toggle flex-wrap mb-4">
+      <button
+        v-for="tab in tabs"
+        :key="tab.id"
+        type="button"
+        class="btn-toggle"
+        :class="{ active: activeTab === tab.id }"
+        @click="activeTab = tab.id"
+      >
+        <component :is="tab.icon" size="1.1rem" />
+        <span>{{ tab.title }}</span>
+      </button>
     </div>
 
     <!-- Money/Savings Calculator -->
-    <div v-if="activeTab === 'money'" class="card">
+    <div v-if="activeTab === 'money'" class="card mb-4">
       <div class="card-body">
-        <h5 class="card-title mb-4">
-          <IconCoins class="me-2" />
-          زكاة المال والمدخرات
-        </h5>
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <span class="icon-container"><IconCoins /></span>
+          <h5 class="card-title mb-0">زكاة المال والمدخرات</h5>
+        </div>
 
-        <div class="row gy-3">
-          <div class="col-md-8">
+        <div class="row g-4">
+          <div class="col-lg-7">
             <div class="mb-3">
               <label class="form-label">سعر جرام الذهب (عيار ٢٤) بالجنيه المصري</label>
               <input
@@ -194,7 +193,7 @@ const formatCurrency = (num) => {
               />
             </div>
 
-            <div class="mb-3">
+            <div>
               <label class="form-label">إجمالي المال والمدخرات</label>
               <input
                 v-model="moneyAmount"
@@ -208,19 +207,17 @@ const formatCurrency = (num) => {
             </div>
           </div>
 
-          <div class="col-md-4">
-            <div class="alert alert-info">
-              <h6 class="alert-heading">مقدار الزكاة</h6>
-              <div class="display-6 text-primary">
-                {{ formatCurrency(moneyZakat) }}
-              </div>
-              <small class="text-muted">٢.٥% من إجمالي المال</small>
+          <div class="col-lg-5">
+            <div class="zakat-result h-100">
+              <span class="zakat-result-label">مقدار الزكاة</span>
+              <span class="zakat-result-value">{{ formatCurrency(moneyZakat) }}</span>
+              <span class="zakat-result-hint">٢.٥% من إجمالي المال</span>
             </div>
           </div>
         </div>
 
-        <div class="alert alert-light mt-3">
-          <h6>شروط زكاة المال:</h6>
+        <div class="zakat-note mt-4">
+          <h6 class="mb-2">شروط زكاة المال:</h6>
           <ul class="mb-0">
             <li>أن يبلغ النصاب</li>
             <li>أن يحول عليه الحول الهجري (سنة قمرية)</li>
@@ -231,40 +228,38 @@ const formatCurrency = (num) => {
     </div>
 
     <!-- Gold Calculator -->
-    <div v-if="activeTab === 'gold'" class="card">
+    <div v-if="activeTab === 'gold'" class="card mb-4">
       <div class="card-body">
-        <h5 class="card-title mb-4">
-          <IconGift class="me-2" />
-          زكاة الذهب
-        </h5>
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <span class="icon-container"><IconGift /></span>
+          <h5 class="card-title mb-0">زكاة الذهب</h5>
+        </div>
 
-        <div class="row gy-3">
-          <div class="col-md-8">
-            <div class="mb-3">
-              <label class="form-label">وزن الذهب (بالجرام)</label>
-              <input
-                v-model="goldWeight"
-                type="number"
-                class="form-control"
-                placeholder="أدخل الوزن"
-                min="0"
-                step="0.1"
-              />
-              <div class="form-text">النصاب: {{ toArabicNumerals(nisabValues.gold) }} جرام</div>
-            </div>
+        <div class="row g-4">
+          <div class="col-lg-7">
+            <label class="form-label">وزن الذهب (بالجرام)</label>
+            <input
+              v-model="goldWeight"
+              type="number"
+              class="form-control"
+              placeholder="أدخل الوزن"
+              min="0"
+              step="0.1"
+            />
+            <div class="form-text">النصاب: {{ toArabicNumerals(nisabValues.gold) }} جرام</div>
           </div>
 
-          <div class="col-md-4">
-            <div class="alert alert-info">
-              <h6 class="alert-heading">مقدار الزكاة</h6>
-              <div class="display-6 text-primary">{{ formatNumber(goldZakat) }} جرام</div>
-              <small class="text-muted">٢.٥% من وزن الذهب</small>
+          <div class="col-lg-5">
+            <div class="zakat-result h-100">
+              <span class="zakat-result-label">مقدار الزكاة</span>
+              <span class="zakat-result-value">{{ formatNumber(goldZakat) }} جرام</span>
+              <span class="zakat-result-hint">٢.٥% من وزن الذهب</span>
             </div>
           </div>
         </div>
 
-        <div class="alert alert-light mt-3">
-          <h6>شروط زكاة الذهب:</h6>
+        <div class="zakat-note mt-4">
+          <h6 class="mb-2">شروط زكاة الذهب:</h6>
           <ul class="mb-0">
             <li>أن يبلغ النصاب ({{ toArabicNumerals(nisabValues.gold) }} جرام)</li>
             <li>أن يحول عليه الحول الهجري</li>
@@ -275,40 +270,38 @@ const formatCurrency = (num) => {
     </div>
 
     <!-- Silver Calculator -->
-    <div v-if="activeTab === 'silver'" class="card">
+    <div v-if="activeTab === 'silver'" class="card mb-4">
       <div class="card-body">
-        <h5 class="card-title mb-4">
-          <IconGift class="me-2" />
-          زكاة الفضة
-        </h5>
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <span class="icon-container"><IconGift /></span>
+          <h5 class="card-title mb-0">زكاة الفضة</h5>
+        </div>
 
-        <div class="row gy-3">
-          <div class="col-md-8">
-            <div class="mb-3">
-              <label class="form-label">وزن الفضة (بالجرام)</label>
-              <input
-                v-model="silverWeight"
-                type="number"
-                class="form-control"
-                placeholder="أدخل الوزن"
-                min="0"
-                step="0.1"
-              />
-              <div class="form-text">النصاب: {{ toArabicNumerals(nisabValues.silver) }} جرام</div>
-            </div>
+        <div class="row g-4">
+          <div class="col-lg-7">
+            <label class="form-label">وزن الفضة (بالجرام)</label>
+            <input
+              v-model="silverWeight"
+              type="number"
+              class="form-control"
+              placeholder="أدخل الوزن"
+              min="0"
+              step="0.1"
+            />
+            <div class="form-text">النصاب: {{ toArabicNumerals(nisabValues.silver) }} جرام</div>
           </div>
 
-          <div class="col-md-4">
-            <div class="alert alert-info">
-              <h6 class="alert-heading">مقدار الزكاة</h6>
-              <div class="display-6 text-primary">{{ formatNumber(silverZakat) }} جرام</div>
-              <small class="text-muted">٢.٥% من وزن الفضة</small>
+          <div class="col-lg-5">
+            <div class="zakat-result h-100">
+              <span class="zakat-result-label">مقدار الزكاة</span>
+              <span class="zakat-result-value">{{ formatNumber(silverZakat) }} جرام</span>
+              <span class="zakat-result-hint">٢.٥% من وزن الفضة</span>
             </div>
           </div>
         </div>
 
-        <div class="alert alert-light mt-3">
-          <h6>شروط زكاة الفضة:</h6>
+        <div class="zakat-note mt-4">
+          <h6 class="mb-2">شروط زكاة الفضة:</h6>
           <ul class="mb-0">
             <li>أن يبلغ النصاب ({{ toArabicNumerals(nisabValues.silver) }} جرام)</li>
             <li>أن يحول عليه الحول الهجري</li>
@@ -319,29 +312,29 @@ const formatCurrency = (num) => {
     </div>
 
     <!-- Livestock Calculator -->
-    <div v-if="activeTab === 'livestock'" class="card">
+    <div v-if="activeTab === 'livestock'" class="card mb-4">
       <div class="card-body">
-        <h5 class="card-title mb-4">
-          <IconWheat class="me-2" />
-          زكاة الأنعام
-        </h5>
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <span class="icon-container"><IconWheat /></span>
+          <h5 class="card-title mb-0">زكاة الأنعام</h5>
+        </div>
 
-        <div class="row gy-3">
-          <div class="col-md-8">
+        <div class="row g-4">
+          <div class="col-lg-7">
             <div class="row g-3">
-              <div class="col-md-4">
+              <div class="col-sm-4">
                 <label class="form-label">عدد الأبقار</label>
                 <input v-model="livestockCows" type="number" class="form-control" placeholder="٠" min="0" />
                 <div class="form-text">النصاب: {{ toArabicNumerals(nisabValues.cows) }}</div>
               </div>
 
-              <div class="col-md-4">
+              <div class="col-sm-4">
                 <label class="form-label">عدد الأغنام</label>
                 <input v-model="livestockSheep" type="number" class="form-control" placeholder="٠" min="0" />
                 <div class="form-text">النصاب: {{ toArabicNumerals(nisabValues.sheep) }}</div>
               </div>
 
-              <div class="col-md-4">
+              <div class="col-sm-4">
                 <label class="form-label">عدد الإبل</label>
                 <input v-model="livestockCamels" type="number" class="form-control" placeholder="٠" min="0" />
                 <div class="form-text">النصاب: {{ toArabicNumerals(nisabValues.camels) }}</div>
@@ -349,17 +342,17 @@ const formatCurrency = (num) => {
             </div>
           </div>
 
-          <div class="col-md-4">
-            <div class="alert alert-info">
-              <h6 class="alert-heading">مقدار الزكاة</h6>
-              <div class="display-6 text-primary">{{ toArabicNumerals(livestockZakat) }} رأس</div>
-              <small class="text-muted">حسب الأنصبة الشرعية</small>
+          <div class="col-lg-5">
+            <div class="zakat-result h-100">
+              <span class="zakat-result-label">مقدار الزكاة</span>
+              <span class="zakat-result-value">{{ toArabicNumerals(livestockZakat) }} رأس</span>
+              <span class="zakat-result-hint">حسب الأنصبة الشرعية</span>
             </div>
           </div>
         </div>
 
-        <div class="alert alert-light mt-3">
-          <h6>شروط زكاة الأنعام:</h6>
+        <div class="zakat-note mt-4">
+          <h6 class="mb-2">شروط زكاة الأنعام:</h6>
           <ul class="mb-0">
             <li>أن تكون سائمة (ترعى بدون علف مشترى)</li>
             <li>أن تبلغ النصاب المحدد لكل نوع</li>
@@ -371,42 +364,40 @@ const formatCurrency = (num) => {
     </div>
 
     <!-- Crops Calculator -->
-    <div v-if="activeTab === 'crops'" class="card">
+    <div v-if="activeTab === 'crops'" class="card mb-4">
       <div class="card-body">
-        <h5 class="card-title mb-4">
-          <IconWheat class="me-2" />
-          زكاة الزروع والثمار
-        </h5>
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <span class="icon-container"><IconWheat /></span>
+          <h5 class="card-title mb-0">زكاة الزروع والثمار</h5>
+        </div>
 
-        <div class="row gy-3">
-          <div class="col-md-8">
-            <div class="mb-3">
-              <label class="form-label">كمية المحصول (بالكيلوجرام)</label>
-              <input
-                v-model="cropsAmount"
-                type="number"
-                class="form-control"
-                placeholder="أدخل الكمية"
-                min="0"
-                step="0.1"
-              />
-              <div class="form-text">النصاب: {{ toArabicNumerals(nisabValues.crops) }} كيلوجرام</div>
-            </div>
+        <div class="row g-4">
+          <div class="col-lg-7">
+            <label class="form-label">كمية المحصول (بالكيلوجرام)</label>
+            <input
+              v-model="cropsAmount"
+              type="number"
+              class="form-control"
+              placeholder="أدخل الكمية"
+              min="0"
+              step="0.1"
+            />
+            <div class="form-text">النصاب: {{ toArabicNumerals(nisabValues.crops) }} كيلوجرام</div>
           </div>
 
-          <div class="col-md-4">
-            <div class="alert alert-info">
-              <h6 class="alert-heading">مقدار الزكاة</h6>
-              <div class="display-6 text-primary">
+          <div class="col-lg-5">
+            <div class="zakat-result h-100">
+              <span class="zakat-result-label">مقدار الزكاة</span>
+              <span class="zakat-result-value">
                 {{ formatNumber(cropsZakat) }} ~ {{ formatNumber(cropsZakat * 2) }} كجم
-              </div>
-              <small class="text-muted">١٠% (مطرية) أو ٥% (مروية)</small>
+              </span>
+              <span class="zakat-result-hint">١٠% (مطرية) أو ٥% (مروية)</span>
             </div>
           </div>
         </div>
 
-        <div class="alert alert-light mt-3">
-          <h6>شروط زكاة الزروع:</h6>
+        <div class="zakat-note mt-4">
+          <h6 class="mb-2">شروط زكاة الزروع:</h6>
           <ul class="mb-0">
             <li>أن تكون من الحبوب أو الثمار القابلة للادخار</li>
             <li>أن تبلغ النصاب ({{ toArabicNumerals(nisabValues.crops) }} كجم)</li>
@@ -418,15 +409,15 @@ const formatCurrency = (num) => {
     </div>
 
     <!-- Business Calculator -->
-    <div v-if="activeTab === 'business'" class="card">
+    <div v-if="activeTab === 'business'" class="card mb-4">
       <div class="card-body">
-        <h5 class="card-title mb-4">
-          <IconBuildingStore class="me-2" />
-          زكاة عروض التجارة
-        </h5>
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <span class="icon-container"><IconBuildingStore /></span>
+          <h5 class="card-title mb-0">زكاة عروض التجارة</h5>
+        </div>
 
-        <div class="row gy-3">
-          <div class="col-md-8">
+        <div class="row g-4">
+          <div class="col-lg-7">
             <div class="mb-3">
               <label class="form-label">سعر جرام الذهب (عيار ٢٤) بالجنيه المصري</label>
               <input
@@ -439,7 +430,7 @@ const formatCurrency = (num) => {
               />
             </div>
 
-            <div class="mb-3">
+            <div>
               <label class="form-label">قيمة البضائع والأصول التجارية (بالجنيه المصري)</label>
               <input
                 v-model="businessAmount"
@@ -453,19 +444,17 @@ const formatCurrency = (num) => {
             </div>
           </div>
 
-          <div class="col-md-4">
-            <div class="alert alert-info">
-              <h6 class="alert-heading">مقدار الزكاة</h6>
-              <div class="display-6 text-primary">
-                {{ formatCurrency(businessZakat) }}
-              </div>
-              <small class="text-muted">٢.٥% من قيمة البضائع</small>
+          <div class="col-lg-5">
+            <div class="zakat-result h-100">
+              <span class="zakat-result-label">مقدار الزكاة</span>
+              <span class="zakat-result-value">{{ formatCurrency(businessZakat) }}</span>
+              <span class="zakat-result-hint">٢.٥% من قيمة البضائع</span>
             </div>
           </div>
         </div>
 
-        <div class="alert alert-light mt-3">
-          <h6>شروط زكاة التجارة:</h6>
+        <div class="zakat-note mt-4">
+          <h6 class="mb-2">شروط زكاة التجارة:</h6>
           <ul class="mb-0">
             <li>أن تكون البضائع معدة للبيع والتجارة</li>
             <li>أن تبلغ قيمتها النصاب</li>
@@ -477,12 +466,12 @@ const formatCurrency = (num) => {
     </div>
 
     <!-- General Information -->
-    <div class="card mt-4">
+    <div class="card">
       <div class="card-body">
-        <h5 class="card-title">معلومات مهمة عن الزكاة</h5>
-        <div class="row gy-3">
+        <h5 class="card-title mb-3">معلومات مهمة عن الزكاة</h5>
+        <div class="row g-4">
           <div class="col-md-6">
-            <h6>مصارف الزكاة الثمانية:</h6>
+            <h6 class="mb-2">مصارف الزكاة الثمانية:</h6>
             <ul class="mb-0">
               <li>الفقراء والمساكين</li>
               <li>العاملين عليها</li>
@@ -494,7 +483,7 @@ const formatCurrency = (num) => {
             </ul>
           </div>
           <div class="col-md-6">
-            <h6>أهمية الزكاة:</h6>
+            <h6 class="mb-2">أهمية الزكاة:</h6>
             <ul class="mb-0">
               <li>ركن من أركان الإسلام الخمسة</li>
               <li>تطهير للنفس والمال</li>
@@ -507,3 +496,66 @@ const formatCurrency = (num) => {
     </div>
   </Page>
 </template>
+
+<style lang="scss" scoped>
+.btn-group-toggle .btn-toggle {
+  flex: 0 1 auto;
+}
+
+.icon-container {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--bs-border-color);
+  color: var(--bs-primary);
+
+  :deep(svg) {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.zakat-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  text-align: center;
+  padding: 1.5rem;
+  border-radius: var(--bs-border-radius-lg);
+  background-color: rgba(var(--bs-primary-rgb), 0.07);
+  border: 1px solid color-mix(in srgb, var(--bs-primary) 25%, transparent);
+}
+
+.zakat-result-label {
+  font-size: 0.9rem;
+  color: var(--bs-secondary-color);
+}
+
+.zakat-result-value {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--bs-primary);
+}
+
+.zakat-result-hint {
+  font-size: 0.8rem;
+  color: var(--bs-secondary-color);
+}
+
+.zakat-note {
+  padding: 1rem 1.25rem;
+  border-radius: var(--bs-border-radius);
+  background-color: var(--bs-tertiary-bg);
+  font-size: 0.9rem;
+}
+
+[data-bs-theme='dark'] .zakat-note {
+  background-color: rgba(var(--bs-secondary-rgb), 0.1);
+}
+</style>

@@ -1,7 +1,6 @@
 <script setup>
 import { RouterLink, useRoute } from 'vue-router'
 import { computed, ref } from 'vue'
-import { useThemeStore } from '@/stores/theme'
 import { useRadioStore } from '@/stores/radio'
 
 import {
@@ -176,12 +175,12 @@ const closeMoreMenu = () => {
   &:hover,
   &.router-link-active,
   &.is-active {
-    color: var(--bs-primary) !important;
+    color: var(--bs-secondary) !important;
   }
 
   &.router-link-active,
   &.is-active {
-    background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
+    background-color: rgba(var(--bs-secondary-rgb), 0.1) !important;
   }
 }
 

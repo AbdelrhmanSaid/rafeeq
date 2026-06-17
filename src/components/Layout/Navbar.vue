@@ -5,8 +5,6 @@ import { useThemeStore } from '@/stores/theme'
 import { useRadioStore } from '@/stores/radio'
 
 import {
-  IconMoonStars,
-  IconSunFilled,
   IconHome,
   IconBook,
   IconSparkles,
@@ -113,7 +111,7 @@ const isRadioActive = computed(() => ['radio', 'radio-station'].includes(route.n
   &:hover,
   &.router-link-active,
   &.is-active {
-    background-color: rgba(var(--bs-primary-rgb), 0.1);
+    background-color: rgba(var(--bs-secondary-rgb), 0.1);
   }
 }
 

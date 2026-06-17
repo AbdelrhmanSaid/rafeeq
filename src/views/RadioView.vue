@@ -97,7 +97,7 @@ const { search, filtered } = useSearch(radiosList, ['name'])
   }
 
   &:hover:not(.active) {
-    background-color: var(--bs-tertiary-bg);
+    background-color: rgba(var(--bs-secondary-rgb), 0.1);
   }
 }
 </style>

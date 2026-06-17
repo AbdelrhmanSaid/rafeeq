@@ -112,13 +112,12 @@ const activeTab = computed(() => route.params.tab || 'appearance')
 }
 
 .settings-nav-item:hover {
-  background: var(--bs-tertiary-bg);
+  background: rgba(var(--bs-secondary-rgb), 0.1);
   color: var(--bs-body-color);
 }
 
 .settings-nav-item.active {
   background: color-mix(in srgb, var(--bs-primary) 12%, transparent);
-  color: var(--bs-primary);
 }
 
 .settings-nav-item svg {

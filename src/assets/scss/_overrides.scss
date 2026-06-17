@@ -46,6 +46,13 @@ html[dir='rtl'],
   --bs-btn-disabled-border-color: var(--bs-primary);
 }
 
+/* On dropdown item hover, background color should be rgba from secondary color */
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background-color: rgba(var(--bs-secondary-rgb), 0.1);
+  color: var(--bs-body-color);
+}
+
 /* Keep progress bar in sync with runtime primary color. */
 .progress,
 .progress-stacked {

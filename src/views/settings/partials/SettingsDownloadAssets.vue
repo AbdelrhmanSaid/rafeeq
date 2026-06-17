@@ -403,7 +403,7 @@ const handleAssetAction = (asset) => {
 }
 
 .dm-filter-btn:hover {
-  background: var(--bs-tertiary-bg);
+  background: rgba(var(--bs-secondary-rgb), 0.1);
 }
 
 .dm-filter-btn.active {
@@ -445,7 +445,7 @@ const handleAssetAction = (asset) => {
 }
 
 .dm-action-btn:hover:not(:disabled) {
-  background: var(--bs-tertiary-bg);
+  background: rgba(var(--bs-secondary-rgb), 0.1);
 }
 
 .dm-action-btn:disabled {
@@ -550,7 +550,7 @@ const handleAssetAction = (asset) => {
 }
 
 .dm-item-action.not-downloaded {
-  background: var(--bs-tertiary-bg);
+  background: rgba(var(--bs-secondary-rgb), 0.1);
   color: var(--bs-primary);
 }
 
@@ -574,7 +574,7 @@ const handleAssetAction = (asset) => {
 }
 
 .dm-item-action.queued {
-  background: var(--bs-tertiary-bg);
+  background: rgba(var(--bs-secondary-rgb), 0.1);
   color: var(--bs-secondary-color);
 }
 
