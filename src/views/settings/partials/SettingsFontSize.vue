@@ -27,11 +27,7 @@ function increase() {
 </script>
 
 <template>
-  <SettingsSection
-    title="حجم الخط"
-    description="يتحكم في حجم النصوص في جميع أنحاء التطبيق"
-    :icon="IconTextSize"
-  >
+  <SettingsSection title="حجم الخط" description="يتحكم في حجم النصوص في جميع أنحاء التطبيق" :icon="IconTextSize">
     <template #actions>
       <button
         v-if="!isDefault"
@@ -46,13 +42,7 @@ function increase() {
 
     <div class="p-3 border rounded">
       <div class="d-flex align-items-center gap-3">
-        <button
-          type="button"
-          class="font-step"
-          :disabled="fontScale <= min"
-          aria-label="تصغير الخط"
-          @click="decrease"
-        >
+        <button type="button" class="font-step" :disabled="fontScale <= min" aria-label="تصغير الخط" @click="decrease">
           <span class="font-step-small">أ</span>
         </button>
 
@@ -66,13 +56,7 @@ function increase() {
           aria-label="حجم الخط"
         />
 
-        <button
-          type="button"
-          class="font-step"
-          :disabled="fontScale >= max"
-          aria-label="تكبير الخط"
-          @click="increase"
-        >
+        <button type="button" class="font-step" :disabled="fontScale >= max" aria-label="تكبير الخط" @click="increase">
           <span class="font-step-large">أ</span>
         </button>
       </div>

@@ -1,7 +1,6 @@
 <script setup>
 import { RouterLink, useRoute } from 'vue-router'
 import { computed } from 'vue'
-import { useThemeStore } from '@/stores/theme'
 import { useRadioStore } from '@/stores/radio'
 
 import {

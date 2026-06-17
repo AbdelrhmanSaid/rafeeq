@@ -50,7 +50,3 @@ export const trackPageview = (path) => {
     })
   })
 }
-
-export const enableAutoAnalytics = () => {
-  loadTracker()
-}

@@ -1,7 +1,7 @@
 /**
  * Default meta tags
  */
-export const defaultMeta = {
+const defaultMeta = {
   title: 'رفيق - زادك في الطريق',
   description: 'تطبيق إسلامي شامل للأذكار والقرآن الكريم ومواقيت الصلاة',
   keywords: [
@@ -31,7 +31,7 @@ export const defaultMeta = {
  * @param {string} tag.content - The content of the meta tag
  * @returns {void}
  */
-export const setMetaTag = ({ name, property, content }) => {
+const setMetaTag = ({ name, property, content }) => {
   const selector = property ? `meta[property="${property}"]` : `meta[name="${name}"]`
   let element = document.head.querySelector(selector)
 

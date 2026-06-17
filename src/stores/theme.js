@@ -22,16 +22,10 @@ export const useThemeStore = defineStore('theme', () => {
     return mode.value
   })
 
-  const isDark = computed(() => resolvedMode.value === 'dark')
-
   function setMode(next) {
     if (['light', 'dark', 'system'].includes(next)) {
       mode.value = next
     }
-  }
-
-  function toggle() {
-    mode.value = isDark.value ? 'light' : 'dark'
   }
 
   function setPrimaryColor(color) {
@@ -74,9 +68,7 @@ export const useThemeStore = defineStore('theme', () => {
     mode,
     primaryColor,
     fontScale,
-    isDark,
     setMode,
-    toggle,
     setPrimaryColor,
     setFontScale,
     resetFontScale,

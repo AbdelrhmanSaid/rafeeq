@@ -30,7 +30,7 @@ function ensureMeta(name) {
   return meta
 }
 
-export function normalizeColor(value) {
+function normalizeColor(value) {
   if (!value) return null
 
   const raw = Array.isArray(value) ? value[0] : value
@@ -47,7 +47,7 @@ export function normalizeColor(value) {
   return null
 }
 
-export function toRgbValue(color) {
+function toRgbValue(color) {
   const probe = document.createElement('div')
   probe.style.color = color
   document.body.appendChild(probe)
@@ -58,7 +58,7 @@ export function toRgbValue(color) {
   return rgb.match(/\d+/g)?.slice(0, 3).join(', ') ?? null
 }
 
-export function setVars(vars) {
+function setVars(vars) {
   const targets = [document.documentElement, document.body]
   for (const el of targets) {
     for (const [name, value] of Object.entries(vars)) {
@@ -67,7 +67,7 @@ export function setVars(vars) {
   }
 }
 
-export function removeVars(names) {
+function removeVars(names) {
   const targets = [document.documentElement, document.body]
   for (const el of targets) {
     for (const name of names) {

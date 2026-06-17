@@ -53,11 +53,6 @@ export const usePrayersStore = defineStore('prayers', function () {
     latitude.value = 0
   }
 
-  function set(longitude, latitude) {
-    longitude.value = longitude
-    latitude.value = latitude
-  }
-
   return {
     longitude,
     latitude,
@@ -66,6 +61,5 @@ export const usePrayersStore = defineStore('prayers', function () {
     isDetecting,
     detect,
     clear,
-    set,
   }
 })
