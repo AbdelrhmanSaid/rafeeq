@@ -30,10 +30,20 @@ const emit = defineEmits(['increment', 'reset'])
 const count = ref(0)
 const isMobile = useMediaQuery('(max-width: 991.98px)')
 
+const vibrateOnFinish = () => {
+  if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+    navigator.vibrate(200)
+  }
+}
+
 const increment = () => {
   if (count.value < props.repeat) {
     count.value++
     emit('increment')
+
+    if (count.value === props.repeat) {
+      vibrateOnFinish()
+    }
   }
 }
 
