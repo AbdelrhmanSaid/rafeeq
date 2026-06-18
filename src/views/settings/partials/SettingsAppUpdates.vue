@@ -3,21 +3,34 @@ import { storeToRefs } from 'pinia'
 import { useAppStore } from '@/stores/app'
 import { IconRefresh } from '@tabler/icons-vue'
 import SettingsSection from './SettingsSection.vue'
+import SettingsNotifications from './SettingsNotifications.vue'
 
 const appStore = useAppStore()
 const { autoUpdateServiceWorker } = storeToRefs(appStore)
 </script>
 
 <template>
-  <SettingsSection
-    title="التحديث التلقائي"
-    description="مفعّل افتراضياً. عند التعطيل سيتم عرض إشعار لتحديث التطبيق يدوياً"
-    :icon="IconRefresh"
-  >
-    <template #actions>
-      <div class="form-check form-switch m-0">
-        <input id="swAutoUpdate" v-model="autoUpdateServiceWorker" class="form-check-input" type="checkbox" />
-      </div>
-    </template>
-  </SettingsSection>
+  <div class="app-settings-stack">
+    <SettingsSection
+      title="التحديث التلقائي"
+      description="مفعّل افتراضياً. عند التعطيل سيتم عرض إشعار لتحديث التطبيق يدوياً"
+      :icon="IconRefresh"
+    >
+      <template #actions>
+        <div class="form-check form-switch m-0">
+          <input id="swAutoUpdate" v-model="autoUpdateServiceWorker" class="form-check-input" type="checkbox" />
+        </div>
+      </template>
+    </SettingsSection>
+
+    <SettingsNotifications />
+  </div>
 </template>
+
+<style scoped>
+.app-settings-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+</style>

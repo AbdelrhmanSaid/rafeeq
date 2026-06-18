@@ -9,7 +9,8 @@
   <meta name="theme-color" content="#795547">
 
   <meta name="description" content="تطبيق إسلامي شامل للأذكار والقرآن الكريم ومواقيت الصلاة">
-  <meta name="keywords" content="إسلام, أذكار, قرآن, مواقيت الصلاة, رفيق, تطبيق إسلامي, Azkar, Quran, Prayer Times, Islamic App, Muslim, أوقات الصلاة, دعاء, تسبيح">
+  <meta name="keywords"
+    content="إسلام, أذكار, قرآن, مواقيت الصلاة, رفيق, تطبيق إسلامي, Azkar, Quran, Prayer Times, Islamic App, Muslim, أوقات الصلاة, دعاء, تسبيح">
   <meta name="author" content="رفيق">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -36,6 +37,19 @@
 <body>
   <div id="app"></div>
   <script type="module" src="/src/main.js"></script>
+
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || []
+    OneSignalDeferred.push(async function (OneSignal) {
+      await OneSignal.init({
+        appId: '1f095647-697b-468b-a8ae-f3833bda6869',
+        serviceWorkerPath: 'push/onesignal/OneSignalSDKWorker.js',
+        serviceWorkerParam: { scope: '/push/onesignal/' },
+        allowLocalhostAsSecureOrigin: true,
+      })
+    })
+  </script>
 </body>
 
 </html>
