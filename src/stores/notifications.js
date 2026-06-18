@@ -1,236 +1,190 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useLocalStorage } from '@vueuse/core'
+import * as oneSignal from '@/services/onesignal'
+
+const TEST_ICON = '/icons/android/android-launchericon-192-192.png'
 
 export const useNotificationStore = defineStore('notifications', () => {
-  // Notification permission state
-  const permission = ref(Notification.permission)
-
-  // Notification settings stored in localStorage
+  // User-facing reminder settings (persisted locally for the UI).
   const morningEnabled = useLocalStorage('notifications.morning.enabled', false)
   const morningTime = useLocalStorage('notifications.morning.time', '06:00')
   const eveningEnabled = useLocalStorage('notifications.evening.enabled', false)
   const eveningTime = useLocalStorage('notifications.evening.time', '18:00')
 
-  // Computed properties
-  const isSupported = computed(() => {
-    if ('Notification' in window) {
-      return true
-    }
+  // Sticky flag so returning subscribers re-init OneSignal on startup (to keep
+  // tags fresh across DST / travel) while non-subscribers never load the SDK.
+  const subscribedBefore = useLocalStorage('notifications.subscribed', false)
 
-    if ('serviceWorker' in navigator) {
-      return 'showNotification' in ServiceWorkerRegistration.prototype
-    }
-
-    return false
-  })
+  // Reactive push state mirrored from OneSignal.
+  const isSupported = ref(oneSignal.isPushSupported())
+  const isIos = ref(oneSignal.isIos())
+  const standalone = ref(oneSignal.isStandalone())
+  const permission = ref(typeof Notification !== 'undefined' ? Notification.permission : 'default')
+  const optedIn = ref(false)
+  const ready = ref(false)
+  const busy = ref(false)
 
   const isGranted = computed(() => permission.value === 'granted')
   const isDenied = computed(() => permission.value === 'denied')
   const canRequest = computed(() => permission.value === 'default')
-
-  // Active notification intervals
-  const notificationIntervals = ref(new Map())
+  const isSubscribed = computed(() => isGranted.value && optedIn.value)
+  // On iOS, push only works once the PWA is installed to the Home Screen.
+  const needsInstall = computed(() => isIos.value && !standalone.value)
 
   /**
-   * Request notification permission from the user
+   * Convert a local "HH:MM" time to a UTC 15-minute bucket "HHMM".
+   * Uses the current offset, so DST is correct as of the last sync.
    */
-  async function requestPermission() {
-    if (!isSupported.value) {
-      console.warn('Notifications are not supported in this browser')
-      return false
-    }
-
-    if (isGranted.value) {
-      return true
-    }
-
-    try {
-      const result = await Notification.requestPermission()
-      permission.value = result
-      return result === 'granted'
-    } catch (error) {
-      console.error('Error requesting notification permission:', error)
-      return false
-    }
+  function toUtcBucket(localTime) {
+    const [hours, minutes] = localTime.split(':').map(Number)
+    const rounded = Math.round((hours * 60 + minutes) / 15) * 15
+    const date = new Date()
+    date.setHours(0, 0, 0, 0)
+    date.setMinutes(rounded)
+    const uh = String(date.getUTCHours()).padStart(2, '0')
+    const um = String(date.getUTCMinutes()).padStart(2, '0')
+    return `${uh}${um}`
   }
 
-  /**
-   * Show a notification using the best available method
-   */
-  async function showNotification(title, options = {}) {
-    if (!isGranted.value) {
-      console.warn('Notification permission not granted')
+  /** Push the current reminder times to OneSignal as tags (no-op until opted in). */
+  async function syncTags() {
+    if (!optedIn.value) return
+    await oneSignal.setTags({
+      azkar_morning: morningEnabled.value ? toUtcBucket(morningTime.value) : '',
+      azkar_evening: eveningEnabled.value ? toUtcBucket(eveningTime.value) : '',
+    })
+  }
+
+  /** Refresh permission + opt-in state from the SDK. */
+  async function refreshState() {
+    permission.value = await oneSignal.getPermission()
+    optedIn.value = await oneSignal.getOptedIn()
+    subscribedBefore.value = isSubscribed.value
+  }
+
+  /** Lazily load + init OneSignal, wire change listeners, and refresh state. */
+  async function ensureReady() {
+    if (ready.value) {
+      standalone.value = oneSignal.isStandalone()
       return
     }
+    await oneSignal.init()
+    oneSignal.onPermissionChange((value) => {
+      permission.value = value
+    })
+    oneSignal.onSubscriptionChange((value) => {
+      optedIn.value = value
+      subscribedBefore.value = isSubscribed.value
+    })
+    await refreshState()
+    standalone.value = oneSignal.isStandalone()
+    ready.value = true
+    await syncTags()
+  }
 
-    const defaultOptions = {
-      icon: '/pwa-192x192.png',
-      badge: '/pwa-192x192.png',
-      tag: 'azkar-reminder',
-      renotify: true,
-      requireInteraction: false,
-      silent: false,
-    }
-
-    const notificationOptions = { ...defaultOptions, ...options }
-
+  /**
+   * Request permission and opt in. Must be called from a user gesture.
+   * Returns whether the device ended up subscribed.
+   */
+  async function subscribe() {
+    if (!isSupported.value || busy.value) return false
+    busy.value = true
     try {
-      // Check if we're in a PWA context and have a service worker
-      if ('serviceWorker' in navigator) {
-        const registration = await navigator.serviceWorker.ready
-        if (registration && registration.showNotification) {
-          // Use service worker for PWA notifications (better for mobile)
-          console.log('📱 PWA context detected: Using service worker for notifications')
-          console.log('Notification options:', notificationOptions)
-          return await registration.showNotification(title, notificationOptions)
-        } else {
-          console.log('Service worker registration found but showNotification not available')
-        }
-      } else {
-        console.log('Service worker not supported in this browser')
-      }
+      await ensureReady()
+      await oneSignal.subscribe()
+      await refreshState()
+      if (isSubscribed.value) await syncTags()
+      return isSubscribed.value
     } catch (error) {
-      console.warn('Failed to show notification via service worker, falling back to basic notifications:', error)
-    }
-
-    // Fallback to basic notifications for regular browser context
-    try {
-      console.log('Showing basic browser notification')
-      const notification = new Notification(title, notificationOptions)
-
-      // Auto-close notification after 10 seconds (only for basic notifications)
-      setTimeout(() => {
-        if (notification && typeof notification.close === 'function') {
-          notification.close()
-        }
-      }, 10000)
-
-      return notification
-    } catch (error) {
-      console.error('Failed to show notification:', error)
-      return null
+      console.error('Failed to subscribe to notifications:', error)
+      return false
+    } finally {
+      busy.value = false
     }
   }
 
-  /**
-   * Schedule azkar notifications
-   */
-  function scheduleAzkarNotifications() {
-    // Clear existing intervals
-    clearAllNotifications()
-
-    if (morningEnabled.value && isGranted.value) {
-      scheduleDailyNotification('morning', morningTime.value, {
-        title: '✨ اذكار الصباح ✨',
-        body: 'من فوائد قراءة أذكار الصباح دوام الصلة بالله تعالى والأنس به وبمعيّته، وتحصيل كرامة ثناءه في الملأ الأعلى، ورفعة الدرجات في الجنة.',
-        data: { type: 'morning-azkar', categoryId: 1 },
-      })
-    }
-
-    if (eveningEnabled.value && isGranted.value) {
-      scheduleDailyNotification('evening', eveningTime.value, {
-        title: '✨ اذكار المساء ✨',
-        body: 'عن أبي موسى الأشعري رضي الله عنه أن رسول الله صلى الله عليه وسلم، قال: (مثل الذي يذكر ربه والذي لا يذكر ربه، مثل الحيِّ والميت) متفق عليه.',
-        data: { type: 'evening-azkar', categoryId: 2 },
-      })
-    }
-  }
-
-  /**
-   * Schedule a daily notification at a specific time
-   */
-  function scheduleDailyNotification(id, timeString, notificationOptions) {
-    const [hours, minutes] = timeString.split(':').map(Number)
-
-    function scheduleNext() {
-      const now = new Date()
-      const targetTime = new Date()
-      targetTime.setHours(hours, minutes, 0, 0)
-
-      // If the time has passed today, schedule for tomorrow
-      if (targetTime <= now) {
-        targetTime.setDate(targetTime.getDate() + 1)
-      }
-
-      const timeUntilNotification = targetTime.getTime() - now.getTime()
-
-      const timeoutId = setTimeout(async () => {
-        try {
-          await showNotification(notificationOptions.title, {
-            body: notificationOptions.body,
-            data: notificationOptions.data,
-          })
-        } catch (error) {
-          console.error('Failed to show scheduled notification:', error)
-        }
-
-        // Schedule the next notification (24 hours later)
-        scheduleNext()
-      }, timeUntilNotification)
-
-      notificationIntervals.value.set(id, timeoutId)
-    }
-
-    scheduleNext()
-  }
-
-  /**
-   * Clear all scheduled notifications
-   */
-  function clearAllNotifications() {
-    for (const [id, timeoutId] of notificationIntervals.value) {
-      clearTimeout(timeoutId)
-    }
-    notificationIntervals.value.clear()
-  }
-
-  /**
-   * Update morning notification settings
-   */
-  function updateMorningSettings(enabled, time) {
+  async function updateMorningSettings(enabled, time) {
     morningEnabled.value = enabled
     morningTime.value = time
-    scheduleAzkarNotifications()
+    await syncTags()
   }
 
-  /**
-   * Update evening notification settings
-   */
-  function updateEveningSettings(enabled, time) {
+  async function updateEveningSettings(enabled, time) {
     eveningEnabled.value = enabled
     eveningTime.value = time
-    scheduleAzkarNotifications()
+    await syncTags()
   }
 
   /**
-   * Initialize notifications (call this when the app starts)
+   * Show an immediate LOCAL notification as a preview ("test"). Real scheduled
+   * reminders are delivered by OneSignal; this only confirms the device can
+   * display notifications.
    */
+  async function showTestNotification(type = 'morning') {
+    if (!isGranted.value) return
+
+    const presets = {
+      morning: { title: '✨ أذكار الصباح ✨', body: 'هذه رسالة تجريبية لأذكار الصباح', url: '/azkar/morning' },
+      evening: { title: '✨ أذكار المساء ✨', body: 'هذه رسالة تجريبية لأذكار المساء', url: '/azkar/evening' },
+    }
+    const config = presets[type] || presets.morning
+
+    try {
+      const registration = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('SW timeout')), 3000)),
+      ])
+      await registration.showNotification(config.title, {
+        body: config.body,
+        icon: TEST_ICON,
+        badge: TEST_ICON,
+        tag: `azkar-test-${type}`,
+        data: { url: config.url },
+      })
+    } catch {
+      // Fall back to a plain Notification (e.g. when no SW is active in dev).
+      try {
+        new Notification(config.title, { body: config.body, icon: TEST_ICON })
+      } catch (error) {
+        console.error('Failed to show test notification:', error)
+      }
+    }
+  }
+
+  /** Called once on app startup. Stays lightweight for non-subscribers. */
   function initialize() {
-    if (isGranted.value) {
-      scheduleAzkarNotifications()
+    if (typeof Notification !== 'undefined') permission.value = Notification.permission
+    if (subscribedBefore.value && isSupported.value) {
+      // Returning subscriber: re-init in the background to refresh tags.
+      ensureReady().catch((error) => console.error('OneSignal init failed:', error))
     }
   }
 
   return {
     // State
-    permission,
     morningEnabled,
     morningTime,
     eveningEnabled,
     eveningTime,
+    permission,
+    optedIn,
+    busy,
 
     // Computed
     isSupported,
+    isIos,
+    standalone,
+    needsInstall,
     isGranted,
     isDenied,
     canRequest,
+    isSubscribed,
 
     // Actions
-    requestPermission,
-    showNotification,
-    scheduleAzkarNotifications,
-    clearAllNotifications,
+    prepare: ensureReady,
+    subscribe,
+    showTestNotification,
     updateMorningSettings,
     updateEveningSettings,
     initialize,

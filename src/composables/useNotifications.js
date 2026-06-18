@@ -1,23 +1,28 @@
 import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useNotificationStore } from '@/stores/notifications'
 
 /**
- * Composable for handling browser notifications
- * Provides a convenient interface for notification management
+ * Composable wrapper around the OneSignal-backed notification store.
+ * Provides a convenient interface for the settings UI.
  */
 export function useNotifications() {
   const notificationStore = useNotificationStore()
 
-  // Check if notifications are supported
-  const isSupported = computed(() => notificationStore.isSupported)
+  const {
+    isSupported,
+    isIos,
+    standalone,
+    needsInstall,
+    permission,
+    isGranted,
+    isDenied,
+    canRequest,
+    isSubscribed,
+    busy,
+  } = storeToRefs(notificationStore)
 
-  // Permission states
-  const permission = computed(() => notificationStore.permission)
-  const isGranted = computed(() => notificationStore.isGranted)
-  const isDenied = computed(() => notificationStore.isDenied)
-  const canRequest = computed(() => notificationStore.canRequest)
-
-  // Settings
+  // Two-way bindings that re-sync OneSignal tags on every change.
   const morningEnabled = computed({
     get: () => notificationStore.morningEnabled,
     set: (value) => notificationStore.updateMorningSettings(value, notificationStore.morningTime),
@@ -38,100 +43,55 @@ export function useNotifications() {
     set: (value) => notificationStore.updateEveningSettings(notificationStore.eveningEnabled, value),
   })
 
-  /**
-   * Request notification permission
-   */
-  async function requestPermission() {
-    const granted = await notificationStore.requestPermission()
-    if (granted) {
-      // Initialize notifications after permission is granted
-      notificationStore.initialize()
-    }
-    return granted
+  function prepare() {
+    return notificationStore.prepare()
   }
 
-  /**
-   * Show a test notification
-   */
-  async function showTestNotification(type = 'morning') {
-    if (!isGranted.value) {
-      console.warn('Notification permission not granted')
-      return
-    }
-
-    const notifications = {
-      morning: {
-        title: 'تجربة - أذكار الصباح',
-        body: 'هذه رسالة تجريبية لأذكار الصباح',
-      },
-      evening: {
-        title: 'تجربة - أذكار المساء',
-        body: 'هذه رسالة تجريبية لأذكار المساء',
-      },
-    }
-
-    const config = notifications[type] || notifications.morning
-
-    try {
-      await notificationStore.showNotification(config.title, {
-        body: config.body,
-        data: { type: `${type}-azkar-test` },
-      })
-      console.log(`Test notification sent: ${config.title}`)
-    } catch (error) {
-      console.error('Failed to show test notification:', error)
-    }
+  function subscribe() {
+    return notificationStore.subscribe()
   }
 
-  /**
-   * Get the next scheduled notification time
-   */
+  function showTestNotification(type = 'morning') {
+    return notificationStore.showTestNotification(type)
+  }
+
+  /** The next time a given reminder will fire (local Date), or null if disabled. */
   function getNextNotificationTime(type) {
     const timeString = type === 'morning' ? morningTime.value : eveningTime.value
     const enabled = type === 'morning' ? morningEnabled.value : eveningEnabled.value
-
     if (!enabled) return null
 
     const [hours, minutes] = timeString.split(':').map(Number)
     const now = new Date()
     const target = new Date()
     target.setHours(hours, minutes, 0, 0)
-
-    // If the time has passed today, schedule for tomorrow
-    if (target <= now) {
-      target.setDate(target.getDate() + 1)
-    }
-
+    if (target <= now) target.setDate(target.getDate() + 1)
     return target
   }
 
-  /**
-   * Format time until next notification
-   */
+  /** Human-readable time until the next reminder (Arabic), or null if disabled. */
   function getTimeUntilNext(type) {
     const nextTime = getNextNotificationTime(type)
     if (!nextTime) return null
 
-    const now = new Date()
-    const diff = nextTime.getTime() - now.getTime()
-
+    const diff = nextTime.getTime() - Date.now()
     const hours = Math.floor(diff / (1000 * 60 * 60))
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-
-    if (hours > 0) {
-      return `${hours} ساعة و ${minutes} دقيقة`
-    } else {
-      return `${minutes} دقيقة`
-    }
+    return hours > 0 ? `${hours} ساعة و ${minutes} دقيقة` : `${minutes} دقيقة`
   }
 
   return {
-    // Permission states
+    // Permission / subscription state
     isSupported,
+    isIos,
+    standalone,
+    needsInstall,
     permission,
     isGranted,
     isDenied,
     canRequest,
+    isSubscribed,
+    busy,
 
     // Settings
     morningEnabled,
@@ -140,7 +100,8 @@ export function useNotifications() {
     eveningTime,
 
     // Actions
-    requestPermission,
+    prepare,
+    subscribe,
     showTestNotification,
     getNextNotificationTime,
     getTimeUntilNext,
