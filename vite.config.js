@@ -17,8 +17,6 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,woff,woff2}'],
-        // Never precache OneSignal's service worker — it must stay live (own scope).
-        globIgnores: ['**/push/onesignal/**'],
         runtimeCaching: [
           // Cache Prayer Times API responses
           {

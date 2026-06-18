@@ -18,7 +18,6 @@ import SettingsFontSize from './partials/SettingsFontSize.vue'
 import SettingsPrayerTimes from './partials/SettingsPrayerTimes.vue'
 import SettingsReciter from './partials/SettingsReciter.vue'
 import SettingsZekr from './partials/SettingsZekr.vue'
-import SettingsNotifications from './partials/SettingsNotifications.vue'
 import SettingsAppUpdates from './partials/SettingsAppUpdates.vue'
 import SettingsDownloadAssets from './partials/SettingsDownloadAssets.vue'
 
@@ -65,9 +64,8 @@ const activeTab = computed(() => route.params.tab || 'appearance')
 
         <SettingsReciter v-else-if="activeTab === 'quran'" />
 
-        <div v-else-if="activeTab === 'azkar'" class="settings-stack">
+        <div v-else-if="activeTab === 'azkar'">
           <SettingsZekr />
-          <SettingsNotifications />
         </div>
 
         <SettingsAppUpdates v-else-if="activeTab === 'app'" />
