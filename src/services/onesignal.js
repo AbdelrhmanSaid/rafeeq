@@ -60,28 +60,19 @@ function run(fn) {
 /** Browser supports the APIs web push needs. */
 export function isPushSupported() {
   return (
-    typeof window !== 'undefined' &&
-    'serviceWorker' in navigator &&
-    'PushManager' in window &&
-    'Notification' in window
+    typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window
   )
 }
 
 /** Running as an installed/standalone PWA (required for push on iOS). */
 export function isStandalone() {
-  return (
-    window.matchMedia?.('(display-mode: standalone)').matches ||
-    window.navigator.standalone === true
-  )
+  return window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone === true
 }
 
 /** Best-effort iOS / iPadOS detection. */
 export function isIos() {
   const ua = navigator.userAgent || ''
-  return (
-    /iPad|iPhone|iPod/.test(ua) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-  )
+  return /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
 }
 
 /** Load the SDK and initialise OneSignal exactly once. */

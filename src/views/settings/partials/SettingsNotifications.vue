@@ -72,8 +72,8 @@ async function handleSubscribe() {
       <div class="d-flex align-items-start gap-2">
         <IconDeviceMobilePlus size="1.25rem" class="flex-shrink-0 mt-1" />
         <small>
-          لتفعيل الإشعارات على الآيفون، أضِف التطبيق إلى الشاشة الرئيسية أولاً: اضغط زر المشاركة في
-          Safari ثم «إضافة إلى الشاشة الرئيسية»، وافتح التطبيق من الأيقونة.
+          لتفعيل الإشعارات على الآيفون، أضِف التطبيق إلى الشاشة الرئيسية أولاً: اضغط زر المشاركة في Safari ثم «إضافة إلى
+          الشاشة الرئيسية»، وافتح التطبيق من الأيقونة.
         </small>
       </div>
     </div>
@@ -93,11 +93,7 @@ async function handleSubscribe() {
       <p class="text-muted mb-3">
         <small>فعّل الإشعارات لتصلك تذكيرات أذكار الصباح والمساء في وقتك المحلي، حتى عند إغلاق التطبيق.</small>
       </p>
-      <button
-        class="btn btn-primary d-flex align-items-center gap-2"
-        :disabled="busy"
-        @click="handleSubscribe"
-      >
+      <button class="btn btn-primary d-flex align-items-center gap-2" :disabled="busy" @click="handleSubscribe">
         <IconBell size="1.25rem" />
         <span>{{ busy ? 'جارٍ التفعيل…' : 'تفعيل الإشعارات' }}</span>
       </button>
@@ -144,7 +140,9 @@ async function handleSubscribe() {
       </div>
 
       <p class="text-muted mt-3 mb-0">
-        <small>تُضبط الأوقات لأقرب ١٥ دقيقة وتصلك في توقيتك المحلي. زر الجرس يعرض إشعاراً تجريبياً على هذا الجهاز.</small>
+        <small
+          >تُضبط الأوقات لأقرب ١٥ دقيقة وتصلك في توقيتك المحلي. زر الجرس يعرض إشعاراً تجريبياً على هذا الجهاز.</small
+        >
       </p>
     </div>
   </SettingsSection>
