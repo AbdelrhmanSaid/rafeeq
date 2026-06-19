@@ -5,6 +5,7 @@
     "": {
       "name": "rafeeq",
       "dependencies": {
+        "@onesignal/onesignal-vue3": "^2.5.3",
         "@popperjs/core": "^2.11.8",
         "@tabler/icons-vue": "^3.44.0",
         "@vueuse/core": "^14.3.0",
@@ -29,7 +30,7 @@
         "prettier": "3.8.4",
         "vite": "^8.0.16",
         "vite-plugin-pwa": "^1.3.0",
-        "vue-eslint-parser": "^10.3.0",
+        "vue-eslint-parser": "^10.4.1",
       },
     },
   },
@@ -265,6 +266,8 @@
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.29", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-uw6guiW/gcAGPDhLmd77/6lW8QLeiV5RUTsAX46Db6oLhGaVj4lhnPwb184s1bkc8kdVg/+h988dro8GRDpmYQ=="],
 
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.1.4", "", { "dependencies": { "@tybys/wasm-util": "^0.10.1" }, "peerDependencies": { "@emnapi/core": "^1.7.1", "@emnapi/runtime": "^1.7.1" } }, "sha512-3NQNNgA1YSlJb/kMH1ildASP9HW7/7kYnRI2szWJaofaS1hWmbGI4H+d3+22aGzXXN9IJ+n+GiFVcGipJP18ow=="],
+
+    "@onesignal/onesignal-vue3": ["@onesignal/onesignal-vue3@2.5.3", "", { "dependencies": { "vue": "^3.2.0" } }, "sha512-DKLVHrxc0x7mYV5cd5/QP46wzdHUaho7m9ohOwdVFpCgS5EEjAJjBuhu2px3l0PU12814AUnuhlrtPtiWqCgJQ=="],
 
     "@oxc-project/types": ["@oxc-project/types@0.133.0", "", {}, "sha512-KzkdCd6Uxqnf6l3HOw1xfatAlUURA0g14cvBYFyJ5SaNOQbOUvBr9PKArcPcrNIeRsBdgcUzOGrhKveVpvOIGA=="],
 

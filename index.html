@@ -37,19 +37,6 @@
 <body>
   <div id="app"></div>
   <script type="module" src="/src/main.js"></script>
-
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-  <script>
-    window.OneSignalDeferred = window.OneSignalDeferred || []
-    OneSignalDeferred.push(async function (OneSignal) {
-      await OneSignal.init({
-        appId: '1f095647-697b-468b-a8ae-f3833bda6869',
-        serviceWorkerPath: 'push/onesignal/OneSignalSDKWorker.js',
-        serviceWorkerParam: { scope: '/push/onesignal/' },
-        allowLocalhostAsSecureOrigin: true,
-      })
-    })
-  </script>
 </body>
 
 </html>
