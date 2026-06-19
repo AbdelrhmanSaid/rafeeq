@@ -151,7 +151,7 @@ watch([notificationTopics, notificationTimezone], queueNotificationTagsSync, { d
     <div v-if="permission === 'denied'" class="alert alert-warning mt-3 mb-0">
       <IconAlertCircle class="me-2" size="18" />
       <span>الإشعارات محظورة من إعدادات المتصفح. غيّر الإذن من المتصفح لتفعيلها مرة أخرى.</span>
-     </div>
+    </div>
 
     <div v-if="notificationsEnabled" class="notification-topics">
       <div class="small text-secondary mb-3">
