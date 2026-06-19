@@ -3,16 +3,29 @@ import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAppStore } from '@/stores/app'
 import { toArabicNumerals } from '@/utilities/arabic'
-import { IconDeviceMobileVibration } from '@tabler/icons-vue'
+import { IconArrowDownCircle, IconDeviceMobileVibration } from '@tabler/icons-vue'
 import SettingsSection from './SettingsSection.vue'
 
 const appStore = useAppStore()
-const { zekrVibrationEnabled, zekrVibrationIntensity } = storeToRefs(appStore)
+const { zekrMoveNextOnComplete, zekrVibrationEnabled, zekrVibrationIntensity } = storeToRefs(appStore)
 
 const vibrationValueLabel = computed(() => toArabicNumerals(String(zekrVibrationIntensity.value)))
 </script>
 
 <template>
+  <SettingsSection
+    class="mb-4"
+    title="الانتقال للذكر التالي"
+    description="ينقلك تلقائيا إلى الذكر التالي عند إكمال العدد المطلوب"
+    :icon="IconArrowDownCircle"
+  >
+    <template #actions>
+      <div class="form-check form-switch m-0">
+        <input id="swZekrMoveNext" v-model="zekrMoveNextOnComplete" class="form-check-input" type="checkbox" />
+      </div>
+    </template>
+  </SettingsSection>
+
   <SettingsSection
     title="الاهتزاز عند الانتهاء"
     description="يعمل على الأجهزة والمتصفحات التي تدعم الاهتزاز"

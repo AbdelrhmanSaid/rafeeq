@@ -32,12 +32,19 @@ const emit = defineEmits(['increment', 'reset'])
 const count = ref(0)
 const isMobile = useMediaQuery('(max-width: 991.98px)')
 const appStore = useAppStore()
-const { zekrVibrationEnabled, zekrVibrationIntensity } = storeToRefs(appStore)
+const { zekrMoveNextOnComplete, zekrVibrationEnabled, zekrVibrationIntensity } = storeToRefs(appStore)
+const card = ref(null)
 
 const vibrateOnFinish = () => {
   if (zekrVibrationEnabled.value && typeof navigator !== 'undefined' && 'vibrate' in navigator) {
     navigator.vibrate(zekrVibrationIntensity.value)
   }
+}
+
+const moveToNextZekr = () => {
+  if (!zekrMoveNextOnComplete.value) return
+
+  card.value?.nextElementSibling?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
 
 const increment = () => {
@@ -47,6 +54,7 @@ const increment = () => {
 
     if (count.value === props.repeat) {
       vibrateOnFinish()
+      moveToNextZekr()
     }
   }
 }
@@ -104,7 +112,7 @@ const copyZekr = async () => {
 </script>
 
 <template>
-  <div class="zekr-card border rounded p-4" @click="onCardClick">
+  <div ref="card" class="zekr-card border rounded p-4" @click="onCardClick">
     <div class="action-menu dropdown" @click.stop>
       <button class="btn p-0 bg-transparent" type="button" data-bs-toggle="dropdown">
         <IconHeartShare size="18" />
