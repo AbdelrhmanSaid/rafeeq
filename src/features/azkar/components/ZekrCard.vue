@@ -5,6 +5,7 @@ import { exportComponent } from '@/shared/utils/export'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import { useIsMobile } from '@/shared/composables/useIsMobile'
+import { useZekrScroll } from '@/features/azkar/composables/useZekrScroll'
 import { useZekrVibration } from '@/features/azkar/composables/useZekrVibration'
 
 import ZekrImage from './ZekrImage.vue'
@@ -29,8 +30,10 @@ const props = defineProps({
 const emit = defineEmits(['increment', 'reset'])
 
 const count = ref(0)
+const card = ref(null)
 const isMobile = useIsMobile()
 const { vibrateOnFinish } = useZekrVibration()
+const { scrollToNextZekr } = useZekrScroll(card)
 
 const increment = () => {
   if (count.value < props.repeat) {
@@ -39,6 +42,7 @@ const increment = () => {
 
     if (count.value === props.repeat) {
       vibrateOnFinish()
+      scrollToNextZekr()
     }
   }
 }
@@ -86,7 +90,7 @@ const copyZekr = () => {
 </script>
 
 <template>
-  <div class="zekr-card border rounded p-4" @click="onCardClick">
+  <div ref="card" class="zekr-card border rounded p-4" @click="onCardClick">
     <div class="action-menu dropdown" @click.stop>
       <button class="btn p-0 bg-transparent" type="button" data-bs-toggle="dropdown">
         <IconHeartShare size="18" />

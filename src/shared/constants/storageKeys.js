@@ -4,6 +4,7 @@ export const STORAGE_KEYS = {
   autoUpdateServiceWorker: 'auto-update-service-worker',
   zekrVibrationEnabled: 'zekr-vibration-enabled',
   zekrVibrationIntensity: 'zekr-vibration-intensity',
+  zekrMoveNextOnComplete: 'zekr-move-next-on-complete',
 
   themeMode: 'mode',
   themePrimary: 'theme-primary',
