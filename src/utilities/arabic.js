@@ -16,16 +16,17 @@ export const normalize = (text) => {
   return text.toLowerCase()
 }
 
+// Known Unicode renderings of the basmala that may prefix a verse or azkar text.
+export const BISMILLAH_VARIANTS = [
+  'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
+  'بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ',
+  'بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ',
+]
+
 export const removeBismillah = (text) => {
   text = String(text ?? '').replace(/^\uFEFF/, '')
 
-  let samples = [
-    'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
-    'بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ',
-    'بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ',
-  ]
-
-  for (let sample of samples) {
+  for (const sample of BISMILLAH_VARIANTS) {
     text = text.replace(new RegExp(`^${sample}\\s*`, 'u'), '').trim()
   }
 
