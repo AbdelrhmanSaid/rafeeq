@@ -12,12 +12,13 @@ import OfflineState from '@/shared/ui/OfflineState.vue'
 import radiosData from '@/features/radio/data/radios.js'
 import { useRadioStore } from '@/features/radio/store'
 import { useFavorites } from '@/shared/composables/useFavorites'
+import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 import { toast } from 'vue-sonner'
 
 const route = useRoute()
 const online = useOnline()
 const store = useRadioStore()
-const { isFavorite, toggleFavorite } = useFavorites('radioFavorites')
+const { isFavorite, toggleFavorite } = useFavorites(STORAGE_KEYS.radioFavorites)
 
 const stationSlug = computed(() => route.params.slug.toLowerCase())
 const station = computed(() => radiosData[stationSlug.value])

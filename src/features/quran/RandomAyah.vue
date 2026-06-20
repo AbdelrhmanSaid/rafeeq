@@ -3,6 +3,7 @@ import { computed, ref, watch, onUnmounted } from 'vue'
 import { useFetch, useOnline } from '@vueuse/core'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals, removeBismillah } from '@/shared/utils/arabic'
+import { API } from '@/shared/constants/api'
 import { IconRefresh, IconChevronRight, IconChevronLeft, IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
 import { useReconnectExecute } from '@/shared/composables/useReconnectExecute'
 
@@ -16,7 +17,7 @@ const online = useOnline()
 const TOTAL_AYAHS = 6236
 const current = ref(Math.floor(Math.random() * TOTAL_AYAHS) + 1)
 const editions = ['quran-uthmani', 'ar.muyassar', 'ar.alafasy']
-const endpoint = computed(() => `https://api.alquran.cloud/v1/ayah/${current.value}/editions/${editions.join(',')}`)
+const endpoint = computed(() => `${API.quranCloud}/ayah/${current.value}/editions/${editions.join(',')}`)
 
 const { isFetching, data, error, execute } = useFetch(endpoint, { refetch: true }).json().get()
 const ayah = computed(() => data.value?.data?.[0])

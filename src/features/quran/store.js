@@ -2,11 +2,13 @@ import { useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import reciters from '@/features/quran/data/reciters.js'
+import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
+import { API } from '@/shared/constants/api'
 
 const DEFAULT_RECITER_ID = 51
 
 export const useQuranStore = defineStore('quran', () => {
-  const currentReciter = useLocalStorage('currentReciter', DEFAULT_RECITER_ID)
+  const currentReciter = useLocalStorage(STORAGE_KEYS.currentReciter, DEFAULT_RECITER_ID)
   const shouldAutoPlay = ref(false)
 
   const surahAudioUrl = ref(null)
@@ -44,7 +46,7 @@ export const useQuranStore = defineStore('quran', () => {
     const r = reciter.value
     if (!r) return []
 
-    const response = await fetch(`https://www.mp3quran.net/api/v3/ayat_timing?surah=${surahNumber}&read=${r.id}`)
+    const response = await fetch(`${API.mp3quran}/ayat_timing?surah=${surahNumber}&read=${r.id}`)
     if (!response.ok) throw new Error('Failed to fetch ayah timings')
     return await response.json()
   }

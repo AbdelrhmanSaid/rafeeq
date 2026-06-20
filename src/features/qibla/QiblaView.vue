@@ -9,6 +9,7 @@ import LoadingState from '@/shared/ui/LoadingState.vue'
 import ErrorState from '@/shared/ui/ErrorState.vue'
 import OfflineState from '@/shared/ui/OfflineState.vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
+import { API } from '@/shared/constants/api'
 
 const online = useOnline()
 
@@ -69,7 +70,7 @@ function requestLocation() {
 // API endpoint for Qibla direction
 const endpoint = computed(() => {
   if (!latitude.value || !longitude.value) return null
-  return `https://api.aladhan.com/v1/qibla/${latitude.value}/${longitude.value}`
+  return `${API.aladhan}/qibla/${latitude.value}/${longitude.value}`
 })
 
 const fetchOptions = {

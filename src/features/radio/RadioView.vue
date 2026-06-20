@@ -11,6 +11,7 @@ import FavoriteList from '@/shared/ui/FavoriteList.vue'
 import radiosData from '@/features/radio/data/radios.js'
 import OfflineState from '@/shared/ui/OfflineState.vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
+import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 
 const store = useRadioStore()
 const online = useOnline()
@@ -42,7 +43,7 @@ const { search, filtered } = useSearch(radiosList, ['name'])
       :items="filtered"
       :search="search"
       item-key="slug"
-      favorites-key="radioFavorites"
+      :favorites-key="STORAGE_KEYS.radioFavorites"
       :item-class="(item) => ({ active: store.station === item.url })"
     >
       <template #favorites-title>

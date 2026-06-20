@@ -8,6 +8,7 @@ import LoadingState from '@/shared/ui/LoadingState.vue'
 import ErrorState from '@/shared/ui/ErrorState.vue'
 import OfflineState from '@/shared/ui/OfflineState.vue'
 import { formatTime, toArabicNumerals } from '@/shared/utils/arabic'
+import { API } from '@/shared/constants/api'
 
 import PrayerIcon from '@/features/prayers/icons/PrayerIcon.vue'
 
@@ -44,7 +45,7 @@ const longitude = computed(() => (hasPropsCoords.value ? props.long : store.long
 const endpoint = computed(() => {
   if (!latitude.value || !longitude.value) return null
   const today = new Date().toISOString().split('T')[0].split('-').reverse().join('-')
-  return `https://api.aladhan.com/v1/timings/${today}?latitude=${latitude.value}&longitude=${longitude.value}&iso8601=true`
+  return `${API.aladhan}/timings/${today}?latitude=${latitude.value}&longitude=${longitude.value}&iso8601=true`
 })
 
 // Fetch options

@@ -10,11 +10,12 @@ import {
   syncMetaThemeColor,
   DEFAULT_FONT_SCALE,
 } from '@/shared/utils/css'
+import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 
 export const useThemeStore = defineStore('theme', () => {
-  const mode = useLocalStorage('mode', 'system')
-  const primaryColor = useLocalStorage('theme-primary', '')
-  const fontScale = useLocalStorage('font-scale', DEFAULT_FONT_SCALE)
+  const mode = useLocalStorage(STORAGE_KEYS.themeMode, 'system')
+  const primaryColor = useLocalStorage(STORAGE_KEYS.themePrimary, '')
+  const fontScale = useLocalStorage(STORAGE_KEYS.fontScale, DEFAULT_FONT_SCALE)
   const prefersDark = usePreferredDark()
 
   const resolvedMode = computed(() => {

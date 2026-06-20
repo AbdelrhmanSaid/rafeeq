@@ -2,13 +2,14 @@ import { defineStore } from 'pinia'
 import { useLocalStorage, useMediaQuery } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
+import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 
 export const usePrayersStore = defineStore('prayers', function () {
-  const longitude = useLocalStorage('longitude', 0)
-  const latitude = useLocalStorage('latitude', 0)
+  const longitude = useLocalStorage(STORAGE_KEYS.longitude, 0)
+  const latitude = useLocalStorage(STORAGE_KEYS.latitude, 0)
 
   // Display layout: 'cards' | 'list' | 'auto'
-  const layout = useLocalStorage('prayer-times-layout', 'auto')
+  const layout = useLocalStorage(STORAGE_KEYS.prayerTimesLayout, 'auto')
 
   // Mobile/tablet viewports (below Bootstrap's lg breakpoint)
   const isCompactViewport = useMediaQuery('(max-width: 991.98px)')

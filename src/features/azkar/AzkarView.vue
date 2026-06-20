@@ -6,6 +6,7 @@ import Heading from '@/shared/ui/Heading.vue'
 import FavoriteList from '@/shared/ui/FavoriteList.vue'
 import categories from '@/features/azkar/data/categories.js'
 import { toArabicNumerals } from '@/shared/utils/arabic'
+import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 
 categories.forEach((category, index) => {
   category.id = index + 1
@@ -23,7 +24,7 @@ const { search, filtered } = useSearch(categories, ['name'])
       <label>تبحث عن باب معين؟</label>
     </div>
 
-    <FavoriteList :items="filtered" :search="search" item-key="slug" favorites-key="azkarFavorites">
+    <FavoriteList :items="filtered" :search="search" item-key="slug" :favorites-key="STORAGE_KEYS.azkarFavorites">
       <template #favorites-title>
         <h5 class="mb-3">الأبواب المفضلة</h5>
       </template>

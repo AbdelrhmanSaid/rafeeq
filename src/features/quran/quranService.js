@@ -1,4 +1,5 @@
 import { useOfflineData } from '@/shared/offline/useOfflineData'
+import { API } from '@/shared/constants/api'
 
 let _instance = null
 
@@ -10,7 +11,7 @@ export function useQuranService() {
       const cached = await offline.get(id)
       if (cached) return cached
 
-      const response = await fetch(`https://api.alquran.cloud/v1/surah/${id}`)
+      const response = await fetch(`${API.quranCloud}/surah/${id}`)
       if (!response.ok) throw new Error('Failed to fetch surah')
       const data = await response.json()
 

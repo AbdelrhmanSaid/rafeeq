@@ -6,6 +6,7 @@ import Heading from '@/shared/ui/Heading.vue'
 import FavoriteList from '@/shared/ui/FavoriteList.vue'
 import surahs from '@/features/quran/data/surahs.js'
 import { toArabicNumerals } from '@/shared/utils/arabic'
+import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 
 const { search, filtered } = useSearch(surahs, ['name'])
 </script>
@@ -23,7 +24,7 @@ const { search, filtered } = useSearch(surahs, ['name'])
       <label>تبحث عن سورة معينة؟</label>
     </div>
 
-    <FavoriteList :items="filtered" :search="search" item-key="id" favorites-key="quranFavorites">
+    <FavoriteList :items="filtered" :search="search" item-key="id" :favorites-key="STORAGE_KEYS.quranFavorites">
       <template #favorites-title>
         <h5 class="mb-3">السور المفضلة</h5>
       </template>
