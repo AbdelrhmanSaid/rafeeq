@@ -24,4 +24,4 @@ Tests use Vitest with `jsdom`, globals enabled, and files matching `src/**/*.spe
 Recent commits use short, imperative summaries such as `Add CI workflow to run the test suite and build` and `Fix prayer-icon regression + address review feedback`. Keep commits focused and descriptive. PRs should include a clear summary, linked issue when applicable, screenshots or screen recordings for UI changes, and notes for PWA, public asset, or configuration changes. Confirm relevant checks: lint, format, tests, and build.
 
 ## Security & Configuration Tips
-Do not commit secrets. Optional analytics are configured with `VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX`; keep real values in local or deployment environment variables.
+Do not commit secrets. keep real values in local or deployment environment variables.
