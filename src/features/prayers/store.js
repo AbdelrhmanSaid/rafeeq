@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
-import { useLocalStorage, useMediaQuery } from '@vueuse/core'
+import { useLocalStorage } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { getCurrentPosition } from '@/shared/composables/useGeolocation'
+import { useIsMobile } from '@/shared/composables/useIsMobile'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 
 export const usePrayersStore = defineStore('prayers', function () {
@@ -11,8 +12,7 @@ export const usePrayersStore = defineStore('prayers', function () {
   // Display layout: 'cards' | 'list' | 'auto'
   const layout = useLocalStorage(STORAGE_KEYS.prayerTimesLayout, 'auto')
 
-  // Mobile/tablet viewports (below Bootstrap's lg breakpoint)
-  const isCompactViewport = useMediaQuery('(max-width: 991.98px)')
+  const isCompactViewport = useIsMobile()
 
   // Effective orientation consumed by <PrayerTimes>
   const vertical = computed(() => {

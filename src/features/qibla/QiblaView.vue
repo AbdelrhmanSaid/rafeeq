@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useFetch, useOnline, useMediaQuery } from '@vueuse/core'
+import { useFetch, useOnline } from '@vueuse/core'
 import { IconLocationFilled, IconDeviceMobile } from '@tabler/icons-vue'
 
 import Page from '@/layout/Page.vue'
@@ -10,13 +10,12 @@ import ErrorState from '@/shared/ui/ErrorState.vue'
 import OfflineState from '@/shared/ui/OfflineState.vue'
 import QiblaCompass from '@/features/qibla/QiblaCompass.vue'
 import { getCurrentPosition } from '@/shared/composables/useGeolocation'
+import { useIsMobile } from '@/shared/composables/useIsMobile'
 import { useDeviceCompass } from '@/features/qibla/useDeviceCompass'
 import { API } from '@/shared/constants/api'
 
 const online = useOnline()
-
-// Feature is phone-only (compass) — below Bootstrap's lg breakpoint.
-const isMobile = useMediaQuery('(max-width: 991.98px)')
+const isMobile = useIsMobile()
 
 // Location state (fresh from navigator, not stored)
 const latitude = ref(null)

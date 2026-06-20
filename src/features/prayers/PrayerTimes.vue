@@ -181,7 +181,7 @@ const remainingTime = computed(() => {
         <div class="card-body">
           <div class="d-flex align-items-center gap-3 mb-3">
             <span class="icon-container">
-              <component :is="timing.icon" />
+              <PrayerIcon :name="timing.icon" />
             </span>
             <h5 class="card-title mb-0">{{ timing.label }}</h5>
           </div>
