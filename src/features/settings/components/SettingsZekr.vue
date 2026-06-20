@@ -9,7 +9,7 @@ import SettingsSection from './SettingsSection.vue'
 const appStore = useAppStore()
 const { zekrVibrationEnabled, zekrVibrationIntensity } = storeToRefs(appStore)
 
-const vibrationValueLabel = computed(() => toArabicNumerals(String(zekrVibrationIntensity.value)))
+const vibrationValueLabel = computed(() => toArabicNumerals(zekrVibrationIntensity.value))
 </script>
 
 <template>

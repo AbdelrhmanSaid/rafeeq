@@ -37,7 +37,7 @@ const setMetaTag = ({ name, property, content }) => {
 
   if (!element) {
     element = document.createElement('meta')
-    element.setAttribute(name ? 'name' : 'property', name ? name : property)
+    element.setAttribute(name ? 'name' : 'property', name || property)
     document.head.appendChild(element)
   }
 

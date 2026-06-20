@@ -83,8 +83,8 @@ const nextPrayerKey = computed(() => {
   const prayerTimes = timings.value.data.timings
   const currentTime = now.value.getTime()
 
-  const prayers = Object.entries(timingsMap).map(([name, time]) => ({
-    name: name,
+  const prayers = Object.entries(timingsMap).map(([name]) => ({
+    name,
     time: new Date(prayerTimes[name]).getTime(),
   }))
 

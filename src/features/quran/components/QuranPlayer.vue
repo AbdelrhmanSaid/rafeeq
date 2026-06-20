@@ -75,17 +75,12 @@ function onTimeUpdate() {
   }
 }
 
-async function loadSource(url) {
+function loadSource(url) {
   if (!audio.value || !url) return
   audio.value.src = url
   audio.value.load()
   isPlaying.value = false
   currentTime.value = 0
-
-  if (quranStore.shouldAutoPlay) {
-    await tryPlay()
-    quranStore.shouldAutoPlay = false
-  }
 }
 
 watch(() => quranStore.surahAudioUrl, loadSource)

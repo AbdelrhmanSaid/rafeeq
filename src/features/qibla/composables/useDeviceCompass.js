@@ -4,6 +4,10 @@ import { normalizeAngle, smoothAngle } from '@/features/qibla/lib/qibla'
 // Exponential-moving-average factor — balances responsiveness vs. jitter.
 const SMOOTHING = 0.15
 
+// Whether the platform requires an explicit DeviceOrientation permission prompt (iOS 13+).
+const needsPermissionPrompt = () =>
+  typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function'
+
 // Tracks the device's compass heading from DeviceOrientation events, handling
 // iOS permission, Android absolute orientation, and listener cleanup.
 export function useDeviceCompass() {
@@ -11,12 +15,7 @@ export function useDeviceCompass() {
   const hasSupport = ref(false)
   const error = ref(null)
 
-  const canRequestPermission = computed(
-    () =>
-      !hasSupport.value &&
-      typeof DeviceOrientationEvent !== 'undefined' &&
-      typeof DeviceOrientationEvent.requestPermission === 'function',
-  )
+  const canRequestPermission = computed(() => !hasSupport.value && needsPermissionPrompt())
 
   function update(rawHeading) {
     heading.value = smoothAngle(heading.value, rawHeading, SMOOTHING)
@@ -37,10 +36,7 @@ export function useDeviceCompass() {
   }
 
   async function requestPermission() {
-    if (
-      typeof DeviceOrientationEvent !== 'undefined' &&
-      typeof DeviceOrientationEvent.requestPermission === 'function'
-    ) {
+    if (needsPermissionPrompt()) {
       try {
         const permission = await DeviceOrientationEvent.requestPermission()
         if (permission === 'granted') {

@@ -14,7 +14,7 @@ const min = MIN_FONT_SCALE
 const max = MAX_FONT_SCALE
 const step = FONT_SCALE_STEP
 
-const scaleLabel = computed(() => `${toArabicNumerals(String(fontScale.value))}٪`)
+const scaleLabel = computed(() => `${toArabicNumerals(fontScale.value)}٪`)
 const isDefault = computed(() => fontScale.value === DEFAULT_FONT_SCALE)
 
 function decrease() {

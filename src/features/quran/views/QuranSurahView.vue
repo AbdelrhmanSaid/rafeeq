@@ -31,11 +31,13 @@ const {
   return result
 })
 
+const revelationLabel = computed(() => (surah.value?.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'))
+
 usePageMeta(
   () =>
     surah.value && {
       title: surah.value.data.name,
-      description: `قراءة وتلاوة سورة ${surah.value.data.name} - ${toArabicNumerals(surah.value.data.numberOfAyahs)} آية - سورة ${surah.value.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`,
+      description: `قراءة وتلاوة سورة ${surah.value.data.name} - ${toArabicNumerals(surah.value.data.numberOfAyahs)} آية - سورة ${revelationLabel.value}`,
       keywords: ['قرآن', 'سورة', surah.value.data.name, 'تلاوة', 'قراءة', 'رفيق'],
     },
 )
@@ -78,7 +80,7 @@ const isCurrentVerse = (verse) => {
     <Page class="quran-page" v-if="surah">
       <Heading
         :title="surah.data.name"
-        :subtitle="`عدد الآيات: ${toArabicNumerals(surah.data.numberOfAyahs)} آية - سورة ${surah.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`"
+        :subtitle="`عدد الآيات: ${toArabicNumerals(surah.data.numberOfAyahs)} آية - سورة ${revelationLabel}`"
         :share="true"
       />
 

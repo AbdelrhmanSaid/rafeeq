@@ -23,7 +23,6 @@ export const useSearch = (items, keys = []) => {
 
   return {
     search,
-    keys,
     filtered,
   }
 }

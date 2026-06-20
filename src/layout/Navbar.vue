@@ -19,7 +19,7 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
 </script>
 
 <template>
-  <nav class="navbar navbar-expand-lg sticky-top navbar-light bg-body border-bottom py-3">
+  <nav class="navbar navbar-expand-lg sticky-top bg-body border-bottom py-3">
     <div class="container">
       <RouterLink to="/" class="navbar-brand">
         <Logo />

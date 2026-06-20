@@ -34,22 +34,6 @@ const sebha = ref(0)
   text-align: center;
 }
 
-.sebha-meta {
-  display: grid;
-  gap: 0.35rem;
-  color: var(--bs-secondary-color);
-}
-
-.sebha-total {
-  font-size: clamp(2.25rem, 4vw, 3rem);
-  font-weight: 700;
-  color: var(--bs-primary);
-}
-
-.sebha-subtitle {
-  font-size: 0.9rem;
-}
-
 .sebha-btn {
   /* rem (not px) so the circle grows with the font scale and the counter
      never overflows; still capped by viewport width on small screens. */

@@ -10,5 +10,6 @@ export function formatCurrency(value, currency = 'EGP') {
     style: 'currency',
     currency,
     minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(value)
 }

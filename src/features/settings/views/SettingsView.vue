@@ -64,9 +64,7 @@ const activeTab = computed(() => route.params.tab || 'appearance')
 
         <SettingsReciter v-else-if="activeTab === 'quran'" />
 
-        <div v-else-if="activeTab === 'azkar'">
-          <SettingsZekr />
-        </div>
+        <SettingsZekr v-else-if="activeTab === 'azkar'" />
 
         <SettingsAppUpdates v-else-if="activeTab === 'app'" />
 

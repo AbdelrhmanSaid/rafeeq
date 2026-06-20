@@ -8,13 +8,9 @@ import { useMeta } from '@/shared/utils/head'
 import { useThemeStore } from '@/app/stores/theme'
 
 function withEmbedAliases(routes) {
-  return routes.map((route) => {
-    if (!route.noEmbed) {
-      route.alias = [...(route.alias || []), `/embed${route.path}`]
-    }
-
-    return route
-  })
+  return routes.map((route) =>
+    route.noEmbed ? route : { ...route, alias: [...(route.alias || []), `/embed${route.path}`] },
+  )
 }
 
 const router = createRouter({
@@ -162,7 +158,7 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   // If the page is not an embed page, show the progress bar
-  if (!to.path.includes('/embed')) {
+  if (!to.path.startsWith('/embed')) {
     nProgress.start()
   }
 })

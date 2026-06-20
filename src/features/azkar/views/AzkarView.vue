@@ -6,9 +6,7 @@ import categories from '@/features/azkar/data/categories.js'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 
-categories.forEach((category, index) => {
-  category.id = index + 1
-})
+const items = categories.map((category, index) => ({ ...category, id: index + 1 }))
 </script>
 
 <template>
@@ -16,7 +14,7 @@ categories.forEach((category, index) => {
     <Heading title="الأذكار" subtitle="اختر الباب الذي ترغب في البحث عن الأذكار المتعلقة به" :share="true" />
 
     <SearchableFavoritesList
-      :items="categories"
+      :items="items"
       item-key="slug"
       :favorites-key="STORAGE_KEYS.azkarFavorites"
       placeholder="ابحث عن الباب"

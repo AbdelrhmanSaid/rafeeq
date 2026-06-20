@@ -75,12 +75,8 @@ const filteredAssets = computed(() => {
   return assetsWithStatus.value.filter((asset) => asset.type === filterType.value)
 })
 
-const surahCount = computed(() => 114)
-const azkarCount = computed(() => allAssets.value.length - 114)
-
-const handleDownloadAll = () => {
-  queueAllAssets()
-}
+const surahCount = computed(() => allAssets.value.filter((a) => a.type === 'surah').length)
+const azkarCount = computed(() => allAssets.value.filter((a) => a.type === 'azkar').length)
 
 const handleRemoveAll = () => {
   cancelAllDownloads()
@@ -193,7 +189,7 @@ const handleAssetAction = (asset) => {
 
         <button
           class="dm-action-btn primary"
-          @click="handleDownloadAll"
+          @click="queueAllAssets"
           :disabled="isDownloading || !online || isCompleted"
         >
           <IconDownload :size="16" />

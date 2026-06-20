@@ -9,7 +9,6 @@ const DEFAULT_RECITER_ID = 51
 
 export const useQuranStore = defineStore('quran', () => {
   const currentReciter = useLocalStorage(STORAGE_KEYS.currentReciter, DEFAULT_RECITER_ID)
-  const shouldAutoPlay = ref(false)
 
   const surahAudioUrl = ref(null)
   const surahName = ref(null)
@@ -98,11 +97,8 @@ export const useQuranStore = defineStore('quran', () => {
 
   return {
     currentReciter,
-    shouldAutoPlay,
     surahAudioUrl,
     surahName,
-    currentSurahNumber,
-    ayahTimings,
 
     reciter,
     currentAyah,

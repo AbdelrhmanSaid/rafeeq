@@ -55,39 +55,29 @@ const onCardClick = () => {
 }
 
 const exportAsImage = () => {
-  let promise = () =>
-    new Promise(async (resolve, reject) => {
+  toast.promise(
+    async () => {
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      exportComponent(ZekrImage, props, 'zekr').then(resolve).catch(reject)
-    })
-
-  toast.promise(promise, {
-    loading: 'جاري التصدير...',
-    success: 'تم تصدير الصورة بنجاح',
-    error: 'حدث خطأ أثناء تصدير الصورة',
-  })
+      return exportComponent(ZekrImage, props, 'zekr')
+    },
+    {
+      loading: 'جاري التصدير...',
+      success: 'تم تصدير الصورة بنجاح',
+      error: 'حدث خطأ أثناء تصدير الصورة',
+    },
+  )
 }
 
-const shareZekr = async () => {
-  let promise = () =>
-    new Promise((resolve, reject) => {
-      navigator.share({ title: 'رفيق', text: props.text }).then(resolve).catch(reject)
-    })
-
-  toast.promise(promise, {
+const shareZekr = () => {
+  toast.promise(() => navigator.share({ title: 'رفيق', text: props.text }), {
     loading: 'جاري المشاركة...',
     success: 'تم مشاركة الذكر بنجاح',
     error: 'حدث خطأ أثناء مشاركة الذكر',
   })
 }
 
-const copyZekr = async () => {
-  let promise = () =>
-    new Promise((resolve, reject) => {
-      navigator.clipboard.writeText(props.text).then(resolve).catch(reject)
-    })
-
-  toast.promise(promise, {
+const copyZekr = () => {
+  toast.promise(() => navigator.clipboard.writeText(props.text), {
     loading: 'جاري النسخ...',
     success: 'تم نسخ الذكر بنجاح',
     error: 'حدث خطأ أثناء نسخ الذكر',

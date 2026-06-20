@@ -13,7 +13,6 @@ import radiosData from '@/features/radio/data/radios.js'
 import { useRadioStore } from '@/features/radio/store'
 import { useFavorites } from '@/shared/composables/useFavorites'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
-import { toast } from 'vue-sonner'
 
 const route = useRoute()
 const online = useOnline()
@@ -45,20 +44,10 @@ const shareStation = async () => {
     url: window.location.href,
   }
 
-  if (navigator.share) {
-    try {
-      await navigator.share(data)
-    } catch {
-      // User canceled or share failed
-    }
-  } else {
-    // Fallback to clipboard
-    try {
-      await navigator.clipboard.writeText(data.url)
-      toast.success('تم نسخ الرابط')
-    } catch {
-      toast.error('حدث خطأ أثناء نسخ الرابط')
-    }
+  try {
+    await navigator.share(data)
+  } catch {
+    // User canceled or share failed
   }
 }
 </script>

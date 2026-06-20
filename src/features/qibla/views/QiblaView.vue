@@ -100,13 +100,12 @@ onMounted(requestLocation)
 
     <!-- Qibla API error -->
     <div v-else-if="error" class="qibla-card qibla-card--static">
-      <OfflineState v-if="!online" />
-      <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." v-else />
+      <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
     </div>
 
     <!-- Qibla compass -->
     <QiblaCompass
-      v-else-if="qiblaData && qiblaDirection !== null"
+      v-else-if="qiblaDirection !== null"
       :qibla-direction="qiblaDirection"
       :heading="heading"
       :has-compass-support="hasSupport"
