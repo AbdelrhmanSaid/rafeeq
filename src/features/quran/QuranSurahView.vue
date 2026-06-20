@@ -13,12 +13,11 @@ import AudioPlayer from '@/features/quran/QuranPlayer.vue'
 import { useQuranStore } from '@/features/quran/store'
 import { useMeta } from '@/shared/utils/head'
 import { toArabicNumerals, removeBismillah } from '@/shared/utils/arabic'
-import { useQuranService } from '@/features/quran/quranService'
+import { fetchSurah } from '@/features/quran/api'
 
 const online = useOnline()
 const surahId = useRouteParams('surah')
 const quranStore = useQuranStore()
-const { fetchSurah } = useQuranService()
 
 const surah = ref(null)
 const isFetching = ref(true)

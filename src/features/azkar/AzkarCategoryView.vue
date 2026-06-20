@@ -12,11 +12,10 @@ import ErrorState from '@/shared/ui/ErrorState.vue'
 import OfflineState from '@/shared/ui/OfflineState.vue'
 import ZekrCard from '@/features/azkar/ZekrCard.vue'
 import { useMeta } from '@/shared/utils/head'
-import { useAzkarService } from '@/features/azkar/azkarService'
+import { fetchCategory } from '@/features/azkar/api'
 
 const slug = useRouteParams('category')
 const online = useOnline()
-const { fetchCategory } = useAzkarService()
 
 const category = ref(null)
 const isFetching = ref(true)

@@ -2,45 +2,46 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useOnline } from '@vueuse/core'
 
-import { useQuranService } from '@/features/quran/quranService'
-import { useAzkarService } from '@/features/azkar/azkarService'
+import { useOfflineData } from '@/shared/offline/useOfflineData'
+import { fetchSurah } from '@/features/quran/api'
+import { fetchCategory } from '@/features/azkar/api'
 import surahs from '@/features/quran/data/surahs.js'
 import azkarCategories from '@/features/azkar/data/categories.js'
 import { sleep } from '@/shared/utils/async'
 
 export const useDownloadStore = defineStore('download', () => {
   const online = useOnline()
-  const quranService = useQuranService()
-  const azkarService = useAzkarService()
+
+  // One entry per downloadable asset type — adding a type is data, not new branches.
+  const assetTypes = {
+    surah: {
+      offline: useOfflineData('quran'),
+      assets: surahs.map((s) => ({ id: `surah-${s.id}`, type: 'surah', name: s.name, key: String(s.id), data: s })),
+      fetch: (asset) => fetchSurah(asset.data.id),
+    },
+    azkar: {
+      offline: useOfflineData('azkar'),
+      assets: azkarCategories.map((c) => ({
+        id: `azkar-${c.slug}`,
+        type: 'azkar',
+        name: c.name,
+        key: c.slug,
+        data: c,
+      })),
+      fetch: (asset) => fetchCategory(asset.data.slug),
+    },
+  }
+  const types = Object.values(assetTypes)
 
   const downloadQueue = ref([])
   const isDownloading = ref(false)
   const isPaused = ref(false)
   const currentItem = ref(null)
 
-  function serviceFor(asset) {
-    return asset.type === 'surah' ? quranService : azkarService
-  }
-
-  const allAssets = computed(() => [
-    ...surahs.map((s) => ({
-      id: `surah-${s.id}`,
-      type: 'surah',
-      name: s.name,
-      key: String(s.id),
-      data: s,
-    })),
-    ...azkarCategories.map((c) => ({
-      id: `azkar-${c.slug}`,
-      type: 'azkar',
-      name: c.name,
-      key: c.slug,
-      data: c,
-    })),
-  ])
+  const allAssets = computed(() => types.flatMap((t) => t.assets))
 
   const totalAssets = computed(() => allAssets.value.length)
-  const downloadedCount = computed(() => quranService.downloadedCount.value + azkarService.downloadedCount.value)
+  const downloadedCount = computed(() => types.reduce((sum, t) => sum + t.offline.downloadedCount.value, 0))
   const isCompleted = computed(() => downloadedCount.value === totalAssets.value)
   const progressPercentage = computed(() =>
     totalAssets.value === 0 ? 0 : Math.round((downloadedCount.value / totalAssets.value) * 100),
@@ -48,7 +49,7 @@ export const useDownloadStore = defineStore('download', () => {
   const pendingCount = computed(() => downloadQueue.value.length)
 
   function isDownloaded(asset) {
-    return serviceFor(asset).isDownloaded(asset.key)
+    return assetTypes[asset.type].offline.isDownloaded(asset.key)
   }
 
   function isInQueue(asset) {
@@ -56,11 +57,7 @@ export const useDownloadStore = defineStore('download', () => {
   }
 
   async function fetchAsset(asset) {
-    if (asset.type === 'surah') {
-      await quranService.fetchSurah(asset.data.id)
-    } else {
-      await azkarService.fetchCategory(asset.data.slug)
-    }
+    await assetTypes[asset.type].fetch(asset)
   }
 
   async function processQueue() {
@@ -107,12 +104,11 @@ export const useDownloadStore = defineStore('download', () => {
   }
 
   async function removeAsset(asset) {
-    await serviceFor(asset).remove(asset.key)
+    await assetTypes[asset.type].offline.remove(asset.key)
   }
 
   async function removeAllAssets() {
-    await quranService.removeAll()
-    await azkarService.removeAll()
+    await Promise.all(types.map((t) => t.offline.removeAll()))
   }
 
   function pauseDownloads() {
