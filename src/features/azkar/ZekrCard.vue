@@ -1,12 +1,11 @@
 <script setup>
 import { ref } from 'vue'
-import { storeToRefs } from 'pinia'
 import { useMediaQuery } from '@vueuse/core'
 import { IconDownload, IconShare3, IconCopy, IconHeartShare, IconRestore } from '@tabler/icons-vue'
 import { exportComponent } from '@/shared/utils/export'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals } from '@/shared/utils/arabic'
-import { useAppStore } from '@/app/stores/app'
+import { useVibration } from '@/features/azkar/useVibration'
 
 import ZekrImage from './ZekrImage.vue'
 
@@ -31,14 +30,7 @@ const emit = defineEmits(['increment', 'reset'])
 
 const count = ref(0)
 const isMobile = useMediaQuery('(max-width: 991.98px)')
-const appStore = useAppStore()
-const { zekrVibrationEnabled, zekrVibrationIntensity } = storeToRefs(appStore)
-
-const vibrateOnFinish = () => {
-  if (zekrVibrationEnabled.value && typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-    navigator.vibrate(zekrVibrationIntensity.value)
-  }
-}
+const { vibrate } = useVibration()
 
 const increment = () => {
   if (count.value < props.repeat) {
@@ -46,7 +38,7 @@ const increment = () => {
     emit('increment')
 
     if (count.value === props.repeat) {
-      vibrateOnFinish()
+      vibrate()
     }
   }
 }

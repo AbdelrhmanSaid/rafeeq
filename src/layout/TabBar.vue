@@ -1,7 +1,8 @@
 <script setup>
-import { RouterLink, useRoute } from 'vue-router'
-import { computed, ref } from 'vue'
+import { RouterLink } from 'vue-router'
+import { ref } from 'vue'
 import { useRadioStore } from '@/features/radio/store'
+import { useActiveNav } from '@/layout/useActiveNav'
 
 import {
   IconHome,
@@ -14,13 +15,10 @@ import {
 } from '@tabler/icons-vue'
 
 const radio = useRadioStore()
-const route = useRoute()
 const showMoreMenu = ref(false)
 const isClosing = ref(false)
 
-const isQuranActive = computed(() => ['quran', 'quran-surah'].includes(route.name))
-const isAzkarActive = computed(() => ['azkar', 'azkar-category'].includes(route.name))
-const isRadioActive = computed(() => ['radio', 'radio-station'].includes(route.name))
+const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
 
 const toggleMoreMenu = () => {
   if (showMoreMenu.value) {

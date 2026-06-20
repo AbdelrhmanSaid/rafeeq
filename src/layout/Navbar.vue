@@ -1,7 +1,7 @@
 <script setup>
-import { RouterLink, useRoute } from 'vue-router'
-import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
 import { useRadioStore } from '@/features/radio/store'
+import { useActiveNav } from '@/layout/useActiveNav'
 
 import {
   IconHome,
@@ -15,11 +15,7 @@ import {
 import Logo from '@/shared/ui/Logo.vue'
 
 const radio = useRadioStore()
-const route = useRoute()
-
-const isQuranActive = computed(() => ['quran', 'quran-surah'].includes(route.name))
-const isAzkarActive = computed(() => ['azkar', 'azkar-category'].includes(route.name))
-const isRadioActive = computed(() => ['radio', 'radio-station'].includes(route.name))
+const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
 </script>
 
 <template>
