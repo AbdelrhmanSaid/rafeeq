@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { usePrayersStore } from '@/features/prayers/store'
-import { usePrayerLocation } from '@/features/prayers/usePrayerLocation'
+import { usePrayerLocation } from '@/features/prayers/composables/usePrayerLocation'
 import {
   IconRefreshDot,
   IconTrash,

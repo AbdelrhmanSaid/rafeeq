@@ -5,10 +5,10 @@ import Heading from '@/shared/ui/Heading.vue'
 import Page from '@/layout/Page.vue'
 import ErrorState from '@/shared/ui/ErrorState.vue'
 import { IconAlertTriangle } from '@tabler/icons-vue'
-import PrayerTimes from '@/features/prayers/PrayerTimes.vue'
-import SunnahPrayers from '@/features/prayers/SunnahPrayers.vue'
-import Sebha from '@/features/sebha/Sebha.vue'
-import RandomAyah from '@/features/quran/RandomAyah.vue'
+import PrayerTimes from '@/features/prayers/components/PrayerTimes.vue'
+import SunnahPrayers from '@/features/prayers/components/SunnahPrayers.vue'
+import Sebha from '@/features/sebha/components/Sebha.vue'
+import RandomAyah from '@/features/quran/components/RandomAyah.vue'
 
 const schema = {
   title: { type: String, default: null },

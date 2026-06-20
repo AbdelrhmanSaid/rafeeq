@@ -5,7 +5,7 @@ import { exportComponent } from '@/shared/utils/export'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import { useIsMobile } from '@/shared/composables/useIsMobile'
-import { useZekrVibration } from '@/features/azkar/useZekrVibration'
+import { useZekrVibration } from '@/features/azkar/composables/useZekrVibration'
 
 import ZekrImage from './ZekrImage.vue'
 

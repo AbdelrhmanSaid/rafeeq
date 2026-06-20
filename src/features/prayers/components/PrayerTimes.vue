@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { usePrayersStore } from '@/features/prayers/store'
-import { usePrayerLocation } from '@/features/prayers/usePrayerLocation'
+import { usePrayerLocation } from '@/features/prayers/composables/usePrayerLocation'
 import { useFetch, useDateFormat, useOnline, useNow } from '@vueuse/core'
 import { useReconnectExecute } from '@/shared/composables/useReconnectExecute'
 
@@ -11,7 +11,7 @@ import OfflineState from '@/shared/ui/OfflineState.vue'
 import { formatTime, toArabicNumerals } from '@/shared/utils/arabic'
 import { API } from '@/shared/constants/api'
 
-import PrayerIcon from '@/features/prayers/icons/PrayerIcon.vue'
+import PrayerIcon from '@/features/prayers/components/icons/PrayerIcon.vue'
 
 const props = defineProps({
   lat: { type: [Number, String], default: null },

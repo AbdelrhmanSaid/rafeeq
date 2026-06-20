@@ -13,13 +13,13 @@ import {
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
 
-import SettingsTheme from './partials/SettingsTheme.vue'
-import SettingsFontSize from './partials/SettingsFontSize.vue'
-import SettingsPrayerTimes from './partials/SettingsPrayerTimes.vue'
-import SettingsReciter from './partials/SettingsReciter.vue'
-import SettingsZekr from './partials/SettingsZekr.vue'
-import SettingsAppUpdates from './partials/SettingsAppUpdates.vue'
-import SettingsDownloadAssets from './partials/SettingsDownloadAssets.vue'
+import SettingsTheme from '../components/SettingsTheme.vue'
+import SettingsFontSize from '../components/SettingsFontSize.vue'
+import SettingsPrayerTimes from '../components/SettingsPrayerTimes.vue'
+import SettingsReciter from '../components/SettingsReciter.vue'
+import SettingsZekr from '../components/SettingsZekr.vue'
+import SettingsAppUpdates from '../components/SettingsAppUpdates.vue'
+import SettingsDownloadAssets from '../components/SettingsDownloadAssets.vue'
 
 const tabs = [
   { id: 'appearance', label: 'المظهر', icon: IconPalette },

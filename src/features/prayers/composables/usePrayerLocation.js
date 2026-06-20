@@ -1,5 +1,5 @@
 import { toast } from 'vue-sonner'
-import { usePrayersStore } from './store'
+import { usePrayersStore } from '@/features/prayers/store'
 
 const GEO_ERROR_MESSAGES = {
   1: 'تم رفض إذن الوصول للموقع. يمكنك تفعيله من إعدادات المتصفح.',

@@ -1,10 +1,10 @@
 <script setup>
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
-import PrayerTimes from '@/features/prayers/PrayerTimes.vue'
-import RandomAyah from '@/features/quran/RandomAyah.vue'
-import SunnahPrayers from '@/features/prayers/SunnahPrayers.vue'
-import QuickAzkar from '@/features/azkar/QuickAzkar.vue'
+import PrayerTimes from '@/features/prayers/components/PrayerTimes.vue'
+import RandomAyah from '@/features/quran/components/RandomAyah.vue'
+import SunnahPrayers from '@/features/prayers/components/SunnahPrayers.vue'
+import QuickAzkar from '@/features/azkar/components/QuickAzkar.vue'
 import { usePrayersStore } from '@/features/prayers/store'
 
 const prayersStore = usePrayersStore()

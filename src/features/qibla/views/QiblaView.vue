@@ -8,10 +8,10 @@ import Heading from '@/shared/ui/Heading.vue'
 import LoadingState from '@/shared/ui/LoadingState.vue'
 import ErrorState from '@/shared/ui/ErrorState.vue'
 import OfflineState from '@/shared/ui/OfflineState.vue'
-import QiblaCompass from '@/features/qibla/QiblaCompass.vue'
+import QiblaCompass from '@/features/qibla/components/QiblaCompass.vue'
 import { getCurrentPosition } from '@/shared/composables/useGeolocation'
 import { useIsMobile } from '@/shared/composables/useIsMobile'
-import { useDeviceCompass } from '@/features/qibla/useDeviceCompass'
+import { useDeviceCompass } from '@/features/qibla/composables/useDeviceCompass'
 import { API } from '@/shared/constants/api'
 
 const online = useOnline()

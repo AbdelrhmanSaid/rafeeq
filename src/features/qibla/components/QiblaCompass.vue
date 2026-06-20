@@ -2,7 +2,10 @@
 import { computed } from 'vue'
 import { IconCompass } from '@tabler/icons-vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
-import { needleRotation as computeNeedleRotation, isFacingQibla as computeIsFacingQibla } from './qibla'
+import {
+  needleRotation as computeNeedleRotation,
+  isFacingQibla as computeIsFacingQibla,
+} from '@/features/qibla/lib/qibla'
 
 // 15° tolerance allows natural hand movement while staying precise for prayer.
 const FACING_TOLERANCE = 15

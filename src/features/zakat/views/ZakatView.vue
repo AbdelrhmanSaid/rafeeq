@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
-import ZakatCalculatorCard from '@/features/zakat/ZakatCalculatorCard.vue'
+import ZakatCalculatorCard from '@/features/zakat/components/ZakatCalculatorCard.vue'
 import { IconCoins, IconWheat, IconGift, IconBuildingStore } from '@tabler/icons-vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import { formatNumber, formatCurrency } from '@/shared/utils/format'
@@ -15,7 +15,7 @@ import {
   cropsZakat,
   businessZakat,
   livestockZakat,
-} from '@/features/zakat/zakat'
+} from '@/features/zakat/lib/zakat'
 
 const activeTab = ref('money')
 

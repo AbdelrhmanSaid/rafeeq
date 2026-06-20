@@ -1,6 +1,6 @@
 <script setup>
 import { IconBell } from '@tabler/icons-vue'
-import { usePushNotifications } from '@/features/settings/usePushNotifications'
+import { usePushNotifications } from '@/features/settings/composables/usePushNotifications'
 import SettingsSection from './SettingsSection.vue'
 
 const { enabled, loading, state, toggle } = usePushNotifications()

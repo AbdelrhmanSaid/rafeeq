@@ -1,7 +1,7 @@
 import nProgress from 'nprogress'
 
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '@/features/home/HomeView.vue'
+import HomeView from '@/features/home/views/HomeView.vue'
 import NotFoundView from '@/app/views/NotFoundView.vue'
 import { trackPageview } from '@/shared/utils/analytics'
 import { useMeta } from '@/shared/utils/head'
@@ -35,7 +35,7 @@ const router = createRouter({
     {
       path: '/quran',
       name: 'quran',
-      component: () => import('@/features/quran/QuranView.vue'),
+      component: () => import('@/features/quran/views/QuranView.vue'),
       meta: {
         title: 'القرآن الكريم',
         description: 'تصفح واستمع إلى سور القرآن الكريم كاملة مع مجموعة متنوعة من القراء.',
@@ -46,13 +46,13 @@ const router = createRouter({
     {
       path: '/quran/:surah(\\d+)',
       name: 'quran-surah',
-      component: () => import('@/features/quran/QuranSurahView.vue'),
+      component: () => import('@/features/quran/views/QuranSurahView.vue'),
     },
 
     {
       path: '/azkar',
       name: 'azkar',
-      component: () => import('@/features/azkar/AzkarView.vue'),
+      component: () => import('@/features/azkar/views/AzkarView.vue'),
       meta: {
         title: 'الأذكار',
         description:
@@ -64,13 +64,13 @@ const router = createRouter({
     {
       path: '/azkar/:category',
       name: 'azkar-category',
-      component: () => import('@/features/azkar/AzkarCategoryView.vue'),
+      component: () => import('@/features/azkar/views/AzkarCategoryView.vue'),
     },
 
     {
       path: '/radio',
       name: 'radio',
-      component: () => import('@/features/radio/RadioView.vue'),
+      component: () => import('@/features/radio/views/RadioView.vue'),
       meta: {
         title: 'الإذاعة',
         description:
@@ -82,13 +82,13 @@ const router = createRouter({
     {
       path: '/radio/:slug',
       name: 'radio-station',
-      component: () => import('@/features/radio/RadioStationView.vue'),
+      component: () => import('@/features/radio/views/RadioStationView.vue'),
     },
 
     {
       path: '/sebha',
       name: 'sebha',
-      component: () => import('@/features/sebha/SebhaView.vue'),
+      component: () => import('@/features/sebha/views/SebhaView.vue'),
       meta: {
         title: 'السبحة الإلكترونية',
         description: 'سبحة إلكترونية بسيطة وسهلة الاستخدام لمساعدتك في المداومة على ذكر الله في أي وقت.',
@@ -99,7 +99,7 @@ const router = createRouter({
     {
       path: '/qibla',
       name: 'qibla',
-      component: () => import('@/features/qibla/QiblaView.vue'),
+      component: () => import('@/features/qibla/views/QiblaView.vue'),
       meta: {
         title: 'اتجاه القبلة',
         description: 'حدد اتجاه القبلة بسهولة باستخدام البوصلة الإلكترونية ومعرفة الاتجاه الصحيح للصلاة.',
@@ -110,7 +110,7 @@ const router = createRouter({
     {
       path: '/zakat',
       name: 'zakat',
-      component: () => import('@/features/zakat/ZakatView.vue'),
+      component: () => import('@/features/zakat/views/ZakatView.vue'),
       meta: {
         title: 'حساب الزكاة',
         description: 'احسب زكاة مالك، الذهب، والفضة بسهولة ودقة وفقاً للضوابط الشرعية.',
@@ -121,7 +121,7 @@ const router = createRouter({
     {
       path: '/settings/:tab(appearance|prayer|quran|azkar|app|downloads)?',
       name: 'settings',
-      component: () => import('@/features/settings/SettingsView.vue'),
+      component: () => import('@/features/settings/views/SettingsView.vue'),
       meta: {
         title: 'الإعدادات',
         description: 'تخصيص إعدادات تطبيق رفيق بما يناسب احتياجاتك وتفضيلاتك.',
@@ -144,7 +144,7 @@ const router = createRouter({
       noEmbed: true,
       path: '/embed/components/:component',
       name: 'embed-component',
-      component: () => import('@/features/embed/EmbedComponentView.vue'),
+      component: () => import('@/features/embed/views/EmbedComponentView.vue'),
     },
 
     {

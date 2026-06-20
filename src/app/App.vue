@@ -9,7 +9,7 @@ import { useOnline } from '@vueuse/core'
 import { Toaster, toast } from 'vue-sonner'
 import { useThemeStore } from '@/app/stores/theme'
 import { useAppStore } from '@/app/stores/app'
-import { useRadioNotifications } from '@/features/radio/useRadioNotifications'
+import { useRadioNotifications } from '@/features/radio/composables/useRadioNotifications'
 import { registerSW } from 'virtual:pwa-register'
 
 // Network status detection

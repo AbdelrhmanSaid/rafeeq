@@ -1,5 +1,5 @@
 <script setup>
-import PrayerIcon from '@/features/prayers/icons/PrayerIcon.vue'
+import PrayerIcon from '@/features/prayers/components/icons/PrayerIcon.vue'
 import { IconArrowBarToUp, IconArrowBarToDown } from '@tabler/icons-vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 

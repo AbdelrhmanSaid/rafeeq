@@ -1,7 +1,7 @@
 <script setup>
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
-import Sebha from '@/features/sebha/Sebha.vue'
+import Sebha from '@/features/sebha/components/Sebha.vue'
 import { useMediaQuery } from '@vueuse/core'
 
 const isMobile = useMediaQuery('(max-width: 768px)')

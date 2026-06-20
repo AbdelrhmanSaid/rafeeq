@@ -1,5 +1,5 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { normalizeAngle, smoothAngle } from './qibla'
+import { normalizeAngle, smoothAngle } from '@/features/qibla/lib/qibla'
 
 // Exponential-moving-average factor — balances responsiveness vs. jitter.
 const SMOOTHING = 0.15

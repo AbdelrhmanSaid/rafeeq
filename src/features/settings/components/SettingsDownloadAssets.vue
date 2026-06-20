@@ -15,7 +15,7 @@ import {
   IconCloudDownload,
 } from '@tabler/icons-vue'
 import { useDownloadStore } from '@/features/downloads/store.js'
-import DownloadAssetItem from '@/features/downloads/DownloadAssetItem.vue'
+import DownloadAssetItem from '@/features/downloads/components/DownloadAssetItem.vue'
 import CircleProgress from '@/shared/ui/CircleProgress.vue'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals } from '@/shared/utils/arabic'
