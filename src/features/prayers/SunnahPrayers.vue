@@ -1,8 +1,5 @@
 <script setup>
-import FajrIcon from '@/features/prayers/icons/Fajr.vue'
-import DuhurIcon from '@/features/prayers/icons/Duhur.vue'
-import MaghribIcon from '@/features/prayers/icons/Maghrib.vue'
-import IshaaIcon from '@/features/prayers/icons/Ishaa.vue'
+import PrayerIcon from '@/features/prayers/icons/PrayerIcon.vue'
 import { IconArrowBarToUp, IconArrowBarToDown } from '@tabler/icons-vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 
@@ -11,25 +8,25 @@ const prayers = [
     name: 'الفجر',
     before: 2,
     after: '-',
-    icon: FajrIcon,
+    icon: 'fajr',
   },
   {
     name: 'الظهر',
     before: 4,
     after: 4,
-    icon: DuhurIcon,
+    icon: 'dhuhr',
   },
   {
     name: 'المغرب',
     before: '-',
     after: 2,
-    icon: MaghribIcon,
+    icon: 'maghrib',
   },
   {
     name: 'العشاء',
     before: '-',
     after: 2,
-    icon: IshaaIcon,
+    icon: 'isha',
   },
 ]
 
@@ -46,7 +43,7 @@ const formatRakaa = (value) => {
       <div class="card h-100">
         <div class="card-body d-flex align-items-start gap-2 p-2">
           <span class="icon-container">
-            <component :is="prayer.icon" />
+            <PrayerIcon :name="prayer.icon" />
           </span>
           <div class="flex-grow-1">
             <h5 class="card-title mb-2 fs-5">{{ prayer.name }}</h5>

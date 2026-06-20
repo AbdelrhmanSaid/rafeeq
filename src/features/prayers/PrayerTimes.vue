@@ -9,13 +9,7 @@ import ErrorState from '@/shared/ui/ErrorState.vue'
 import OfflineState from '@/shared/ui/OfflineState.vue'
 import { formatTime, toArabicNumerals } from '@/shared/utils/arabic'
 
-// Import prayer icons
-import Fajr from '@/features/prayers/icons/Fajr.vue'
-import Shurooq from '@/features/prayers/icons/Shurooq.vue'
-import Duhur from '@/features/prayers/icons/Duhur.vue'
-import Asr from '@/features/prayers/icons/Asr.vue'
-import Maghrib from '@/features/prayers/icons/Maghrib.vue'
-import Ishaa from '@/features/prayers/icons/Ishaa.vue'
+import PrayerIcon from '@/features/prayers/icons/PrayerIcon.vue'
 
 const props = defineProps({
   lat: { type: [Number, String], default: null },
@@ -33,12 +27,12 @@ const online = useOnline()
 
 // Prayer timings map
 const timingsMap = {
-  Fajr: { label: 'الفجر', icon: Fajr },
-  Sunrise: { label: 'الشروق', icon: Shurooq },
-  Dhuhr: { label: 'الظهر', icon: Duhur },
-  Asr: { label: 'العصر', icon: Asr },
-  Maghrib: { label: 'المغرب', icon: Maghrib },
-  Isha: { label: 'العشاء', icon: Ishaa },
+  Fajr: { label: 'الفجر', icon: 'fajr' },
+  Sunrise: { label: 'الشروق', icon: 'sunrise' },
+  Dhuhr: { label: 'الظهر', icon: 'dhuhr' },
+  Asr: { label: 'العصر', icon: 'asr' },
+  Maghrib: { label: 'المغرب', icon: 'maghrib' },
+  Isha: { label: 'العشاء', icon: 'isha' },
 }
 
 const store = usePrayersStore()
@@ -144,7 +138,7 @@ const remainingTime = computed(() => {
       <div>
         <div class="d-flex align-items-center gap-2">
           <span class="icon-container">
-            <component v-if="nextPrayerKey" :is="timingsMap[nextPrayerKey]?.icon" />
+            <PrayerIcon v-if="nextPrayerKey" :name="timingsMap[nextPrayerKey]?.icon" />
           </span>
           <span v-if="nextPrayerKey">{{ timingsMap[nextPrayerKey]?.label }}</span>
         </div>
@@ -168,7 +162,7 @@ const remainingTime = computed(() => {
       >
         <div class="d-flex align-items-center gap-2">
           <span class="icon-container">
-            <component :is="timing.icon" />
+            <PrayerIcon :name="timing.icon" />
           </span>
           <b>{{ timing.label }}</b>
         </div>
