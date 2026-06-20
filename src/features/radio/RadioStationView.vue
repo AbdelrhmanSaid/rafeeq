@@ -1,8 +1,8 @@
 <script setup>
-import { computed, watchEffect } from 'vue'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useOnline } from '@vueuse/core'
-import { useMeta } from '@/shared/utils/head'
+import { usePageMeta } from '@/shared/composables/usePageMeta'
 import { IconHeart, IconHeartFilled, IconPlayerPause, IconPlayerPlay, IconShare3, IconRadio } from '@tabler/icons-vue'
 
 import Page from '@/layout/Page.vue'
@@ -25,15 +25,14 @@ const station = computed(() => radiosData[stationSlug.value])
 const isPlaying = computed(() => station.value && store.station === station.value.url)
 const canShare = computed(() => typeof navigator !== 'undefined' && typeof navigator.share === 'function')
 
-watchEffect(() => {
-  if (station.value) {
-    useMeta({
+usePageMeta(
+  () =>
+    station.value && {
       title: station.value.name,
       description: `استمع إلى ${station.value.name} بث مباشر`,
       keywords: ['إذاعة', 'راديو', 'قرآن', station.value.name, 'بث مباشر'],
-    })
-  }
-})
+    },
+)
 
 const shareStation = async () => {
   if (!station.value || !navigator.share) {

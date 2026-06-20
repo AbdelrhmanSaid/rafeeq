@@ -1,13 +1,12 @@
 <script setup>
 import { useRadioStore } from '@/features/radio/store'
 import { IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
-import { useSearch } from '@/shared/composables/useSearch'
 import { computed } from 'vue'
 import { useOnline } from '@vueuse/core'
 
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
-import FavoriteList from '@/shared/ui/FavoriteList.vue'
+import SearchableFavoritesList from '@/shared/ui/SearchableFavoritesList.vue'
 import radiosData from '@/features/radio/data/radios.js'
 import OfflineState from '@/shared/ui/OfflineState.vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
@@ -22,8 +21,6 @@ const radiosList = computed(() =>
     ...station,
   })),
 )
-
-const { search, filtered } = useSearch(radiosList, ['name'])
 </script>
 
 <template>
@@ -34,16 +31,13 @@ const { search, filtered } = useSearch(radiosList, ['name'])
   <Page v-else>
     <Heading title="الإذاعة" subtitle="استمع لإذاعات القرآن الكريم المختلفة حول العالم" :share="true" />
 
-    <div class="form-floating mb-4">
-      <input v-model="search" type="search" class="form-control" placeholder="ابحث عن إذاعة" />
-      <label>تبحث عن إذاعة معينة؟</label>
-    </div>
-
-    <FavoriteList
-      :items="filtered"
-      :search="search"
+    <SearchableFavoritesList
+      :items="radiosList"
       item-key="slug"
       :favorites-key="STORAGE_KEYS.radioFavorites"
+      search-type="search"
+      placeholder="ابحث عن إذاعة"
+      label="تبحث عن إذاعة معينة؟"
       :item-class="(item) => ({ active: store.station === item.url })"
     >
       <template #favorites-title>
@@ -69,7 +63,7 @@ const { search, filtered } = useSearch(radiosList, ['name'])
           <IconPlayerPlay size="1.25rem" />
         </button>
       </template>
-    </FavoriteList>
+    </SearchableFavoritesList>
   </Page>
 </template>
 

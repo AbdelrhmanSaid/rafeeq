@@ -1,9 +1,7 @@
 <script setup>
-import { useSearch } from '@/shared/composables/useSearch'
-
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
-import FavoriteList from '@/shared/ui/FavoriteList.vue'
+import SearchableFavoritesList from '@/shared/ui/SearchableFavoritesList.vue'
 import categories from '@/features/azkar/data/categories.js'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
@@ -11,20 +9,19 @@ import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 categories.forEach((category, index) => {
   category.id = index + 1
 })
-
-const { search, filtered } = useSearch(categories, ['name'])
 </script>
 
 <template>
   <Page>
     <Heading title="الأذكار" subtitle="اختر الباب الذي ترغب في البحث عن الأذكار المتعلقة به" :share="true" />
 
-    <div class="form-floating mb-4">
-      <input v-model="search" type="text" class="form-control" placeholder="ابحث عن الباب" />
-      <label>تبحث عن باب معين؟</label>
-    </div>
-
-    <FavoriteList :items="filtered" :search="search" item-key="slug" :favorites-key="STORAGE_KEYS.azkarFavorites">
+    <SearchableFavoritesList
+      :items="categories"
+      item-key="slug"
+      :favorites-key="STORAGE_KEYS.azkarFavorites"
+      placeholder="ابحث عن الباب"
+      label="تبحث عن باب معين؟"
+    >
       <template #favorites-title>
         <h5 class="mb-3">الأبواب المفضلة</h5>
       </template>
@@ -41,6 +38,6 @@ const { search, filtered } = useSearch(categories, ['name'])
           {{ toArabicNumerals(item.id) }}. {{ item.name }}
         </RouterLink>
       </template>
-    </FavoriteList>
+    </SearchableFavoritesList>
   </Page>
 </template>

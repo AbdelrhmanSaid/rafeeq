@@ -1,56 +1,44 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useOnline } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
 
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
 import BackButton from '@/shared/ui/BackButton.vue'
-import LoadingState from '@/shared/ui/LoadingState.vue'
-import ErrorState from '@/shared/ui/ErrorState.vue'
-import OfflineState from '@/shared/ui/OfflineState.vue'
+import AsyncContent from '@/shared/ui/AsyncContent.vue'
 import AudioPlayer from '@/features/quran/QuranPlayer.vue'
 import { useQuranStore } from '@/features/quran/store'
-import { useMeta } from '@/shared/utils/head'
+import { useAsyncData } from '@/shared/composables/useAsyncData'
+import { usePageMeta } from '@/shared/composables/usePageMeta'
 import { toArabicNumerals, removeBismillah } from '@/shared/utils/arabic'
 import { fetchSurah } from '@/features/quran/api'
 
 const online = useOnline()
 const surahId = useRouteParams('surah')
 const quranStore = useQuranStore()
-
-const surah = ref(null)
-const isFetching = ref(true)
-const error = ref(null)
 const playerRef = ref(null)
 
-async function loadSurah() {
-  isFetching.value = true
-  error.value = null
-
-  try {
-    surah.value = await fetchSurah(surahId.value)
-    if (online.value && surah.value) {
-      await quranStore.loadSurahAudio(surah.value.data.number, surah.value.data.name)
-    }
-  } catch (e) {
-    error.value = e
-  } finally {
-    isFetching.value = false
+const {
+  data: surah,
+  error,
+  pending: isFetching,
+} = useAsyncData(async () => {
+  const result = await fetchSurah(surahId.value)
+  if (online.value && result) {
+    await quranStore.loadSurahAudio(result.data.number, result.data.name)
   }
-}
-
-loadSurah()
-
-watch(surah, (val) => {
-  if (val) {
-    useMeta({
-      title: val.data.name,
-      description: `قراءة وتلاوة سورة ${val.data.name} - ${toArabicNumerals(val.data.numberOfAyahs)} آية - سورة ${val.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`,
-      keywords: ['قرآن', 'سورة', val.data.name, 'تلاوة', 'قراءة', 'رفيق'],
-    })
-  }
+  return result
 })
+
+usePageMeta(
+  () =>
+    surah.value && {
+      title: surah.value.data.name,
+      description: `قراءة وتلاوة سورة ${surah.value.data.name} - ${toArabicNumerals(surah.value.data.numberOfAyahs)} آية - سورة ${surah.value.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`,
+      keywords: ['قرآن', 'سورة', surah.value.data.name, 'تلاوة', 'قراءة', 'رفيق'],
+    },
+)
 
 const ayat = computed(() => {
   if (surah.value) {
@@ -86,47 +74,40 @@ const isCurrentVerse = (verse) => {
 </script>
 
 <template>
-  <Page v-if="isFetching">
-    <LoadingState message="جاري تحميل السورة..." />
-  </Page>
+  <AsyncContent :pending="isFetching" :error="error" loading-message="جاري تحميل السورة...">
+    <Page class="quran-page" v-if="surah">
+      <Heading
+        :title="surah.data.name"
+        :subtitle="`عدد الآيات: ${toArabicNumerals(surah.data.numberOfAyahs)} آية - سورة ${surah.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`"
+        :share="true"
+      />
 
-  <Page v-else-if="error">
-    <OfflineState v-if="!online" />
-    <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." v-else />
-  </Page>
+      <!-- Audio Player -->
+      <AudioPlayer v-if="online" ref="playerRef" />
 
-  <Page class="quran-page" v-else-if="surah">
-    <Heading
-      :title="surah.data.name"
-      :subtitle="`عدد الآيات: ${toArabicNumerals(surah.data.numberOfAyahs)} آية - سورة ${surah.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'}`"
-      :share="true"
-    />
+      <div class="ayat font-quran mb-4">
+        <span class="basmallah" v-if="surahId != 9">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
 
-    <!-- Audio Player -->
-    <AudioPlayer v-if="online" ref="playerRef" />
+        <template v-for="(ayah, index) in ayat" :key="ayah.number">
+          <span
+            class="ayah clickable-ayah"
+            :class="{ 'current-ayah': isCurrentVerse(ayah) }"
+            @click="playVerse(ayah)"
+            :title="`تشغيل الآية ${toArabicNumerals(ayah.numberInSurah)}`"
+            >{{ ayah.text }}</span
+          >
+          <span class="ayah-number" aria-hidden="true">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
+          <div v-if="index < ayat.length - 1 && ayah.page !== ayat[index + 1].page" class="page-separator">
+            <span class="page-number">{{ toArabicNumerals(ayah.page) }}</span>
+          </div>
+        </template>
+      </div>
 
-    <div class="ayat font-quran mb-4">
-      <span class="basmallah" v-if="surahId != 9">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
-
-      <template v-for="(ayah, index) in ayat" :key="ayah.number">
-        <span
-          class="ayah clickable-ayah"
-          :class="{ 'current-ayah': isCurrentVerse(ayah) }"
-          @click="playVerse(ayah)"
-          :title="`تشغيل الآية ${toArabicNumerals(ayah.numberInSurah)}`"
-          >{{ ayah.text }}</span
-        >
-        <span class="ayah-number" aria-hidden="true">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
-        <div v-if="index < ayat.length - 1 && ayah.page !== ayat[index + 1].page" class="page-separator">
-          <span class="page-number">{{ toArabicNumerals(ayah.page) }}</span>
-        </div>
-      </template>
-    </div>
-
-    <div class="d-flex justify-content-center">
-      <BackButton :to="{ name: 'quran' }" button-class="btn-primary" />
-    </div>
-  </Page>
+      <div class="d-flex justify-content-center">
+        <BackButton :to="{ name: 'quran' }" button-class="btn-primary" />
+      </div>
+    </Page>
+  </AsyncContent>
 </template>
 
 <style lang="scss" scoped>

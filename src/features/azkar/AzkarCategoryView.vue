@@ -1,50 +1,30 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
-import { useConfirmDialog, useOnline } from '@vueuse/core'
+import { useConfirmDialog } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
 
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
 import BackButton from '@/shared/ui/BackButton.vue'
-import LoadingState from '@/shared/ui/LoadingState.vue'
-import ErrorState from '@/shared/ui/ErrorState.vue'
-import OfflineState from '@/shared/ui/OfflineState.vue'
+import AsyncContent from '@/shared/ui/AsyncContent.vue'
 import ZekrCard from '@/features/azkar/ZekrCard.vue'
-import { useMeta } from '@/shared/utils/head'
+import { useAsyncData } from '@/shared/composables/useAsyncData'
+import { usePageMeta } from '@/shared/composables/usePageMeta'
 import { fetchCategory } from '@/features/azkar/api'
 
 const slug = useRouteParams('category')
-const online = useOnline()
 
-const category = ref(null)
-const isFetching = ref(true)
-const error = ref(null)
+const { data: category, error, pending: isFetching } = useAsyncData(() => fetchCategory(slug.value))
 
-async function loadCategory() {
-  isFetching.value = true
-  error.value = null
-
-  try {
-    category.value = await fetchCategory(slug.value)
-  } catch (e) {
-    error.value = e
-  } finally {
-    isFetching.value = false
-  }
-}
-
-loadCategory()
-
-watch(category, (val) => {
-  if (val) {
-    useMeta({
-      title: val.meta.name,
-      description: val.meta.description,
-      keywords: ['أذكار', 'دعاء', val.meta.name, 'رفيق'],
-    })
-  }
-})
+usePageMeta(
+  () =>
+    category.value && {
+      title: category.value.meta.name,
+      description: category.value.meta.description,
+      keywords: ['أذكار', 'دعاء', category.value.meta.name, 'رفيق'],
+    },
+)
 
 // Track progress across all azkar
 const totalClicked = ref(0)
@@ -65,34 +45,27 @@ onBeforeRouteLeave(async () => {
 </script>
 
 <template>
-  <Page v-if="isFetching">
-    <LoadingState message="جاري تحميل الأذكار..." />
-  </Page>
+  <AsyncContent :pending="isFetching" :error="error" loading-message="جاري تحميل الأذكار...">
+    <Page v-if="category">
+      <Heading class="mb-4" :title="category.meta.name" :subtitle="category.meta.description" :share="true" />
 
-  <Page v-else-if="error">
-    <OfflineState v-if="!online" />
-    <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." v-else />
-  </Page>
+      <ZekrCard
+        class="mb-3"
+        v-for="(zekr, index) in category.content"
+        :key="index"
+        :text="zekr.text"
+        :repeat="zekr.repeat"
+        :reference="zekr.reference"
+        :benefit="zekr.benefit"
+        @increment="totalClicked++"
+        @reset="totalClicked -= $event"
+      />
 
-  <Page v-else-if="category">
-    <Heading class="mb-4" :title="category.meta.name" :subtitle="category.meta.description" :share="true" />
-
-    <ZekrCard
-      class="mb-3"
-      v-for="(zekr, index) in category.content"
-      :key="index"
-      :text="zekr.text"
-      :repeat="zekr.repeat"
-      :reference="zekr.reference"
-      :benefit="zekr.benefit"
-      @increment="totalClicked++"
-      @reset="totalClicked -= $event"
-    />
-
-    <div class="d-flex justify-content-center">
-      <BackButton :to="{ name: 'azkar' }" button-class="btn-primary" />
-    </div>
-  </Page>
+      <div class="d-flex justify-content-center">
+        <BackButton :to="{ name: 'azkar' }" button-class="btn-primary" />
+      </div>
+    </Page>
+  </AsyncContent>
 
   <!-- Leave confirmation dialog -->
   <Teleport to="body">

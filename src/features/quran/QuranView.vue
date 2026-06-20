@@ -1,14 +1,10 @@
 <script setup>
-import { useSearch } from '@/shared/composables/useSearch'
-
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
-import FavoriteList from '@/shared/ui/FavoriteList.vue'
+import SearchableFavoritesList from '@/shared/ui/SearchableFavoritesList.vue'
 import surahs from '@/features/quran/data/surahs.js'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
-
-const { search, filtered } = useSearch(surahs, ['name'])
 </script>
 
 <template>
@@ -19,12 +15,13 @@ const { search, filtered } = useSearch(surahs, ['name'])
       :share="true"
     />
 
-    <div class="form-floating mb-4">
-      <input v-model="search" type="text" class="form-control" placeholder="ابحث بالسورة" />
-      <label>تبحث عن سورة معينة؟</label>
-    </div>
-
-    <FavoriteList :items="filtered" :search="search" item-key="id" :favorites-key="STORAGE_KEYS.quranFavorites">
+    <SearchableFavoritesList
+      :items="surahs"
+      item-key="id"
+      :favorites-key="STORAGE_KEYS.quranFavorites"
+      placeholder="ابحث بالسورة"
+      label="تبحث عن سورة معينة؟"
+    >
       <template #favorites-title>
         <h5 class="mb-3">السور المفضلة</h5>
       </template>
@@ -46,6 +43,6 @@ const { search, filtered } = useSearch(surahs, ['name'])
           </p>
         </RouterLink>
       </template>
-    </FavoriteList>
+    </SearchableFavoritesList>
   </Page>
 </template>
