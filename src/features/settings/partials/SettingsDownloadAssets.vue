@@ -15,6 +15,8 @@ import {
   IconCloudDownload,
 } from '@tabler/icons-vue'
 import { useDownloadStore } from '@/features/downloads/store.js'
+import DownloadAssetItem from '@/features/downloads/DownloadAssetItem.vue'
+import CircleProgress from '@/shared/ui/CircleProgress.vue'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 
@@ -126,13 +128,7 @@ const handleAssetAction = (asset) => {
             >
             <span class="dm-stats-label">ملف محمّل</span>
           </div>
-          <div class="d-none d-md-block dm-progress-ring">
-            <svg viewBox="0 0 36 36">
-              <circle class="ring-bg" cx="18" cy="18" r="15.9155" />
-              <circle class="ring-fill" cx="18" cy="18" r="15.9155" :stroke-dasharray="`${progressPercentage} 100`" />
-            </svg>
-            <span class="ring-text">{{ toArabicNumerals(progressPercentage) }}%</span>
-          </div>
+          <CircleProgress class="d-none d-md-block" :percentage="progressPercentage" />
         </div>
       </div>
 
@@ -208,29 +204,13 @@ const handleAssetAction = (asset) => {
 
     <!-- List -->
     <div class="dm-list">
-      <div v-for="asset in filteredAssets" :key="asset.id" class="dm-item" :class="asset.status">
-        <div class="dm-item-icon" :class="asset.type">
-          <IconBook2 v-if="asset.type === 'surah'" :size="18" />
-          <IconSparkles v-else :size="18" />
-        </div>
-
-        <div class="dm-item-info">
-          <span class="dm-item-name">{{ asset.name }}</span>
-          <span class="dm-item-type">{{ asset.type === 'surah' ? 'سورة' : 'أذكار' }}</span>
-        </div>
-
-        <button
-          class="dm-item-action"
-          :class="asset.status"
-          @click="handleAssetAction(asset)"
-          :disabled="asset.status === 'downloading' || (!online && asset.status === 'not-downloaded')"
-        >
-          <IconCheck v-if="asset.status === 'downloaded'" :size="16" />
-          <IconLoader2 v-else-if="asset.status === 'downloading'" :size="16" class="spin" />
-          <span v-else-if="asset.status === 'queued'" class="queued-dot"></span>
-          <IconDownload v-else :size="16" />
-        </button>
-      </div>
+      <DownloadAssetItem
+        v-for="asset in filteredAssets"
+        :key="asset.id"
+        :asset="asset"
+        :online="online"
+        @action="handleAssetAction"
+      />
     </div>
 
     <!-- Completed Banner -->
@@ -297,43 +277,6 @@ const handleAssetAction = (asset) => {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-}
-
-.dm-progress-ring {
-  position: relative;
-  width: 56px;
-  height: 56px;
-}
-
-.dm-progress-ring svg {
-  transform: rotate(-90deg);
-  width: 100%;
-  height: 100%;
-}
-
-.ring-bg {
-  fill: none;
-  stroke: color-mix(in srgb, var(--bs-primary) 18%, transparent);
-  stroke-width: 3;
-}
-
-.ring-fill {
-  fill: none;
-  stroke: var(--bs-primary);
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-dashoffset: 0;
-  transition: stroke-dasharray 0.3s ease;
-}
-
-.ring-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--bs-primary);
 }
 
 .dm-stats-text {
@@ -484,122 +427,6 @@ const handleAssetAction = (asset) => {
   overflow-y: auto;
 }
 
-.dm-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--bs-border-color);
-}
-
-.dm-item:last-child {
-  border-bottom: none;
-}
-
-.dm-item.downloaded {
-  background: color-mix(in srgb, var(--bs-success) 8%, transparent);
-}
-
-.dm-item.downloading {
-  background: color-mix(in srgb, var(--bs-primary) 8%, transparent);
-}
-
-.dm-item-icon {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  flex-shrink: 0;
-}
-
-.dm-item-icon.surah {
-  background: color-mix(in srgb, var(--bs-primary) 15%, transparent);
-  color: var(--bs-primary);
-}
-
-.dm-item-icon.azkar {
-  background: color-mix(in srgb, var(--bs-success) 15%, transparent);
-  color: var(--bs-success);
-}
-
-.dm-item-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.dm-item-name {
-  display: block;
-  font-size: 0.9rem;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.dm-item-type {
-  font-size: 0.75rem;
-  color: var(--bs-secondary-color);
-}
-
-.dm-item-action {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s;
-  flex-shrink: 0;
-}
-
-.dm-item-action.not-downloaded {
-  background: rgba(var(--bs-secondary-rgb), 0.1);
-  color: var(--bs-primary);
-}
-
-.dm-item-action.not-downloaded:hover:not(:disabled) {
-  background: var(--bs-primary);
-  color: white;
-}
-
-.dm-item-action.downloaded {
-  background: var(--bs-success);
-  color: white;
-}
-
-.dm-item-action.downloaded:hover {
-  background: var(--bs-danger);
-}
-
-.dm-item-action.downloading {
-  background: var(--bs-primary);
-  color: white;
-}
-
-.dm-item-action.queued {
-  background: rgba(var(--bs-secondary-rgb), 0.1);
-  color: var(--bs-secondary-color);
-}
-
-.dm-item-action:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.queued-dot {
-  width: 8px;
-  height: 8px;
-  background: var(--bs-secondary-color);
-  border-radius: 50%;
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
 /* Completed Banner */
 .dm-completed {
   display: flex;
@@ -624,16 +451,6 @@ const handleAssetAction = (asset) => {
   }
   to {
     transform: rotate(360deg);
-  }
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 1;
   }
 }
 
