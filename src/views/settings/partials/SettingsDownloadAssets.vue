@@ -120,18 +120,18 @@ const handleAssetAction = (asset) => {
         </div>
 
         <div class="dm-stats">
+          <div class="dm-stats-text">
+            <span class="dm-stats-count"
+              >{{ toArabicNumerals(downloadedCount) }}/{{ toArabicNumerals(totalAssets) }}</span
+            >
+            <span class="dm-stats-label">ملف محمّل</span>
+          </div>
           <div class="d-none d-md-block dm-progress-ring">
             <svg viewBox="0 0 36 36">
               <circle class="ring-bg" cx="18" cy="18" r="15.9155" />
               <circle class="ring-fill" cx="18" cy="18" r="15.9155" :stroke-dasharray="`${progressPercentage} 100`" />
             </svg>
             <span class="ring-text">{{ toArabicNumerals(progressPercentage) }}%</span>
-          </div>
-          <div class="dm-stats-text">
-            <span class="dm-stats-count"
-              >{{ toArabicNumerals(downloadedCount) }}/{{ toArabicNumerals(totalAssets) }}</span
-            >
-            <span class="dm-stats-label">ملف محمّل</span>
           </div>
         </div>
       </div>
