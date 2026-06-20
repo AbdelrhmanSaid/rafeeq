@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { usePrayersStore } from '@/features/prayers/store'
+import { usePrayerLocation } from '@/features/prayers/usePrayerLocation'
 import {
   IconRefreshDot,
   IconTrash,
@@ -12,6 +13,7 @@ import {
 import SettingsSection from './SettingsSection.vue'
 
 const store = usePrayersStore()
+const { detect } = usePrayerLocation()
 
 const location = computed(() => {
   if (store.latitude === 0 || store.longitude === 0) {
@@ -32,7 +34,7 @@ const location = computed(() => {
           <label for="location">الموقع</label>
         </div>
 
-        <button type="button" class="input-group-text" @click="store.detect">
+        <button type="button" class="input-group-text" @click="detect">
           <IconRefreshDot size="1.25rem" />
         </button>
 

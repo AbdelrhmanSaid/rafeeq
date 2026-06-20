@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { useLocalStorage, useMediaQuery } from '@vueuse/core'
 import { computed, ref } from 'vue'
-import { toast } from 'vue-sonner'
+import { getCurrentPosition } from '@/shared/composables/useGeolocation'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 
 export const usePrayersStore = defineStore('prayers', function () {
@@ -23,30 +23,20 @@ export const usePrayersStore = defineStore('prayers', function () {
 
   const isDetecting = ref(false)
 
-  function detect() {
+  async function detect() {
     isDetecting.value = true
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        longitude.value = position.coords.longitude.toFixed(6)
-        latitude.value = position.coords.latitude.toFixed(6)
-        isDetecting.value = false
-
-        toast.success('تم تحديد الموقع بنجاح.')
-      },
-      (error) => {
-        const messagesMap = {
-          1: 'تم رفض إذن الوصول للموقع. يمكنك تفعيله من إعدادات المتصفح.',
-          2: 'الموقع غير متاح حالياً. يمكنك المحاولة مرة أخرى.',
-          3: 'فشل في تحديد الموقع. يمكنك المحاولة مرة أخرى.',
-        }
-
-        toast.error(messagesMap[error.code] || 'حدث خطأ أثناء تحديد الموقع. يمكنك المحاولة مرة أخرى.')
-        clear()
-
-        isDetecting.value = false
-      },
-    )
+    try {
+      const position = await getCurrentPosition()
+      longitude.value = position.coords.longitude.toFixed(6)
+      latitude.value = position.coords.latitude.toFixed(6)
+      return { ok: true }
+    } catch (error) {
+      clear()
+      return { ok: false, code: error?.code }
+    } finally {
+      isDetecting.value = false
+    }
   }
 
   function clear() {

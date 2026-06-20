@@ -49,20 +49,12 @@ export const useThemeStore = defineStore('theme', () => {
 
   watchEffect(() => {
     applyMode(resolvedMode.value)
-  })
-
-  watchEffect(() => {
     applyPrimaryColor(primaryColor.value || null)
+    nextTick(syncMetaThemeColor)
   })
 
   watchEffect(() => {
     applyFontScale(fontScale.value)
-  })
-
-  watchEffect(() => {
-    void resolvedMode.value
-    void primaryColor.value
-    nextTick(syncMetaThemeColor)
   })
 
   return {

@@ -9,12 +9,15 @@ import { useOnline } from '@vueuse/core'
 import { Toaster, toast } from 'vue-sonner'
 import { useThemeStore } from '@/app/stores/theme'
 import { useAppStore } from '@/app/stores/app'
+import { useRadioNotifications } from '@/features/radio/useRadioNotifications'
 import { registerSW } from 'virtual:pwa-register'
 
 // Network status detection
 const online = useOnline()
 const themeStore = useThemeStore()
 const appStore = useAppStore()
+
+useRadioNotifications()
 
 const route = useRoute()
 const isEmbedRoute = computed(() => route.path.startsWith('/embed'))

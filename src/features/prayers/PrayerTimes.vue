@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { usePrayersStore } from '@/features/prayers/store'
+import { usePrayerLocation } from '@/features/prayers/usePrayerLocation'
 import { useFetch, useDateFormat, useOnline, useNow } from '@vueuse/core'
 import { useReconnectExecute } from '@/shared/composables/useReconnectExecute'
 
@@ -37,6 +38,7 @@ const timingsMap = {
 }
 
 const store = usePrayersStore()
+const { detect } = usePrayerLocation()
 
 const latitude = computed(() => (hasPropsCoords.value ? props.lat : store.latitude))
 const longitude = computed(() => (hasPropsCoords.value ? props.long : store.longitude))
@@ -119,7 +121,7 @@ const remainingTime = computed(() => {
   <div
     v-else-if="!hasPropsCoords && (store.latitude === 0 || store.longitude === 0)"
     class="border rounded p-5 text-center cursor-pointer"
-    @click="store.detect"
+    @click="detect"
   >
     <span>إضغط هنا لتحديد الموقع الخاص بك وعرض مواقيت الصلاة</span>
   </div>
