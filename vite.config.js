@@ -13,13 +13,13 @@ export default defineConfig({
     vue(),
     VitePWA({
       registerType: 'prompt',
-      cleanupOutdatedCaches: false,
+      cleanupOutdatedCaches: true,
       devOptions: {
         enabled: false,
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,woff,woff2}'],
-        globIgnores: ['OneSignalSDKWorker.js', 'push/onesignal/**/*'],
+        globIgnores: ['push/onesignal/**/*'],
         runtimeCaching: [
           // Cache Prayer Times API responses
           {
