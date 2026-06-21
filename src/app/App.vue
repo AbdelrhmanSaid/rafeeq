@@ -32,9 +32,17 @@ watch(online, (isOnline) => {
   }
 })
 
+// Guard against reload loops: a service worker update may only ever trigger a
+// single automatic reload per page load. Without this, a churning/competing
+// service worker registration can re-fire onNeedRefresh and reload the app
+// on every visit a second or two after it opens.
+let hasReloadedForUpdate = false
+
 const updateSW = registerSW({
   onNeedRefresh() {
     if (isEmbedRoute.value || appStore.autoUpdateServiceWorker) {
+      if (hasReloadedForUpdate) return
+      hasReloadedForUpdate = true
       updateSW(true)
       return
     }
