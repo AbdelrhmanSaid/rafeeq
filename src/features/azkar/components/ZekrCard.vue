@@ -90,8 +90,8 @@ const copyZekr = () => {
 </script>
 
 <template>
-  <div ref="card" class="zekr-card border rounded p-4" @click="onCardClick">
-    <div class="action-menu dropdown" @click.stop>
+  <div ref="card" class="zekr-card border rounded p-4" @pointerup="onCardClick">
+    <div class="action-menu dropdown" @click.stop @pointerup.stop>
       <button class="btn p-0 bg-transparent" type="button" data-bs-toggle="dropdown">
         <IconHeartShare size="18" />
       </button>
@@ -129,7 +129,7 @@ const copyZekr = () => {
       <div class="col-12 col-lg-auto">
         <button
           class="btn btn-counter border-flat"
-          @click.stop="increment"
+          @pointerup.stop="increment"
           :style="{ '--progress': count / repeat }"
           :data-content="toArabicNumerals(`${count}/${repeat}`)"
         ></button>
