@@ -19,7 +19,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,woff,woff2}'],
-        globIgnores: ['OneSignalSDKWorker.js'],
+        globIgnores: ['push/onesignal/**/*'],
         runtimeCaching: [
           // Cache Prayer Times API responses
           {
