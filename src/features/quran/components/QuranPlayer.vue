@@ -1,11 +1,15 @@
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, provide } from 'vue'
 import { useQuranStore } from '@/features/quran/store'
 import { useRadioStore } from '@/features/radio/store'
 import { IconPlayerPlay, IconPlayerPause, IconMicrophone2 } from '@tabler/icons-vue'
 import { toArabicNumerals, formatTime } from '@/shared/utils/arabic'
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
 import SettingsReciter from '@/features/settings/components/SettingsReciter.vue'
+
+// Render settings cards (the reciter picker) form-only inside the sheet — the
+// sheet provides its own title, so the card chrome would be redundant.
+provide('settings-bare', true)
 
 const quranStore = useQuranStore()
 const radioStore = useRadioStore()

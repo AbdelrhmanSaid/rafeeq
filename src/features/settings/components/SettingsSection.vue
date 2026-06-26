@@ -1,5 +1,5 @@
 <script setup>
-import { Comment, Text, computed, useSlots } from 'vue'
+import { Comment, Text, computed, useSlots, inject } from 'vue'
 
 defineProps({
   title: { type: String, default: '' },
@@ -8,6 +8,11 @@ defineProps({
 })
 
 const slots = useSlots()
+
+// When rendered inside a "bare" context (e.g. a bottom sheet that supplies its
+// own title/chrome) drop the card + header and render only the form body. Any
+// SettingsSection-based card opts in automatically — no per-card changes.
+const bare = inject('settings-bare', false)
 
 // Whether the default slot renders anything meaningful (so we can drop the
 // body wrapper entirely for header-only cards instead of leaving a gap).
@@ -22,7 +27,11 @@ const hasBody = computed(() => {
 </script>
 
 <template>
-  <section class="settings-section card h-100">
+  <div v-if="bare" class="settings-section-body">
+    <slot />
+  </div>
+
+  <section v-else class="settings-section card h-100">
     <div class="card-body">
       <header v-if="title || $slots.actions" class="settings-section-header" :class="{ 'is-flush': !hasBody }">
         <div class="settings-section-heading">
