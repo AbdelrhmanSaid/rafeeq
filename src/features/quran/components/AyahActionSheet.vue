@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { toast } from 'vue-sonner'
-import { IconPlayerPlay, IconBook2, IconCopy, IconShare3 } from '@tabler/icons-vue'
+import { IconPlayerPlay, IconBook2, IconCopy, IconShare3, IconBookmark, IconBookmarkOff } from '@tabler/icons-vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
 
@@ -9,9 +9,10 @@ const props = defineProps({
   ayah: { type: Object, default: null },
   surahName: { type: String, default: '' },
   online: { type: Boolean, default: true },
+  bookmarked: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['recite', 'tafseer', 'close'])
+const emit = defineEmits(['recite', 'tafseer', 'bookmark', 'close'])
 
 const title = computed(() => (props.ayah ? `${props.surahName} ${toArabicNumerals(props.ayah.numberInSurah)}` : ''))
 const shareText = computed(() => (props.ayah ? `${props.ayah.text}\n[${title.value}]` : ''))
@@ -56,6 +57,12 @@ const share = () => {
         <button class="bottom-sheet-item" @click="emitAndClose('tafseer')">
           <IconBook2 size="20" />
           <span>تفسير</span>
+        </button>
+      </li>
+      <li>
+        <button class="bottom-sheet-item" @click="emitAndClose('bookmark')">
+          <component :is="bookmarked ? IconBookmarkOff : IconBookmark" size="20" />
+          <span>{{ bookmarked ? 'إزالة الإشارة المرجعية' : 'تعيين كإشارة مرجعية' }}</span>
         </button>
       </li>
       <li><hr class="my-2" /></li>

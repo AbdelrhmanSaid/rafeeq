@@ -1,7 +1,9 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useOnline } from '@vueuse/core'
+import { useRoute } from 'vue-router'
 import { useRouteParams } from '@vueuse/router'
+import { toast } from 'vue-sonner'
 
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
@@ -11,14 +13,17 @@ import AudioPlayer from '@/features/quran/components/QuranPlayer.vue'
 import AyahActionSheet from '@/features/quran/components/AyahActionSheet.vue'
 import TafseerSheet from '@/features/quran/components/TafseerSheet.vue'
 import { useQuranStore } from '@/features/quran/store'
+import { useQuranBookmark } from '@/features/quran/composables/useQuranBookmark'
 import { useAsyncData } from '@/shared/composables/useAsyncData'
 import { usePageMeta } from '@/shared/composables/usePageMeta'
 import { toArabicNumerals, removeBismillah } from '@/shared/utils/arabic'
 import { fetchSurah } from '@/features/quran/api'
 
 const online = useOnline()
+const route = useRoute()
 const surahId = useRouteParams('surah')
 const quranStore = useQuranStore()
+const { isBookmarked, toggleBookmark } = useQuranBookmark()
 const playerRef = ref(null)
 
 const {
@@ -77,6 +82,38 @@ const isCurrentVerse = (verse) => {
   if (!currentAyah || !surah.value) return false
   return currentAyah.ayah === verse.numberInSurah
 }
+
+const isBookmarkedVerse = (verse) => isBookmarked(surahId.value, verse.numberInSurah)
+
+const handleBookmark = () => {
+  const ayah = activeAyah.value
+  if (!ayah || !surah.value) return
+
+  const wasBookmarked = isBookmarkedVerse(ayah)
+  toggleBookmark({
+    surahId: surah.value.data.number,
+    surahName: surah.value.data.name,
+    ayahNumber: ayah.numberInSurah,
+    text: ayah.text,
+  })
+  toast.success(wasBookmarked ? 'تمت إزالة الإشارة المرجعية' : 'تم حفظ الإشارة المرجعية')
+}
+
+const scrollToAyah = (ayahNumber) => {
+  const el = document.getElementById(`ayah-${ayahNumber}`)
+  el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+}
+
+// When arriving with ?ayah=N (e.g. from the bookmark card), bring that ayah
+// into view once the surah has rendered.
+watch(
+  [surah, () => route.query.ayah],
+  ([loadedSurah, ayahQuery]) => {
+    if (!loadedSurah || !ayahQuery) return
+    nextTick(() => scrollToAyah(Number(ayahQuery)))
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -96,8 +133,9 @@ const isCurrentVerse = (verse) => {
 
         <template v-for="(ayah, index) in ayat" :key="ayah.number">
           <span
+            :id="`ayah-${ayah.numberInSurah}`"
             class="ayah clickable-ayah"
-            :class="{ 'current-ayah': isCurrentVerse(ayah) }"
+            :class="{ 'current-ayah': isCurrentVerse(ayah), 'bookmarked-ayah': isBookmarkedVerse(ayah) }"
             @click="activeAyah = ayah"
             :title="`خيارات الآية ${toArabicNumerals(ayah.numberInSurah)}`"
             >{{ ayah.text }}</span
@@ -117,8 +155,10 @@ const isCurrentVerse = (verse) => {
         :ayah="activeAyah"
         :surah-name="surah.data.name"
         :online="online"
+        :bookmarked="!!activeAyah && isBookmarkedVerse(activeAyah)"
         @recite="reciteAyah"
         @tafseer="tafseerAyah = activeAyah"
+        @bookmark="handleBookmark"
         @close="activeAyah = null"
       />
 
@@ -192,6 +232,13 @@ const isCurrentVerse = (verse) => {
 
     .current-ayah {
       background-color: var(--bs-secondary-bg);
+    }
+
+    .bookmarked-ayah {
+      background-color: rgba(var(--bs-primary-rgb), 0.12);
+      box-shadow: 0 0 0 1px rgba(var(--bs-primary-rgb), 0.35);
+      border-radius: 6px;
+      padding: 0 0.25rem;
     }
   }
 }
