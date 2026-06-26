@@ -15,6 +15,12 @@ function withEmbedAliases(routes) {
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  // Owns scrolling so a cancelled leave-guard on browser back no longer yanks
+  // the page to the top (also switches the browser to manual restoration).
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) return savedPosition
+    return { top: 0, behavior: 'smooth' }
+  },
   routes: withEmbedAliases([
     {
       path: '/',
@@ -171,9 +177,6 @@ router.afterEach((to) => {
 
   // Stop the progress bar
   nProgress.done()
-
-  // Scroll to the top of the page smoothly
-  window.scrollTo({ top: 0, behavior: 'smooth' })
 
   // Update the meta tags
   useMeta(to.meta)
