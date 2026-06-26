@@ -56,36 +56,23 @@ const reset = () => {
 }
 
 // On mobile a long press often doesn't emit a trailing `click`, so it wouldn't
-// be counted. We catch it explicitly with `onLongPress` below. When the browser
-// *does* fire a click after the press, this guard swallows it so the same press
-// isn't counted twice.
+// be counted. Catch it explicitly, ignoring the counter / action menu which
+// handle their own clicks. When the browser does fire a trailing click, the
+// guard below swallows it so the press isn't counted twice.
 let longPressHandled = false
 
 const handleLongPress = (event) => {
-  if (!isMobile.value) return
-  // Let the action menu handle its own presses (open dropdown, not count).
-  if (event?.target?.closest?.('.action-menu')) return
-
+  if (!isMobile.value || event?.target?.closest?.('.btn-counter, .action-menu')) return
   longPressHandled = true
   increment()
 }
 
-const consumeLongPress = () => {
-  if (longPressHandled) {
-    longPressHandled = false
-    return true
-  }
-  return false
-}
-
 const onCardClick = () => {
   if (!isMobile.value) return
-  if (consumeLongPress()) return
-  increment()
-}
-
-const onCounterClick = () => {
-  if (consumeLongPress()) return
+  if (longPressHandled) {
+    longPressHandled = false
+    return
+  }
   increment()
 }
 
@@ -167,7 +154,7 @@ const copyZekr = () => {
       <div class="col-12 col-lg-auto">
         <button
           class="btn btn-counter border-flat"
-          @click.stop="onCounterClick"
+          @click.stop="increment"
           :style="{ '--progress': count / repeat }"
           :data-content="toArabicNumerals(`${count}/${repeat}`)"
         ></button>
