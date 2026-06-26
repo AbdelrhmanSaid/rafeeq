@@ -5,6 +5,7 @@ export const STORAGE_KEYS = {
   zekrVibrationEnabled: 'zekr-vibration-enabled',
   zekrVibrationIntensity: 'zekr-vibration-intensity',
   zekrMoveNextOnComplete: 'zekr-move-next-on-complete',
+  azkarProgress: 'azkar-progress',
 
   themeMode: 'mode',
   themePrimary: 'theme-primary',

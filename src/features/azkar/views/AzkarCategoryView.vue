@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 import { useConfirmDialog } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
@@ -13,6 +13,7 @@ import BottomSheet from '@/shared/ui/BottomSheet.vue'
 import ZekrCard from '@/features/azkar/components/ZekrCard.vue'
 import { useAsyncData } from '@/shared/composables/useAsyncData'
 import { usePageMeta } from '@/shared/composables/usePageMeta'
+import { useAzkarProgress } from '@/features/azkar/composables/useAzkarProgress'
 import { fetchCategory } from '@/features/azkar/api'
 
 const slug = useRouteParams('category')
@@ -28,17 +29,32 @@ usePageMeta(
     },
 )
 
-// Track progress across all azkar
-const totalClicked = ref(0)
+// Per-zekr counts persisted in localStorage so progress survives reloads and
+// navigating away, letting the user resume the category where they stopped.
+const { getCount, setCount, clear } = useAzkarProgress(slug)
+
+// Track progress across all azkar (clamped in case a stored count outlives a
+// change to a zekr's repeat target).
+const clampedCount = (index, repeat) => Math.min(getCount(index), repeat || 1)
 const totalRepeats = computed(() => category.value?.content?.reduce((sum, z) => sum + (z.repeat || 1), 0) || 0)
+const totalClicked = computed(
+  () => category.value?.content?.reduce((sum, z, i) => sum + clampedCount(i, z.repeat), 0) || 0,
+)
 const progress = computed(() => (totalRepeats.value > 0 ? (totalClicked.value / totalRepeats.value) * 100 : 0))
 
-const hasUnfinishedProgress = () => progress.value > 0 && progress.value < 100
+const isComplete = () => progress.value >= 100
+const hasUnfinishedProgress = () => progress.value > 0 && !isComplete()
 
 // Confirm dialog before leaving
 const { isRevealed, reveal, confirm, cancel } = useConfirmDialog()
 
 onBeforeRouteLeave(async () => {
+  // Clear a finished category so the next visit starts fresh.
+  if (isComplete()) {
+    clear()
+    return true
+  }
+
   if (!hasUnfinishedProgress()) return true
 
   const { isCanceled } = await reveal()
@@ -59,8 +75,8 @@ onBeforeRouteLeave(async () => {
         :repeat="zekr.repeat"
         :reference="zekr.reference"
         :benefit="zekr.benefit"
-        @increment="totalClicked++"
-        @reset="totalClicked -= $event"
+        :count="clampedCount(index, zekr.repeat)"
+        @update:count="setCount(index, $event)"
       />
 
       <div class="d-flex justify-content-center">
