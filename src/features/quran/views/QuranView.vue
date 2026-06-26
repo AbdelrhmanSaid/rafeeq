@@ -27,7 +27,9 @@ const { bookmark } = useQuranBookmark()
       <IconBookmark class="bookmark-card__icon" size="22" />
       <span class="bookmark-card__body">
         <span class="bookmark-card__label">متابعة القراءة</span>
-        <span class="bookmark-card__title">{{ bookmark.surahName }} - آية {{ toArabicNumerals(bookmark.ayahNumber) }}</span>
+        <span class="bookmark-card__title"
+          >{{ bookmark.surahName }} - آية {{ toArabicNumerals(bookmark.ayahNumber) }}</span
+        >
         <span v-if="bookmark.text" class="bookmark-card__text font-quran">{{ bookmark.text }}</span>
       </span>
       <IconChevronLeft class="bookmark-card__chevron" size="20" />
