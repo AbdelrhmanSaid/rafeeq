@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 import { useConfirmDialog } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
@@ -43,28 +43,14 @@ const totalClicked = computed(
 const progress = computed(() => (totalRepeats.value > 0 ? (totalClicked.value / totalRepeats.value) * 100 : 0))
 
 const hasProgress = computed(() => totalClicked.value > 0)
-const isComplete = () => progress.value >= 100
-const hasUnfinishedProgress = () => progress.value > 0 && !isComplete()
 
-// Manual reset of the current category's progress
-const isResetRevealed = ref(false)
-
-const resetProgress = () => {
-  clear()
-  isResetRevealed.value = false
-}
-
-// Confirm dialog before leaving
+// Confirm before leaving with unfinished azkar; clear a finished category so
+// the next visit starts fresh.
 const { isRevealed, reveal, confirm, cancel } = useConfirmDialog()
 
 onBeforeRouteLeave(async () => {
-  // Clear a finished category so the next visit starts fresh.
-  if (isComplete()) {
-    clear()
-    return true
-  }
-
-  if (!hasUnfinishedProgress()) return true
+  if (progress.value >= 100) clear()
+  if (progress.value <= 0 || progress.value >= 100) return true
 
   const { isCanceled } = await reveal()
   return !isCanceled
@@ -90,7 +76,7 @@ onBeforeRouteLeave(async () => {
 
       <div class="d-flex justify-content-center gap-2">
         <BackButton :to="{ name: 'azkar' }" button-class="btn-primary" />
-        <button v-if="hasProgress" class="btn btn-outline-secondary" type="button" @click="isResetRevealed = true">
+        <button v-if="hasProgress" class="btn btn-outline-secondary" type="button" @click="clear">
           <IconRestore size="18" class="me-1" />
           <span>تصفير التقدم</span>
         </button>
@@ -112,25 +98,6 @@ onBeforeRouteLeave(async () => {
         <button class="bottom-sheet-item text-danger" @click="confirm">
           <IconDoorExit size="20" />
           <span>مغادرة</span>
-        </button>
-      </li>
-    </ul>
-  </BottomSheet>
-
-  <!-- Reset confirmation sheet -->
-  <BottomSheet :show="isResetRevealed" title="تصفير التقدم" @close="isResetRevealed = false">
-    <p class="px-4 pt-3 mb-2 lh-lg text-secondary">سيتم تصفير تقدمك في هذه الأذكار، هل أنت متأكد؟</p>
-    <ul class="list-unstyled m-0 py-2">
-      <li>
-        <button class="bottom-sheet-item" @click="isResetRevealed = false">
-          <IconArrowBackUp size="20" />
-          <span>تراجع</span>
-        </button>
-      </li>
-      <li>
-        <button class="bottom-sheet-item text-danger" @click="resetProgress">
-          <IconRestore size="20" />
-          <span>تصفير</span>
         </button>
       </li>
     </ul>
