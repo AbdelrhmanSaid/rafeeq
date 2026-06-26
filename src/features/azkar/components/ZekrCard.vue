@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { onLongPress } from '@vueuse/core'
 import { IconDownload, IconShare3, IconCopy, IconHeartShare, IconRestore } from '@tabler/icons-vue'
 import { exportComponent } from '@/shared/utils/export'
 import { toast } from 'vue-sonner'
@@ -54,9 +55,46 @@ const reset = () => {
   }
 }
 
-const onCardClick = () => {
-  if (isMobile.value) increment()
+// On mobile a long press often doesn't emit a trailing `click`, so it wouldn't
+// be counted. We catch it explicitly with `onLongPress` below. When the browser
+// *does* fire a click after the press, this guard swallows it so the same press
+// isn't counted twice.
+let longPressHandled = false
+
+const handleLongPress = (event) => {
+  if (!isMobile.value) return
+  // Let the action menu handle its own presses (open dropdown, not count).
+  if (event?.target?.closest?.('.action-menu')) return
+
+  longPressHandled = true
+  increment()
 }
+
+const consumeLongPress = () => {
+  if (longPressHandled) {
+    longPressHandled = false
+    return true
+  }
+  return false
+}
+
+const onCardClick = () => {
+  if (!isMobile.value) return
+  if (consumeLongPress()) return
+  increment()
+}
+
+const onCounterClick = () => {
+  if (consumeLongPress()) return
+  increment()
+}
+
+onLongPress(card, handleLongPress, {
+  delay: 500,
+  // Clear the guard shortly after release in case no trailing click arrives,
+  // so the next genuine tap still counts.
+  onMouseUp: () => setTimeout(() => (longPressHandled = false), 100),
+})
 
 const exportAsImage = () => {
   toast.promise(
@@ -90,8 +128,8 @@ const copyZekr = () => {
 </script>
 
 <template>
-  <div ref="card" class="zekr-card border rounded p-4" @pointerup="onCardClick">
-    <div class="action-menu dropdown" @click.stop @pointerup.stop>
+  <div ref="card" class="zekr-card border rounded p-4" @click="onCardClick">
+    <div class="action-menu dropdown" @click.stop>
       <button class="btn p-0 bg-transparent" type="button" data-bs-toggle="dropdown">
         <IconHeartShare size="18" />
       </button>
@@ -129,7 +167,7 @@ const copyZekr = () => {
       <div class="col-12 col-lg-auto">
         <button
           class="btn btn-counter border-flat"
-          @pointerup.stop="increment"
+          @click.stop="onCounterClick"
           :style="{ '--progress': count / repeat }"
           :data-content="toArabicNumerals(`${count}/${repeat}`)"
         ></button>
