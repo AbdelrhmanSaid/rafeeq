@@ -88,10 +88,16 @@ export const useQuranStore = defineStore('quran', () => {
     currentAyahIndex.value = -1
   }
 
-  async function changeReciter(reciterId) {
+  // Persist the selection only. Reloading the (potentially large) audio file is
+  // deferred to reloadSurahAudio() so rapid reciter switches don't each trigger
+  // a download — the caller reloads once when it's done changing.
+  function changeReciter(reciterId) {
     currentReciter.value = reciterId
+  }
+
+  function reloadSurahAudio() {
     if (currentSurahNumber.value && surahName.value) {
-      await loadSurahAudio(currentSurahNumber.value, surahName.value)
+      return loadSurahAudio(currentSurahNumber.value, surahName.value)
     }
   }
 
@@ -104,6 +110,7 @@ export const useQuranStore = defineStore('quran', () => {
     currentAyah,
 
     loadSurahAudio,
+    reloadSurahAudio,
     updateCurrentAyahFromTime,
     getAyahStartTime,
     resetAyahTracking,

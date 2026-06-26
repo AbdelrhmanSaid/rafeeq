@@ -38,6 +38,11 @@ body {
   border: none;
 }
 
+/* Allow a flex child to shrink below its content size so siblings can truncate. */
+.min-w-0 {
+  min-width: 0;
+}
+
 .cursor-pointer {
   cursor: pointer;
 }
