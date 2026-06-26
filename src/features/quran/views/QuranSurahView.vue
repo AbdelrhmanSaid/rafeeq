@@ -98,7 +98,7 @@ const isCurrentVerse = (verse) => {
           <span
             class="ayah clickable-ayah"
             :class="{ 'current-ayah': isCurrentVerse(ayah) }"
-            @click="activeAyah = ayah"
+            @pointerup="activeAyah = ayah"
             :title="`خيارات الآية ${toArabicNumerals(ayah.numberInSurah)}`"
             >{{ ayah.text }}</span
           >
