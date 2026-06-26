@@ -21,7 +21,7 @@ export const useAzkarProgress = (slug) => {
 
   sync()
 
-  const counts = computed(() => (store.value.date === today() ? store.value.categories[toValue(slug)] ?? [] : []))
+  const counts = computed(() => (store.value.date === today() ? (store.value.categories[toValue(slug)] ?? []) : []))
 
   const getCount = (index) => counts.value[index] ?? 0
 
