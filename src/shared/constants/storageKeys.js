@@ -21,5 +21,6 @@ export const STORAGE_KEYS = {
   azkarProgress: 'azkar-progress',
   azkarFavorites: 'azkarFavorites',
   quranFavorites: 'quranFavorites',
+  quranBookmark: 'quranBookmark',
   radioFavorites: 'radioFavorites',
 }
