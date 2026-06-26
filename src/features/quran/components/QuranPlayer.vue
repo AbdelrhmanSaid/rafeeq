@@ -4,7 +4,8 @@ import { useQuranStore } from '@/features/quran/store'
 import { useRadioStore } from '@/features/radio/store'
 import { IconPlayerPlay, IconPlayerPause, IconMicrophone2 } from '@tabler/icons-vue'
 import { toArabicNumerals, formatTime } from '@/shared/utils/arabic'
-import ReciterSheet from '@/features/quran/components/ReciterSheet.vue'
+import BottomSheet from '@/shared/ui/BottomSheet.vue'
+import SettingsReciter from '@/features/settings/components/SettingsReciter.vue'
 
 const quranStore = useQuranStore()
 const radioStore = useRadioStore()
@@ -14,7 +15,23 @@ const isPlaying = ref(false)
 const loading = ref(false)
 const currentTime = ref(0)
 const duration = ref(0)
+
 const showReciterSheet = ref(false)
+let reciterOnOpen = null
+
+function openReciterSheet() {
+  reciterOnOpen = Number(quranStore.currentReciter)
+  showReciterSheet.value = true
+}
+
+// Only download the new reciter's audio once the sheet closes, and only if the
+// selection actually changed — avoids a request per pick while browsing.
+function closeReciterSheet() {
+  showReciterSheet.value = false
+  if (Number(quranStore.currentReciter) !== reciterOnOpen) {
+    quranStore.reloadSurahAudio()
+  }
+}
 
 const progress = computed(() => (duration.value ? (currentTime.value / duration.value) * 100 : 0))
 
@@ -117,7 +134,7 @@ defineExpose({ seekToAyah })
       </div>
 
       <button
-        @click="showReciterSheet = true"
+        @click="openReciterSheet"
         class="btn btn-sm d-flex align-items-center gap-1 flex-shrink-0 reciter-button"
         :title="`القارئ: ${quranStore.reciter?.name}`"
       >
@@ -126,7 +143,11 @@ defineExpose({ seekToAyah })
       </button>
     </div>
 
-    <ReciterSheet :show="showReciterSheet" @close="showReciterSheet = false" />
+    <BottomSheet :show="showReciterSheet" title="اختيار القارئ" @close="closeReciterSheet">
+      <div class="p-3">
+        <SettingsReciter />
+      </div>
+    </BottomSheet>
 
     <div class="px-3 pb-3">
       <div class="progress" style="height: 0.25rem">
@@ -151,10 +172,6 @@ defineExpose({ seekToAyah })
 </template>
 
 <style lang="scss" scoped>
-.min-w-0 {
-  min-width: 0;
-}
-
 .reciter-button {
   color: var(--bs-secondary-color);
   background-color: var(--bs-secondary-bg);
