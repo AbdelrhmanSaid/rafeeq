@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { onLongPress } from '@vueuse/core'
 import { IconDownload, IconShare3, IconCopy, IconHeartShare, IconRestore } from '@tabler/icons-vue'
 import { exportComponent } from '@/shared/utils/export'
 import { toast } from 'vue-sonner'
@@ -54,9 +55,25 @@ const reset = () => {
   }
 }
 
+let longPressed = false
+
 const onCardClick = () => {
-  if (isMobile.value) increment()
+  if (isMobile.value && !longPressed) increment()
+  longPressed = false
 }
+
+// Mobile long presses often emit no click, so count them here (ignoring the
+// counter / action menu). onCardClick swallows any trailing click; onMouseUp
+// clears the flag in case none arrives.
+onLongPress(
+  card,
+  (e) => {
+    if (!isMobile.value || e.target.closest('.btn-counter, .action-menu')) return
+    longPressed = true
+    increment()
+  },
+  { onMouseUp: () => setTimeout(() => (longPressed = false), 100) },
+)
 
 const exportAsImage = () => {
   toast.promise(
@@ -90,8 +107,8 @@ const copyZekr = () => {
 </script>
 
 <template>
-  <div ref="card" class="zekr-card border rounded p-4" @pointerup="onCardClick">
-    <div class="action-menu dropdown" @click.stop @pointerup.stop>
+  <div ref="card" class="zekr-card border rounded p-4" @click="onCardClick">
+    <div class="action-menu dropdown" @click.stop>
       <button class="btn p-0 bg-transparent" type="button" data-bs-toggle="dropdown">
         <IconHeartShare size="18" />
       </button>
@@ -129,7 +146,7 @@ const copyZekr = () => {
       <div class="col-12 col-lg-auto">
         <button
           class="btn btn-counter border-flat"
-          @pointerup.stop="increment"
+          @click.stop="increment"
           :style="{ '--progress': count / repeat }"
           :data-content="toArabicNumerals(`${count}/${repeat}`)"
         ></button>
