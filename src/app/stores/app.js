@@ -10,6 +10,8 @@ export const useAppStore = defineStore('app', () => {
   const zekrVibrationEnabled = useLocalStorage(STORAGE_KEYS.zekrVibrationEnabled, true)
   const zekrVibrationIntensity = useLocalStorage(STORAGE_KEYS.zekrVibrationIntensity, DEFAULT_ZEKR_VIBRATION_INTENSITY)
   const zekrMoveNextOnComplete = useLocalStorage(STORAGE_KEYS.zekrMoveNextOnComplete, false)
+  const zekrSaveProgress = useLocalStorage(STORAGE_KEYS.zekrSaveProgress, true)
+  const zekrConfirmOnLeave = useLocalStorage(STORAGE_KEYS.zekrConfirmOnLeave, true)
 
   if (!Number.isFinite(zekrVibrationIntensity.value)) {
     zekrVibrationIntensity.value = DEFAULT_ZEKR_VIBRATION_INTENSITY
@@ -21,5 +23,7 @@ export const useAppStore = defineStore('app', () => {
     zekrVibrationEnabled,
     zekrVibrationIntensity,
     zekrMoveNextOnComplete,
+    zekrSaveProgress,
+    zekrConfirmOnLeave,
   }
 })

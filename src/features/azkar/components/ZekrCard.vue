@@ -28,9 +28,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['increment', 'reset'])
-
-const count = ref(0)
+const count = defineModel('count', { type: Number, default: 0 })
 const card = ref(null)
 const isMobile = useIsMobile()
 const { vibrateOnFinish } = useZekrVibration()
@@ -39,7 +37,6 @@ const { scrollToNextZekr } = useZekrScroll(card)
 const increment = () => {
   if (count.value < props.repeat) {
     count.value++
-    emit('increment')
 
     if (count.value === props.repeat) {
       vibrateOnFinish()
@@ -49,10 +46,7 @@ const increment = () => {
 }
 
 const reset = () => {
-  if (count.value > 0) {
-    emit('reset', count.value)
-    count.value = 0
-  }
+  if (count.value > 0) count.value = 0
 }
 
 let longPressed = false

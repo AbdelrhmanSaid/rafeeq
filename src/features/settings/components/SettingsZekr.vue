@@ -3,11 +3,12 @@ import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAppStore } from '@/app/stores/app'
 import { toArabicNumerals } from '@/shared/utils/arabic'
-import { IconArrowDownCircle, IconDeviceMobileVibration } from '@tabler/icons-vue'
+import { IconArrowDownCircle, IconDeviceMobileVibration, IconDeviceFloppy, IconDoorExit } from '@tabler/icons-vue'
 import SettingsSection from './SettingsSection.vue'
 
 const appStore = useAppStore()
-const { zekrMoveNextOnComplete, zekrVibrationEnabled, zekrVibrationIntensity } = storeToRefs(appStore)
+const { zekrMoveNextOnComplete, zekrVibrationEnabled, zekrVibrationIntensity, zekrSaveProgress, zekrConfirmOnLeave } =
+  storeToRefs(appStore)
 
 const vibrationValueLabel = computed(() => toArabicNumerals(zekrVibrationIntensity.value))
 </script>
@@ -22,11 +23,46 @@ const vibrationValueLabel = computed(() => toArabicNumerals(zekrVibrationIntensi
     <template #actions>
       <div class="form-check form-switch m-0">
         <input
-          id="swZekrMoveNext"
           v-model="zekrMoveNextOnComplete"
           class="form-check-input"
           type="checkbox"
           aria-label="تفعيل الانتقال التلقائي للذكر التالي"
+        />
+      </div>
+    </template>
+  </SettingsSection>
+
+  <SettingsSection
+    class="mb-4"
+    title="حفظ التقدم"
+    description="يحفظ تقدمك في كل قسم من الأذكار ويعيد ضبطه يومياً"
+    :icon="IconDeviceFloppy"
+  >
+    <template #actions>
+      <div class="form-check form-switch m-0">
+        <input
+          v-model="zekrSaveProgress"
+          class="form-check-input"
+          type="checkbox"
+          aria-label="تفعيل حفظ تقدم الأذكار"
+        />
+      </div>
+    </template>
+  </SettingsSection>
+
+  <SettingsSection
+    class="mb-4"
+    title="تأكيد المغادرة"
+    description="يطلب تأكيداً قبل مغادرة أذكار لم تكتمل"
+    :icon="IconDoorExit"
+  >
+    <template #actions>
+      <div class="form-check form-switch m-0">
+        <input
+          v-model="zekrConfirmOnLeave"
+          class="form-check-input"
+          type="checkbox"
+          aria-label="تفعيل تأكيد المغادرة عند وجود أذكار غير مكتملة"
         />
       </div>
     </template>
@@ -39,7 +75,7 @@ const vibrationValueLabel = computed(() => toArabicNumerals(zekrVibrationIntensi
   >
     <template #actions>
       <div class="form-check form-switch m-0">
-        <input id="swZekrVibration" v-model="zekrVibrationEnabled" class="form-check-input" type="checkbox" />
+        <input v-model="zekrVibrationEnabled" class="form-check-input" type="checkbox" />
       </div>
     </template>
 
@@ -49,15 +85,7 @@ const vibrationValueLabel = computed(() => toArabicNumerals(zekrVibrationIntensi
         <small class="text-muted">{{ vibrationValueLabel }} مللي ثانية</small>
       </div>
 
-      <input
-        id="zekrVibrationIntensity"
-        v-model.number="zekrVibrationIntensity"
-        class="form-range"
-        type="range"
-        min="20"
-        max="250"
-        step="10"
-      />
+      <input v-model.number="zekrVibrationIntensity" class="form-range" type="range" min="20" max="250" step="10" />
 
       <div class="d-flex justify-content-between text-muted">
         <small>خفيف</small>

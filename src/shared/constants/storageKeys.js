@@ -5,6 +5,8 @@ export const STORAGE_KEYS = {
   zekrVibrationEnabled: 'zekr-vibration-enabled',
   zekrVibrationIntensity: 'zekr-vibration-intensity',
   zekrMoveNextOnComplete: 'zekr-move-next-on-complete',
+  zekrSaveProgress: 'zekr-save-progress',
+  zekrConfirmOnLeave: 'zekr-confirm-on-leave',
 
   themeMode: 'mode',
   themePrimary: 'theme-primary',
@@ -16,6 +18,7 @@ export const STORAGE_KEYS = {
 
   currentReciter: 'currentReciter',
 
+  azkarProgress: 'azkar-progress',
   azkarFavorites: 'azkarFavorites',
   quranFavorites: 'quranFavorites',
   radioFavorites: 'radioFavorites',

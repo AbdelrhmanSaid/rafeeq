@@ -1,9 +1,12 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import { onBeforeRouteLeave } from 'vue-router'
 import { useConfirmDialog } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
-import { IconDoorExit, IconArrowBackUp } from '@tabler/icons-vue'
+import { IconDoorExit, IconArrowBackUp, IconRestore } from '@tabler/icons-vue'
+
+import { useAppStore } from '@/app/stores/app'
 
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
@@ -13,9 +16,13 @@ import BottomSheet from '@/shared/ui/BottomSheet.vue'
 import ZekrCard from '@/features/azkar/components/ZekrCard.vue'
 import { useAsyncData } from '@/shared/composables/useAsyncData'
 import { usePageMeta } from '@/shared/composables/usePageMeta'
+import { useAzkarProgress } from '@/features/azkar/composables/useAzkarProgress'
 import { fetchCategory } from '@/features/azkar/api'
 
+const { zekrSaveProgress, zekrConfirmOnLeave } = storeToRefs(useAppStore())
+
 const slug = useRouteParams('category')
+const { counts, reset: resetProgress } = useAzkarProgress(slug, zekrSaveProgress.value)
 
 const { data: category, error, pending: isFetching } = useAsyncData(() => fetchCategory(slug.value))
 
@@ -28,9 +35,11 @@ usePageMeta(
     },
 )
 
-// Track progress across all azkar
-const totalClicked = ref(0)
+// Track progress across all azkar, derived from the persisted per-zekr counts.
 const totalRepeats = computed(() => category.value?.content?.reduce((sum, z) => sum + (z.repeat || 1), 0) || 0)
+const totalClicked = computed(
+  () => category.value?.content?.reduce((sum, _, index) => sum + (counts.value[index] || 0), 0) || 0,
+)
 const progress = computed(() => (totalRepeats.value > 0 ? (totalClicked.value / totalRepeats.value) * 100 : 0))
 
 const hasUnfinishedProgress = () => progress.value > 0 && progress.value < 100
@@ -39,7 +48,7 @@ const hasUnfinishedProgress = () => progress.value > 0 && progress.value < 100
 const { isRevealed, reveal, confirm, cancel } = useConfirmDialog()
 
 onBeforeRouteLeave(async () => {
-  if (!hasUnfinishedProgress()) return true
+  if (!zekrConfirmOnLeave.value || !hasUnfinishedProgress()) return true
 
   const { isCanceled } = await reveal()
   return !isCanceled
@@ -55,15 +64,24 @@ onBeforeRouteLeave(async () => {
         class="mb-3"
         v-for="(zekr, index) in category.content"
         :key="index"
+        v-model:count="counts[index]"
         :text="zekr.text"
         :repeat="zekr.repeat"
         :reference="zekr.reference"
         :benefit="zekr.benefit"
-        @increment="totalClicked++"
-        @reset="totalClicked -= $event"
       />
 
-      <div class="d-flex justify-content-center">
+      <div class="d-flex justify-content-center gap-2">
+        <button
+          v-if="totalClicked > 0"
+          type="button"
+          class="btn btn-flat d-inline-flex align-items-center gap-2"
+          @click="resetProgress"
+        >
+          <IconRestore size="1.25rem" />
+          <span>تصفير</span>
+        </button>
+
         <BackButton :to="{ name: 'azkar' }" button-class="btn-primary" />
       </div>
     </Page>
