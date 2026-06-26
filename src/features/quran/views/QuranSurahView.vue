@@ -8,6 +8,8 @@ import Heading from '@/shared/ui/Heading.vue'
 import BackButton from '@/shared/ui/BackButton.vue'
 import AsyncContent from '@/shared/ui/AsyncContent.vue'
 import AudioPlayer from '@/features/quran/components/QuranPlayer.vue'
+import AyahActionSheet from '@/features/quran/components/AyahActionSheet.vue'
+import TafseerSheet from '@/features/quran/components/TafseerSheet.vue'
 import { useQuranStore } from '@/features/quran/store'
 import { useAsyncData } from '@/shared/composables/useAsyncData'
 import { usePageMeta } from '@/shared/composables/usePageMeta'
@@ -63,9 +65,11 @@ const ayat = computed(() => {
   return []
 })
 
-const playVerse = (verse) => {
-  if (!playerRef.value) return
-  playerRef.value.seekToAyah(verse.numberInSurah)
+const activeAyah = ref(null)
+const tafseerAyah = ref(null)
+
+const reciteAyah = () => {
+  playerRef.value?.seekToAyah(activeAyah.value?.numberInSurah)
 }
 
 const isCurrentVerse = (verse) => {
@@ -94,8 +98,8 @@ const isCurrentVerse = (verse) => {
           <span
             class="ayah clickable-ayah"
             :class="{ 'current-ayah': isCurrentVerse(ayah) }"
-            @click="playVerse(ayah)"
-            :title="`تشغيل الآية ${toArabicNumerals(ayah.numberInSurah)}`"
+            @click="activeAyah = ayah"
+            :title="`خيارات الآية ${toArabicNumerals(ayah.numberInSurah)}`"
             >{{ ayah.text }}</span
           >
           <span class="ayah-number" aria-hidden="true">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
@@ -108,6 +112,17 @@ const isCurrentVerse = (verse) => {
       <div class="d-flex justify-content-center">
         <BackButton :to="{ name: 'quran' }" button-class="btn-primary" />
       </div>
+
+      <AyahActionSheet
+        :ayah="activeAyah"
+        :surah-name="surah.data.name"
+        :online="online"
+        @recite="reciteAyah"
+        @tafseer="tafseerAyah = activeAyah"
+        @close="activeAyah = null"
+      />
+
+      <TafseerSheet :ayah="tafseerAyah" :surah-name="surah.data.name" @close="tafseerAyah = null" />
     </Page>
   </AsyncContent>
 </template>

@@ -106,6 +106,25 @@ body {
   flex-shrink: 0;
 }
 
+/* Action row inside a <BottomSheet>; shared so any sheet menu can reuse it. */
+.bottom-sheet-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1.25rem;
+  background: transparent;
+  border: none;
+  color: var(--bs-body-color);
+  font-size: 1.05rem;
+  text-align: start;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: var(--bs-secondary-bg);
+  }
+}
+
 .btn-group-toggle {
   display: flex;
   gap: 0.5rem;
