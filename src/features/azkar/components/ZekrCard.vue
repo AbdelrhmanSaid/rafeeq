@@ -55,33 +55,21 @@ const reset = () => {
   }
 }
 
-// On mobile a long press often doesn't emit a trailing `click`, so it wouldn't
-// be counted. Catch it explicitly, ignoring the counter / action menu which
-// handle their own clicks. When the browser does fire a trailing click, the
-// guard below swallows it so the press isn't counted twice.
-let longPressHandled = false
-
-const handleLongPress = (event) => {
-  if (!isMobile.value || event?.target?.closest?.('.btn-counter, .action-menu')) return
-  longPressHandled = true
-  increment()
-}
+let longPressed = false
 
 const onCardClick = () => {
-  if (!isMobile.value) return
-  if (longPressHandled) {
-    longPressHandled = false
-    return
-  }
-  increment()
+  if (isMobile.value && !longPressed) increment()
+  longPressed = false
 }
 
-onLongPress(card, handleLongPress, {
-  delay: 500,
-  // Clear the guard shortly after release in case no trailing click arrives,
-  // so the next genuine tap still counts.
-  onMouseUp: () => setTimeout(() => (longPressHandled = false), 100),
-})
+// Mobile long presses often emit no click, so count them here (ignoring the
+// counter / action menu). onCardClick swallows any trailing click; onMouseUp
+// clears the flag in case none arrives.
+onLongPress(card, (e) => {
+  if (!isMobile.value || e.target.closest('.btn-counter, .action-menu')) return
+  longPressed = true
+  increment()
+}, { onMouseUp: () => setTimeout(() => (longPressed = false), 100) })
 
 const exportAsImage = () => {
   toast.promise(
