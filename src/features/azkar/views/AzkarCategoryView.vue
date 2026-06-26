@@ -60,7 +60,19 @@ onBeforeRouteLeave(async () => {
 <template>
   <AsyncContent :pending="isFetching" :error="error" loading-message="جاري تحميل الأذكار...">
     <Page v-if="category">
-      <Heading class="mb-4" :title="category.meta.name" :subtitle="category.meta.description" :share="true" />
+      <div class="d-flex align-items-start justify-content-between gap-2 mb-4">
+        <Heading :title="category.meta.name" :subtitle="category.meta.description" :share="true" />
+
+        <button
+          v-if="hasProgress"
+          class="btn btn-light text-danger flex-shrink-0 d-inline-flex align-items-center gap-1"
+          type="button"
+          @click="clear"
+        >
+          <IconRestore size="18" />
+          <span>تصفير</span>
+        </button>
+      </div>
 
       <ZekrCard
         class="mb-3"
@@ -74,12 +86,8 @@ onBeforeRouteLeave(async () => {
         @update:count="setCount(index, $event)"
       />
 
-      <div class="d-flex justify-content-center gap-2">
+      <div class="d-flex justify-content-center">
         <BackButton :to="{ name: 'azkar' }" button-class="btn-primary" />
-        <button v-if="hasProgress" class="btn btn-outline-secondary" type="button" @click="clear">
-          <IconRestore size="18" class="me-1" />
-          <span>تصفير التقدم</span>
-        </button>
       </div>
     </Page>
   </AsyncContent>
