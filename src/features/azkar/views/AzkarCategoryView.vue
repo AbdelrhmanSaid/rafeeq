@@ -3,11 +3,13 @@ import { ref, computed } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 import { useConfirmDialog } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
+import { IconDoorExit, IconArrowBackUp } from '@tabler/icons-vue'
 
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
 import BackButton from '@/shared/ui/BackButton.vue'
 import AsyncContent from '@/shared/ui/AsyncContent.vue'
+import BottomSheet from '@/shared/ui/BottomSheet.vue'
 import ZekrCard from '@/features/azkar/components/ZekrCard.vue'
 import { useAsyncData } from '@/shared/composables/useAsyncData'
 import { usePageMeta } from '@/shared/composables/usePageMeta'
@@ -67,21 +69,22 @@ onBeforeRouteLeave(async () => {
     </Page>
   </AsyncContent>
 
-  <!-- Leave confirmation dialog -->
-  <Teleport to="body">
-    <div v-if="isRevealed" class="modal-backdrop show"></div>
-    <div v-if="isRevealed" class="modal d-block" tabindex="-1" @click.self="cancel">
-      <div class="modal-dialog modal-dialog-centered modal-md">
-        <div class="modal-content text-center">
-          <div class="modal-body p-4">
-            <p class="mb-4 fs-5 lh-lg">لم تنتهِ من جميع الأذكار بعد، هل تريد المغادرة؟</p>
-            <div class="d-flex justify-content-center gap-2">
-              <button class="btn btn-primary" @click="cancel">البقاء</button>
-              <button class="btn btn-danger" @click="confirm">مغادرة</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </Teleport>
+  <!-- Leave confirmation sheet -->
+  <BottomSheet :show="isRevealed" title="لم تنتهِ بعد" @close="cancel">
+    <p class="px-4 pt-3 mb-2 lh-lg text-secondary">لم تنتهِ من جميع الأذكار بعد، هل تريد المغادرة؟</p>
+    <ul class="list-unstyled m-0 py-2">
+      <li>
+        <button class="bottom-sheet-item" @click="cancel">
+          <IconArrowBackUp size="20" />
+          <span>البقاء ومتابعة الأذكار</span>
+        </button>
+      </li>
+      <li>
+        <button class="bottom-sheet-item text-danger" @click="confirm">
+          <IconDoorExit size="20" />
+          <span>مغادرة</span>
+        </button>
+      </li>
+    </ul>
+  </BottomSheet>
 </template>
