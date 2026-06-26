@@ -65,11 +65,15 @@ const onCardClick = () => {
 // Mobile long presses often emit no click, so count them here (ignoring the
 // counter / action menu). onCardClick swallows any trailing click; onMouseUp
 // clears the flag in case none arrives.
-onLongPress(card, (e) => {
-  if (!isMobile.value || e.target.closest('.btn-counter, .action-menu')) return
-  longPressed = true
-  increment()
-}, { onMouseUp: () => setTimeout(() => (longPressed = false), 100) })
+onLongPress(
+  card,
+  (e) => {
+    if (!isMobile.value || e.target.closest('.btn-counter, .action-menu')) return
+    longPressed = true
+    increment()
+  },
+  { onMouseUp: () => setTimeout(() => (longPressed = false), 100) },
+)
 
 const exportAsImage = () => {
   toast.promise(
