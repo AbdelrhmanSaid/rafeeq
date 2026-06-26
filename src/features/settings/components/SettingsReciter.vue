@@ -1,23 +1,10 @@
 <script setup>
-import reciters from '@/features/quran/data/reciters.js'
-import { useQuranStore } from '@/features/quran/store.js'
-import { computed } from 'vue'
 import { IconMicrophone2 } from '@tabler/icons-vue'
+import { useReciterSelection } from '@/features/quran/composables/useReciterSelection.js'
 import SettingsSection from './SettingsSection.vue'
 
-const quranStore = useQuranStore()
-const normalize = (s) => s.replace(/\s+/g, ' ')
-
-const fullReciters = reciters.filter((r) => r.soar_count >= 114).map((r) => ({ ...r, rewaya: normalize(r.rewaya) }))
-
-const rewayat = computed(() => [...new Set(fullReciters.map((r) => r.rewaya))])
-const currentRewaya = computed(() => normalize(quranStore.reciter?.rewaya ?? '') || rewayat.value[0])
-const filteredReciters = computed(() => fullReciters.filter((r) => r.rewaya === currentRewaya.value))
-
-function onRewayaChange(value) {
-  const first = fullReciters.find((r) => r.rewaya === value)
-  if (first) quranStore.changeReciter(first.id)
-}
+const { rewayat, currentRewaya, filteredReciters, currentReciterId, selectRewaya, selectReciter } =
+  useReciterSelection()
 </script>
 
 <template>
@@ -29,7 +16,7 @@ function onRewayaChange(value) {
           class="form-select"
           id="currentRewaya"
           :value="currentRewaya"
-          @change="onRewayaChange($event.target.value)"
+          @change="selectRewaya($event.target.value)"
         >
           <option v-for="rewaya in rewayat" :key="rewaya" :value="rewaya">
             {{ rewaya }}
@@ -45,8 +32,8 @@ function onRewayaChange(value) {
         <select
           class="form-select"
           id="currentReciter"
-          :value="Number(quranStore.currentReciter)"
-          @change="quranStore.changeReciter(Number($event.target.value))"
+          :value="currentReciterId"
+          @change="selectReciter($event.target.value)"
         >
           <option v-for="reciter in filteredReciters" :key="reciter.id" :value="reciter.id">
             {{ reciter.name }}

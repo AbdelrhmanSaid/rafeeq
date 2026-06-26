@@ -2,8 +2,9 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useQuranStore } from '@/features/quran/store'
 import { useRadioStore } from '@/features/radio/store'
-import { IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
+import { IconPlayerPlay, IconPlayerPause, IconMicrophone2 } from '@tabler/icons-vue'
 import { toArabicNumerals, formatTime } from '@/shared/utils/arabic'
+import ReciterSheet from '@/features/quran/components/ReciterSheet.vue'
 
 const quranStore = useQuranStore()
 const radioStore = useRadioStore()
@@ -13,6 +14,7 @@ const isPlaying = ref(false)
 const loading = ref(false)
 const currentTime = ref(0)
 const duration = ref(0)
+const showReciterSheet = ref(false)
 
 const progress = computed(() => (duration.value ? (currentTime.value / duration.value) * 100 : 0))
 
@@ -103,7 +105,7 @@ defineExpose({ seekToAyah })
         <IconPlayerPause v-else />
       </button>
 
-      <div class="flex-grow-1">
+      <div class="flex-grow-1 min-w-0">
         <template v-if="currentAyahDisplay">
           <span class="d-inline-block fw-semibold text-primary me-2">{{ currentAyahDisplay.surahName }}</span>
           <span v-if="currentAyahDisplay.ayahNumber > 0" class="d-inline-block text-secondary small"
@@ -113,7 +115,18 @@ defineExpose({ seekToAyah })
         <span v-else-if="quranStore.surahName" class="text-muted">{{ quranStore.surahName }}</span>
         <span v-else class="text-muted">اضغط على آية للاستماع</span>
       </div>
+
+      <button
+        @click="showReciterSheet = true"
+        class="btn btn-sm d-flex align-items-center gap-1 flex-shrink-0 reciter-button"
+        :title="`القارئ: ${quranStore.reciter?.name}`"
+      >
+        <IconMicrophone2 size="18" />
+        <span class="small text-truncate">{{ quranStore.reciter?.name }}</span>
+      </button>
     </div>
+
+    <ReciterSheet :show="showReciterSheet" @close="showReciterSheet = false" />
 
     <div class="px-3 pb-3">
       <div class="progress" style="height: 0.25rem">
@@ -136,3 +149,23 @@ defineExpose({ seekToAyah })
     ></audio>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.min-w-0 {
+  min-width: 0;
+}
+
+.reciter-button {
+  color: var(--bs-secondary-color);
+  background-color: var(--bs-secondary-bg);
+
+  &:hover {
+    color: var(--bs-body-color);
+    background-color: var(--bs-tertiary-bg);
+  }
+
+  .text-truncate {
+    max-width: 7.5rem;
+  }
+}
+</style>
