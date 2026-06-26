@@ -29,12 +29,9 @@ usePageMeta(
     },
 )
 
-// Per-zekr counts persisted in localStorage so progress survives reloads and
-// navigating away, letting the user resume the category where they stopped.
 const { getCount, setCount, clear } = useAzkarProgress(slug)
 
-// Track progress across all azkar (clamped in case a stored count outlives a
-// change to a zekr's repeat target).
+// Clamped in case a stored count outlives a change to a zekr's repeat target.
 const clampedCount = (index, repeat) => Math.min(getCount(index), repeat || 1)
 const totalRepeats = computed(() => category.value?.content?.reduce((sum, z) => sum + (z.repeat || 1), 0) || 0)
 const totalClicked = computed(
@@ -44,8 +41,6 @@ const progress = computed(() => (totalRepeats.value > 0 ? (totalClicked.value / 
 
 const hasProgress = computed(() => totalClicked.value > 0)
 
-// Confirm before leaving with unfinished azkar; clear a finished category so
-// the next visit starts fresh.
 const { isRevealed, reveal, confirm, cancel } = useConfirmDialog()
 
 onBeforeRouteLeave(async () => {

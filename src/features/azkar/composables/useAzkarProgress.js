@@ -2,17 +2,14 @@ import { useLocalStorage } from '@vueuse/core'
 import { computed, toValue } from 'vue'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 
-// Persisted daily azkar progress: a date stamp plus a map of category slug ->
-// array of per-zekr counts. Azkar are read fresh every day, so the whole
-// store resets automatically once the local date rolls over. Defined at module
-// scope so every caller shares one reactive source.
+// Daily azkar progress: a date stamp plus a map of slug -> per-zekr counts,
+// shared module-wide so every caller reads one reactive source.
 const store = useLocalStorage(STORAGE_KEYS.azkarProgress, { date: '', categories: {} })
 
-// Local calendar day as YYYY-MM-DD (en-CA yields that ISO-like format).
 const today = () => new Date().toLocaleDateString('en-CA')
 
 export const useAzkarProgress = (slug) => {
-  // Drop yesterday's progress as soon as a new day starts.
+  // Drop yesterday's progress once a new day starts.
   const sync = () => {
     if (store.value.date !== today()) {
       store.value = { date: today(), categories: {} }
