@@ -175,7 +175,7 @@ defineExpose({ seekToAyah })
 
           <button
             type="button"
-            class="btn btn-sm btn-link link-secondary text-decoration-none d-flex align-items-center gap-1 py-0 px-1"
+            class="btn btn-flat btn-sm d-flex align-items-center gap-1"
             @click="cycleRate"
             :title="`سرعة التلاوة: ${rateLabel}`"
           >
