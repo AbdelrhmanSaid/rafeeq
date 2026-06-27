@@ -27,7 +27,7 @@ function increase() {
 </script>
 
 <template>
-  <SettingsSection title="حجم الخط" description="يتحكم في حجم النصوص في جميع أنحاء التطبيق" :icon="IconTextSize">
+  <SettingsSection title="حجم الخط" description="تحكم في حجم النصوص في جميع أنحاء التطبيق" :icon="IconTextSize">
     <template #actions>
       <button
         v-if="!isDefault"

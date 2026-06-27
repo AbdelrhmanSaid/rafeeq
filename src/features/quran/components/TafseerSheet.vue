@@ -53,7 +53,7 @@ watch([() => props.ayah, edition], ([ayah]) => {
         </p>
 
         <div class="form-floating mb-4">
-          <select class="form-select" id="tafseerEdition" v-model="edition">
+          <select id="tafseerEdition" v-model="edition" class="form-select">
             <option v-for="tafseer in tafseers" :key="tafseer.identifier" :value="tafseer.identifier">
               {{ tafseer.name }}
             </option>

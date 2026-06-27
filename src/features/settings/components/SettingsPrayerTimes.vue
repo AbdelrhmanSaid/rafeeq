@@ -30,7 +30,7 @@ const location = computed(() => {
       <span class="d-block mb-2">الموقع</span>
       <div class="input-group">
         <div class="form-floating">
-          <input type="text" class="form-control" id="location" :value="location" readonly />
+          <input id="location" type="text" class="form-control" :value="location" readonly />
           <label for="location">الموقع</label>
         </div>
 

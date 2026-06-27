@@ -8,9 +8,9 @@ const quranStore = useQuranStore()
 </script>
 
 <template>
-  <SettingsSection title="التفسير" description="اختر تفسير الآيات المفضل لديك" :icon="IconBook">
+  <SettingsSection title="التفسير" description="اختر التفسير الافتراضي للآيات" :icon="IconBook">
     <div class="form-floating">
-      <select class="form-select" id="currentTafseer" v-model="quranStore.currentTafseer">
+      <select id="currentTafseer" v-model="quranStore.currentTafseer" class="form-select">
         <option v-for="tafseer in tafseers" :key="tafseer.identifier" :value="tafseer.identifier">
           {{ tafseer.name }}
         </option>

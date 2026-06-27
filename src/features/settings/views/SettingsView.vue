@@ -18,21 +18,56 @@ import SettingsFontSize from '../components/SettingsFontSize.vue'
 import SettingsPrayerTimes from '../components/SettingsPrayerTimes.vue'
 import SettingsReciter from '../components/SettingsReciter.vue'
 import SettingsTafseer from '../components/SettingsTafseer.vue'
-import SettingsZekr from '../components/SettingsZekr.vue'
-import SettingsAppUpdates from '../components/SettingsAppUpdates.vue'
 import SettingsDownloadAssets from '../components/SettingsDownloadAssets.vue'
+import SettingsAutoUpdate from '../components/SettingsAutoUpdate.vue'
+import SettingsNotifications from '../components/SettingsNotifications.vue'
+import SettingsImportExport from '../components/SettingsImportExport.vue'
+import SettingsZekrMoveNext from '../components/SettingsZekrMoveNext.vue'
+import SettingsZekrProgress from '../components/SettingsZekrProgress.vue'
+import SettingsZekrLeaveConfirmation from '../components/SettingsZekrLeaveConfirmation.vue'
+import SettingsZekrVibration from '../components/SettingsZekrVibration.vue'
 
 const tabs = [
-  { id: 'appearance', label: 'المظهر', icon: IconPalette },
-  { id: 'prayer', label: 'مواقيت الصلاة', icon: IconClockHour4 },
-  { id: 'quran', label: 'القرآن', icon: IconBook2 },
-  { id: 'azkar', label: 'الأذكار', icon: IconSparkles },
-  { id: 'app', label: 'التطبيق', icon: IconDeviceMobile },
-  { id: 'downloads', label: 'التنزيلات', icon: IconCloudDownload },
+  {
+    id: 'appearance',
+    label: 'المظهر',
+    icon: IconPalette,
+    sections: [SettingsTheme, SettingsFontSize],
+  },
+  {
+    id: 'prayer',
+    label: 'مواقيت الصلاة',
+    icon: IconClockHour4,
+    sections: [SettingsPrayerTimes],
+  },
+  {
+    id: 'quran',
+    label: 'القرآن',
+    icon: IconBook2,
+    sections: [SettingsReciter, SettingsTafseer],
+  },
+  {
+    id: 'azkar',
+    label: 'الأذكار',
+    icon: IconSparkles,
+    sections: [SettingsZekrMoveNext, SettingsZekrProgress, SettingsZekrLeaveConfirmation, SettingsZekrVibration],
+  },
+  {
+    id: 'app',
+    label: 'التطبيق',
+    icon: IconDeviceMobile,
+    sections: [SettingsAutoUpdate, SettingsNotifications, SettingsImportExport],
+  },
+  {
+    id: 'downloads',
+    label: 'التنزيلات',
+    icon: IconCloudDownload,
+    sections: [SettingsDownloadAssets],
+  },
 ]
 
 const route = useRoute()
-const activeTab = computed(() => route.params.tab || 'appearance')
+const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab) ?? tabs[0])
 </script>
 
 <template>
@@ -47,7 +82,7 @@ const activeTab = computed(() => route.params.tab || 'appearance')
           :key="tab.id"
           :to="{ name: 'settings', params: { tab: tab.id } }"
           class="settings-nav-item tab-pill"
-          :class="{ active: activeTab === tab.id }"
+          :class="{ active: activeTab.id === tab.id }"
         >
           <component :is="tab.icon" :size="20" />
           <span>{{ tab.label }}</span>
@@ -56,23 +91,9 @@ const activeTab = computed(() => route.params.tab || 'appearance')
 
       <!-- Tab content -->
       <div class="settings-content">
-        <div v-if="activeTab === 'appearance'" class="settings-stack">
-          <SettingsTheme />
-          <SettingsFontSize />
+        <div class="settings-stack">
+          <component v-for="(section, index) in activeTab.sections" :key="index" :is="section" />
         </div>
-
-        <SettingsPrayerTimes v-else-if="activeTab === 'prayer'" />
-
-        <div v-else-if="activeTab === 'quran'" class="settings-stack">
-          <SettingsReciter />
-          <SettingsTafseer />
-        </div>
-
-        <SettingsZekr v-else-if="activeTab === 'azkar'" />
-
-        <SettingsAppUpdates v-else-if="activeTab === 'app'" />
-
-        <SettingsDownloadAssets v-else-if="activeTab === 'downloads'" />
       </div>
     </div>
   </Page>
