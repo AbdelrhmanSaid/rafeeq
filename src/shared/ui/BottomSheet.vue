@@ -11,21 +11,10 @@ defineEmits(['close'])
 
 // Lock the background page scroll while the sheet is open so the backdrop
 // stays put instead of scrolling behind the panel.
-const lockScroll = () => {
-  document.body.style.overflow = 'hidden'
-}
+const setScroll = (locked) => (document.body.style.overflow = locked ? 'hidden' : '')
 
-const unlockScroll = () => {
-  document.body.style.overflow = ''
-}
-
-watch(
-  () => props.show,
-  (show) => (show ? lockScroll() : unlockScroll()),
-  { immediate: true },
-)
-
-onBeforeUnmount(unlockScroll)
+watch(() => props.show, setScroll, { immediate: true })
+onBeforeUnmount(() => setScroll(false))
 </script>
 
 <template>
