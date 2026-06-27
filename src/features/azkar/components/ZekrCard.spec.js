@@ -23,9 +23,9 @@ const mountCard = (repeat) => {
   const counts = reactive({})
   const wrapper = mount(ZekrCard, {
     props: {
-      text: 'ذكر',
+      'text': 'ذكر',
       repeat,
-      count: counts[0] ?? 0,
+      'count': counts[0] ?? 0,
       'onUpdate:count': (value) => {
         counts[0] = value
         wrapper.setProps({ count: value })
