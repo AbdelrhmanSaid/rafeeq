@@ -31,12 +31,20 @@ const {
   data: surah,
   error,
   pending: isFetching,
+  execute: reloadSurah,
 } = useAsyncData(async () => {
   const result = await fetchSurah(surahId.value)
   if (online.value && result) {
     await quranStore.loadSurahAudio(result.data.number, result.data.name)
   }
   return result
+})
+
+// Vue Router reuses this component when only the :surah param changes (e.g. the
+// prev/next buttons), so re-fetch and scroll back to the top on each switch.
+watch(surahId, () => {
+  reloadSurah()
+  window.scrollTo({ top: 0 })
 })
 
 const revelationLabel = computed(() => (surah.value?.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'))
@@ -157,27 +165,26 @@ watch(
         </template>
       </div>
 
-      <div class="d-flex justify-content-between gap-2 mb-2">
+      <div class="d-flex justify-content-center align-items-center gap-2">
         <RouterLink
           v-if="surahNumber > 1"
           :to="{ name: 'quran-surah', params: { surah: surahNumber - 1 } }"
           class="btn btn-flat d-inline-flex align-items-center gap-2"
         >
           <IconArrowRight size="1.25rem" />
-          <span>السورة السابقة</span>
+          <span>السابقة</span>
         </RouterLink>
+
+        <BackButton :to="{ name: 'quran' }" button-class="btn-primary" />
+
         <RouterLink
           v-if="surahNumber < 114"
           :to="{ name: 'quran-surah', params: { surah: surahNumber + 1 } }"
-          class="btn btn-flat d-inline-flex align-items-center gap-2 ms-auto"
+          class="btn btn-flat d-inline-flex align-items-center gap-2"
         >
-          <span>السورة التالية</span>
+          <span>التالية</span>
           <IconArrowLeft size="1.25rem" />
         </RouterLink>
-      </div>
-
-      <div class="d-flex justify-content-center">
-        <BackButton :to="{ name: 'quran' }" button-class="btn-primary" />
       </div>
 
       <AyahActionSheet
