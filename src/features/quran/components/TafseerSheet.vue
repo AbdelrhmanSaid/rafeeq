@@ -14,7 +14,6 @@ import OfflineState from '@/shared/ui/OfflineState.vue'
 
 const props = defineProps({
   ayah: { type: Object, default: null },
-  surahName: { type: String, default: '' },
   hasPrev: { type: Boolean, default: false },
   hasNext: { type: Boolean, default: false },
 })
