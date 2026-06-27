@@ -160,15 +160,6 @@ defineExpose({ seekToAyah })
       </div>
 
       <button
-        @click="cycleRate"
-        class="btn btn-sm d-flex align-items-center gap-1 flex-shrink-0 player-chip"
-        :title="`سرعة التلاوة: ${rateLabel}`"
-      >
-        <IconGauge size="18" />
-        <span class="small">{{ rateLabel }}</span>
-      </button>
-
-      <button
         @click="openReciterSheet"
         class="btn btn-sm d-flex align-items-center gap-1 flex-shrink-0 player-chip"
         :title="`القارئ: ${quranStore.reciter?.name}`"
@@ -188,8 +179,18 @@ defineExpose({ seekToAyah })
       <div class="progress" style="height: 0.25rem">
         <div class="progress-bar" :style="{ width: progress + '%' }"></div>
       </div>
-      <div class="d-flex justify-content-between small text-muted mt-1">
+      <div class="d-flex justify-content-between align-items-center small text-muted mt-1">
         <span>{{ formatTime(currentTime) }}</span>
+
+        <button
+          @click="cycleRate"
+          class="speed-toggle d-flex align-items-center gap-1"
+          :title="`سرعة التلاوة: ${rateLabel}`"
+        >
+          <IconGauge size="15" />
+          <span>{{ rateLabel }}</span>
+        </button>
+
         <span>{{ formatTime(duration) }}</span>
       </div>
     </div>
@@ -218,6 +219,21 @@ defineExpose({ seekToAyah })
 
   .text-truncate {
     max-width: 7.5rem;
+  }
+}
+
+// Sits on the muted time row, so it stays understated until hovered.
+.speed-toggle {
+  padding: 0 0.4rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: none;
+  color: inherit;
+  font-variant-numeric: tabular-nums;
+
+  &:hover {
+    color: var(--bs-body-color);
+    background-color: var(--bs-secondary-bg);
   }
 }
 </style>
