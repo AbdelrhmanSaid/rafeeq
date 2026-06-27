@@ -39,8 +39,13 @@ function closeReciterSheet() {
 
 const progress = computed(() => (duration.value ? (currentTime.value / duration.value) * 100 : 0))
 
-const formatRate = (rate) => `${toArabicNumerals(rate).replace('.', '٫')}×`
-const rateLabel = computed(() => formatRate(quranStore.playbackRate))
+const rateLabel = computed(() => `${toArabicNumerals(quranStore.playbackRate).replace('.', '٫')}×`)
+
+// Advance to the next speed preset, wrapping back to the slowest at the end.
+function cycleRate() {
+  const i = PLAYBACK_RATES.indexOf(Number(quranStore.playbackRate))
+  quranStore.setPlaybackRate(PLAYBACK_RATES[(i + 1) % PLAYBACK_RATES.length])
+}
 
 // The <audio> element resets playbackRate on every load, so reapply it whenever
 // the rate changes or a new source is loaded.
@@ -180,32 +185,15 @@ defineExpose({ seekToAyah })
         <div class="d-flex align-items-center gap-2">
           <span>{{ formatTime(duration) }}</span>
 
-          <div class="dropup">
-            <button
-              type="button"
-              class="speed-toggle d-flex align-items-center gap-1"
-              data-bs-toggle="dropdown"
-              data-bs-display="static"
-              aria-expanded="false"
-              :title="`سرعة التلاوة: ${rateLabel}`"
-            >
-              <IconGauge size="15" />
-              <span>{{ rateLabel }}</span>
-            </button>
-
-            <ul class="dropdown-menu dropdown-menu-end speed-menu">
-              <li v-for="rate in PLAYBACK_RATES" :key="rate">
-                <button
-                  type="button"
-                  class="dropdown-item text-center"
-                  :class="{ active: Number(quranStore.playbackRate) === rate }"
-                  @click="quranStore.setPlaybackRate(rate)"
-                >
-                  {{ formatRate(rate) }}
-                </button>
-              </li>
-            </ul>
-          </div>
+          <button
+            type="button"
+            class="speed-toggle d-flex align-items-center gap-1"
+            @click="cycleRate"
+            :title="`سرعة التلاوة: ${rateLabel}`"
+          >
+            <IconGauge size="15" />
+            <span>{{ rateLabel }}</span>
+          </button>
         </div>
       </div>
     </div>
@@ -237,7 +225,7 @@ defineExpose({ seekToAyah })
   }
 }
 
-// Sits on the muted time row, so it stays understated until hovered/open.
+// Sits on the muted time row, so it stays understated until hovered.
 .speed-toggle {
   padding: 0.1rem 0.4rem;
   border: 0;
@@ -246,18 +234,9 @@ defineExpose({ seekToAyah })
   color: inherit;
   font-variant-numeric: tabular-nums;
 
-  &:hover,
-  &[aria-expanded='true'] {
+  &:hover {
     color: var(--bs-body-color);
     background-color: var(--bs-secondary-bg);
-  }
-}
-
-.speed-menu {
-  min-width: 5rem;
-
-  .dropdown-item {
-    font-variant-numeric: tabular-nums;
   }
 }
 </style>
