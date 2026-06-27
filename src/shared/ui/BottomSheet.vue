@@ -1,12 +1,20 @@
 <script setup>
+import { onBeforeUnmount, watch } from 'vue'
 import { IconX } from '@tabler/icons-vue'
 
-defineProps({
+const props = defineProps({
   show: { type: Boolean, default: false },
   title: { type: String, default: '' },
 })
 
 defineEmits(['close'])
+
+// Lock the background page scroll while the sheet is open so the backdrop
+// stays put instead of scrolling behind the panel.
+const setScroll = (locked) => (document.body.style.overflow = locked ? 'hidden' : '')
+
+watch(() => props.show, setScroll, { immediate: true })
+onBeforeUnmount(() => setScroll(false))
 </script>
 
 <template>
