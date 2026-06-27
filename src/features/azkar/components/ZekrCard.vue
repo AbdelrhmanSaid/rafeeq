@@ -35,13 +35,17 @@ const { vibrateOnFinish } = useZekrVibration()
 const { scrollToNextZekr } = useZekrScroll(card)
 
 const increment = () => {
-  if (count.value < props.repeat) {
-    count.value++
+  if (count.value >= props.repeat) return
 
-    if (count.value === props.repeat) {
-      vibrateOnFinish()
-      scrollToNextZekr()
-    }
+  // Compute the next value locally instead of re-reading the v-model: reading
+  // `count.value` right after writing it can return a stale value, so the
+  // completion branch (vibration + scroll to next) never ran.
+  const next = count.value + 1
+  count.value = next
+
+  if (next === props.repeat) {
+    vibrateOnFinish()
+    scrollToNextZekr()
   }
 }
 
