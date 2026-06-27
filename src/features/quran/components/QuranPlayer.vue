@@ -1,8 +1,8 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, provide } from 'vue'
-import { useQuranStore } from '@/features/quran/store'
+import { useQuranStore, PLAYBACK_RATES } from '@/features/quran/store'
 import { useRadioStore } from '@/features/radio/store'
-import { IconPlayerPlay, IconPlayerPause, IconMicrophone2 } from '@tabler/icons-vue'
+import { IconPlayerPlay, IconPlayerPause, IconMicrophone2, IconGauge } from '@tabler/icons-vue'
 import { toArabicNumerals, formatTime } from '@/shared/utils/arabic'
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
 import SettingsReciter from '@/features/settings/components/SettingsReciter.vue'
@@ -38,6 +38,27 @@ function closeReciterSheet() {
 }
 
 const progress = computed(() => (duration.value ? (currentTime.value / duration.value) * 100 : 0))
+
+const rateLabel = computed(() => `${toArabicNumerals(quranStore.playbackRate).replace('.', '٫')}×`)
+
+// Advance to the next speed preset, wrapping back to the slowest at the end.
+function cycleRate() {
+  const i = PLAYBACK_RATES.indexOf(Number(quranStore.playbackRate))
+  quranStore.setPlaybackRate(PLAYBACK_RATES[(i + 1) % PLAYBACK_RATES.length])
+}
+
+// The <audio> element resets playbackRate on every load, so reapply it whenever
+// the rate changes or a new source is loaded.
+function applyRate() {
+  if (audio.value) audio.value.playbackRate = Number(quranStore.playbackRate)
+}
+
+function onCanPlay() {
+  loading.value = false
+  applyRate()
+}
+
+watch(() => quranStore.playbackRate, applyRate)
 
 const currentAyahDisplay = computed(() => {
   const ayah = quranStore.currentAyah
@@ -102,6 +123,7 @@ function loadSource(url) {
   if (!audio.value || !url) return
   audio.value.src = url
   audio.value.load()
+  applyRate()
   isPlaying.value = false
   currentTime.value = 0
 }
@@ -138,8 +160,17 @@ defineExpose({ seekToAyah })
       </div>
 
       <button
+        @click="cycleRate"
+        class="btn btn-sm d-flex align-items-center gap-1 flex-shrink-0 player-chip"
+        :title="`سرعة التلاوة: ${rateLabel}`"
+      >
+        <IconGauge size="18" />
+        <span class="small">{{ rateLabel }}</span>
+      </button>
+
+      <button
         @click="openReciterSheet"
-        class="btn btn-sm d-flex align-items-center gap-1 flex-shrink-0 reciter-button"
+        class="btn btn-sm d-flex align-items-center gap-1 flex-shrink-0 player-chip"
         :title="`القارئ: ${quranStore.reciter?.name}`"
       >
         <IconMicrophone2 size="18" />
@@ -166,7 +197,7 @@ defineExpose({ seekToAyah })
     <audio
       ref="audio"
       @loadstart="loading = true"
-      @canplay="loading = false"
+      @canplay="onCanPlay"
       @timeupdate="onTimeUpdate"
       @ended="stop"
       @loadedmetadata="duration = $event.target.duration"
@@ -176,7 +207,7 @@ defineExpose({ seekToAyah })
 </template>
 
 <style lang="scss" scoped>
-.reciter-button {
+.player-chip {
   color: var(--bs-secondary-color);
   background-color: var(--bs-secondary-bg);
 

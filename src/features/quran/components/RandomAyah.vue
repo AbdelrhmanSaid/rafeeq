@@ -6,6 +6,7 @@ import { toArabicNumerals, removeBismillah } from '@/shared/utils/arabic'
 import { API } from '@/shared/constants/api'
 import { IconRefresh, IconChevronRight, IconChevronLeft, IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
 import { useReconnectExecute } from '@/shared/composables/useReconnectExecute'
+import { useQuranStore } from '@/features/quran/store'
 
 import LoadingState from '@/shared/ui/LoadingState.vue'
 import ErrorState from '@/shared/ui/ErrorState.vue'
@@ -14,10 +15,12 @@ import OfflineState from '@/shared/ui/OfflineState.vue'
 // Check if the user is online
 const online = useOnline()
 
+const quranStore = useQuranStore()
+
 const TOTAL_AYAHS = 6236
 const current = ref(Math.floor(Math.random() * TOTAL_AYAHS) + 1)
-const editions = ['quran-uthmani', 'ar.muyassar', 'ar.alafasy']
-const endpoint = computed(() => `${API.quranCloud}/ayah/${current.value}/editions/${editions.join(',')}`)
+const editions = computed(() => ['quran-uthmani', quranStore.currentTafseer, 'ar.alafasy'])
+const endpoint = computed(() => `${API.quranCloud}/ayah/${current.value}/editions/${editions.value.join(',')}`)
 
 const { isFetching, data, error, execute } = useFetch(endpoint, { refetch: true }).json().get()
 const ayah = computed(() => data.value?.data?.[0])
