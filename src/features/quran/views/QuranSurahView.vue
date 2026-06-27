@@ -78,12 +78,9 @@ const tafseerIndex = computed(() => ayat.value.findIndex((a) => a.number === taf
 const hasPrevTafseer = computed(() => tafseerIndex.value > 0)
 const hasNextTafseer = computed(() => tafseerIndex.value >= 0 && tafseerIndex.value < ayat.value.length - 1)
 
-const tafseerPrev = () => {
-  if (hasPrevTafseer.value) tafseerAyah.value = ayat.value[tafseerIndex.value - 1]
-}
-
-const tafseerNext = () => {
-  if (hasNextTafseer.value) tafseerAyah.value = ayat.value[tafseerIndex.value + 1]
+const stepTafseer = (delta) => {
+  const next = ayat.value[tafseerIndex.value + delta]
+  if (next) tafseerAyah.value = next
 }
 
 const reciteAyah = () => {
@@ -180,8 +177,8 @@ watch(
         :surah-name="surah.data.name"
         :has-prev="hasPrevTafseer"
         :has-next="hasNextTafseer"
-        @prev="tafseerPrev"
-        @next="tafseerNext"
+        @prev="stepTafseer(-1)"
+        @next="stepTafseer(1)"
         @close="tafseerAyah = null"
       />
     </Page>

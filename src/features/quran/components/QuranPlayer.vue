@@ -44,18 +44,13 @@ const rateLabel = computed(() => `${toArabicNumerals(quranStore.playbackRate).re
 // Advance to the next speed preset, wrapping back to the slowest at the end.
 function cycleRate() {
   const i = PLAYBACK_RATES.indexOf(Number(quranStore.playbackRate))
-  quranStore.setPlaybackRate(PLAYBACK_RATES[(i + 1) % PLAYBACK_RATES.length])
+  quranStore.playbackRate = PLAYBACK_RATES[(i + 1) % PLAYBACK_RATES.length]
 }
 
-// The <audio> element resets playbackRate on every load, so reapply it whenever
-// the rate changes or a new source is loaded.
+// The <audio> element resets playbackRate when a new source loads, so it's
+// reapplied on every play; this watch only covers changes made mid-playback.
 function applyRate() {
   if (audio.value) audio.value.playbackRate = Number(quranStore.playbackRate)
-}
-
-function onCanPlay() {
-  loading.value = false
-  applyRate()
 }
 
 watch(() => quranStore.playbackRate, applyRate)
@@ -69,6 +64,7 @@ const currentAyahDisplay = computed(() => {
 async function tryPlay() {
   if (!audio.value) return
   if (radioStore.isPlaying) radioStore.stop()
+  applyRate()
   try {
     await audio.value.play()
     isPlaying.value = true
@@ -123,7 +119,6 @@ function loadSource(url) {
   if (!audio.value || !url) return
   audio.value.src = url
   audio.value.load()
-  applyRate()
   isPlaying.value = false
   currentTime.value = 0
 }
@@ -201,7 +196,7 @@ defineExpose({ seekToAyah })
     <audio
       ref="audio"
       @loadstart="loading = true"
-      @canplay="onCanPlay"
+      @canplay="loading = false"
       @timeupdate="onTimeUpdate"
       @ended="stop"
       @loadedmetadata="duration = $event.target.duration"

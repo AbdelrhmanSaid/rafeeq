@@ -107,10 +107,6 @@ export const useQuranStore = defineStore('quran', () => {
     }
   }
 
-  function setPlaybackRate(rate) {
-    playbackRate.value = rate
-  }
-
   return {
     currentReciter,
     currentTafseer,
@@ -127,6 +123,5 @@ export const useQuranStore = defineStore('quran', () => {
     getAyahStartTime,
     resetAyahTracking,
     changeReciter,
-    setPlaybackRate,
   }
 })
