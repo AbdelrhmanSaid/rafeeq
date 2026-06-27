@@ -47,14 +47,6 @@ function cycleRate() {
   quranStore.playbackRate = PLAYBACK_RATES[(i + 1) % PLAYBACK_RATES.length]
 }
 
-// The <audio> element resets playbackRate when a new source loads, so it's
-// reapplied on every play; this watch only covers changes made mid-playback.
-function applyRate() {
-  if (audio.value) audio.value.playbackRate = Number(quranStore.playbackRate)
-}
-
-watch(() => quranStore.playbackRate, applyRate)
-
 const currentAyahDisplay = computed(() => {
   const ayah = quranStore.currentAyah
   if (!ayah || !quranStore.surahName) return null
@@ -64,7 +56,8 @@ const currentAyahDisplay = computed(() => {
 async function tryPlay() {
   if (!audio.value) return
   if (radioStore.isPlaying) radioStore.stop()
-  applyRate()
+  // The browser resets playbackRate on every source load, so set it before play.
+  audio.value.playbackRate = Number(quranStore.playbackRate)
   try {
     await audio.value.play()
     isPlaying.value = true
@@ -182,7 +175,7 @@ defineExpose({ seekToAyah })
 
           <button
             type="button"
-            class="speed-toggle d-flex align-items-center gap-1"
+            class="btn btn-sm btn-link link-secondary text-decoration-none d-flex align-items-center gap-1 py-0 px-1"
             @click="cycleRate"
             :title="`سرعة التلاوة: ${rateLabel}`"
           >
@@ -195,6 +188,7 @@ defineExpose({ seekToAyah })
 
     <audio
       ref="audio"
+      .playbackRate="Number(quranStore.playbackRate)"
       @loadstart="loading = true"
       @canplay="loading = false"
       @timeupdate="onTimeUpdate"
@@ -217,21 +211,6 @@ defineExpose({ seekToAyah })
 
   .text-truncate {
     max-width: 7.5rem;
-  }
-}
-
-// Sits on the muted time row, so it stays understated until hovered.
-.speed-toggle {
-  padding: 0.1rem 0.4rem;
-  border: 0;
-  border-radius: 0.5rem;
-  background: none;
-  color: inherit;
-  font-variant-numeric: tabular-nums;
-
-  &:hover {
-    color: var(--bs-body-color);
-    background-color: var(--bs-secondary-bg);
   }
 }
 </style>
