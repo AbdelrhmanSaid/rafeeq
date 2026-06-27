@@ -17,6 +17,8 @@ export const STORAGE_KEYS = {
   prayerTimesLayout: 'prayer-times-layout',
 
   currentReciter: 'currentReciter',
+  currentTafseer: 'currentTafseer',
+  playbackRate: 'quran-playback-rate',
 
   azkarProgress: 'azkar-progress',
   azkarFavorites: 'azkarFavorites',

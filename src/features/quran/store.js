@@ -6,9 +6,15 @@ import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 import { API } from '@/shared/constants/api'
 
 const DEFAULT_RECITER_ID = 51
+const DEFAULT_TAFSEER = 'ar.muyassar'
+
+// Playback speed presets offered by the player, from slowest to fastest.
+export const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
 
 export const useQuranStore = defineStore('quran', () => {
   const currentReciter = useLocalStorage(STORAGE_KEYS.currentReciter, DEFAULT_RECITER_ID)
+  const currentTafseer = useLocalStorage(STORAGE_KEYS.currentTafseer, DEFAULT_TAFSEER)
+  const playbackRate = useLocalStorage(STORAGE_KEYS.playbackRate, 1)
 
   const surahAudioUrl = ref(null)
   const surahName = ref(null)
@@ -103,6 +109,8 @@ export const useQuranStore = defineStore('quran', () => {
 
   return {
     currentReciter,
+    currentTafseer,
+    playbackRate,
     surahAudioUrl,
     surahName,
 

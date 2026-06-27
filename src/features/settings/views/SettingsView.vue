@@ -17,6 +17,7 @@ import SettingsTheme from '../components/SettingsTheme.vue'
 import SettingsFontSize from '../components/SettingsFontSize.vue'
 import SettingsPrayerTimes from '../components/SettingsPrayerTimes.vue'
 import SettingsReciter from '../components/SettingsReciter.vue'
+import SettingsTafseer from '../components/SettingsTafseer.vue'
 import SettingsZekr from '../components/SettingsZekr.vue'
 import SettingsAppUpdates from '../components/SettingsAppUpdates.vue'
 import SettingsDownloadAssets from '../components/SettingsDownloadAssets.vue'
@@ -62,7 +63,10 @@ const activeTab = computed(() => route.params.tab || 'appearance')
 
         <SettingsPrayerTimes v-else-if="activeTab === 'prayer'" />
 
-        <SettingsReciter v-else-if="activeTab === 'quran'" />
+        <div v-else-if="activeTab === 'quran'" class="settings-stack">
+          <SettingsReciter />
+          <SettingsTafseer />
+        </div>
 
         <SettingsZekr v-else-if="activeTab === 'azkar'" />
 

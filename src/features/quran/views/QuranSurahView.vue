@@ -73,6 +73,14 @@ const ayat = computed(() => {
 const activeAyah = ref(null)
 const tafseerAyah = ref(null)
 
+// Navigate the tafseer sheet through the surah's ayat without leaving the sheet.
+const tafseerIndex = computed(() => ayat.value.findIndex((a) => a.number === tafseerAyah.value?.number))
+
+const stepTafseer = (delta) => {
+  const next = ayat.value[tafseerIndex.value + delta]
+  if (next) tafseerAyah.value = next
+}
+
 const reciteAyah = () => {
   playerRef.value?.seekToAyah(activeAyah.value?.numberInSurah)
 }
@@ -162,7 +170,14 @@ watch(
         @close="activeAyah = null"
       />
 
-      <TafseerSheet :ayah="tafseerAyah" :surah-name="surah.data.name" @close="tafseerAyah = null" />
+      <TafseerSheet
+        :ayah="tafseerAyah"
+        :has-prev="tafseerIndex > 0"
+        :has-next="tafseerIndex >= 0 && tafseerIndex < ayat.length - 1"
+        @prev="stepTafseer(-1)"
+        @next="stepTafseer(1)"
+        @close="tafseerAyah = null"
+      />
     </Page>
   </AsyncContent>
 </template>
