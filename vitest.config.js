@@ -14,11 +14,12 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     include: ['src/**/*.spec.js'],
+    setupFiles: ['src/test/setup.js'],
     restoreMocks: true,
     coverage: {
       all: true,
       include: ['src/**/*.{js,vue}'],
-      exclude: ['src/**/*.spec.js', 'src/**/data/**', 'src/app/main.js'],
+      exclude: ['src/**/*.spec.js', 'src/**/data/**', 'src/app/main.js', 'src/test/**'],
     },
   },
 })
