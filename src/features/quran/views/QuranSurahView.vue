@@ -1,5 +1,6 @@
 <script setup>
 import { computed, nextTick, ref, watch } from 'vue'
+import { IconArrowLeft, IconArrowRight } from '@tabler/icons-vue'
 import { useOnline } from '@vueuse/core'
 import { useRoute } from 'vue-router'
 import { useRouteParams } from '@vueuse/router'
@@ -39,6 +40,7 @@ const {
 })
 
 const revelationLabel = computed(() => (surah.value?.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'))
+const surahNumber = computed(() => Number(surahId.value))
 
 usePageMeta(
   () =>
@@ -153,6 +155,25 @@ watch(
             <span class="page-number">{{ toArabicNumerals(ayah.page) }}</span>
           </div>
         </template>
+      </div>
+
+      <div class="d-flex justify-content-between gap-2 mb-2">
+        <RouterLink
+          v-if="surahNumber > 1"
+          :to="{ name: 'quran-surah', params: { surah: surahNumber - 1 } }"
+          class="btn btn-flat d-inline-flex align-items-center gap-2"
+        >
+          <IconArrowRight size="1.25rem" />
+          <span>السورة السابقة</span>
+        </RouterLink>
+        <RouterLink
+          v-if="surahNumber < 114"
+          :to="{ name: 'quran-surah', params: { surah: surahNumber + 1 } }"
+          class="btn btn-flat d-inline-flex align-items-center gap-2 ms-auto"
+        >
+          <span>السورة التالية</span>
+          <IconArrowLeft size="1.25rem" />
+        </RouterLink>
       </div>
 
       <div class="d-flex justify-content-center">
