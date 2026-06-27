@@ -15,5 +15,10 @@ export default defineConfig({
     globals: true,
     include: ['src/**/*.spec.js'],
     restoreMocks: true,
+    coverage: {
+      all: true,
+      include: ['src/**/*.{js,vue}'],
+      exclude: ['src/**/*.spec.js', 'src/**/data/**', 'src/app/main.js'],
+    },
   },
 })
