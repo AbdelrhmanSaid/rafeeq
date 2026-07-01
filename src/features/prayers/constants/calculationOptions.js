@@ -37,11 +37,7 @@ export const CALCULATION_METHODS = [
 ]
 
 // `school` — juristic method for the Asr prayer.
-export const SCHOOLS = [
-  autoOption,
-  { value: '0', label: 'شافعي' },
-  { value: '1', label: 'حنفي' },
-]
+export const SCHOOLS = [autoOption, { value: '0', label: 'شافعي' }, { value: '1', label: 'حنفي' }]
 
 // `latitudeAdjustmentMethod` — adjusting times for higher latitudes.
 export const LATITUDE_ADJUSTMENT_METHODS = [
