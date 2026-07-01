@@ -10,6 +10,7 @@ import ErrorState from '@/shared/ui/ErrorState.vue'
 import OfflineState from '@/shared/ui/OfflineState.vue'
 import { formatTime, toArabicNumerals } from '@/shared/utils/arabic'
 import { API } from '@/shared/constants/api'
+import { CALCULATION_FIELDS } from '@/features/prayers/constants/calculationOptions'
 
 import PrayerIcon from '@/features/prayers/components/icons/PrayerIcon.vue'
 
@@ -47,7 +48,19 @@ const longitude = computed(() => (hasPropsCoords.value ? props.long : store.long
 const endpoint = computed(() => {
   if (!latitude.value || !longitude.value) return null
   const today = new Date().toISOString().split('T')[0].split('-').reverse().join('-')
-  return `${API.aladhan}/timings/${today}?latitude=${latitude.value}&longitude=${longitude.value}&iso8601=true`
+
+  const params = new URLSearchParams({
+    latitude: latitude.value,
+    longitude: longitude.value,
+    iso8601: 'true',
+  })
+
+  for (const { key, param } of CALCULATION_FIELDS) {
+    const value = store[key]
+    if (value) params.append(param, value)
+  }
+
+  return `${API.aladhan}/timings/${today}?${params.toString()}`
 })
 
 // Fetch options

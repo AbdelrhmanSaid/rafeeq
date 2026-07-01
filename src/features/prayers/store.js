@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import { getCurrentPosition } from '@/shared/composables/useGeolocation'
 import { useIsMobile } from '@/shared/composables/useIsMobile'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
+import { AUTO } from '@/features/prayers/constants/calculationOptions'
 
 export const usePrayersStore = defineStore('prayers', function () {
   const longitude = useLocalStorage(STORAGE_KEYS.longitude, 0)
@@ -11,6 +12,12 @@ export const usePrayersStore = defineStore('prayers', function () {
 
   // Display layout: 'cards' | 'list' | 'auto'
   const layout = useLocalStorage(STORAGE_KEYS.prayerTimesLayout, 'auto')
+
+  const calcMethod = useLocalStorage(STORAGE_KEYS.prayerCalcMethod, AUTO)
+  const calcSchool = useLocalStorage(STORAGE_KEYS.prayerCalcSchool, AUTO)
+  const calcLatitudeAdjustment = useLocalStorage(STORAGE_KEYS.prayerCalcLatitudeAdjustment, AUTO)
+  const calcMidnightMode = useLocalStorage(STORAGE_KEYS.prayerCalcMidnightMode, AUTO)
+  const calcShafaq = useLocalStorage(STORAGE_KEYS.prayerCalcShafaq, AUTO)
 
   const isCompactViewport = useIsMobile()
 
@@ -49,6 +56,11 @@ export const usePrayersStore = defineStore('prayers', function () {
     latitude,
     layout,
     vertical,
+    calcMethod,
+    calcSchool,
+    calcLatitudeAdjustment,
+    calcMidnightMode,
+    calcShafaq,
     isDetecting,
     detect,
     clear,

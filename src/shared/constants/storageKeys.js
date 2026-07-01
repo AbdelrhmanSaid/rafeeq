@@ -15,6 +15,11 @@ export const STORAGE_KEYS = {
   longitude: 'longitude',
   latitude: 'latitude',
   prayerTimesLayout: 'prayer-times-layout',
+  prayerCalcMethod: 'prayer-calc-method',
+  prayerCalcSchool: 'prayer-calc-school',
+  prayerCalcLatitudeAdjustment: 'prayer-calc-latitude-adjustment',
+  prayerCalcMidnightMode: 'prayer-calc-midnight-mode',
+  prayerCalcShafaq: 'prayer-calc-shafaq',
 
   currentReciter: 'currentReciter',
   currentTafseer: 'currentTafseer',
