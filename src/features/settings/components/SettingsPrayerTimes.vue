@@ -29,7 +29,7 @@ const location = computed(() => {
 
 <template>
   <SettingsSection title="مواقيت الصلاة" description="حدّد موقعك وطريقة عرض المواقيت" :icon="IconClockHour4">
-<div class="mb-3">
+    <div class="mb-3">
       <span class="d-block mb-2">طريقة العرض</span>
       <div class="btn-group-toggle">
         <button class="btn-toggle" :class="{ active: store.layout === 'cards' }" @click="store.layout = 'cards'">
