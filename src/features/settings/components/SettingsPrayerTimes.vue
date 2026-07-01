@@ -11,8 +11,11 @@ import {
   IconClockHour4,
 } from '@tabler/icons-vue'
 import SettingsSection from './SettingsSection.vue'
+import { CALCULATION_FIELDS } from '@/features/prayers/constants/calculationOptions'
 
 const store = usePrayersStore()
+
+const calculationFields = CALCULATION_FIELDS
 const { detect } = usePrayerLocation()
 
 const location = computed(() => {
@@ -44,7 +47,7 @@ const location = computed(() => {
       </div>
     </div>
 
-    <div>
+    <div class="mb-3">
       <span class="d-block mb-2">طريقة العرض</span>
       <div class="btn-group-toggle">
         <button class="btn-toggle" :class="{ active: store.layout === 'cards' }" @click="store.layout = 'cards'">
@@ -59,6 +62,18 @@ const location = computed(() => {
           <IconDevices :size="16" />
           <span>تلقائي</span>
         </button>
+      </div>
+    </div>
+
+    <div v-for="field in calculationFields" :key="field.key" class="mb-3">
+      <span class="d-block mb-2">{{ field.label }}</span>
+      <div class="form-floating">
+        <select :id="field.key" class="form-select" v-model="store[field.key]">
+          <option v-for="option in field.options" :key="option.value" :value="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+        <label :for="field.key">{{ field.label }}</label>
       </div>
     </div>
   </SettingsSection>
