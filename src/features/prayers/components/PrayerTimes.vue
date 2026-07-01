@@ -55,8 +55,6 @@ const endpoint = computed(() => {
     iso8601: 'true',
   })
 
-  // Append each calculation option only when the user picked a value other than
-  // "تلقائي" (AUTO), so the default behavior sends no calculation parameters.
   for (const { key, param } of CALCULATION_FIELDS) {
     const value = store[key]
     if (value) params.append(param, value)

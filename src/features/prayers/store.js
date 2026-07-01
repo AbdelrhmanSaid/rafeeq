@@ -13,8 +13,6 @@ export const usePrayersStore = defineStore('prayers', function () {
   // Display layout: 'cards' | 'list' | 'auto'
   const layout = useLocalStorage(STORAGE_KEYS.prayerTimesLayout, 'auto')
 
-  // Aladhan calculation options. Each defaults to AUTO ('') which omits the
-  // corresponding query parameter, keeping the API's own defaults.
   const calcMethod = useLocalStorage(STORAGE_KEYS.prayerCalcMethod, AUTO)
   const calcSchool = useLocalStorage(STORAGE_KEYS.prayerCalcSchool, AUTO)
   const calcLatitudeAdjustment = useLocalStorage(STORAGE_KEYS.prayerCalcLatitudeAdjustment, AUTO)

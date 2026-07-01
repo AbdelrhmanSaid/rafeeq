@@ -1,14 +1,7 @@
-// Calculation options for the Aladhan `/timings` endpoint.
-// See: https://aladhan.com/prayer-times-api
-//
-// Every option list starts with an "تلقائي" (automatic) entry whose value is an
-// empty string. Selecting it omits the parameter from the request entirely,
-// which preserves the app's original behavior of letting the API pick defaults.
 export const AUTO = ''
 
 const autoOption = { value: AUTO, label: 'تلقائي' }
 
-// `method` — prayer time calculation authority.
 export const CALCULATION_METHODS = [
   autoOption,
   { value: '3', label: 'رابطة العالم الإسلامي' },
@@ -36,10 +29,8 @@ export const CALCULATION_METHODS = [
   { value: '23', label: 'وزارة الأوقاف والشؤون الإسلامية، الأردن' },
 ]
 
-// `school` — juristic method for the Asr prayer.
 export const SCHOOLS = [autoOption, { value: '0', label: 'شافعي' }, { value: '1', label: 'حنفي' }]
 
-// `latitudeAdjustmentMethod` — adjusting times for higher latitudes.
 export const LATITUDE_ADJUSTMENT_METHODS = [
   autoOption,
   { value: '1', label: 'منتصف الليل' },
@@ -47,14 +38,12 @@ export const LATITUDE_ADJUSTMENT_METHODS = [
   { value: '3', label: 'حسب الزاوية' },
 ]
 
-// `midnightMode` — how the midnight time is computed.
 export const MIDNIGHT_MODES = [
   autoOption,
   { value: '0', label: 'قياسي (من الغروب إلى الشروق)' },
   { value: '1', label: 'جعفري (من الغروب إلى الفجر)' },
 ]
 
-// `shafaq` — twilight used by the Moonsighting Committee method.
 export const SHAFAQ_OPTIONS = [
   autoOption,
   { value: 'general', label: 'عام' },
@@ -62,8 +51,6 @@ export const SHAFAQ_OPTIONS = [
   { value: 'abyad', label: 'الأبيض' },
 ]
 
-// Field descriptors consumed by the settings UI and the store. `key` is the
-// store property, `param` is the Aladhan query parameter name.
 export const CALCULATION_FIELDS = [
   { key: 'calcMethod', param: 'method', label: 'طريقة الحساب', options: CALCULATION_METHODS },
   { key: 'calcSchool', param: 'school', label: 'المذهب (حساب العصر)', options: SCHOOLS },

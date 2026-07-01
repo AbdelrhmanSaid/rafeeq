@@ -23,7 +23,6 @@ function onRewayaChange(value) {
 <template>
   <SettingsSection title="القرآن الكريم" description="اختر الرواية والقارئ المفضل لديك" :icon="IconMicrophone2">
     <div class="mb-3">
-      <span class="d-block mb-2">الرواية</span>
       <div class="form-floating">
         <select
           class="form-select"
@@ -40,7 +39,6 @@ function onRewayaChange(value) {
     </div>
 
     <div>
-      <span class="d-block mb-2">القارئ</span>
       <div class="form-floating">
         <select
           class="form-select"

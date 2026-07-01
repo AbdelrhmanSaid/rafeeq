@@ -30,7 +30,6 @@ const location = computed(() => {
 <template>
   <SettingsSection title="مواقيت الصلاة" description="حدّد موقعك وطريقة عرض المواقيت" :icon="IconClockHour4">
     <div class="mb-3">
-      <span class="d-block mb-2">الموقع</span>
       <div class="input-group">
         <div class="form-floating">
           <input id="location" type="text" class="form-control" :value="location" readonly />
@@ -66,7 +65,6 @@ const location = computed(() => {
     </div>
 
     <div v-for="field in calculationFields" :key="field.key" class="mb-3">
-      <span class="d-block mb-2">{{ field.label }}</span>
       <div class="form-floating">
         <select :id="field.key" class="form-select" v-model="store[field.key]">
           <option v-for="option in field.options" :key="option.value" :value="option.value">
