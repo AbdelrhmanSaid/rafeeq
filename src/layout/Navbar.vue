@@ -75,7 +75,7 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
 
         <ul class="navbar-nav ms-auto gap-2">
           <li class="nav-item">
-            <a href="https://t.me/rafeeqme" target="_blank" class="nav-link">
+            <a href="https://telegram.me/rafeeqme" target="_blank" class="nav-link">
               <IconBrandTelegram class="me-2" size="1.25rem" />
               <span>قناة التليجرام</span>
             </a>
