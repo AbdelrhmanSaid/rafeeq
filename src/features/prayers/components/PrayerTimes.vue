@@ -148,30 +148,29 @@ const remainingTime = computed(() => {
     <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." v-else />
   </div>
 
-  <!-- Vertical Layout -->
-  <div v-else-if="timings && vertical" class="d-flex flex-column">
-    <div class="prayer-header d-flex align-items-center justify-content-between p-3 rounded text-white mb-1">
+  <div v-else-if="timings" class="d-flex flex-column gap-2">
+    <div class="prayer-header d-flex align-items-center justify-content-between p-3 rounded text-white">
       <div>
-        <div class="d-flex align-items-center gap-2">
-          <span class="icon-container">
+        <div class="d-flex align-items-center gap-2 small opacity-75">
+          <span class="icon-container icon-container--header">
             <PrayerIcon v-if="nextPrayerKey" :name="timingsMap[nextPrayerKey]?.icon" />
           </span>
-          <span v-if="nextPrayerKey">{{ timingsMap[nextPrayerKey]?.label }}</span>
+          <span v-if="nextPrayerKey">الصلاة القادمة · {{ timingsMap[nextPrayerKey]?.label }}</span>
         </div>
-        <div class="fs-4 fw-bold">{{ remainingTime }}</div>
+        <div class="fs-4 fw-bold mt-1">{{ remainingTime }}</div>
       </div>
       <div class="text-end">
-        <div class="mb-1">
-          <b>{{ hijriDay }}</b>
-        </div>
-        <small>{{ hijriDate }}</small>
+        <div class="mb-1 fw-semibold">{{ hijriDay }}</div>
+        <small class="opacity-75">{{ hijriDate }}</small>
       </div>
     </div>
-    <div class="d-flex flex-column gap-1">
+
+    <!-- Vertical / list layout -->
+    <div v-if="vertical" class="d-flex flex-column gap-1">
       <div
         v-for="(timing, key) in timingsMap"
         :key="key"
-        class="d-flex align-items-center justify-content-between px-3 py-1 rounded-2 small"
+        class="d-flex align-items-center justify-content-between px-3 py-2 rounded-2 small"
         :class="
           key === nextPrayerKey ? 'text-primary bg-primary-subtle border border-primary-subtle fw-bold' : 'bg-body'
         "
@@ -180,31 +179,33 @@ const remainingTime = computed(() => {
           <span class="icon-container">
             <PrayerIcon :name="timing.icon" />
           </span>
-          <b>{{ timing.label }}</b>
+          <span class="fw-semibold">{{ timing.label }}</span>
         </div>
-        <b>{{ formatTiming(timings.data.timings[key]) }}</b>
+        <span class="fw-semibold">{{ formatTiming(timings.data.timings[key]) }}</span>
       </div>
     </div>
-  </div>
 
-  <!-- Default Theme -->
-  <div v-else-if="timings" class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2">
-    <div v-for="(timing, key) in timingsMap" :key="key">
-      <div class="card" :class="{ active: key === nextPrayerKey }">
-        <div class="card-body">
-          <div class="d-flex align-items-center gap-3 mb-3">
-            <span class="icon-container">
+    <!-- Cards layout -->
+    <div v-else class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2">
+      <div v-for="(timing, key) in timingsMap" :key="key" class="col">
+        <div
+          class="card h-100 prayer-card"
+          :class="key === nextPrayerKey ? 'border-primary bg-primary-subtle text-primary' : ''"
+        >
+          <div class="card-body d-flex flex-column align-items-center justify-content-center text-center gap-2 p-3">
+            <span
+              class="icon-container icon-container--card"
+              :class="key === nextPrayerKey ? 'border-primary text-primary' : 'text-secondary'"
+            >
               <PrayerIcon :name="timing.icon" />
             </span>
-            <h5 class="card-title mb-0">{{ timing.label }}</h5>
+            <div>
+              <div class="small fw-semibold mb-1" :class="{ 'text-body-secondary': key !== nextPrayerKey }">
+                {{ timing.label }}
+              </div>
+              <div class="fs-5 fw-bold lh-1">{{ formatTiming(timings.data.timings[key]) }}</div>
+            </div>
           </div>
-          <p class="card-text d-flex justify-content-between align-items-end">
-            <span>{{ formatTiming(timings.data.timings[key]) }}</span>
-
-            <small v-if="key === nextPrayerKey">
-              {{ remainingTime }}
-            </small>
-          </p>
         </div>
       </div>
     </div>
@@ -212,21 +213,52 @@ const remainingTime = computed(() => {
 </template>
 
 <style lang="scss" scoped>
-.card.active {
-  border-color: var(--bs-primary);
-  background-color: var(--bs-primary);
-  color: #fff;
+.prayer-header {
+  background: linear-gradient(135deg, var(--bs-primary) 0%, color-mix(in srgb, var(--bs-primary) 85%, #000) 100%);
+}
+
+.prayer-card {
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .icon-container {
+  display: grid;
+  place-items: center;
   width: 1.5rem;
   height: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  flex-shrink: 0;
 
-.prayer-header {
-  background: linear-gradient(135deg, var(--bs-primary) 0%, color-mix(in srgb, var(--bs-primary) 85%, #000) 100%);
+  :deep(svg) {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  &--card {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    border: 1px solid var(--bs-border-color);
+
+    :deep(svg) {
+      width: 1.15rem;
+      height: 1.15rem;
+    }
+  }
+
+  &--header {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #fff;
+
+    :deep(svg) {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
 }
 </style>
