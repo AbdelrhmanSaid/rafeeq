@@ -169,7 +169,7 @@ watch(
         <RouterLink
           :to="{ name: 'quran-surah', params: { surah: surahNumber - 1 } }"
           class="btn btn-flat d-inline-flex align-items-center gap-2"
-          :class="{ 'disabled': surahNumber === 1 }"
+          :class="{ disabled: surahNumber === 1 }"
         >
           <IconArrowRight size="1.25rem" />
           <span>السابقة</span>
@@ -180,7 +180,7 @@ watch(
         <RouterLink
           :to="{ name: 'quran-surah', params: { surah: surahNumber + 1 } }"
           class="btn btn-flat d-inline-flex align-items-center gap-2"
-          :class="{ 'disabled': surahNumber === 114 }"
+          :class="{ disabled: surahNumber === 114 }"
         >
           <span>التالية</span>
           <IconArrowLeft size="1.25rem" />

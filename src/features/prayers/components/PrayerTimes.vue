@@ -196,10 +196,7 @@ const remainingTime = computed(() => {
           :class="key === nextPrayerKey ? 'border-primary bg-primary-subtle text-primary' : ''"
         >
           <div class="card-body d-flex flex-column align-items-center justify-content-center text-center gap-2 p-3">
-            <span
-              class="icon-circle"
-              :class="key === nextPrayerKey ? 'border-primary text-primary' : 'text-secondary'"
-            >
+            <span class="icon-circle" :class="key === nextPrayerKey ? 'border-primary text-primary' : 'text-secondary'">
               <PrayerIcon :name="timing.icon" />
             </span>
             <div>
