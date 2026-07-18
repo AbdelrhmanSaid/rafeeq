@@ -1,6 +1,5 @@
 <script setup>
 import PrayerIcon from '@/features/prayers/components/icons/PrayerIcon.vue'
-import { IconArrowBarToUp, IconArrowBarToDown } from '@tabler/icons-vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 
 const prayers = [
@@ -31,7 +30,7 @@ const prayers = [
 ]
 
 const formatRakaa = (value) => {
-  if (value === '-') return '-'
+  if (value === '-') return '—'
   if (value === 2) return 'ركعتان'
   return `${toArabicNumerals(value)} ركعات`
 }
@@ -41,26 +40,25 @@ const formatRakaa = (value) => {
   <div class="row row-cols-2 row-cols-lg-4 g-2">
     <div v-for="(prayer, index) in prayers" :key="index" class="col">
       <div class="card h-100">
-        <div class="card-body d-flex align-items-start gap-2 p-2">
-          <span class="icon-container">
-            <PrayerIcon :name="prayer.icon" />
-          </span>
-          <div class="flex-grow-1">
-            <h5 class="card-title mb-2 fs-5">{{ prayer.name }}</h5>
-            <div class="stacked-info small">
-              <div class="info-block">
-                <span class="info-label">
-                  <IconArrowBarToUp />
-                  قبل
-                </span>
-                <span class="info-value">{{ formatRakaa(prayer.before) }}</span>
+        <div class="card-body p-3">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="icon-container text-secondary">
+              <PrayerIcon :name="prayer.icon" />
+            </span>
+            <h5 class="card-title mb-0 fs-6 fw-semibold">{{ prayer.name }}</h5>
+          </div>
+
+          <div class="row g-0 text-center small">
+            <div class="col-6 pe-2">
+              <div class="text-body-secondary mb-1">قبل</div>
+              <div class="fw-semibold" :class="{ 'text-body-secondary': prayer.before === '-' }">
+                {{ formatRakaa(prayer.before) }}
               </div>
-              <div class="info-block">
-                <span class="info-label">
-                  <IconArrowBarToDown />
-                  بعد
-                </span>
-                <span class="info-value">{{ formatRakaa(prayer.after) }}</span>
+            </div>
+            <div class="col-6 ps-2 border-start">
+              <div class="text-body-secondary mb-1">بعد</div>
+              <div class="fw-semibold" :class="{ 'text-body-secondary': prayer.after === '-' }">
+                {{ formatRakaa(prayer.after) }}
               </div>
             </div>
           </div>
@@ -74,49 +72,15 @@ const formatRakaa = (value) => {
 .icon-container {
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
-  background-color: transparent;
   border: 1px solid var(--bs-border-color);
+  flex-shrink: 0;
 
   :deep(svg) {
-    width: 20px;
-    height: 20px;
+    width: 1.1rem;
+    height: 1.1rem;
   }
-}
-
-.stacked-info {
-  display: grid;
-  gap: 4px;
-}
-
-.info-block {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 8px;
-  background-color: var(--bs-tertiary-bg);
-  border-radius: var(--bs-border-radius);
-}
-
-[data-bs-theme='dark'] .info-block {
-  background-color: rgba(var(--bs-secondary-rgb), 0.1);
-}
-
-.info-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--bs-secondary-color);
-
-  :deep(svg) {
-    width: 16px;
-    height: 16px;
-  }
-}
-
-.info-value {
-  font-weight: 600;
 }
 </style>
