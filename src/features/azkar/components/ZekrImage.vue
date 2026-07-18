@@ -20,9 +20,16 @@ const props = defineProps({
   },
 })
 
-// html2canvas rasterizes inline SVGs without stylesheet context, so the logo
-// needs the resolved primary color as an inline style, not a CSS variable
-const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--bs-primary').trim() || '#795547'
+// The data-bs-theme="light" attribute below makes Bootstrap's
+// [data-bs-theme=light] rule re-declare --bs-primary/--bs-primary-rgb with the
+// compiled default, hiding the user's chosen theme color. Resolve both from the
+// root element (where applyPrimaryColor sets them inline) and pin them back as
+// inline styles on the export root so the whole export follows the theme color.
+// html2canvas also rasterizes inline SVGs without stylesheet context, so the
+// logo needs the resolved color as an inline style either way.
+const rootStyles = getComputedStyle(document.documentElement)
+const primaryColor = rootStyles.getPropertyValue('--bs-primary').trim() || '#795547'
+const primaryRgb = rootStyles.getPropertyValue('--bs-primary-rgb').trim() || '121, 85, 71'
 
 // Sizes are px (not rem) so the user's font-scale setting can't distort exports
 const textStyle = computed(() => {
@@ -44,7 +51,13 @@ const repeatLabel = computed(() => {
 </script>
 
 <template>
-  <div class="zekr-export" dir="rtl" lang="ar" data-bs-theme="light">
+  <div
+    class="zekr-export"
+    dir="rtl"
+    lang="ar"
+    data-bs-theme="light"
+    :style="{ '--bs-primary': primaryColor, '--bs-primary-rgb': primaryRgb }"
+  >
     <div class="frame-outer">
       <div class="frame-inner">
         <span class="corner corner-tl"><span class="corner-diamond"></span></span>
