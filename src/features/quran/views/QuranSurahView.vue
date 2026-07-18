@@ -167,9 +167,9 @@ watch(
 
       <div class="d-flex justify-content-center align-items-center gap-2">
         <RouterLink
-          v-if="surahNumber > 1"
           :to="{ name: 'quran-surah', params: { surah: surahNumber - 1 } }"
           class="btn btn-flat d-inline-flex align-items-center gap-2"
+          :class="{ 'disabled': surahNumber === 1 }"
         >
           <IconArrowRight size="1.25rem" />
           <span>السابقة</span>
@@ -178,9 +178,9 @@ watch(
         <BackButton :to="{ name: 'quran' }" button-class="btn-primary" />
 
         <RouterLink
-          v-if="surahNumber < 114"
           :to="{ name: 'quran-surah', params: { surah: surahNumber + 1 } }"
           class="btn btn-flat d-inline-flex align-items-center gap-2"
+          :class="{ 'disabled': surahNumber === 114 }"
         >
           <span>التالية</span>
           <IconArrowLeft size="1.25rem" />
@@ -221,7 +221,7 @@ watch(
 
   .ayat {
     padding: 1rem;
-    border-radius: 5px;
+    border-radius: var(--bs-border-radius-lg);
     border: 1px solid var(--bs-border-color);
     text-align: justify;
     text-align-last: center;
@@ -265,7 +265,7 @@ watch(
         font-family: 'Thmanyah Sans', sans-serif;
         white-space: nowrap;
         border: 1px solid var(--bs-border-color);
-        border-radius: 999px;
+        border-radius: var(--bs-border-radius-pill);
       }
     }
 
@@ -280,7 +280,7 @@ watch(
     .bookmarked-ayah {
       background-color: rgba(var(--bs-primary-rgb), 0.12);
       box-shadow: 0 0 0 1px rgba(var(--bs-primary-rgb), 0.35);
-      border-radius: 6px;
+      border-radius: var(--bs-border-radius-sm);
       padding: 0 0.25rem;
     }
   }

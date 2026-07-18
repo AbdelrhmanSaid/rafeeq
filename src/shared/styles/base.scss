@@ -13,6 +13,17 @@
   }
 }
 
+/* Collapse animations and transitions to near-instant for users who ask for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 html,
 body {
   font-family:
@@ -162,7 +173,7 @@ h6,
   background: transparent;
   border: none;
   color: var(--bs-body-color);
-  font-size: 1.05rem;
+  font-size: 1rem;
   text-align: start;
   transition: background-color 0.2s;
 
@@ -184,7 +195,7 @@ h6,
   gap: 0.5rem;
   padding: 0.6rem;
   border: 1px solid var(--bs-border-color);
-  border-radius: 0.5rem;
+  border-radius: var(--bs-border-radius);
   background: none;
   color: var(--bs-secondary-color);
   font-size: 0.875rem;

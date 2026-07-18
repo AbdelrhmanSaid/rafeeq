@@ -5,7 +5,7 @@ colors:
   warm-earth: "#795547"
   ink: "#212529"
   surface-light: "#ffffff"
-  border-light: "#dee2e6"
+  border-light: "#e9ecef"
   surface-dark: "#121212"
   border-dark: "#282828"
 typography:
@@ -23,11 +23,16 @@ typography:
     fontFamily: "Thmanyah Sans, system-ui, sans-serif"
     fontSize: "1rem"
     fontWeight: 400
-    lineHeight: 1.5
+    lineHeight: 1.6
   label:
     fontFamily: "Thmanyah Sans, system-ui, sans-serif"
     fontSize: "0.85rem"
     fontWeight: 500
+    lineHeight: 1.4
+  caption:
+    fontFamily: "Thmanyah Sans, system-ui, sans-serif"
+    fontSize: "0.75rem"
+    fontWeight: 400
     lineHeight: 1.4
   quran:
     fontFamily: "Kitab, Thmanyah Sans, sans-serif"
@@ -35,9 +40,10 @@ typography:
     fontWeight: 400
     lineHeight: 2
 rounded:
-  sm: "0.25rem"
-  md: "0.375rem"
-  lg: "0.5rem"
+  sm: "0.5rem"
+  md: "0.75rem"
+  lg: "1rem"
+  xl: "1.5rem"
   pill: "50rem"
 spacing:
   xs: "0.25rem"
@@ -50,14 +56,14 @@ components:
     backgroundColor: "{colors.warm-earth}"
     textColor: "#ffffff"
     rounded: "{rounded.md}"
-    padding: "0.375rem 0.75rem"
+    padding: "0.5rem 1rem"
   button-primary-hover:
     backgroundColor: "#6a4b3e"
   button-outline-primary:
     backgroundColor: "transparent"
     textColor: "{colors.warm-earth}"
     rounded: "{rounded.md}"
-    padding: "0.375rem 0.75rem"
+    padding: "0.5rem 1rem"
   tab-pill:
     backgroundColor: "transparent"
     textColor: "#6c757d"
@@ -71,7 +77,7 @@ components:
   toggle-active:
     backgroundColor: "{colors.warm-earth}"
     textColor: "#ffffff"
-    rounded: "{rounded.lg}"
+    rounded: "{rounded.md}"
     padding: "0.6rem"
 ---
 
@@ -102,7 +108,7 @@ A restrained palette: one warm brown voice over neutral surfaces, with full ligh
 ### Neutral
 - **Ink** (#212529): Body text in light mode (Bootstrap body color).
 - **Surface Light** (#ffffff): Light-mode body background; secondary/tertiary surfaces derive from Bootstrap's layering.
-- **Border Light** (#dee2e6): Hairline borders that define cards, pills, and toggles in light mode.
+- **Border Light** (#e9ecef): Hairline borders that define cards, pills, and toggles in light mode — a step quieter than the Bootstrap default.
 - **Surface Dark** (#121212): Dark-mode body — true near-black, not tinted navy.
 - **Border Dark** (#282828): Dark-mode hairlines; the primary depth cue in dark mode.
 
@@ -122,9 +128,10 @@ A restrained palette: one warm brown voice over neutral surfaces, with full ligh
 ### Hierarchy
 - **Headline** (500, 2.5rem, 1.2): Page titles via the shared `Heading` component.
 - **Title** (500, 1.25rem, 1.3): Section titles, card headers, and the `lead` subtitle (300 weight variant).
-- **Body** (400, 1rem, 1.5): Default reading text.
-- **Label** (500, 0.85rem, 1.4): Pills, toggles, captions, and metadata.
-- **Quran** (Kitab 400, ~1.4rem, 2.0): Quran verses only, via `.font-quran`. Generous line-height for vocalized Arabic script.
+- **Body** (400, 1rem, 1.6): Default reading text — the taller line-height gives vocalized Arabic room to breathe.
+- **Label** (500, 0.85rem, 1.4): Pills, toggles, and metadata.
+- **Caption** (400, 0.75rem, 1.4): The smallest step — tab-bar labels, badges, stat captions, fine print.
+- **Quran** (Kitab 400, ~1.4rem, 2.0): Quran verses only, via `.font-quran`. Generous line-height for vocalized Arabic script. The reader view deliberately steps up (1.625rem ayat, 2rem basmallah) — sacred text leads the screen.
 
 ### Named Rules
 **The Kitab Rule.** Kitab renders Quran text and nothing else. UI text never uses Kitab; Quran text never uses Thmanyah.
@@ -144,10 +151,12 @@ The system is flat by default: surfaces are defined by 1px hairline borders and 
 
 ## 5. Components
 
-Refined and restrained: quiet outlines, gentle tint fills, nothing shouting. All interactive states transition in 150–200ms.
+Refined and restrained: quiet outlines, gentle tint fills, nothing shouting. All interactive states transition in 150–200ms, and every animation collapses to near-instant under `prefers-reduced-motion: reduce` (global rule in `base.scss`).
+
+**The Radius Rule.** Corner rounding always comes from the shared scale via CSS variables — `--bs-border-radius-sm` (0.5rem) for compact controls, `--bs-border-radius` (0.75rem) for buttons/inputs/pills, `--bs-border-radius-lg` (1rem) for cards and content surfaces, `--bs-border-radius-xl` (1.5rem) for dialogs, `--bs-border-radius-pill` for pills and count badges. A hardcoded radius in a component is a bug (exception: `border-radius: 50%` for true circles, and the isolated `ZekrImage` export renderer).
 
 ### Buttons
-- **Shape:** Gently rounded (0.375rem, Bootstrap default)
+- **Shape:** Softly rounded (0.75rem), touch-first padding (0.5rem 1rem, ~44px tall), 500 weight labels
 - **Primary:** Warm Earth fill, white text (`--bs-primary` driven so runtime theming holds)
 - **Hover / Focus:** Darkens by mixing 12% black into the primary; focus ring is the 25% primary tint
 - **Outline:** Transparent with Warm Earth text and border; fills solid on hover
@@ -158,24 +167,24 @@ Refined and restrained: quiet outlines, gentle tint fills, nothing shouting. All
 - **State:** Hover gets a 10% secondary tint; active gets a 12% Warm Earth tint with the border removed
 
 ### Cards / Containers
-- **Corner Style:** 0.375rem
+- **Corner Style:** 1rem (`--bs-border-radius-lg`)
 - **Background:** Body/secondary surface layers
 - **Shadow Strategy:** Flat with hairline border; soft ambient lift allowed sparingly (see Elevation)
 - **Border:** 1px `--bs-border-color`, synced to runtime theme
-- **Internal Padding:** 1–1.5rem
+- **Internal Padding:** 1.25rem default (`$card-spacer`), 1–1.5rem range
 
 ### Inputs / Fields
-- **Style:** Bootstrap form controls, hairline border, 0.375rem radius
+- **Style:** Bootstrap form controls, hairline border, 0.75rem radius, touch-first padding
 - **Focus:** Border mixes 35% toward white from primary; 0.25rem primary-tinted ring
 - **States:** Standard Bootstrap invalid/disabled treatments
 
 ### Navigation
 - **Navbar:** 70px (85px ≥768px), height exposed as `--navbar-height` so full-height screens compute against it
 - **TabBar:** Mobile bottom tab bar for primary sections — the one-handed entry point
-- **Bottom sheets:** Action rows (`.bottom-sheet-item`) at 1.05rem with icon, full-width, tint on hover
+- **Bottom sheets:** Action rows (`.bottom-sheet-item`) at 1rem with icon, full-width, tint on hover; the desktop dialog variant rounds at 1.5rem (`--bs-border-radius-xl`)
 
 ### Segmented Toggle (`.btn-group-toggle`)
-Equal-width bordered segments, 0.5rem radius; the active segment fills solid Warm Earth with white text. Used for binary/ternary settings like theme mode.
+Equal-width bordered segments, 0.75rem radius; the active segment fills solid Warm Earth with white text. Used for binary/ternary settings like theme mode.
 
 ### Utility States (signature)
 Shared `LoadingState`, `ErrorState`, `OfflineState`, and `EmptyState` components give every feature the same calm fallback voice — centered icon, short Arabic message, single recovery action. New features must use them rather than inventing their own.

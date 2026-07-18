@@ -152,7 +152,7 @@ const isFacingQibla = computed(
   background: var(--bs-primary);
   color: white;
   padding: 4px 12px;
-  border-radius: 12px;
+  border-radius: var(--bs-border-radius-pill);
   font-size: 0.75rem;
   font-weight: 600;
 }
@@ -165,7 +165,7 @@ const isFacingQibla = computed(
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: var(--bs-primary);
   margin-bottom: 0.5rem;
@@ -174,6 +174,6 @@ const isFacingQibla = computed(
 .qibla-hint {
   color: var(--bs-secondary-color);
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 </style>
