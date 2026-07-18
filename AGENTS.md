@@ -25,3 +25,6 @@ Recent commits use short, imperative summaries such as `Add CI workflow to run t
 
 ## Security & Configuration Tips
 Do not commit secrets. keep real values in local or deployment environment variables.
+
+## Design Context
+Strategic and visual design context lives at the project root: `PRODUCT.md` (register, users, positioning, brand personality, anti-references, design principles) and `DESIGN.md` (tokens, typography, components, named rules like the Runtime Theme Rule and the Kitab Rule). Read both before designing or restyling any UI. Key constraints: colors flow through Bootstrap CSS variables (never hardcoded — primary and background are user-themeable at runtime), all sizes in `rem` (user font scaling), Arabic RTL-first, Kitab font for Quran text only.

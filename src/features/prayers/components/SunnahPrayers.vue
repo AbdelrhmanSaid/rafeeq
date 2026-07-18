@@ -42,10 +42,10 @@ const formatRakaa = (value) => {
       <div class="card h-100">
         <div class="card-body p-3">
           <div class="d-flex align-items-center gap-2 mb-3">
-            <span class="icon-container text-secondary">
+            <span class="icon-circle text-secondary">
               <PrayerIcon :name="prayer.icon" />
             </span>
-            <h5 class="card-title mb-0 fs-6 fw-semibold">{{ prayer.name }}</h5>
+            <h3 class="card-title mb-0 fs-6 fw-semibold">{{ prayer.name }}</h3>
           </div>
 
           <div class="row g-0 text-center small">
@@ -67,20 +67,3 @@ const formatRakaa = (value) => {
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.icon-container {
-  display: grid;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  border: 1px solid var(--bs-border-color);
-  flex-shrink: 0;
-
-  :deep(svg) {
-    width: 1.1rem;
-    height: 1.1rem;
-  }
-}
-</style>

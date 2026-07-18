@@ -127,23 +127,24 @@ const remainingTime = computed(() => {
 </script>
 
 <template>
-  <div v-if="!hasPropsCoords && store.isDetecting" class="border rounded p-5">
+  <div v-if="!hasPropsCoords && store.isDetecting" class="prayer-state border rounded p-5">
     <LoadingState message="جاري تحديد موقعك..." />
   </div>
 
-  <div
+  <button
     v-else-if="!hasPropsCoords && (store.latitude === 0 || store.longitude === 0)"
-    class="border rounded p-5 text-center cursor-pointer"
+    type="button"
+    class="prayer-state detect-btn w-100 border rounded p-5 text-center"
     @click="detect"
   >
-    <span>إضغط هنا لتحديد الموقع الخاص بك وعرض مواقيت الصلاة</span>
-  </div>
+    اضغط هنا لتحديد الموقع الخاص بك وعرض مواقيت الصلاة
+  </button>
 
-  <div v-else-if="isFetching || isRecoveringOnReconnect" class="border rounded p-5">
+  <div v-else-if="isFetching || isRecoveringOnReconnect" class="prayer-state border rounded p-5">
     <LoadingState message="جاري تحميل مواقيت الصلاة..." />
   </div>
 
-  <div v-else-if="error" class="border rounded p-5">
+  <div v-else-if="error" class="prayer-state border rounded p-5">
     <OfflineState v-if="!online" />
     <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." v-else />
   </div>
@@ -151,8 +152,8 @@ const remainingTime = computed(() => {
   <div v-else-if="timings" class="d-flex flex-column gap-2">
     <div class="prayer-header d-flex align-items-center justify-content-between p-3 rounded text-white">
       <div>
-        <div class="d-flex align-items-center gap-2 small opacity-75">
-          <span class="icon-container icon-container--header">
+        <div class="d-flex align-items-center gap-2 small text-soft">
+          <span class="icon-circle icon-circle--header">
             <PrayerIcon v-if="nextPrayerKey" :name="timingsMap[nextPrayerKey]?.icon" />
           </span>
           <span v-if="nextPrayerKey">الصلاة القادمة · {{ timingsMap[nextPrayerKey]?.label }}</span>
@@ -161,7 +162,7 @@ const remainingTime = computed(() => {
       </div>
       <div class="text-end">
         <div class="mb-1 fw-semibold">{{ hijriDay }}</div>
-        <small class="opacity-75">{{ hijriDate }}</small>
+        <small class="text-soft">{{ hijriDate }}</small>
       </div>
     </div>
 
@@ -172,7 +173,9 @@ const remainingTime = computed(() => {
         :key="key"
         class="d-flex align-items-center justify-content-between px-3 py-2 rounded-2 small"
         :class="
-          key === nextPrayerKey ? 'text-primary bg-primary-subtle border border-primary-subtle fw-bold' : 'bg-body'
+          key === nextPrayerKey
+            ? 'text-primary bg-primary-subtle border border-primary-subtle fw-bold'
+            : 'bg-body-tertiary'
         "
       >
         <div class="d-flex align-items-center gap-2">
@@ -194,7 +197,7 @@ const remainingTime = computed(() => {
         >
           <div class="card-body d-flex flex-column align-items-center justify-content-center text-center gap-2 p-3">
             <span
-              class="icon-container icon-container--card"
+              class="icon-circle"
               :class="key === nextPrayerKey ? 'border-primary text-primary' : 'text-secondary'"
             >
               <PrayerIcon :name="timing.icon" />
@@ -217,11 +220,41 @@ const remainingTime = computed(() => {
   background: linear-gradient(135deg, var(--bs-primary) 0%, color-mix(in srgb, var(--bs-primary) 85%, #000) 100%);
 }
 
+/* Secondary text on the primary-colored header; plain white at reduced alpha
+   keeps contrast readable where a gray would wash out. */
+.prayer-header .text-soft {
+  color: rgba(255, 255, 255, 0.85);
+}
+
 .prayer-card {
   transition:
     border-color 0.15s ease,
     background-color 0.15s ease,
     color 0.15s ease;
+}
+
+/* Reserve room for loading / detect / error states so the swap to loaded
+   content doesn't shift the page. */
+.prayer-state {
+  display: grid;
+  place-items: center;
+  min-height: 13rem;
+}
+
+.detect-btn {
+  background: transparent;
+  color: var(--bs-body-color);
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: rgba(var(--bs-secondary-rgb), 0.1);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+  }
 }
 
 .icon-container {
@@ -235,30 +268,17 @@ const remainingTime = computed(() => {
     width: 1.15rem;
     height: 1.15rem;
   }
+}
 
-  &--card {
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 50%;
-    border: 1px solid var(--bs-border-color);
+.icon-circle--header {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #fff;
 
-    :deep(svg) {
-      width: 1.15rem;
-      height: 1.15rem;
-    }
-  }
-
-  &--header {
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    color: #fff;
-
-    :deep(svg) {
-      width: 1rem;
-      height: 1rem;
-    }
+  :deep(svg) {
+    width: 1rem;
+    height: 1rem;
   }
 }
 </style>

@@ -14,9 +14,9 @@
   border: 1px solid var(--bs-border-color);
   border-radius: 999px;
   background-color: rgba(var(--bs-secondary-rgb), 0.1);
-  color: var(--bs-gray-600);
+  color: var(--bs-secondary-color);
   vertical-align: middle;
   font-size: 1rem;
   line-height: 1;
-  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  font-family: 'Thmanyah Sans', sans-serif;
 }

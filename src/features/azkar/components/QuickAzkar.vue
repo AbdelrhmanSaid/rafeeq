@@ -29,12 +29,12 @@ const azkar = [
     <div v-for="item in azkar" :key="item.slug" class="col">
       <div class="card h-100 position-relative">
         <div class="card-body d-flex align-items-center gap-3">
-          <span class="icon-container">
+          <span class="icon-circle text-secondary">
             <component :is="item.icon" />
           </span>
           <div>
-            <h5 class="card-title mb-1">{{ item.name }}</h5>
-            <small class="text-muted">{{ item.description }}</small>
+            <h3 class="card-title fs-5 mb-1">{{ item.name }}</h3>
+            <small class="text-body-secondary">{{ item.description }}</small>
           </div>
         </div>
         <RouterLink :to="{ name: 'azkar-category', params: { category: item.slug } }" class="stretched-link" />
@@ -44,12 +44,12 @@ const azkar = [
     <div class="col">
       <div class="card h-100 position-relative">
         <div class="card-body d-flex align-items-center gap-3">
-          <span class="icon-container">
+          <span class="icon-circle text-secondary">
             <IconDots />
           </span>
           <div>
-            <h5 class="card-title mb-1">المزيد</h5>
-            <small class="text-muted">اضغط هنا لعرض كل الأذكار المتاحة</small>
+            <h3 class="card-title fs-5 mb-1">المزيد</h3>
+            <small class="text-body-secondary">اضغط هنا لعرض كل الأذكار المتاحة</small>
           </div>
         </div>
         <RouterLink :to="{ name: 'azkar' }" class="stretched-link" />
@@ -60,10 +60,22 @@ const azkar = [
 
 <style lang="scss" scoped>
 .card {
-  transition: background-color 0.3s ease;
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 
-  &:hover {
+  &:hover,
+  &:focus-within {
     background-color: rgba(var(--bs-secondary-rgb), 0.1);
+  }
+
+  /* The card itself carries the focus ring for the stretched link. */
+  &:focus-within {
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+  }
+
+  .stretched-link:focus {
+    outline: none;
   }
 }
 </style>

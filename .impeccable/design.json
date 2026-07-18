@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-18T12:00:00Z",
+  "title": "Design System: Rafeeq",
+  "extensions": {
+    "colorMeta": {
+      "warm-earth": {
+        "role": "primary",
+        "displayName": "Warm Earth",
+        "canonical": "#795547",
+        "tonalRamp": [
+          "oklch(20% 0.035 45)",
+          "oklch(30% 0.045 45)",
+          "oklch(40% 0.055 45)",
+          "oklch(48% 0.06 45)",
+          "oklch(58% 0.055 45)",
+          "oklch(70% 0.045 45)",
+          "oklch(83% 0.03 45)",
+          "oklch(94% 0.015 45)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#212529",
+        "tonalRamp": [
+          "oklch(15% 0.01 250)",
+          "oklch(25% 0.01 250)",
+          "oklch(35% 0.008 250)",
+          "oklch(48% 0.006 250)",
+          "oklch(60% 0.005 250)",
+          "oklch(72% 0.004 250)",
+          "oklch(85% 0.003 250)",
+          "oklch(95% 0.002 250)"
+        ]
+      },
+      "surface-light": {
+        "role": "neutral",
+        "displayName": "Surface Light",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "oklch(20% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(50% 0 0)",
+          "oklch(65% 0 0)",
+          "oklch(78% 0 0)",
+          "oklch(88% 0 0)",
+          "oklch(95% 0 0)",
+          "oklch(100% 0 0)"
+        ]
+      },
+      "border-light": {
+        "role": "neutral",
+        "displayName": "Border Light",
+        "canonical": "#dee2e6"
+      },
+      "surface-dark": {
+        "role": "neutral",
+        "displayName": "Surface Dark",
+        "canonical": "#121212"
+      },
+      "border-dark": {
+        "role": "neutral",
+        "displayName": "Border Dark",
+        "canonical": "#282828"
+      }
+    },
+    "typographyMeta": {
+      "headline": { "displayName": "Headline", "purpose": "Page titles via the shared Heading component." },
+      "title": { "displayName": "Title", "purpose": "Section titles, card headers, lead subtitles." },
+      "body": { "displayName": "Body", "purpose": "Default reading text." },
+      "label": { "displayName": "Label", "purpose": "Pills, toggles, captions, metadata." },
+      "quran": { "displayName": "Quran (Kitab)", "purpose": "Quran verses only, via .font-quran. Never used for UI text." }
+    },
+    "shadows": [
+      {
+        "name": "focus-ring",
+        "value": "0 0 0 0.25rem rgba(121, 85, 71, 0.25)",
+        "purpose": "Focus state on form controls and buttons, tinted by the runtime primary."
+      },
+      {
+        "name": "overlay",
+        "value": "0 0.5rem 1rem rgba(0, 0, 0, 0.15)",
+        "purpose": "Bottom sheets, dropdowns, toasts only. Resting surfaces stay flat or get rare soft ambient lift."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-transition",
+        "value": "150ms ease",
+        "purpose": "Hover/active background and color changes on pills and buttons."
+      },
+      {
+        "name": "surface-transition",
+        "value": "200ms ease",
+        "purpose": "Bottom-sheet rows, toggles, and larger surface state changes."
+      }
+    ],
+    "breakpoints": [
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "992px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single filled CTA — Warm Earth, runtime-themeable.",
+      "html": "<button class=\"ds-btn-primary\">ابدأ الآن</button>",
+      "css": ".ds-btn-primary { background: var(--bs-primary, #795547); color: #fff; padding: 0.375rem 0.75rem; border: 1px solid var(--bs-primary, #795547); border-radius: 0.375rem; font-family: 'Thmanyah Sans', system-ui, sans-serif; font-size: 1rem; font-weight: 400; cursor: pointer; transition: background 0.15s, border-color 0.15s; } .ds-btn-primary:hover { background: #6a4b3e; border-color: #61443a; } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 0.25rem rgba(121, 85, 71, 0.25); } .ds-btn-primary:active { background: #5e4237; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline-primary",
+      "description": "Secondary action — transparent with Warm Earth text, fills on hover.",
+      "html": "<button class=\"ds-btn-outline\">المزيد</button>",
+      "css": ".ds-btn-outline { background: transparent; color: var(--bs-primary, #795547); padding: 0.375rem 0.75rem; border: 1px solid var(--bs-primary, #795547); border-radius: 0.375rem; font-family: 'Thmanyah Sans', system-ui, sans-serif; font-size: 1rem; cursor: pointer; transition: background 0.15s, color 0.15s; } .ds-btn-outline:hover { background: var(--bs-primary, #795547); color: #fff; } .ds-btn-outline:focus-visible { outline: none; box-shadow: 0 0 0 0.25rem rgba(121, 85, 71, 0.25); }"
+    },
+    {
+      "name": "Tab Pill",
+      "kind": "chip",
+      "refersTo": "tab-pill",
+      "description": "Scrollable filter/section pill with icon; active state gets a 12% Warm Earth tint.",
+      "html": "<div style=\"display:flex;gap:0.5rem\"><button class=\"ds-tab-pill ds-active\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 3\"/></svg>الكل</button><button class=\"ds-tab-pill\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M12 3v18M3 12h18\"/></svg>أذكار الصباح</button></div>",
+      "css": ".ds-tab-pill { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.9rem; border: 1px solid #dee2e6; border-radius: 0.375rem; background: transparent; color: #6c757d; font-family: 'Thmanyah Sans', system-ui, sans-serif; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: background 0.15s, color 0.15s; } .ds-tab-pill:hover { background: rgba(108, 117, 125, 0.1); color: #212529; } .ds-tab-pill.ds-active { background: color-mix(in srgb, var(--bs-primary, #795547) 12%, transparent); border-color: transparent; color: #212529; }"
+    },
+    {
+      "name": "Segmented Toggle",
+      "kind": "custom",
+      "refersTo": "toggle-active",
+      "description": "Equal-width segments for settings; active segment fills solid Warm Earth.",
+      "html": "<div class=\"ds-toggle-group\"><button class=\"ds-toggle ds-active\">فاتح</button><button class=\"ds-toggle\">داكن</button><button class=\"ds-toggle\">النظام</button></div>",
+      "css": ".ds-toggle-group { display: flex; gap: 0.5rem; width: 100%; } .ds-toggle { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.6rem; border: 1px solid #dee2e6; border-radius: 0.5rem; background: none; color: #6c757d; font-family: 'Thmanyah Sans', system-ui, sans-serif; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; } .ds-toggle:hover { background: rgba(108, 117, 125, 0.1); } .ds-toggle.ds-active { background: var(--bs-primary, #795547); border-color: var(--bs-primary, #795547); color: #fff; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "description": "Bootstrap-style field with primary-tinted focus ring.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"ابحث في الأذكار...\" dir=\"rtl\" />",
+      "css": ".ds-input { width: 100%; padding: 0.375rem 0.75rem; border: 1px solid #dee2e6; border-radius: 0.375rem; background: #fff; color: #212529; font-family: 'Thmanyah Sans', system-ui, sans-serif; font-size: 1rem; transition: border-color 0.15s, box-shadow 0.15s; } .ds-input:focus { outline: none; border-color: color-mix(in srgb, var(--bs-primary, #795547) 65%, #fff); box-shadow: 0 0 0 0.25rem rgba(121, 85, 71, 0.25); } .ds-input::placeholder { color: #6c757d; }"
+    },
+    {
+      "name": "Bottom Sheet Item",
+      "kind": "nav",
+      "description": "Action row inside bottom sheets — icon + label, tint on hover.",
+      "html": "<button class=\"ds-sheet-item\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13\"/></svg>مشاركة الذكر</button>",
+      "css": ".ds-sheet-item { display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.75rem 1.25rem; background: transparent; border: none; color: #212529; font-family: 'Thmanyah Sans', system-ui, sans-serif; font-size: 1.05rem; text-align: start; cursor: pointer; transition: background-color 0.2s; } .ds-sheet-item:hover { background-color: #f8f9fa; }"
+    },
+    {
+      "name": "Quran Text",
+      "kind": "custom",
+      "refersTo": "quran",
+      "description": "Quran verse in Kitab with generous line-height — the sacred-text voice.",
+      "html": "<p class=\"ds-quran\" dir=\"rtl\">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>",
+      "css": ".ds-quran { font-family: 'Kitab', 'Thmanyah Sans', sans-serif; font-size: 1.4rem; font-weight: 400; line-height: 2; color: #212529; margin: 0; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Pocket Companion",
+    "overview": "Rafeeq (رفيق) is designed as a companion you carry, not a destination you visit: light, ever-ready, personal, built around small moments of worship on the road. The system is warm minimalism — modern, clean surfaces carried by a single warm earth tone, generous Arabic typography, and quiet, flat-leaning components. Warmth comes from type, spacing, and the brown hue itself, never from ornament. The whole interface is Arabic and RTL-first. The system explicitly rejects cluttered Islamic apps drowning content in decoration, sterile SaaS-dashboard chrome, gamified dopamine mechanics, and skeuomorphic mushaf textures.",
+    "keyCharacteristics": [
+      "One warm accent (Warm Earth) on calm neutral surfaces, both runtime-themeable by the user",
+      "Thmanyah Sans for UI text, Thmanyah Serif Display for headings; Kitab exclusively for Quran text",
+      "Flat, border-defined surfaces with soft ambient shadow allowed sparingly",
+      "Refined and restrained components: quiet outlines, gentle tint fills, nothing shouting",
+      "RTL-first, rem-based sizing so the user's font-scale setting scales everything"
+    ],
+    "rules": [
+      {
+        "name": "The Runtime Theme Rule",
+        "body": "Colors are never hardcoded in components. Everything flows through Bootstrap CSS variables (--bs-primary, --bs-body-bg, …) and color-mix() derivations, because the user can change both the primary color and the background at runtime. A hex value in a component is a bug.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Warm Voice Rule",
+        "body": "Warm Earth is the only accent. It appears on a small fraction of any screen — a filled button, an active state, a highlight. Its restraint is what keeps the interface calm.",
+        "section": "colors"
+      },
+      {
+        "name": "The Kitab Rule",
+        "body": "Kitab renders Quran text and nothing else. UI text never uses Kitab; Quran text never uses Plex.",
+        "section": "typography"
+      },
+      {
+        "name": "The Rem Rule",
+        "body": "All type and spacing sizes in rem. The user's font-scale setting (80–130%) works by changing the root font-size; hardcoded pixel type breaks it.",
+        "section": "typography"
+      },
+      {
+        "name": "The Borders-First Rule",
+        "body": "If a border or a background tint can create the separation, it does. A shadow is the exception that must justify itself.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do drive every color through --bs-primary / --bs-body-bg variables and color-mix() derivations — the user can retheme both at runtime.",
+      "Do size everything in rem so the 80–130% font-scale setting scales the whole interface.",
+      "Do keep Warm Earth (#795547) rare: filled CTAs, active states, and highlights only.",
+      "Do use .font-quran (Kitab) for Quran text and generous line-height (≥2) for vocalized script.",
+      "Do design RTL-first with logical properties (margin-inline, text-align: start); LTR is the derived case.",
+      "Do reuse the shared Loading/Error/Offline/Empty state components for every async surface."
+    ],
+    "donts": [
+      "Don't build cluttered screens where decoration buries content — the \"cluttered Islamic apps\" anti-reference.",
+      "Don't reach for stat tiles, card grids, or corporate dashboard chrome — the \"generic SaaS dashboard\" anti-reference.",
+      "Don't add streaks, badges, or dopamine mechanics — the \"over-gamified apps\" anti-reference; worship is not a game.",
+      "Don't use faux leather, paper textures, or literal book metaphors — the \"heavy skeuomorphic mushaf\" anti-reference.",
+      "Don't hardcode hex colors in components; the Runtime Theme Rule forbids it.",
+      "Don't introduce a second accent hue; hover and active states derive from Warm Earth by mixing toward black.",
+      "Don't stack heavy shadows on resting surfaces; borders and tints first, shadows for overlays and rare ambient lift."
+    ]
+  }
+}

@@ -262,7 +262,7 @@ watch(
         padding: 0.15rem 0.75rem;
         font-size: 0.875rem;
         color: var(--bs-gray-600);
-        font-family: 'IBM Plex Sans Arabic', sans-serif;
+        font-family: 'Thmanyah Sans', sans-serif;
         white-space: nowrap;
         border: 1px solid var(--bs-border-color);
         border-radius: 999px;

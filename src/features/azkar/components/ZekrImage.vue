@@ -113,7 +113,7 @@ const repeatLabel = computed(() => {
   min-height: 560px;
   padding: 24px 24px 16px;
   background: #fffdf9;
-  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  font-family: 'Thmanyah Sans', sans-serif;
   display: flex;
   flex-direction: column;
   text-align: center;

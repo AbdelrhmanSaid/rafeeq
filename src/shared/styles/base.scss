@@ -16,7 +16,7 @@
 html,
 body {
   font-family:
-    'IBM Plex Sans Arabic',
+    'Thmanyah Sans',
     system-ui,
     -apple-system,
     'Segoe UI',
@@ -32,6 +32,21 @@ body {
     'Noto Color Emoji';
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+  font-family: 'Thmanyah Serif Display', 'Thmanyah Sans', serif;
+}
+
 .btn-flat,
 .btn-flat:active,
 .btn-flat:focus {
@@ -45,6 +60,32 @@ body {
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+/* Circled icon holder shared by feature cards (prayer times, sunnah, azkar). */
+.icon-circle {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 50%;
+}
+
+.icon-circle svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+/* Square icon-only button with a touch-friendly hit area. */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
 }
 
 .main-content-embed .embed-hidden {

@@ -12,6 +12,8 @@ const prayersStore = usePrayersStore()
 
 <template>
   <Page>
+    <h1 class="visually-hidden">رفيق — الرئيسية</h1>
+
     <Heading :size="2" class="mb-4" title="مواقيت الصلاة" subtitle="إن الصلاة كانت على المؤمنين كتابا موقوتا." />
     <PrayerTimes class="mb-5" :vertical="prayersStore.vertical" />
 
@@ -21,7 +23,7 @@ const prayersStore = usePrayersStore()
     <Heading :size="2" class="mb-4" title="آية من القرآن" subtitle="وننزل من القرآن ما هو شفاء ورحمة للمؤمنين." />
     <RandomAyah class="mb-5" />
 
-    <Heading :size="2" class="mb-4" title="الأذكار" subtitle="لا يزال لسانك رطباً من ذكر الله" />
+    <Heading :size="2" class="mb-4" title="الأذكار" subtitle="لا يزال لسانك رطباً من ذكر الله." />
     <QuickAzkar />
   </Page>
 </template>
