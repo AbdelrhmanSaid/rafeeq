@@ -107,21 +107,21 @@ async function toggleAyahPlayback() {
       <ErrorState :code="500" message="حدث خطأ أثناء تحميل الآية، برجاء المحاولة مرة أخرى." v-else />
     </div>
 
-    <template v-else-if="ayah && tafsir">
-      <div class="card-header d-flex align-items-center justify-content-between py-3">
+    <template v-else-if="ayah">
+      <div class="card-header d-flex align-items-center justify-content-between py-2">
         <span class="fw-semibold">{{ ayah.surah.name }}</span>
 
         <div class="d-flex align-items-center gap-1">
-          <button class="btn btn-flat" @click="prevAyah" title="الآية السابقة" aria-label="الآية السابقة">
+          <button class="btn btn-flat btn-icon" @click="prevAyah" title="الآية السابقة" aria-label="الآية السابقة">
             <IconChevronRight size="18" />
           </button>
 
-          <button class="btn btn-flat" @click="nextAyah" title="الآية التالية" aria-label="الآية التالية">
+          <button class="btn btn-flat btn-icon" @click="nextAyah" title="الآية التالية" aria-label="الآية التالية">
             <IconChevronLeft size="18" />
           </button>
 
           <button
-            class="btn btn-flat"
+            class="btn btn-flat btn-icon"
             @click="toggleAyahPlayback"
             :disabled="!recitation?.audio"
             :title="isPlaying ? 'إيقاف التلاوة' : 'تشغيل التلاوة'"
@@ -131,19 +131,21 @@ async function toggleAyahPlayback() {
             <IconPlayerPlay v-else size="18" />
           </button>
 
-          <button class="btn btn-flat" @click="fetchRandomAyah" title="آية جديدة" aria-label="تحميل آية جديدة">
+          <button class="btn btn-flat btn-icon" @click="fetchRandomAyah" title="آية جديدة" aria-label="تحميل آية جديدة">
             <IconRefresh size="18" />
           </button>
         </div>
       </div>
 
       <div class="card-body">
-        <p class="fs-2 text-center lh-lg font-quran mb-4">
+        <p class="fs-2 text-center lh-lg font-quran" :class="tafsir ? 'mb-4' : 'mb-0'">
           {{ displayText }} <span class="ayah-number">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
         </p>
 
-        <span class="d-block small fw-semibold text-secondary mb-2">{{ tafsir.edition.name }}</span>
-        <p class="small mb-0">{{ tafsir.text }}</p>
+        <template v-if="tafsir">
+          <span class="d-block small fw-semibold text-secondary mb-2">{{ tafsir.edition.name }}</span>
+          <p class="small mb-0">{{ tafsir.text }}</p>
+        </template>
       </div>
     </template>
   </div>

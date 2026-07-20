@@ -100,7 +100,7 @@ const updateSW = registerSW({
     :toast-options="{
       style: {
         gap: '20px',
-        fontFamily: 'IBM Plex Sans Arabic, sans-serif',
+        fontFamily: 'Thmanyah Sans, sans-serif',
       },
     }"
   />

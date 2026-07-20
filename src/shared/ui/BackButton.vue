@@ -1,6 +1,4 @@
 <script setup>
-import { IconArrowLeft } from '@tabler/icons-vue'
-
 const props = defineProps({
   to: {
     type: [String, Object],
@@ -27,7 +25,6 @@ const props = defineProps({
     class="btn d-inline-flex align-items-center gap-2"
     :class="[buttonClass, { 'embed-hidden': embedHidden }]"
   >
-    <IconArrowLeft size="1.25rem" />
     <span>{{ label }}</span>
   </RouterLink>
 </template>

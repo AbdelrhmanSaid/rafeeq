@@ -76,7 +76,7 @@ const { bookmark } = useQuranBookmark()
   margin-bottom: 1rem;
   padding: 1rem;
   border: 1px solid var(--bs-border-color);
-  border-radius: 8px;
+  border-radius: var(--bs-border-radius);
   background-color: rgba(var(--bs-primary-rgb), 0.06);
   color: var(--bs-body-color);
   text-decoration: none;
@@ -103,7 +103,7 @@ const { bookmark } = useQuranBookmark()
   }
 
   &__label {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: var(--bs-secondary-color);
   }
 
@@ -112,7 +112,7 @@ const { bookmark } = useQuranBookmark()
   }
 
   &__text {
-    font-size: 1.1rem;
+    font-size: 1rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

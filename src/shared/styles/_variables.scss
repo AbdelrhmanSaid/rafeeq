@@ -1,3 +1,36 @@
+// Brand
 $primary: #795547;
+
+// Type — vocalized Arabic needs more vertical air than the Latin default.
+$line-height-base: 1.6;
+
+// Shape — one soft, modern radius scale; components must use the CSS vars
+// (--bs-border-radius-*) instead of hardcoding values so this scale stays
+// the single source of truth.
+$border-radius-sm: 0.5rem;
+$border-radius: 0.75rem;
+$border-radius-lg: 1rem;
+$border-radius-xl: 1.5rem;
+
+// Hairlines — a step quieter than the Bootstrap default in light mode.
+$border-color: #e9ecef;
+
+// Controls — touch-first sizing (~44px tall buttons and inputs).
+$input-btn-padding-y: 0.5rem;
+$input-btn-padding-x: 1rem;
+$btn-font-weight: 500;
+
+// Surfaces
+$card-border-radius: var(--bs-border-radius-lg);
+$card-spacer-y: 1.25rem;
+$card-spacer-x: 1.25rem;
+$modal-content-border-radius: var(--bs-border-radius-xl);
+
+// Shadows — soft ambient lift; borders stay the primary depth cue.
+$box-shadow-sm: 0 1px 2px rgba(18, 18, 18, 0.05);
+$box-shadow: 0 8px 24px rgba(18, 18, 18, 0.08);
+$box-shadow-lg: 0 16px 40px rgba(18, 18, 18, 0.12);
+
+// Dark mode
 $body-bg-dark: #121212;
 $border-color-dark: #282828;

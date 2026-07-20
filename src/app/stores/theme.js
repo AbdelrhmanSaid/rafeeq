@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { computed, nextTick, watchEffect } from 'vue'
+import { computed, nextTick, ref, watchEffect } from 'vue'
 import { useLocalStorage, usePreferredDark } from '@vueuse/core'
 import {
   applyPrimaryColor,
@@ -17,6 +17,9 @@ export const useThemeStore = defineStore('theme', () => {
   const primaryColor = useLocalStorage(STORAGE_KEYS.themePrimary, '')
   const fontScale = useLocalStorage(STORAGE_KEYS.fontScale, DEFAULT_FONT_SCALE)
   const prefersDark = usePreferredDark()
+
+  // Embed query params (mode/fg/bg) that must survive watchEffect re-runs.
+  const queryOverrides = ref(null)
 
   const resolvedMode = computed(() => {
     if (mode.value === 'system') return prefersDark.value ? 'dark' : 'light'
@@ -41,15 +44,37 @@ export const useThemeStore = defineStore('theme', () => {
     fontScale.value = DEFAULT_FONT_SCALE
   }
 
-  function applyQueryOverrides({ mode: modeParam, fg, bg }) {
-    if (modeParam === 'light' || modeParam === 'dark') applyMode(modeParam)
-    if (fg) applyPrimaryColor(fg)
-    if (bg) applyBgColor(bg)
+  function applyQueryOverrides({ mode: modeParam, fg, bg } = {}) {
+    const nextMode = modeParam === 'light' || modeParam === 'dark' ? modeParam : null
+    const nextFg = fg || null
+    const nextBg = bg || null
+
+    if (nextMode || nextFg || nextBg) {
+      queryOverrides.value = { mode: nextMode, fg: nextFg, bg: nextBg }
+    } else {
+      queryOverrides.value = null
+    }
+  }
+
+  function clearQueryOverrides() {
+    queryOverrides.value = null
   }
 
   watchEffect(() => {
-    applyMode(resolvedMode.value)
-    applyPrimaryColor(primaryColor.value || null)
+    const theme = {
+      mode: resolvedMode.value,
+      fg: primaryColor.value || null,
+      bg: null,
+    }
+
+    if (queryOverrides.value) {
+      Object.assign(theme, queryOverrides.value)
+    }
+
+    if (theme.mode) applyMode(theme.mode)
+    if (theme.fg) applyPrimaryColor(theme.fg)
+    if (theme.bg) applyBgColor(theme.bg)
+
     nextTick(syncMetaThemeColor)
   })
 
@@ -66,5 +91,6 @@ export const useThemeStore = defineStore('theme', () => {
     setFontScale,
     resetFontScale,
     applyQueryOverrides,
+    clearQueryOverrides,
   }
 })

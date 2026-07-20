@@ -252,7 +252,7 @@ const handleAssetAction = (asset) => {
   width: 38px;
   height: 38px;
   flex-shrink: 0;
-  border-radius: 10px;
+  border-radius: var(--bs-border-radius);
   background: color-mix(in srgb, var(--bs-primary) 12%, transparent);
   color: var(--bs-primary);
 }
@@ -265,7 +265,7 @@ const handleAssetAction = (asset) => {
 
 .dm-title p {
   margin: 0.15rem 0 0;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--bs-secondary-color);
 }
 
@@ -300,8 +300,8 @@ const handleAssetAction = (asset) => {
   padding: 0.5rem 0.75rem;
   background: color-mix(in srgb, var(--bs-primary) 10%, transparent);
   color: var(--bs-body-color);
-  border-radius: 8px;
-  font-size: 0.8rem;
+  border-radius: var(--bs-border-radius-sm);
+  font-size: 0.85rem;
   overflow: hidden;
   min-width: 0;
 }
@@ -342,8 +342,8 @@ const handleAssetAction = (asset) => {
   border: none;
   background: transparent;
   color: var(--bs-secondary-color);
-  font-size: 0.8rem;
-  border-radius: 8px;
+  font-size: 0.85rem;
+  border-radius: var(--bs-border-radius-sm);
   cursor: pointer;
   transition:
     background 0.15s,
@@ -360,10 +360,10 @@ const handleAssetAction = (asset) => {
 }
 
 .dm-filter-count {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   padding: 0.1rem 0.4rem;
   background: rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
+  border-radius: var(--bs-border-radius-pill);
 }
 
 .dm-filter-btn.active .dm-filter-count {
@@ -383,8 +383,8 @@ const handleAssetAction = (asset) => {
   border: 1px solid var(--bs-border-color);
   background: var(--bs-body-bg);
   color: var(--bs-body-color);
-  font-size: 0.8rem;
-  border-radius: 8px;
+  font-size: 0.85rem;
+  border-radius: var(--bs-border-radius-sm);
   cursor: pointer;
   transition:
     background 0.15s,
@@ -432,7 +432,7 @@ const handleAssetAction = (asset) => {
   padding: 0.75rem;
   background: var(--bs-success);
   color: white;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 500;
 }
 

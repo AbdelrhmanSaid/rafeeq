@@ -81,7 +81,7 @@ function increase() {
   width: 2.25rem;
   height: 2.25rem;
   border: 1px solid var(--bs-border-color);
-  border-radius: 0.5rem;
+  border-radius: var(--bs-border-radius-sm);
   background: none;
   color: var(--bs-body-color);
   cursor: pointer;

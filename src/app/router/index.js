@@ -170,7 +170,12 @@ router.beforeEach((to) => {
 })
 
 router.afterEach((to) => {
-  useThemeStore().applyQueryOverrides(to.query)
+  const themeStore = useThemeStore()
+  if (to.path.startsWith('/embed')) {
+    themeStore.applyQueryOverrides(to.query)
+  } else {
+    themeStore.clearQueryOverrides()
+  }
 
   // Close the mobile menu after clicking on a link
   document.querySelector('.navbar-collapse')?.classList?.remove('show')

@@ -102,7 +102,7 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
 .nav-item .nav-link {
   display: flex;
   align-items: center;
-  border-radius: 0.25rem;
+  border-radius: var(--bs-border-radius-sm);
   transition: background-color 0.2s;
 
   &:hover,

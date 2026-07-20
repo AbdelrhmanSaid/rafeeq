@@ -66,7 +66,7 @@ const colors = [
   gap: 0.35rem;
   padding: 0.5rem 0.25rem;
   border: 1px solid transparent;
-  border-radius: 0.5rem;
+  border-radius: var(--bs-border-radius-sm);
   background: none;
   cursor: pointer;
   transition: background 0.15s;
@@ -92,7 +92,7 @@ const colors = [
 }
 
 .color-label {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--bs-secondary-color);
 }
 </style>

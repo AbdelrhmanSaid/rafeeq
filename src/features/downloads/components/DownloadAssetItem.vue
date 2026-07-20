@@ -62,7 +62,7 @@ defineEmits(['action'])
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: var(--bs-border-radius);
   flex-shrink: 0;
 }
 
@@ -83,7 +83,7 @@ defineEmits(['action'])
 
 .dm-item-name {
   display: block;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;

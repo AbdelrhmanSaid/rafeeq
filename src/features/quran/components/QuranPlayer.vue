@@ -128,9 +128,8 @@ defineExpose({ seekToAyah })
     <div class="card-body d-flex align-items-center gap-3">
       <button
         @click="togglePlayPause"
-        class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center"
+        class="btn-play btn btn-primary rounded-circle d-flex align-items-center justify-content-center"
         :disabled="loading || !quranStore.surahAudioUrl"
-        style="width: 40px; height: 40px"
       >
         <IconPlayerPlay v-if="!isPlaying" />
         <IconPlayerPause v-else />
@@ -200,6 +199,12 @@ defineExpose({ seekToAyah })
 </template>
 
 <style lang="scss" scoped>
+.btn-play {
+  width: 40px;
+  height: 40px;
+  padding: 0.625rem;
+}
+
 .player-chip {
   color: var(--bs-secondary-color);
   background-color: var(--bs-secondary-bg);

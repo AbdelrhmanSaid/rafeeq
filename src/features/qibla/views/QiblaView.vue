@@ -119,7 +119,7 @@ onMounted(requestLocation)
 <style lang="scss" scoped>
 .qibla-card {
   border: 1px solid var(--bs-border-color);
-  border-radius: 0.5rem;
+  border-radius: var(--bs-border-radius-lg);
   padding: 3rem;
   transition: border-color 0.2s;
 

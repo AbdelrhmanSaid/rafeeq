@@ -83,7 +83,7 @@ const hasBody = computed(() => {
   width: 36px;
   height: 36px;
   flex-shrink: 0;
-  border-radius: 10px;
+  border-radius: var(--bs-border-radius);
   background: color-mix(in srgb, var(--bs-primary) 12%, transparent);
   color: var(--bs-primary);
 }
@@ -96,7 +96,7 @@ const hasBody = computed(() => {
 
 .settings-section-description {
   margin: 0.15rem 0 0;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--bs-secondary-color);
 }
 
