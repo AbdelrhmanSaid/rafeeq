@@ -61,15 +61,19 @@ export const useThemeStore = defineStore('theme', () => {
   }
 
   watchEffect(() => {
-    const overrides = Object.assign({}, queryOverrides.value, {
+    const theme = {
       mode: resolvedMode.value,
       fg: primaryColor.value || null,
       bg: null,
-    })
+    }
 
-    applyMode(overrides.mode)
-    applyPrimaryColor(overrides.fg)
-    applyBgColor(overrides.bg)
+    if (queryOverrides.value) {
+      Object.assign(theme, queryOverrides.value)
+    }
+
+    if (theme.mode) applyMode(theme.mode)
+    if (theme.fg) applyPrimaryColor(theme.fg)
+    if (theme.bg) applyBgColor(theme.bg)
 
     nextTick(syncMetaThemeColor)
   })
