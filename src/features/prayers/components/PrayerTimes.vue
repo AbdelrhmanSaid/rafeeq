@@ -171,15 +171,11 @@ const remainingTime = computed(() => {
       <div
         v-for="(timing, key) in timingsMap"
         :key="key"
-        class="d-flex align-items-center justify-content-between px-3 py-2 rounded-2 small"
-        :class="
-          key === nextPrayerKey
-            ? 'text-primary bg-primary-subtle border border-primary-subtle fw-bold'
-            : 'bg-body-tertiary'
-        "
+        class="prayer-row d-flex align-items-center justify-content-between px-3 py-2 rounded-2 small border"
+        :class="{ 'prayer-row--next': key === nextPrayerKey }"
       >
         <div class="d-flex align-items-center gap-2">
-          <span class="icon-container">
+          <span class="icon-container" :class="key === nextPrayerKey ? 'text-primary' : 'text-secondary'">
             <PrayerIcon :name="timing.icon" />
           </span>
           <span class="fw-semibold">{{ timing.label }}</span>
@@ -191,10 +187,7 @@ const remainingTime = computed(() => {
     <!-- Cards layout -->
     <div v-else class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2">
       <div v-for="(timing, key) in timingsMap" :key="key" class="col">
-        <div
-          class="card h-100 prayer-card"
-          :class="key === nextPrayerKey ? 'border-primary bg-primary-subtle text-primary' : ''"
-        >
+        <div class="card h-100 prayer-card" :class="{ 'prayer-card--next': key === nextPrayerKey }">
           <div class="card-body d-flex flex-column align-items-center justify-content-center text-center gap-2 p-3">
             <span class="icon-circle" :class="key === nextPrayerKey ? 'border-primary text-primary' : 'text-secondary'">
               <PrayerIcon :name="timing.icon" />
@@ -223,11 +216,20 @@ const remainingTime = computed(() => {
   color: rgba(255, 255, 255, 0.85);
 }
 
+.prayer-row--next {
+  border-color: var(--bs-primary) !important;
+  font-weight: 700;
+}
+
 .prayer-card {
   transition:
     border-color 0.15s ease,
     background-color 0.15s ease,
     color 0.15s ease;
+}
+
+.prayer-card--next {
+  border-color: var(--bs-primary);
 }
 
 /* Reserve room for loading / detect / error states so the swap to loaded

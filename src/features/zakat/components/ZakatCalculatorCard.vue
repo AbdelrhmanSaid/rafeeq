@@ -66,8 +66,7 @@ defineProps({
   text-align: center;
   padding: 1.5rem;
   border-radius: var(--bs-border-radius-lg);
-  background-color: rgba(var(--bs-primary-rgb), 0.07);
-  border: 1px solid color-mix(in srgb, var(--bs-primary) 25%, transparent);
+  border: 1px solid var(--bs-primary);
 }
 
 .zakat-result-label {
@@ -79,7 +78,7 @@ defineProps({
   font-size: clamp(1.5rem, 4vw, 2rem);
   font-weight: 700;
   line-height: 1.2;
-  color: var(--bs-primary);
+  color: var(--bs-body-color);
 }
 
 .zakat-result-hint {
@@ -90,11 +89,7 @@ defineProps({
 .zakat-note {
   padding: 1rem 1.25rem;
   border-radius: var(--bs-border-radius);
-  background-color: var(--bs-tertiary-bg);
+  border: 1px solid var(--bs-border-color);
   font-size: 0.9rem;
-}
-
-[data-bs-theme='dark'] .zakat-note {
-  background-color: rgba(var(--bs-secondary-rgb), 0.1);
 }
 </style>

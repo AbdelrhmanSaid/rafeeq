@@ -55,7 +55,7 @@ const formatRakaa = (value) => {
         <div
           v-for="(prayer, index) in prayers"
           :key="index"
-          class="d-flex align-items-center justify-content-between px-3 py-2 rounded-2 small bg-body-tertiary"
+          class="d-flex align-items-center justify-content-between px-3 py-2 rounded-2 small border"
         >
           <div class="d-flex align-items-center gap-2">
             <span class="icon-container text-secondary">
