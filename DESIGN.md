@@ -9,13 +9,18 @@ colors:
   surface-dark: "#121212"
   border-dark: "#282828"
 typography:
+  display:
+    fontFamily: "Thmanyah Serif Display, Thmanyah Serif Text, serif"
+    fontSize: "3rem"
+    fontWeight: 500
+    lineHeight: 1.15
   headline:
-    fontFamily: "Thmanyah Serif Display, Thmanyah Sans, serif"
+    fontFamily: "Thmanyah Serif Text, Thmanyah Sans, serif"
     fontSize: "2.5rem"
     fontWeight: 500
     lineHeight: 1.2
   title:
-    fontFamily: "Thmanyah Serif Display, Thmanyah Sans, serif"
+    fontFamily: "Thmanyah Serif Text, Thmanyah Sans, serif"
     fontSize: "1.25rem"
     fontWeight: 500
     lineHeight: 1.3
@@ -93,7 +98,7 @@ The system explicitly rejects the anti-references in PRODUCT.md: cluttered Islam
 
 **Key Characteristics:**
 - One warm accent (Warm Earth) on calm neutral surfaces, both runtime-themeable by the user
-- Thmanyah Sans for UI text, Thmanyah Serif Display for headings; Kitab exclusively for Quran text
+- Thmanyah Sans for UI text, Thmanyah Serif Text for headings, Thmanyah Serif Display for large display type; Kitab exclusively for Quran text
 - Flat, border-defined surfaces with soft ambient shadow allowed sparingly
 - Refined and restrained components: quiet outlines, gentle tint fills, nothing shouting
 - RTL-first, rem-based sizing so the user's font-scale setting scales everything
@@ -120,10 +125,11 @@ A restrained palette: one warm brown voice over neutral surfaces, with full ligh
 ## 3. Typography
 
 **Body Font:** Thmanyah Sans (with system-ui fallback), weights 300–900 self-hosted
-**Heading Font:** Thmanyah Serif Display (with Thmanyah Sans fallback), weights 300–900 self-hosted
+**Heading Font:** Thmanyah Serif Text (with Thmanyah Sans fallback), weights 300–900 self-hosted
+**Display Font:** Thmanyah Serif Display (with Thmanyah Serif Text fallback), weights 300–900 self-hosted
 **Quran Font:** Kitab (with Thmanyah Sans fallback), regular and bold
 
-**Character:** Thmanyah Sans carries the interface — contemporary, legible Arabic UI type. Headings step up to Thmanyah Serif Display for a quieter literary voice. Kitab is reserved for the sacred text itself, giving Quran verses a distinct, traditional voice without skeuomorphism.
+**Character:** Thmanyah Sans carries the interface — contemporary, legible Arabic UI type. Headings step up to Thmanyah Serif Text for a quieter literary voice. Thmanyah Serif Display is reserved for large display moments (splash, hero titles). Kitab is reserved for the sacred text itself, giving Quran verses a distinct, traditional voice without skeuomorphism.
 
 ### Hierarchy
 - **Headline** (500, 2.5rem, 1.2): Page titles via the shared `Heading` component.
