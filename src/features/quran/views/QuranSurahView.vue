@@ -17,7 +17,7 @@ import { useQuranStore } from '@/features/quran/store'
 import { useQuranBookmark } from '@/features/quran/composables/useQuranBookmark'
 import { useAsyncData } from '@/shared/composables/useAsyncData'
 import { usePageMeta } from '@/shared/composables/usePageMeta'
-import { toArabicNumerals, removeBismillah } from '@/shared/utils/arabic'
+import { toArabicNumerals, removeBismillah, normalizeQuranicText } from '@/shared/utils/arabic'
 import { fetchSurah } from '@/features/quran/api'
 
 const online = useOnline()
@@ -138,7 +138,7 @@ watch(
   <AsyncContent :pending="isFetching" :error="error" loading-message="جاري تحميل السورة...">
     <Page class="quran-page" v-if="surah">
       <Heading
-        :title="surah.data.name"
+        :title="normalizeQuranicText(surah.data.name)"
         :subtitle="`عدد الآيات: ${toArabicNumerals(surah.data.numberOfAyahs)} آية - سورة ${revelationLabel}`"
         :share="true"
       />

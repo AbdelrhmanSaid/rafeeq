@@ -16,6 +16,15 @@ export const normalize = (text) => {
   return text.toLowerCase()
 }
 
+// UI fonts do not include every Quranic annotation character. Convert the
+// equivalent Quranic forms to standard Arabic before rendering metadata such
+// as surah names, while leaving Quran text untouched.
+export const normalizeQuranicText = (text) =>
+  String(text ?? '')
+    .replace(/\u06e1/gu, '\u0652')
+    .replace(/\u0671/gu, '\u0627')
+    .normalize('NFC')
+
 // Known Unicode renderings of the basmala that may prefix a verse or azkar text.
 export const BISMILLAH_VARIANTS = [
   'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',

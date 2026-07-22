@@ -1,5 +1,6 @@
 import { useLocalStorage } from '@vueuse/core'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
+import { normalizeQuranicText } from '@/shared/utils/arabic'
 
 // useLocalStorage's default serializer can't round-trip `null`, so store the
 // bookmark object (or null) as JSON ourselves.
@@ -24,7 +25,7 @@ export const useQuranBookmark = () => {
     !!bookmark.value && bookmark.value.surahId === Number(surahId) && bookmark.value.ayahNumber === ayahNumber
 
   const setBookmark = ({ surahId, surahName, ayahNumber, text }) => {
-    bookmark.value = { surahId: Number(surahId), surahName, ayahNumber, text }
+    bookmark.value = { surahId: Number(surahId), surahName: normalizeQuranicText(surahName), ayahNumber, text }
   }
 
   const clearBookmark = () => {

@@ -2,7 +2,7 @@
 import { computed, ref, watch, onUnmounted } from 'vue'
 import { useFetch, useOnline } from '@vueuse/core'
 import { toast } from 'vue-sonner'
-import { toArabicNumerals, removeBismillah } from '@/shared/utils/arabic'
+import { toArabicNumerals, removeBismillah, normalizeQuranicText } from '@/shared/utils/arabic'
 import { API } from '@/shared/constants/api'
 import { IconRefresh, IconChevronRight, IconChevronLeft, IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
 import { useReconnectExecute } from '@/shared/composables/useReconnectExecute'
@@ -109,7 +109,7 @@ async function toggleAyahPlayback() {
 
     <template v-else-if="ayah">
       <div class="card-header d-flex align-items-center justify-content-between py-2">
-        <span class="fw-semibold">{{ ayah.surah.name }}</span>
+        <span class="fw-semibold">{{ normalizeQuranicText(ayah.surah.name) }}</span>
 
         <div class="d-flex align-items-center gap-1">
           <button class="btn btn-flat btn-icon" @click="prevAyah" title="الآية السابقة" aria-label="الآية السابقة">
