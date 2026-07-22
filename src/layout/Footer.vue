@@ -1,6 +1,10 @@
 <script setup>
 const resources = [
   {
+    title: 'خطوط ونص المصحف (مجمع الملك فهد)',
+    link: 'https://qul.tarteel.ai/resources/font/238',
+  },
+  {
     title: 'مواقيت الصلاة',
     link: 'https://aladhan.com/prayer-times-api',
   },

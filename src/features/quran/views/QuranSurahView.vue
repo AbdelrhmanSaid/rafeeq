@@ -13,19 +13,21 @@ import AsyncContent from '@/shared/ui/AsyncContent.vue'
 import AudioPlayer from '@/features/quran/components/QuranPlayer.vue'
 import AyahActionSheet from '@/features/quran/components/AyahActionSheet.vue'
 import TafseerSheet from '@/features/quran/components/TafseerSheet.vue'
+import MushafViewer from '@/features/quran/components/mushaf/MushafViewer.vue'
 import { useQuranStore } from '@/features/quran/store'
 import { useQuranBookmark } from '@/features/quran/composables/useQuranBookmark'
 import { useAsyncData } from '@/shared/composables/useAsyncData'
 import { usePageMeta } from '@/shared/composables/usePageMeta'
-import { toArabicNumerals, removeBismillah, normalizeQuranicText } from '@/shared/utils/arabic'
+import { toArabicNumerals, normalizeQuranicText } from '@/shared/utils/arabic'
 import { fetchSurah } from '@/features/quran/api'
 
 const online = useOnline()
 const route = useRoute()
 const surahId = useRouteParams('surah')
 const quranStore = useQuranStore()
-const { isBookmarked, toggleBookmark } = useQuranBookmark()
+const { bookmark, isBookmarked, toggleBookmark } = useQuranBookmark()
 const playerRef = ref(null)
+const mushafRef = ref(null)
 
 const {
   data: surah,
@@ -35,7 +37,9 @@ const {
 } = useAsyncData(async () => {
   const result = await fetchSurah(surahId.value)
   if (online.value && result) {
-    await quranStore.loadSurahAudio(result.data.number, result.data.name)
+    // The player renders this name in UI fonts, which lack some Quranic
+    // annotation glyphs present in the payload's name.
+    await quranStore.loadSurahAudio(result.id, normalizeQuranicText(result.name))
   }
   return result
 })
@@ -47,47 +51,32 @@ watch(surahId, () => {
   window.scrollTo({ top: 0 })
 })
 
-const revelationLabel = computed(() => (surah.value?.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية'))
+const revelationLabel = computed(() => (surah.value?.revelationType === 'Meccan' ? 'مكية' : 'مدنية'))
 const surahNumber = computed(() => Number(surahId.value))
 
 usePageMeta(
   () =>
     surah.value && {
-      title: surah.value.data.name,
-      description: `قراءة وتلاوة سورة ${surah.value.data.name} - ${toArabicNumerals(surah.value.data.numberOfAyahs)} آية - سورة ${revelationLabel.value}`,
-      keywords: ['قرآن', 'سورة', surah.value.data.name, 'تلاوة', 'قراءة', 'رفيق'],
+      title: surah.value.name,
+      description: `قراءة وتلاوة سورة ${surah.value.name} - ${toArabicNumerals(surah.value.numberOfAyahs)} آية - سورة ${revelationLabel.value}`,
+      keywords: ['قرآن', 'سورة', surah.value.name, 'تلاوة', 'قراءة', 'رفيق'],
     },
 )
-
-const ayat = computed(() => {
-  if (surah.value) {
-    let ayat = surah.value.data.ayahs
-
-    if (surah.value.data.number === 1) {
-      ayat = ayat.slice(1)
-    }
-
-    return ayat.map((ayah) => {
-      const text = (ayah.numberInSurah === 1 ? removeBismillah(ayah.text) : ayah.text).trim()
-
-      return {
-        ...ayah,
-        text,
-      }
-    })
-  }
-
-  return []
-})
 
 const activeAyah = ref(null)
 const tafseerAyah = ref(null)
 
+const selectAyah = (ayahNumber) => {
+  activeAyah.value = surah.value?.ayahs.find((a) => a.numberInSurah === ayahNumber) ?? null
+}
+
 // Navigate the tafseer sheet through the surah's ayat without leaving the sheet.
-const tafseerIndex = computed(() => ayat.value.findIndex((a) => a.number === tafseerAyah.value?.number))
+const tafseerIndex = computed(() =>
+  (surah.value?.ayahs ?? []).findIndex((a) => a.number === tafseerAyah.value?.number),
+)
 
 const stepTafseer = (delta) => {
-  const next = ayat.value[tafseerIndex.value + delta]
+  const next = surah.value?.ayahs[tafseerIndex.value + delta]
   if (next) tafseerAyah.value = next
 }
 
@@ -95,40 +84,33 @@ const reciteAyah = () => {
   playerRef.value?.seekToAyah(activeAyah.value?.numberInSurah)
 }
 
-const isCurrentVerse = (verse) => {
-  const currentAyah = quranStore.currentAyah
-  if (!currentAyah || !surah.value) return false
-  return currentAyah.ayah === verse.numberInSurah
-}
-
-const isBookmarkedVerse = (verse) => isBookmarked(surahId.value, verse.numberInSurah)
+const bookmarkedAyahNumber = computed(() =>
+  bookmark.value && surah.value && bookmark.value.surahId === surah.value.id
+    ? bookmark.value.ayahNumber
+    : null,
+)
 
 const handleBookmark = () => {
   const ayah = activeAyah.value
   if (!ayah || !surah.value) return
 
-  const wasBookmarked = isBookmarkedVerse(ayah)
+  const wasBookmarked = isBookmarked(surah.value.id, ayah.numberInSurah)
   toggleBookmark({
-    surahId: surah.value.data.number,
-    surahName: surah.value.data.name,
+    surahId: surah.value.id,
+    surahName: surah.value.name,
     ayahNumber: ayah.numberInSurah,
     text: ayah.text,
   })
   toast.success(wasBookmarked ? 'تمت إزالة الإشارة المرجعية' : 'تم حفظ الإشارة المرجعية')
 }
 
-const scrollToAyah = (ayahNumber) => {
-  const el = document.getElementById(`ayah-${ayahNumber}`)
-  el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-}
-
-// When arriving with ?ayah=N (e.g. from the bookmark card), bring that ayah
-// into view once the surah has rendered.
+// When arriving with ?ayah=N (e.g. from the bookmark card), open the mushaf
+// on that ayah's page once the surah has rendered.
 watch(
   [surah, () => route.query.ayah],
   ([loadedSurah, ayahQuery]) => {
     if (!loadedSurah || !ayahQuery) return
-    nextTick(() => scrollToAyah(Number(ayahQuery)))
+    nextTick(() => mushafRef.value?.goToAyah(Number(ayahQuery), { behavior: 'instant' }))
   },
   { immediate: true },
 )
@@ -138,32 +120,20 @@ watch(
   <AsyncContent :pending="isFetching" :error="error" loading-message="جاري تحميل السورة...">
     <Page class="quran-page" v-if="surah">
       <Heading
-        :title="normalizeQuranicText(surah.data.name)"
-        :subtitle="`عدد الآيات: ${toArabicNumerals(surah.data.numberOfAyahs)} آية - سورة ${revelationLabel}`"
+        :title="normalizeQuranicText(surah.name)"
+        :subtitle="`عدد الآيات: ${toArabicNumerals(surah.numberOfAyahs)} آية - سورة ${revelationLabel}`"
         :share="true"
       />
 
       <!-- Audio Player -->
       <AudioPlayer v-if="online" ref="playerRef" />
 
-      <div class="ayat font-quran mb-4">
-        <span class="basmallah" v-if="surahId != 9">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
-
-        <template v-for="(ayah, index) in ayat" :key="ayah.number">
-          <span
-            :id="`ayah-${ayah.numberInSurah}`"
-            class="ayah clickable-ayah"
-            :class="{ 'current-ayah': isCurrentVerse(ayah), 'bookmarked-ayah': isBookmarkedVerse(ayah) }"
-            @click="activeAyah = ayah"
-            :title="`خيارات الآية ${toArabicNumerals(ayah.numberInSurah)}`"
-            >{{ ayah.text }}</span
-          >
-          <span class="ayah-number" aria-hidden="true">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
-          <div v-if="index < ayat.length - 1 && ayah.page !== ayat[index + 1].page" class="page-separator">
-            <span class="page-number">{{ toArabicNumerals(ayah.page) }}</span>
-          </div>
-        </template>
-      </div>
+      <MushafViewer
+        ref="mushafRef"
+        :surah="surah"
+        :bookmarked-ayah="bookmarkedAyahNumber"
+        @select="selectAyah"
+      />
 
       <div class="d-flex justify-content-center align-items-center gap-2">
         <RouterLink
@@ -189,9 +159,9 @@ watch(
 
       <AyahActionSheet
         :ayah="activeAyah"
-        :surah-name="surah.data.name"
+        :surah-name="surah.name"
         :online="online"
-        :bookmarked="!!activeAyah && isBookmarkedVerse(activeAyah)"
+        :bookmarked="!!activeAyah && isBookmarked(surah.id, activeAyah.numberInSurah)"
         @recite="reciteAyah"
         @tafseer="tafseerAyah = activeAyah"
         @bookmark="handleBookmark"
@@ -201,7 +171,7 @@ watch(
       <TafseerSheet
         :ayah="tafseerAyah"
         :has-prev="tafseerIndex > 0"
-        :has-next="tafseerIndex >= 0 && tafseerIndex < ayat.length - 1"
+        :has-next="tafseerIndex >= 0 && tafseerIndex < surah.ayahs.length - 1"
         @prev="stepTafseer(-1)"
         @next="stepTafseer(1)"
         @close="tafseerAyah = null"
@@ -211,85 +181,10 @@ watch(
 </template>
 
 <style lang="scss" scoped>
-@import '@/shared/styles/quran.css';
-
 .quran-page {
   display: flex;
   flex-direction: column;
   gap: 10px;
   max-width: 700px;
-
-  .ayat {
-    padding: 1rem;
-    border-radius: var(--bs-border-radius-lg);
-    border: 1px solid var(--bs-border-color);
-    text-align: justify;
-    text-align-last: center;
-    text-justify: inter-word;
-
-    .basmallah {
-      display: block;
-      font-size: 2rem;
-      line-height: 2.5;
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-
-    .ayah {
-      // Kitab glyph boxes are taller than em*2, so line-height 2 lets
-      // multi-line inline backgrounds (bookmark/current) overlap between lines.
-      line-height: 2.4;
-      font-size: 1.625rem;
-    }
-
-    .ayah,
-    .ayah-number {
-      margin-bottom: 0.75rem;
-    }
-
-    .page-separator {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      margin: 2rem 0;
-
-      &::before,
-      &::after {
-        content: '';
-        flex: 1;
-        border-bottom: 1px solid var(--bs-border-color);
-      }
-
-      .page-number {
-        padding: 0.15rem 0.75rem;
-        font-size: 0.875rem;
-        color: var(--bs-gray-600);
-        font-family: 'Thmanyah Sans', sans-serif;
-        white-space: nowrap;
-        border: 1px solid var(--bs-border-color);
-        border-radius: var(--bs-border-radius-pill);
-      }
-    }
-
-    .clickable-ayah {
-      cursor: pointer;
-    }
-
-    .current-ayah {
-      background-color: var(--bs-secondary-bg);
-    }
-
-    .bookmarked-ayah {
-      background-color: rgba(var(--bs-primary-rgb), 0.12);
-      // Inset (not outset) so the outline stays inside each line fragment.
-      box-shadow: inset 0 0 0 1px rgba(var(--bs-primary-rgb), 0.35);
-      border-radius: var(--bs-border-radius-sm);
-      // Horizontal padding only — vertical padding grows fragment boxes and
-      // reintroduces overlap even with the taller line-height above.
-      padding: 0 0.25rem;
-      box-decoration-break: clone;
-      -webkit-box-decoration-break: clone;
-    }
-  }
 }
 </style>

@@ -15,6 +15,8 @@ export const useQuranStore = defineStore('quran', () => {
   const currentReciter = useLocalStorage(STORAGE_KEYS.currentReciter, DEFAULT_RECITER_ID)
   const currentTafseer = useLocalStorage(STORAGE_KEYS.currentTafseer, DEFAULT_TAFSEER)
   const playbackRate = useLocalStorage(STORAGE_KEYS.playbackRate, 1)
+  // 'flip' = horizontal page-turning, 'scroll' = vertical stack of pages.
+  const mushafLayout = useLocalStorage(STORAGE_KEYS.mushafLayout, 'flip')
 
   const surahAudioUrl = ref(null)
   const surahName = ref(null)
@@ -111,8 +113,10 @@ export const useQuranStore = defineStore('quran', () => {
     currentReciter,
     currentTafseer,
     playbackRate,
+    mushafLayout,
     surahAudioUrl,
     surahName,
+    currentSurahNumber,
 
     reciter,
     currentAyah,
