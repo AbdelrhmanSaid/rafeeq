@@ -23,7 +23,7 @@ export function useMushafNavigation({ containerRef, horizontal = false }) {
           if (entry.isIntersecting) visiblePage.value = Number(entry.target.dataset.page)
         }
       },
-      { root: horizontal ? container : null, threshold: 0.55 }
+      { root: horizontal ? container : null, threshold: 0.55 },
     )
     container.querySelectorAll('[data-page]').forEach((el) => observer.observe(el))
   }
@@ -49,9 +49,7 @@ export function useMushafNavigation({ containerRef, horizontal = false }) {
     // only signal for behavior:'instant').
     autoNavTimer = setTimeout(endAutoNavigation, behavior === 'smooth' ? 900 : 150)
 
-    target.scrollIntoView(
-      horizontal ? { inline: 'center', block: 'nearest', behavior } : { block: 'center', behavior }
-    )
+    target.scrollIntoView(horizontal ? { inline: 'center', block: 'nearest', behavior } : { block: 'center', behavior })
   }
 
   const scrollTarget = () => (horizontal ? containerRef.value : window)

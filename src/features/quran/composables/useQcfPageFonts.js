@@ -46,7 +46,7 @@ export function useQcfPageFonts(pages) {
         loadPageFont(Math.min(604, list[list.length - 1] + 1)).catch(() => {})
       }
     },
-    { immediate: true }
+    { immediate: true },
   )
 
   // Failed pages retry when connectivity returns.

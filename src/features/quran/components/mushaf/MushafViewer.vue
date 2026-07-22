@@ -20,9 +20,7 @@ const quranStore = useQuranStore()
 const viewerRef = ref(null)
 
 const pages = useMushafLayout(() => props.surah)
-const { readyPages, failedPages, surahNamesReady, prioritize } = useQcfPageFonts(
-  () => props.surah.pages
-)
+const { readyPages, failedPages, surahNamesReady, prioritize } = useQcfPageFonts(() => props.surah.pages)
 
 const ayahPage = computed(() => {
   const map = new Map()
@@ -52,9 +50,7 @@ watch(visiblePage, (page) => {
   if (page != null) prioritize([page])
 })
 
-const activeViewer = computed(() =>
-  quranStore.mushafLayout === 'scroll' ? MushafScrollViewer : MushafFlipViewer
-)
+const activeViewer = computed(() => (quranStore.mushafLayout === 'scroll' ? MushafScrollViewer : MushafFlipViewer))
 
 // Keep the reader's place when toggling between layouts (the viewer remounts).
 watch(
@@ -62,7 +58,7 @@ watch(
   () => {
     const page = visiblePage.value
     if (page != null) nextTick(() => goToPage(page, { behavior: 'instant' }))
-  }
+  },
 )
 
 function toggleLayout() {
@@ -78,11 +74,7 @@ defineExpose({ goToAyah, goToPage })
       <span class="page-indicator">
         صفحة {{ toArabicNumerals(visiblePage ?? surah.pages[0]) }} من {{ toArabicNumerals(604) }}
       </span>
-      <button
-        type="button"
-        class="btn btn-flat btn-sm d-inline-flex align-items-center gap-2"
-        @click="toggleLayout"
-      >
+      <button type="button" class="btn btn-flat btn-sm d-inline-flex align-items-center gap-2" @click="toggleLayout">
         <IconArrowAutofitDown v-if="quranStore.mushafLayout === 'flip'" size="1rem" />
         <IconBook v-else size="1rem" />
         <span>{{ quranStore.mushafLayout === 'flip' ? 'تمرير عمودي' : 'تقليب الصفحات' }}</span>

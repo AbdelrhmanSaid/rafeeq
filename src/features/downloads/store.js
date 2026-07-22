@@ -37,8 +37,7 @@ export const useDownloadStore = defineStore('download', () => {
         const surah = await fetchSurah(asset.data.id)
         await cachePageFonts(surah.pages)
       },
-      cleanup: (asset, remainingIds) =>
-        deletePageFonts(pagesExclusiveTo(asset.data.id, remainingIds)),
+      cleanup: (asset, remainingIds) => deletePageFonts(pagesExclusiveTo(asset.data.id, remainingIds)),
     },
     azkar: {
       offline: useOfflineData('azkar'),

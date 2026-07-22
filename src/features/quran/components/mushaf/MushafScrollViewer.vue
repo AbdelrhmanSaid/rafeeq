@@ -21,12 +21,11 @@ const { visiblePage, isAutoNavigating, goToPage, observePages } = useMushafNavig
   containerRef: stack,
 })
 
-const pageAyah = (page, ayah) =>
-  ayah != null && page.ayahs.some((a) => a.numberInSurah === ayah) ? ayah : null
+const pageAyah = (page, ayah) => (ayah != null && page.ayahs.some((a) => a.numberInSurah === ayah) ? ayah : null)
 
 watch(
   () => props.pages,
-  () => nextTick(observePages)
+  () => nextTick(observePages),
 )
 
 defineExpose({ visiblePage, isAutoNavigating, goToPage })

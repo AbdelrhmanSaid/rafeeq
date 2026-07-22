@@ -33,8 +33,7 @@ const activeIndex = computed(() => {
 // equally-sized placeholder so snap geometry never shifts.
 const isNear = (index) => Math.abs(index - activeIndex.value) <= 2
 
-const pageAyah = (page, ayah) =>
-  ayah != null && page.ayahs.some((a) => a.numberInSurah === ayah) ? ayah : null
+const pageAyah = (page, ayah) => (ayah != null && page.ayahs.some((a) => a.numberInSurah === ayah) ? ayah : null)
 
 function step(delta) {
   const target = props.pages[activeIndex.value + delta]
@@ -50,7 +49,7 @@ useEventListener(window, 'keydown', (event) => {
 
 watch(
   () => props.pages,
-  () => nextTick(observePages)
+  () => nextTick(observePages),
 )
 
 defineExpose({ visiblePage, isAutoNavigating, goToPage })

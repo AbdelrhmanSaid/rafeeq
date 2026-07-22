@@ -71,9 +71,7 @@ const selectAyah = (ayahNumber) => {
 }
 
 // Navigate the tafseer sheet through the surah's ayat without leaving the sheet.
-const tafseerIndex = computed(() =>
-  (surah.value?.ayahs ?? []).findIndex((a) => a.number === tafseerAyah.value?.number),
-)
+const tafseerIndex = computed(() => (surah.value?.ayahs ?? []).findIndex((a) => a.number === tafseerAyah.value?.number))
 
 const stepTafseer = (delta) => {
   const next = surah.value?.ayahs[tafseerIndex.value + delta]
@@ -85,9 +83,7 @@ const reciteAyah = () => {
 }
 
 const bookmarkedAyahNumber = computed(() =>
-  bookmark.value && surah.value && bookmark.value.surahId === surah.value.id
-    ? bookmark.value.ayahNumber
-    : null,
+  bookmark.value && surah.value && bookmark.value.surahId === surah.value.id ? bookmark.value.ayahNumber : null,
 )
 
 const handleBookmark = () => {
@@ -128,12 +124,7 @@ watch(
       <!-- Audio Player -->
       <AudioPlayer v-if="online" ref="playerRef" />
 
-      <MushafViewer
-        ref="mushafRef"
-        :surah="surah"
-        :bookmarked-ayah="bookmarkedAyahNumber"
-        @select="selectAyah"
-      />
+      <MushafViewer ref="mushafRef" :surah="surah" :bookmarked-ayah="bookmarkedAyahNumber" @select="selectAyah" />
 
       <div class="d-flex justify-content-center align-items-center gap-2">
         <RouterLink

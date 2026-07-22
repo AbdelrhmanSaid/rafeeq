@@ -20,9 +20,7 @@ const emit = defineEmits(['select'])
 
 // The sura_names font maps surah N to the PUA codepoint whose hex digits
 // spell N in decimal (surah 114 → U+E114).
-const surahNameGlyph = computed(() =>
-  String.fromCodePoint(parseInt(`e${String(props.surahId).padStart(3, '0')}`, 16))
-)
+const surahNameGlyph = computed(() => String.fromCodePoint(parseInt(`e${String(props.surahId).padStart(3, '0')}`, 16)))
 
 const surahNamesFontFamily = SURAH_NAMES_FONT_FAMILY
 
