@@ -236,7 +236,9 @@ watch(
     }
 
     .ayah {
-      line-height: 2;
+      // Kitab glyph boxes are taller than em*2, so line-height 2 lets
+      // multi-line inline backgrounds (bookmark/current) overlap between lines.
+      line-height: 2.4;
       font-size: 1.625rem;
     }
 
@@ -279,9 +281,14 @@ watch(
 
     .bookmarked-ayah {
       background-color: rgba(var(--bs-primary-rgb), 0.12);
-      box-shadow: 0 0 0 1px rgba(var(--bs-primary-rgb), 0.35);
+      // Inset (not outset) so the outline stays inside each line fragment.
+      box-shadow: inset 0 0 0 1px rgba(var(--bs-primary-rgb), 0.35);
       border-radius: var(--bs-border-radius-sm);
+      // Horizontal padding only — vertical padding grows fragment boxes and
+      // reintroduces overlap even with the taller line-height above.
       padding: 0 0.25rem;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
     }
   }
 }
