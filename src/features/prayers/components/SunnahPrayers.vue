@@ -114,4 +114,18 @@ const formatRakaa = (value) => {
   text-align: center;
   flex-shrink: 0;
 }
+
+/* Match the icon sizing of the prayer times list rows. */
+.icon-container {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+
+  :deep(svg) {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+}
 </style>
