@@ -24,6 +24,7 @@ export const STORAGE_KEYS = {
   currentReciter: 'currentReciter',
   currentTafseer: 'currentTafseer',
   playbackRate: 'quran-playback-rate',
+  mushafLayout: 'mushaf-layout',
 
   azkarProgress: 'azkar-progress',
   azkarFavorites: 'azkarFavorites',

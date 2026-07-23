@@ -8,6 +8,9 @@ import OneSignalVuePlugin from '@onesignal/onesignal-vue3'
 
 import App from './App.vue'
 import router from './router'
+import { runOfflineMigrations } from '@/shared/offline/migrations'
+
+runOfflineMigrations().catch(() => {})
 
 const app = createApp(App)
 

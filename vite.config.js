@@ -19,7 +19,9 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,woff,woff2}'],
-        globIgnores: ['push/onesignal/**/*'],
+        // QCF mushaf fonts (~46 MB across 605 files) are loaded on demand and
+        // cached explicitly (qcfFontCache.js) — never precached.
+        globIgnores: ['push/onesignal/**/*', 'fonts/qcfv1/**'],
         runtimeCaching: [
           // Cache Prayer Times API responses
           {
@@ -32,6 +34,15 @@ export default defineConfig({
                 maxAgeSeconds: 60 * 60 * 12, // 12 hours
               },
               networkTimeoutSeconds: 5,
+            },
+          },
+          // QCF mushaf page fonts — same cache name as qcfFontCache.js so
+          // SW-intercepted loads and explicit surah downloads share one store.
+          {
+            urlPattern: /\/fonts\/qcfv1\//,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'qcf-v1-fonts',
             },
           },
           // Cache fonts

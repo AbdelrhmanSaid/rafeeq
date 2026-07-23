@@ -6,8 +6,24 @@ import { useOfflineData } from '@/shared/offline/useOfflineData'
 import { fetchSurah } from '@/features/quran/api'
 import { fetchCategory } from '@/features/azkar/api'
 import surahs from '@/features/quran/data/surahs.js'
+import surahPages from '@/features/quran/data/surahPages.js'
 import azkarCategories from '@/features/azkar/data/categories.js'
+import { cachePageFonts, deletePageFonts, clearFontCache } from '@/features/quran/fonts/qcfFontCache'
 import { sleep } from '@/shared/utils/async'
+
+// Consecutive surahs share mushaf pages, so a surah's fonts may only be
+// deleted for pages no other still-downloaded surah needs.
+function pagesExclusiveTo(surahId, downloadedIds) {
+  const [first, last] = surahPages[surahId]
+  const kept = new Set()
+  for (const id of downloadedIds) {
+    const [f, l] = surahPages[id]
+    for (let page = Math.max(f, first); page <= Math.min(l, last); page++) kept.add(page)
+  }
+  const pages = []
+  for (let page = first; page <= last; page++) if (!kept.has(page)) pages.push(page)
+  return pages
+}
 
 export const useDownloadStore = defineStore('download', () => {
   const online = useOnline()
@@ -15,9 +31,13 @@ export const useDownloadStore = defineStore('download', () => {
   // One entry per downloadable asset type — adding a type is data, not new branches.
   const assetTypes = {
     surah: {
-      offline: useOfflineData('quran'),
+      offline: useOfflineData('mushaf'),
       assets: surahs.map((s) => ({ id: `surah-${s.id}`, type: 'surah', name: s.name, key: String(s.id), data: s })),
-      fetch: (asset) => fetchSurah(asset.data.id),
+      fetch: async (asset) => {
+        const surah = await fetchSurah(asset.data.id)
+        await cachePageFonts(surah.pages)
+      },
+      cleanup: (asset, remainingIds) => deletePageFonts(pagesExclusiveTo(asset.data.id, remainingIds)),
     },
     azkar: {
       offline: useOfflineData('azkar'),
@@ -104,11 +124,15 @@ export const useDownloadStore = defineStore('download', () => {
   }
 
   async function removeAsset(asset) {
-    await assetTypes[asset.type].offline.remove(asset.key)
+    const type = assetTypes[asset.type]
+    await type.offline.remove(asset.key)
+    const remainingIds = type.offline.keys.value.map(Number)
+    await type.cleanup?.(asset, remainingIds)
   }
 
   async function removeAllAssets() {
     await Promise.all(types.map((t) => t.offline.removeAll()))
+    await clearFontCache()
   }
 
   function pauseDownloads() {

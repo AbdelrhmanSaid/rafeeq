@@ -4,4 +4,5 @@ export const API = {
   aladhan: 'https://api.aladhan.com/v1',
   mp3quran: 'https://www.mp3quran.net/api/v3',
   azkarData: '/data/azkar',
+  quranData: '/data/quran',
 }

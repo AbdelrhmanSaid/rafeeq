@@ -17,6 +17,7 @@ import SettingsTheme from '../components/SettingsTheme.vue'
 import SettingsFontSize from '../components/SettingsFontSize.vue'
 import SettingsPrayerTimes from '../components/SettingsPrayerTimes.vue'
 import SettingsReciter from '../components/SettingsReciter.vue'
+import SettingsMushafLayout from '../components/SettingsMushafLayout.vue'
 import SettingsTafseer from '../components/SettingsTafseer.vue'
 import SettingsDownloadAssets from '../components/SettingsDownloadAssets.vue'
 import SettingsAutoUpdate from '../components/SettingsAutoUpdate.vue'
@@ -44,7 +45,7 @@ const tabs = [
     id: 'quran',
     label: 'القرآن',
     icon: IconBook2,
-    sections: [SettingsReciter, SettingsTafseer],
+    sections: [SettingsMushafLayout, SettingsReciter, SettingsTafseer],
   },
   {
     id: 'azkar',
