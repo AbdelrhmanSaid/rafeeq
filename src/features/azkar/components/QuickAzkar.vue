@@ -1,6 +1,7 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import { IconSun, IconMoon, IconShield, IconDots } from '@tabler/icons-vue'
+import { Card, CardContent } from '@/shared/components/ui/card'
 
 const azkar = [
   {
@@ -25,57 +26,49 @@ const azkar = [
 </script>
 
 <template>
-  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
-    <div v-for="item in azkar" :key="item.slug" class="col">
-      <div class="card h-100 position-relative">
-        <div class="card-body d-flex align-items-center gap-3">
-          <span class="icon-circle text-secondary">
-            <component :is="item.icon" />
-          </span>
-          <div>
-            <h3 class="card-title fs-5 mb-1">{{ item.name }}</h3>
-            <small class="text-body-secondary">{{ item.description }}</small>
-          </div>
+  <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+    <!-- The link is an overlay covering the whole tile, so the card itself
+         carries the hover state and the focus ring for it. -->
+    <Card
+      v-for="item in azkar"
+      :key="item.slug"
+      class="relative h-full gap-0 py-0 transition-colors hover:bg-secondary focus-within:bg-secondary focus-within:ring-3 focus-within:ring-ring/50"
+    >
+      <CardContent class="flex items-center gap-3 p-4">
+        <span
+          class="grid size-9 shrink-0 place-items-center rounded-full border text-muted-foreground [&_svg]:size-[1.15rem]"
+        >
+          <component :is="item.icon" />
+        </span>
+        <div>
+          <h3 class="mb-1 text-xl">{{ item.name }}</h3>
+          <span class="text-sm text-muted-foreground">{{ item.description }}</span>
         </div>
-        <RouterLink :to="{ name: 'azkar-category', params: { category: item.slug } }" class="stretched-link" />
-      </div>
-    </div>
+      </CardContent>
 
-    <div class="col">
-      <div class="card h-100 position-relative">
-        <div class="card-body d-flex align-items-center gap-3">
-          <span class="icon-circle text-secondary">
-            <IconDots />
-          </span>
-          <div>
-            <h3 class="card-title fs-5 mb-1">المزيد</h3>
-            <small class="text-body-secondary">اضغط هنا لعرض كل الأذكار المتاحة</small>
-          </div>
+      <RouterLink
+        :to="{ name: 'azkar-category', params: { category: item.slug } }"
+        class="absolute inset-0 rounded-xl focus:outline-none"
+        :aria-label="item.name"
+      />
+    </Card>
+
+    <Card
+      class="relative h-full gap-0 py-0 transition-colors hover:bg-secondary focus-within:bg-secondary focus-within:ring-3 focus-within:ring-ring/50"
+    >
+      <CardContent class="flex items-center gap-3 p-4">
+        <span
+          class="grid size-9 shrink-0 place-items-center rounded-full border text-muted-foreground [&_svg]:size-[1.15rem]"
+        >
+          <IconDots />
+        </span>
+        <div>
+          <h3 class="mb-1 text-xl">المزيد</h3>
+          <span class="text-sm text-muted-foreground">اضغط هنا لعرض كل الأذكار المتاحة</span>
         </div>
-        <RouterLink :to="{ name: 'azkar' }" class="stretched-link" />
-      </div>
-    </div>
+      </CardContent>
+
+      <RouterLink :to="{ name: 'azkar' }" class="absolute inset-0 rounded-xl focus:outline-none" aria-label="المزيد" />
+    </Card>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.card {
-  transition:
-    background-color 0.2s ease,
-    box-shadow 0.2s ease;
-
-  &:hover,
-  &:focus-within {
-    background-color: rgba(var(--bs-secondary-rgb), 0.1);
-  }
-
-  /* The card itself carries the focus ring for the stretched link. */
-  &:focus-within {
-    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
-  }
-
-  .stretched-link:focus {
-    outline: none;
-  }
-}
-</style>

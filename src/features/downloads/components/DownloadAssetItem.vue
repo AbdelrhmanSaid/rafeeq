@@ -1,177 +1,61 @@
 <script setup>
+import { computed } from 'vue'
 import { IconBook2, IconSparkles, IconCheck, IconLoader2, IconDownload } from '@tabler/icons-vue'
+import { Button } from '@/shared/components/ui/button'
+import { Progress } from '@/shared/components/ui/progress'
 
-defineProps({
+const props = defineProps({
   asset: { type: Object, required: true },
   online: { type: Boolean, default: true },
 })
 
 defineEmits(['action'])
+
+const rowClass = {
+  downloaded: 'bg-success/10',
+  downloading: 'bg-primary/10',
+}
+
+const actionClass = {
+  'not-downloaded': 'bg-secondary text-primary hover:bg-primary hover:text-primary-foreground',
+  'downloaded': 'bg-success text-success-foreground hover:bg-destructive hover:text-destructive-foreground',
+  'downloading': 'bg-primary text-primary-foreground',
+  'queued': 'bg-secondary text-muted-foreground hover:bg-secondary hover:text-muted-foreground',
+}
+
+const rowTone = computed(() => rowClass[props.asset.status] ?? '')
+const actionTone = computed(() => actionClass[props.asset.status] ?? '')
 </script>
 
 <template>
-  <div class="dm-item" :class="asset.status">
-    <div class="dm-item-icon" :class="asset.type">
+  <div class="flex items-center gap-3 border-b px-4 py-3 last:border-b-0" :class="rowTone">
+    <div
+      class="flex size-9 shrink-0 items-center justify-center rounded-md"
+      :class="asset.type === 'surah' ? 'bg-primary/15 text-primary' : 'bg-success/15 text-success'"
+    >
       <IconBook2 v-if="asset.type === 'surah'" :size="18" />
       <IconSparkles v-else :size="18" />
     </div>
 
-    <div class="dm-item-info">
-      <span class="dm-item-name">{{ asset.name }}</span>
-      <span class="dm-item-type">{{ asset.type === 'surah' ? 'سورة' : 'أذكار' }}</span>
+    <div class="min-w-0 flex-1">
+      <span class="block truncate text-sm font-medium">{{ asset.name }}</span>
+      <span class="text-xs text-muted-foreground">{{ asset.type === 'surah' ? 'سورة' : 'أذكار' }}</span>
+      <!-- The queue reports no byte-level progress, so the bar only signals that
+           this asset is the one currently downloading. -->
+      <Progress v-if="asset.status === 'downloading'" :model-value="100" class="mt-1.5 h-1 animate-pulse" />
     </div>
 
-    <button
-      class="dm-item-action"
-      :class="asset.status"
+    <Button
+      size="icon"
+      class="shrink-0 rounded-full"
+      :class="actionTone"
       @click="$emit('action', asset)"
       :disabled="asset.status === 'downloading' || (!online && asset.status === 'not-downloaded')"
     >
       <IconCheck v-if="asset.status === 'downloaded'" :size="16" />
-      <IconLoader2 v-else-if="asset.status === 'downloading'" :size="16" class="spin" />
-      <span v-else-if="asset.status === 'queued'" class="queued-dot"></span>
+      <IconLoader2 v-else-if="asset.status === 'downloading'" :size="16" class="animate-spin" />
+      <span v-else-if="asset.status === 'queued'" class="size-2 shrink-0 rounded-full bg-current animate-pulse"></span>
       <IconDownload v-else :size="16" />
-    </button>
+    </Button>
   </div>
 </template>
-
-<style scoped>
-.dm-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--bs-border-color);
-}
-
-.dm-item:last-child {
-  border-bottom: none;
-}
-
-.dm-item.downloaded {
-  background: color-mix(in srgb, var(--bs-success) 8%, transparent);
-}
-
-.dm-item.downloading {
-  background: color-mix(in srgb, var(--bs-primary) 8%, transparent);
-}
-
-.dm-item-icon {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--bs-border-radius);
-  flex-shrink: 0;
-}
-
-.dm-item-icon.surah {
-  background: color-mix(in srgb, var(--bs-primary) 15%, transparent);
-  color: var(--bs-primary);
-}
-
-.dm-item-icon.azkar {
-  background: color-mix(in srgb, var(--bs-success) 15%, transparent);
-  color: var(--bs-success);
-}
-
-.dm-item-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.dm-item-name {
-  display: block;
-  font-size: 0.85rem;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.dm-item-type {
-  font-size: 0.75rem;
-  color: var(--bs-secondary-color);
-}
-
-.dm-item-action {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s;
-  flex-shrink: 0;
-}
-
-.dm-item-action.not-downloaded {
-  background: rgba(var(--bs-secondary-rgb), 0.1);
-  color: var(--bs-primary);
-}
-
-.dm-item-action.not-downloaded:hover:not(:disabled) {
-  background: var(--bs-primary);
-  color: white;
-}
-
-.dm-item-action.downloaded {
-  background: var(--bs-success);
-  color: white;
-}
-
-.dm-item-action.downloaded:hover {
-  background: var(--bs-danger);
-}
-
-.dm-item-action.downloading {
-  background: var(--bs-primary);
-  color: white;
-}
-
-.dm-item-action.queued {
-  background: rgba(var(--bs-secondary-rgb), 0.1);
-  color: var(--bs-secondary-color);
-}
-
-.dm-item-action:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.queued-dot {
-  width: 8px;
-  height: 8px;
-  background: var(--bs-secondary-color);
-  border-radius: 50%;
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-</style>

@@ -2,6 +2,7 @@
 import { storeToRefs } from 'pinia'
 import { IconDeviceFloppy } from '@tabler/icons-vue'
 import { useAppStore } from '@/app/stores/app'
+import { Switch } from '@/shared/components/ui/switch'
 import SettingsSection from './SettingsSection.vue'
 
 const appStore = useAppStore()
@@ -15,14 +16,7 @@ const { zekrSaveProgress } = storeToRefs(appStore)
     :icon="IconDeviceFloppy"
   >
     <template #actions>
-      <div class="form-check form-switch m-0">
-        <input
-          v-model="zekrSaveProgress"
-          class="form-check-input"
-          type="checkbox"
-          aria-label="تفعيل حفظ تقدم الأذكار"
-        />
-      </div>
+      <Switch v-model="zekrSaveProgress" aria-label="تفعيل حفظ تقدم الأذكار" />
     </template>
   </SettingsSection>
 </template>

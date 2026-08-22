@@ -8,6 +8,7 @@ import { useReconnectExecute } from '@/shared/composables/useReconnectExecute'
 import LoadingState from '@/shared/ui/LoadingState.vue'
 import ErrorState from '@/shared/ui/ErrorState.vue'
 import OfflineState from '@/shared/ui/OfflineState.vue'
+import { Card, CardContent } from '@/shared/components/ui/card'
 import { formatTime, toArabicNumerals } from '@/shared/utils/arabic'
 import { API } from '@/shared/constants/api'
 import { CALCULATION_FIELDS } from '@/features/prayers/constants/calculationOptions'
@@ -124,160 +125,110 @@ const remainingTime = computed(() => {
 
   return formatTime((nextPrayerTime - currentTime) / 1000)
 })
+
+// Reserve room for loading / detect / error states so the swap to loaded
+// content doesn't shift the page.
+const stateBox = 'grid min-h-52 place-items-center rounded-xl border p-5'
 </script>
 
 <template>
-  <div v-if="!hasPropsCoords && store.isDetecting" class="prayer-state border rounded p-5">
+  <div v-if="!hasPropsCoords && store.isDetecting" :class="stateBox">
     <LoadingState message="جاري تحديد موقعك..." />
   </div>
 
   <button
     v-else-if="!hasPropsCoords && (store.latitude === 0 || store.longitude === 0)"
     type="button"
-    class="prayer-state detect-btn w-100 border rounded p-5 text-center"
+    :class="stateBox"
+    class="w-full cursor-pointer text-center transition-colors hover:bg-accent focus-visible:ring-4 focus-visible:ring-ring/25 focus-visible:outline-none"
     @click="detect"
   >
     اضغط هنا لتحديد الموقع الخاص بك وعرض مواقيت الصلاة
   </button>
 
-  <div v-else-if="isFetching || isRecoveringOnReconnect" class="prayer-state border rounded p-5">
+  <div v-else-if="isFetching || isRecoveringOnReconnect" :class="stateBox">
     <LoadingState message="جاري تحميل مواقيت الصلاة..." />
   </div>
 
-  <div v-else-if="error" class="prayer-state border rounded p-5">
+  <div v-else-if="error" :class="stateBox">
     <OfflineState v-if="!online" />
     <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." v-else />
   </div>
 
-  <div v-else-if="timings" class="d-flex flex-column gap-2">
-    <div class="prayer-header d-flex align-items-center justify-content-between p-3 rounded text-white">
+  <div v-else-if="timings" class="flex flex-col gap-2">
+    <div class="prayer-header flex items-center justify-between rounded-xl p-3 text-primary-foreground">
       <div>
-        <div class="d-flex align-items-center gap-2 small text-soft">
-          <span class="icon-circle icon-circle--header">
+        <!-- Secondary text on the primary-colored header; the primary foreground
+             token at reduced alpha keeps contrast readable where a gray would
+             wash out. -->
+        <div class="flex items-center gap-2 text-sm text-primary-foreground/85">
+          <span
+            class="grid size-7 shrink-0 place-items-center rounded-full border border-primary-foreground/35 text-primary-foreground [&_svg]:size-4"
+          >
             <PrayerIcon v-if="nextPrayerKey" :name="timingsMap[nextPrayerKey]?.icon" />
           </span>
           <span v-if="nextPrayerKey">الصلاة القادمة · {{ timingsMap[nextPrayerKey]?.label }}</span>
         </div>
-        <div class="fs-4 fw-bold mt-1">{{ remainingTime }}</div>
+        <div class="mt-1 text-2xl font-bold">{{ remainingTime }}</div>
       </div>
       <div class="text-end">
-        <div class="mb-1 fw-semibold">{{ hijriDay }}</div>
-        <small class="text-soft">{{ hijriDate }}</small>
+        <div class="mb-1 font-semibold">{{ hijriDay }}</div>
+        <span class="text-sm text-primary-foreground/85">{{ hijriDate }}</span>
       </div>
     </div>
 
     <!-- Vertical / list layout -->
-    <div v-if="vertical" class="d-flex flex-column gap-1">
+    <div v-if="vertical" class="flex flex-col gap-1">
       <div
         v-for="(timing, key) in timingsMap"
         :key="key"
-        class="prayer-row d-flex align-items-center justify-content-between px-3 py-2 rounded-2 small border"
-        :class="{ 'prayer-row--next': key === nextPrayerKey }"
+        class="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
+        :class="{ 'border-primary font-bold': key === nextPrayerKey }"
       >
-        <div class="d-flex align-items-center gap-2">
-          <span class="icon-container" :class="key === nextPrayerKey ? 'text-primary' : 'text-secondary'">
+        <div class="flex items-center gap-2">
+          <span
+            class="grid size-6 shrink-0 place-items-center [&_svg]:size-[1.15rem]"
+            :class="key === nextPrayerKey ? 'text-primary' : 'text-muted-foreground'"
+          >
             <PrayerIcon :name="timing.icon" />
           </span>
-          <span class="fw-semibold">{{ timing.label }}</span>
+          <span class="font-semibold">{{ timing.label }}</span>
         </div>
-        <span class="fw-semibold">{{ formatTiming(timings.data.timings[key]) }}</span>
+        <span class="font-semibold">{{ formatTiming(timings.data.timings[key]) }}</span>
       </div>
     </div>
 
     <!-- Cards layout -->
-    <div v-else class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2">
-      <div v-for="(timing, key) in timingsMap" :key="key" class="col">
-        <div class="card h-100 prayer-card" :class="{ 'prayer-card--next': key === nextPrayerKey }">
-          <div class="card-body d-flex flex-column align-items-center justify-content-center text-center gap-2 p-3">
-            <span class="icon-circle" :class="key === nextPrayerKey ? 'border-primary text-primary' : 'text-secondary'">
-              <PrayerIcon :name="timing.icon" />
-            </span>
-            <div>
-              <div class="small fw-semibold mb-1" :class="{ 'text-body-secondary': key !== nextPrayerKey }">
-                {{ timing.label }}
-              </div>
-              <div class="fs-5 fw-bold lh-1">{{ formatTiming(timings.data.timings[key]) }}</div>
+    <div v-else class="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-6">
+      <Card
+        v-for="(timing, key) in timingsMap"
+        :key="key"
+        class="h-full gap-0 py-0 transition-colors"
+        :class="{ 'border-primary': key === nextPrayerKey }"
+      >
+        <CardContent class="flex flex-col items-center justify-center gap-2 p-3 text-center">
+          <span
+            class="grid size-9 shrink-0 place-items-center rounded-full border [&_svg]:size-[1.15rem]"
+            :class="key === nextPrayerKey ? 'border-primary text-primary' : 'text-muted-foreground'"
+          >
+            <PrayerIcon :name="timing.icon" />
+          </span>
+          <div>
+            <div class="mb-1 text-sm font-semibold" :class="{ 'text-muted-foreground': key !== nextPrayerKey }">
+              {{ timing.label }}
             </div>
+            <div class="text-xl leading-none font-bold">{{ formatTiming(timings.data.timings[key]) }}</div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
+/* The next-prayer banner darkens the runtime `--primary` token into a gradient;
+   no single color utility can express the color-mix, so it stays in CSS. */
 .prayer-header {
-  background: linear-gradient(135deg, var(--bs-primary) 0%, color-mix(in srgb, var(--bs-primary) 85%, #000) 100%);
-}
-
-/* Secondary text on the primary-colored header; plain white at reduced alpha
-   keeps contrast readable where a gray would wash out. */
-.prayer-header .text-soft {
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.prayer-row--next {
-  border-color: var(--bs-primary) !important;
-  font-weight: 700;
-}
-
-.prayer-card {
-  transition:
-    border-color 0.15s ease,
-    background-color 0.15s ease,
-    color 0.15s ease;
-}
-
-.prayer-card--next {
-  border-color: var(--bs-primary);
-}
-
-/* Reserve room for loading / detect / error states so the swap to loaded
-   content doesn't shift the page. */
-.prayer-state {
-  display: grid;
-  place-items: center;
-  min-height: 13rem;
-}
-
-.detect-btn {
-  background: transparent;
-  color: var(--bs-body-color);
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: rgba(var(--bs-secondary-rgb), 0.1);
-  }
-
-  &:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
-  }
-}
-
-.icon-container {
-  display: grid;
-  place-items: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  flex-shrink: 0;
-
-  :deep(svg) {
-    width: 1.15rem;
-    height: 1.15rem;
-  }
-}
-
-.icon-circle--header {
-  width: 1.75rem;
-  height: 1.75rem;
-  border-color: rgba(255, 255, 255, 0.35);
-  color: #fff;
-
-  :deep(svg) {
-    width: 1rem;
-    height: 1rem;
-  }
+  background-image: linear-gradient(135deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 85%, #000) 100%);
 }
 </style>

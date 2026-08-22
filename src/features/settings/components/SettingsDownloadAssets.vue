@@ -17,6 +17,7 @@ import {
 import { useDownloadStore } from '@/features/downloads/store.js'
 import DownloadAssetItem from '@/features/downloads/components/DownloadAssetItem.vue'
 import CircleProgress from '@/shared/ui/CircleProgress.vue'
+import { Button } from '@/shared/components/ui/button'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 
@@ -78,6 +79,13 @@ const filteredAssets = computed(() => {
 const surahCount = computed(() => allAssets.value.filter((a) => a.type === 'surah').length)
 const azkarCount = computed(() => allAssets.value.filter((a) => a.type === 'azkar').length)
 
+const filterButtonClass = (type) =>
+  filterType.value === type
+    ? 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground dark:hover:bg-primary'
+    : 'text-muted-foreground'
+
+const filterCountClass = (type) => (filterType.value === type ? 'bg-primary-foreground/20' : 'bg-foreground/10')
+
 const handleRemoveAll = () => {
   cancelAllDownloads()
 
@@ -103,103 +111,114 @@ const handleAssetAction = (asset) => {
 </script>
 
 <template>
-  <div class="download-manager">
+  <!-- `contain` keeps the long asset list from invalidating layout for the rest
+       of the settings page while downloads tick along. -->
+  <div class="overflow-hidden rounded-xl border bg-card text-card-foreground [contain:layout_style]">
     <!-- Header -->
-    <div class="dm-header">
-      <div class="dm-header-content">
-        <div class="dm-title">
-          <span class="dm-title-icon">
+    <div class="border-b px-6 py-5">
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-2.5">
+          <span class="inline-flex size-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
             <IconCloudDownload :size="20" />
           </span>
           <div>
-            <h3>التنزيلات</h3>
-            <p>للاستخدام بدون إنترنت</p>
+            <h3 class="text-base font-semibold">التنزيلات</h3>
+            <p class="mt-0.5 text-sm text-muted-foreground">للاستخدام بدون إنترنت</p>
           </div>
         </div>
 
-        <div class="dm-stats">
-          <div class="dm-stats-text">
-            <span class="dm-stats-count"
+        <div class="flex items-center gap-3">
+          <div class="flex flex-col text-start">
+            <span class="text-xl font-bold"
               >{{ toArabicNumerals(downloadedCount) }}/{{ toArabicNumerals(totalAssets) }}</span
             >
-            <span class="dm-stats-label">ملف محمّل</span>
+            <span class="text-xs text-muted-foreground">ملف محمّل</span>
           </div>
-          <CircleProgress class="d-none d-md-block" :percentage="progressPercentage" />
+          <CircleProgress class="hidden md:block" :percentage="progressPercentage" />
         </div>
       </div>
 
       <!-- Status Bar -->
-      <div v-if="isDownloading || isPaused || !online" class="dm-status-bar">
+      <div
+        v-if="isDownloading || isPaused || !online"
+        class="mt-4 flex min-w-0 items-center gap-2 overflow-hidden rounded-md bg-primary/10 px-3 py-2 text-sm"
+      >
         <template v-if="!online">
           <IconWifiOff :size="16" />
-          <span>لا يوجد اتصال بالإنترنت</span>
+          <span class="min-w-0 truncate">لا يوجد اتصال بالإنترنت</span>
         </template>
         <template v-else-if="isDownloading && currentItem">
-          <IconLoader2 :size="16" class="spin" />
-          <span>جاري تحميل: {{ currentItem.name }}</span>
-          <span class="dm-status-remaining">{{ toArabicNumerals(pendingCount) }} متبقي</span>
+          <IconLoader2 :size="16" class="animate-spin" />
+          <span class="min-w-0 truncate">جاري تحميل: {{ currentItem.name }}</span>
+          <span class="min-w-0 truncate ms-auto opacity-70">{{ toArabicNumerals(pendingCount) }} متبقي</span>
         </template>
         <template v-else-if="isPaused">
           <IconPlayerPause :size="16" />
-          <span>التحميل متوقف مؤقتاً</span>
+          <span class="min-w-0 truncate">التحميل متوقف مؤقتاً</span>
         </template>
       </div>
     </div>
 
     <!-- Toolbar -->
-    <div class="dm-toolbar">
-      <div class="dm-filters">
-        <button class="dm-filter-btn" :class="{ active: filterType === 'all' }" @click="filterType = 'all'">
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b px-4 py-3">
+      <div class="flex gap-1">
+        <Button variant="ghost" size="sm" :class="filterButtonClass('all')" @click="filterType = 'all'">
           الكل
-          <span class="dm-filter-count">{{ toArabicNumerals(totalAssets) }}</span>
-        </button>
-        <button class="dm-filter-btn" :class="{ active: filterType === 'surah' }" @click="filterType = 'surah'">
+          <span class="rounded-full px-1.5 py-0.5 text-xs" :class="filterCountClass('all')">
+            {{ toArabicNumerals(totalAssets) }}
+          </span>
+        </Button>
+        <Button variant="ghost" size="sm" :class="filterButtonClass('surah')" @click="filterType = 'surah'">
           <IconBook2 :size="14" />
           السور
-          <span class="dm-filter-count">{{ toArabicNumerals(surahCount) }}</span>
-        </button>
-        <button class="dm-filter-btn" :class="{ active: filterType === 'azkar' }" @click="filterType = 'azkar'">
+          <span class="rounded-full px-1.5 py-0.5 text-xs" :class="filterCountClass('surah')">
+            {{ toArabicNumerals(surahCount) }}
+          </span>
+        </Button>
+        <Button variant="ghost" size="sm" :class="filterButtonClass('azkar')" @click="filterType = 'azkar'">
           <IconSparkles :size="14" />
           الأذكار
-          <span class="dm-filter-count">{{ toArabicNumerals(azkarCount) }}</span>
-        </button>
+          <span class="rounded-full px-1.5 py-0.5 text-xs" :class="filterCountClass('azkar')">
+            {{ toArabicNumerals(azkarCount) }}
+          </span>
+        </Button>
       </div>
 
-      <div class="dm-actions">
-        <button
+      <div class="flex gap-2">
+        <Button
           v-if="isDownloading || isPaused"
-          class="dm-action-btn"
+          variant="outline"
+          size="icon-sm"
+          :aria-label="isPaused ? 'استئناف' : 'إيقاف مؤقت'"
           @click="isPaused ? resumeDownloads() : pauseDownloads()"
         >
           <component :is="isPaused ? IconPlayerPlay : IconPlayerPause" :size="16" />
-        </button>
+        </Button>
 
-        <button v-if="pendingCount > 0" class="dm-action-btn" @click="cancelAllDownloads" title="إلغاء">
+        <Button v-if="pendingCount > 0" variant="outline" size="icon-sm" title="إلغاء" @click="cancelAllDownloads">
           <IconX :size="16" />
-        </button>
+        </Button>
 
-        <button
-          class="dm-action-btn danger"
-          @click="handleRemoveAll"
+        <Button
+          variant="outline"
+          size="icon-sm"
+          class="hover:border-destructive hover:bg-destructive hover:text-destructive-foreground"
           :disabled="isDownloading || downloadedCount === 0"
           title="حذف الكل"
+          @click="handleRemoveAll"
         >
           <IconTrash :size="16" />
-        </button>
+        </Button>
 
-        <button
-          class="dm-action-btn primary"
-          @click="queueAllAssets"
-          :disabled="isDownloading || !online || isCompleted"
-        >
+        <Button size="sm" :disabled="isDownloading || !online || isCompleted" @click="queueAllAssets">
           <IconDownload :size="16" />
           <span>تحميل الكل</span>
-        </button>
+        </Button>
       </div>
     </div>
 
     <!-- List -->
-    <div class="dm-list">
+    <div class="dm-list max-h-75 overflow-y-auto">
       <DownloadAssetItem
         v-for="asset in filteredAssets"
         :key="asset.id"
@@ -210,7 +229,10 @@ const handleAssetAction = (asset) => {
     </div>
 
     <!-- Completed Banner -->
-    <div v-if="isCompleted" class="dm-completed">
+    <div
+      v-if="isCompleted"
+      class="flex items-center justify-center gap-2 bg-success p-3 text-sm font-medium text-success-foreground"
+    >
       <IconCheck :size="20" />
       <span>تم تحميل جميع الملفات بنجاح!</span>
     </div>
@@ -218,239 +240,8 @@ const handleAssetAction = (asset) => {
 </template>
 
 <style scoped>
-.download-manager {
-  background: var(--bs-card-bg, var(--bs-body-bg));
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
-  overflow: hidden;
-  contain: layout style;
-}
-
-/* Header */
-.dm-header {
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--bs-border-color);
-}
-
-.dm-header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-}
-
-.dm-title {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-}
-
-.dm-title-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  flex-shrink: 0;
-  border-radius: var(--bs-border-radius);
-  background: color-mix(in srgb, var(--bs-primary) 12%, transparent);
-  color: var(--bs-primary);
-}
-
-.dm-title h3 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.dm-title p {
-  margin: 0.15rem 0 0;
-  font-size: 0.85rem;
-  color: var(--bs-secondary-color);
-}
-
-.dm-stats {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.dm-stats-text {
-  display: flex;
-  flex-direction: column;
-  text-align: start;
-}
-
-.dm-stats-count {
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-.dm-stats-label {
-  font-size: 0.75rem;
-  color: var(--bs-secondary-color);
-}
-
-/* Status Bar */
-.dm-status-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  padding: 0.5rem 0.75rem;
-  background: color-mix(in srgb, var(--bs-primary) 10%, transparent);
-  color: var(--bs-body-color);
-  border-radius: var(--bs-border-radius-sm);
-  font-size: 0.85rem;
-  overflow: hidden;
-  min-width: 0;
-}
-
-.dm-status-bar > span {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-}
-
-.dm-status-remaining {
-  margin-inline-start: auto;
-  opacity: 0.7;
-}
-
-/* Toolbar */
-.dm-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--bs-border-color);
-  flex-wrap: wrap;
-}
-
-.dm-filters {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.dm-filter-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.4rem 0.75rem;
-  border: none;
-  background: transparent;
-  color: var(--bs-secondary-color);
-  font-size: 0.85rem;
-  border-radius: var(--bs-border-radius-sm);
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-
-.dm-filter-btn:hover {
-  background: rgba(var(--bs-secondary-rgb), 0.1);
-}
-
-.dm-filter-btn.active {
-  background: var(--bs-primary);
-  color: white;
-}
-
-.dm-filter-count {
-  font-size: 0.75rem;
-  padding: 0.1rem 0.4rem;
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: var(--bs-border-radius-pill);
-}
-
-.dm-filter-btn.active .dm-filter-count {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.dm-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.dm-action-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.4rem 0.6rem;
-  border: 1px solid var(--bs-border-color);
-  background: var(--bs-body-bg);
-  color: var(--bs-body-color);
-  font-size: 0.85rem;
-  border-radius: var(--bs-border-radius-sm);
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s,
-    border-color 0.15s;
-}
-
-.dm-action-btn:hover:not(:disabled) {
-  background: rgba(var(--bs-secondary-rgb), 0.1);
-}
-
-.dm-action-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.dm-action-btn.primary {
-  background: var(--bs-primary);
-  border-color: var(--bs-primary);
-  color: white;
-}
-
-.dm-action-btn.primary:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--bs-primary) 85%, #000);
-}
-
-.dm-action-btn.danger:hover:not(:disabled) {
-  background: var(--bs-danger);
-  border-color: var(--bs-danger);
-  color: white;
-}
-
-/* List */
-.dm-list {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-/* Completed Banner */
-.dm-completed {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  background: var(--bs-success);
-  color: white;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-/* Animations */
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Scrollbar */
+/* Scrollbar pseudo-elements have no utility equivalent; the colors still come
+   from the design tokens so runtime theming keeps working. */
 .dm-list::-webkit-scrollbar {
   width: 6px;
 }
@@ -460,11 +251,11 @@ const handleAssetAction = (asset) => {
 }
 
 .dm-list::-webkit-scrollbar-thumb {
-  background: var(--bs-border-color);
+  background: var(--border);
   border-radius: 3px;
 }
 
 .dm-list::-webkit-scrollbar-thumb:hover {
-  background: var(--bs-secondary-color);
+  background: var(--muted-foreground);
 }
 </style>

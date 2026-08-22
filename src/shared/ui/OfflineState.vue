@@ -7,8 +7,8 @@ defineProps({
 </script>
 
 <template>
-  <div class="d-flex flex-column align-items-center justify-content-center gap-4">
-    <IconWifiOff size="2.5rem" class="text-muted" />
-    <p class="lead">{{ message }}</p>
+  <div class="flex flex-col items-center justify-center gap-4">
+    <IconWifiOff class="size-10 text-muted-foreground" />
+    <p class="text-xl font-light text-muted-foreground">{{ message }}</p>
   </div>
 </template>

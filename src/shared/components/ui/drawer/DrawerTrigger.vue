@@ -1,10 +1,10 @@
 <script setup>
-import { DrawerTrigger } from "reka-ui";
+import { DrawerTrigger } from 'reka-ui'
 
 const props = defineProps({
   asChild: { type: Boolean, required: false },
   as: { type: null, required: false },
-});
+})
 </script>
 
 <template>

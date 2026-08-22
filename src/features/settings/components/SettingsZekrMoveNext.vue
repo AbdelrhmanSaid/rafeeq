@@ -2,6 +2,7 @@
 import { storeToRefs } from 'pinia'
 import { IconArrowDownCircle } from '@tabler/icons-vue'
 import { useAppStore } from '@/app/stores/app'
+import { Switch } from '@/shared/components/ui/switch'
 import SettingsSection from './SettingsSection.vue'
 
 const appStore = useAppStore()
@@ -15,14 +16,7 @@ const { zekrMoveNextOnComplete } = storeToRefs(appStore)
     :icon="IconArrowDownCircle"
   >
     <template #actions>
-      <div class="form-check form-switch m-0">
-        <input
-          v-model="zekrMoveNextOnComplete"
-          class="form-check-input"
-          type="checkbox"
-          aria-label="تفعيل الانتقال التلقائي للذكر التالي"
-        />
-      </div>
+      <Switch v-model="zekrMoveNextOnComplete" aria-label="تفعيل الانتقال التلقائي للذكر التالي" />
     </template>
   </SettingsSection>
 </template>

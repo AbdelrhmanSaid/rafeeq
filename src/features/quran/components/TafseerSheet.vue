@@ -11,6 +11,9 @@ import BottomSheet from '@/shared/ui/BottomSheet.vue'
 import LoadingState from '@/shared/ui/LoadingState.vue'
 import ErrorState from '@/shared/ui/ErrorState.vue'
 import OfflineState from '@/shared/ui/OfflineState.vue'
+import { Button } from '@/shared/components/ui/button'
+import { Label } from '@/shared/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select'
 
 const props = defineProps({
   ayah: { type: Object, default: null },
@@ -47,18 +50,23 @@ watch([() => props.ayah, edition], ([ayah]) => {
   <BottomSheet :show="!!ayah" title="تفسير الآية" @close="emit('close')">
     <div class="p-4">
       <template v-if="displayAyah">
-        <p class="fs-3 text-center lh-lg font-quran mb-4">
+        <p class="mb-4 text-center text-3xl leading-loose font-quran">
           {{ displayAyah.text }}
           <span class="ayah-number">{{ toArabicNumerals(displayAyah.numberInSurah) }}</span>
         </p>
 
-        <div class="form-floating mb-4">
-          <select id="tafseerEdition" v-model="edition" class="form-select">
-            <option v-for="tafseer in tafseers" :key="tafseer.identifier" :value="tafseer.identifier">
-              {{ tafseer.name }}
-            </option>
-          </select>
-          <label for="tafseerEdition">التفسير</label>
+        <div class="mb-4 grid gap-2">
+          <Label for="tafseerEdition">التفسير</Label>
+          <Select v-model="edition">
+            <SelectTrigger id="tafseerEdition" class="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem v-for="tafseer in tafseers" :key="tafseer.identifier" :value="tafseer.identifier">
+                {{ tafseer.name }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </template>
 
@@ -69,24 +77,24 @@ watch([() => props.ayah, edition], ([ayah]) => {
       <ErrorState v-else-if="error" :code="500" message="حدث خطأ أثناء تحميل التفسير، برجاء المحاولة مرة أخرى." />
 
       <template v-else-if="displayAyah && tafsir">
-        <p class="mb-0">{{ tafsir.text }}</p>
+        <p>{{ tafsir.text }}</p>
 
-        <div class="d-flex justify-content-between gap-2 mt-4 pt-3 border-top">
-          <button class="btn btn-flat d-flex align-items-center gap-1" :disabled="!hasPrev" @click="emit('prev')">
+        <div class="mt-4 flex justify-between gap-2 border-t pt-3">
+          <Button variant="ghost" :disabled="!hasPrev" @click="emit('prev')">
             <IconChevronRight size="18" />
             <span>الآية السابقة</span>
-          </button>
+          </Button>
 
-          <button class="btn btn-flat d-flex align-items-center gap-1" :disabled="!hasNext" @click="emit('next')">
+          <Button variant="ghost" :disabled="!hasNext" @click="emit('next')">
             <span>الآية التالية</span>
             <IconChevronLeft size="18" />
-          </button>
+          </Button>
         </div>
       </template>
     </div>
   </BottomSheet>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 @import '@/shared/styles/quran.css';
 </style>

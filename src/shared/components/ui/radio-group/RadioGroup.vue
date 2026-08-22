@@ -1,7 +1,7 @@
 <script setup>
-import { reactiveOmit } from "@vueuse/core";
-import { RadioGroupRoot, useForwardPropsEmits } from "reka-ui";
-import { cn } from '@/shared/lib/utils';
+import { reactiveOmit } from '@vueuse/core'
+import { RadioGroupRoot, useForwardPropsEmits } from 'reka-ui'
+import { cn } from '@/shared/lib/utils'
 
 const props = defineProps({
   modelValue: { type: null, required: false },
@@ -19,21 +19,16 @@ const props = defineProps({
     required: false,
     skipCheck: true,
   },
-});
-const emits = defineEmits(["update:modelValue"]);
+})
+const emits = defineEmits(['update:modelValue'])
 
-const delegatedProps = reactiveOmit(props, "class");
+const delegatedProps = reactiveOmit(props, 'class')
 
-const forwarded = useForwardPropsEmits(delegatedProps, emits);
+const forwarded = useForwardPropsEmits(delegatedProps, emits)
 </script>
 
 <template>
-  <RadioGroupRoot
-    v-slot="slotProps"
-    data-slot="radio-group"
-    :class="cn('grid gap-3', props.class)"
-    v-bind="forwarded"
-  >
+  <RadioGroupRoot v-slot="slotProps" data-slot="radio-group" :class="cn('grid gap-3', props.class)" v-bind="forwarded">
     <slot v-bind="slotProps" />
   </RadioGroupRoot>
 </template>

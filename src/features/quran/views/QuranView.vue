@@ -9,6 +9,10 @@ import { toArabicNumerals } from '@/shared/utils/arabic'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 
 const { bookmark } = useQuranBookmark()
+
+// Each row positions itself so the surah link can stretch an overlay across the
+// whole row; the favourite button stays clickable above it (it is raised).
+const rowClass = () => 'relative'
 </script>
 
 <template>
@@ -22,17 +26,15 @@ const { bookmark } = useQuranBookmark()
     <RouterLink
       v-if="bookmark"
       :to="{ name: 'quran-surah', params: { surah: bookmark.surahId }, query: { ayah: bookmark.ayahNumber } }"
-      class="bookmark-card"
+      class="mb-4 flex w-full items-center gap-3 rounded-md border bg-primary/5 p-4 transition-colors hover:border-primary/50 hover:bg-primary/10"
     >
-      <IconBookmark class="bookmark-card__icon" size="22" />
-      <span class="bookmark-card__body">
-        <span class="bookmark-card__label">متابعة القراءة</span>
-        <span class="bookmark-card__title"
-          >{{ bookmark.surahName }} - آية {{ toArabicNumerals(bookmark.ayahNumber) }}</span
-        >
-        <span v-if="bookmark.text" class="bookmark-card__text font-quran">{{ bookmark.text }}</span>
+      <IconBookmark class="shrink-0 text-primary" size="22" />
+      <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span class="text-sm text-muted-foreground">متابعة القراءة</span>
+        <span class="font-semibold">{{ bookmark.surahName }} - آية {{ toArabicNumerals(bookmark.ayahNumber) }}</span>
+        <span v-if="bookmark.text" class="truncate text-base font-quran">{{ bookmark.text }}</span>
       </span>
-      <IconChevronLeft class="bookmark-card__chevron" size="20" />
+      <IconChevronLeft class="shrink-0 text-muted-foreground" size="20" />
     </RouterLink>
 
     <SearchableFavoritesList
@@ -41,23 +43,21 @@ const { bookmark } = useQuranBookmark()
       :favorites-key="STORAGE_KEYS.quranFavorites"
       placeholder="ابحث بالسورة"
       label="تبحث عن سورة معينة؟"
+      :item-class="rowClass"
     >
       <template #favorites-title>
-        <h5 class="mb-3">السور المفضلة</h5>
+        <h5 class="mb-3 text-lg">السور المفضلة</h5>
       </template>
 
       <template #all-title>
-        <h5 class="mb-3">كل السور</h5>
+        <h5 class="mb-3 text-lg">كل السور</h5>
       </template>
 
       <template #default="{ item }">
-        <RouterLink
-          :to="{ name: 'quran-surah', params: { surah: item.id } }"
-          class="stretched-link text-decoration-none text-reset"
-        >
-          <p class="d-flex flex-column m-0">
+        <RouterLink :to="{ name: 'quran-surah', params: { surah: item.id } }" class="after:absolute after:inset-0">
+          <p class="flex flex-col">
             <span>{{ toArabicNumerals(item.id) }}. {{ item.name }}</span>
-            <small>
+            <small class="text-sm">
               عدد الآيات: {{ toArabicNumerals(item.numberOfAyahs) }} - {{ item.isMeccan ? 'مكية' : 'مدنية' }}
             </small>
           </p>
@@ -66,61 +66,3 @@ const { bookmark } = useQuranBookmark()
     </SearchableFavoritesList>
   </Page>
 </template>
-
-<style lang="scss" scoped>
-.bookmark-card {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-  margin-bottom: 1rem;
-  padding: 1rem;
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
-  background-color: rgba(var(--bs-primary-rgb), 0.06);
-  color: var(--bs-body-color);
-  text-decoration: none;
-  transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease;
-
-  &:hover {
-    background-color: rgba(var(--bs-primary-rgb), 0.12);
-    border-color: rgba(var(--bs-primary-rgb), 0.5);
-  }
-
-  &__icon {
-    flex-shrink: 0;
-    color: var(--bs-primary);
-  }
-
-  &__body {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-    min-width: 0;
-    flex: 1;
-  }
-
-  &__label {
-    font-size: 0.85rem;
-    color: var(--bs-secondary-color);
-  }
-
-  &__title {
-    font-weight: 600;
-  }
-
-  &__text {
-    font-size: 1rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &__chevron {
-    flex-shrink: 0;
-    color: var(--bs-secondary-color);
-  }
-}
-</style>

@@ -11,6 +11,8 @@ import { useQuranStore } from '@/features/quran/store'
 import LoadingState from '@/shared/ui/LoadingState.vue'
 import ErrorState from '@/shared/ui/ErrorState.vue'
 import OfflineState from '@/shared/ui/OfflineState.vue'
+import { Button } from '@/shared/components/ui/button'
+import { Card, CardContent } from '@/shared/components/ui/card'
 
 // Check if the user is online
 const online = useOnline()
@@ -97,31 +99,32 @@ async function toggleAyahPlayback() {
 </script>
 
 <template>
-  <div class="card">
-    <div v-if="isFetching || isRecoveringOnReconnect" class="card-body p-5">
+  <Card class="gap-0 py-0">
+    <CardContent v-if="isFetching || isRecoveringOnReconnect" class="p-12">
       <LoadingState message="جاري تحميل آية..." />
-    </div>
+    </CardContent>
 
-    <div v-else-if="error" class="card-body p-5">
+    <CardContent v-else-if="error" class="p-12">
       <OfflineState v-if="!online" />
       <ErrorState :code="500" message="حدث خطأ أثناء تحميل الآية، برجاء المحاولة مرة أخرى." v-else />
-    </div>
+    </CardContent>
 
     <template v-else-if="ayah">
-      <div class="card-header d-flex align-items-center justify-content-between py-2">
-        <span class="fw-semibold">{{ normalizeQuranicText(ayah.surah.name) }}</span>
+      <div class="flex items-center justify-between gap-2 border-b px-4 py-2">
+        <span class="font-semibold">{{ normalizeQuranicText(ayah.surah.name) }}</span>
 
-        <div class="d-flex align-items-center gap-1">
-          <button class="btn btn-flat btn-icon" @click="prevAyah" title="الآية السابقة" aria-label="الآية السابقة">
+        <div class="flex items-center gap-1">
+          <Button variant="ghost" size="icon" @click="prevAyah" title="الآية السابقة" aria-label="الآية السابقة">
             <IconChevronRight size="18" />
-          </button>
+          </Button>
 
-          <button class="btn btn-flat btn-icon" @click="nextAyah" title="الآية التالية" aria-label="الآية التالية">
+          <Button variant="ghost" size="icon" @click="nextAyah" title="الآية التالية" aria-label="الآية التالية">
             <IconChevronLeft size="18" />
-          </button>
+          </Button>
 
-          <button
-            class="btn btn-flat btn-icon"
+          <Button
+            variant="ghost"
+            size="icon"
             @click="toggleAyahPlayback"
             :disabled="!recitation?.audio"
             :title="isPlaying ? 'إيقاف التلاوة' : 'تشغيل التلاوة'"
@@ -129,28 +132,28 @@ async function toggleAyahPlayback() {
           >
             <IconPlayerPause v-if="isPlaying" size="18" />
             <IconPlayerPlay v-else size="18" />
-          </button>
+          </Button>
 
-          <button class="btn btn-flat btn-icon" @click="fetchRandomAyah" title="آية جديدة" aria-label="تحميل آية جديدة">
+          <Button variant="ghost" size="icon" @click="fetchRandomAyah" title="آية جديدة" aria-label="تحميل آية جديدة">
             <IconRefresh size="18" />
-          </button>
+          </Button>
         </div>
       </div>
 
-      <div class="card-body">
-        <p class="fs-2 text-center lh-lg font-quran" :class="tafsir ? 'mb-4' : 'mb-0'">
+      <CardContent class="p-4">
+        <p class="text-center text-[2rem] leading-loose font-quran" :class="tafsir ? 'mb-4' : ''">
           {{ displayText }} <span class="ayah-number">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
         </p>
 
         <template v-if="tafsir">
-          <span class="d-block small fw-semibold text-secondary mb-2">{{ tafsir.edition.name }}</span>
-          <p class="small mb-0">{{ tafsir.text }}</p>
+          <span class="mb-2 block text-sm font-semibold text-muted-foreground">{{ tafsir.edition.name }}</span>
+          <p class="text-sm">{{ tafsir.text }}</p>
         </template>
-      </div>
+      </CardContent>
     </template>
-  </div>
+  </Card>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 @import '@/shared/styles/quran.css';
 </style>

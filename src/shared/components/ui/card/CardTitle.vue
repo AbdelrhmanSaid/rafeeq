@@ -1,5 +1,5 @@
 <script setup>
-import { cn } from '@/shared/lib/utils';
+import { cn } from '@/shared/lib/utils'
 
 const props = defineProps({
   class: {
@@ -7,14 +7,11 @@ const props = defineProps({
     required: false,
     skipCheck: true,
   },
-});
+})
 </script>
 
 <template>
-  <h3
-    data-slot="card-title"
-    :class="cn('leading-none font-semibold', props.class)"
-  >
+  <h3 data-slot="card-title" :class="cn('leading-none font-semibold', props.class)">
     <slot />
   </h3>
 </template>

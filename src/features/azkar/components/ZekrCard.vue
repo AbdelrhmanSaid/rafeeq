@@ -8,6 +8,14 @@ import { toArabicNumerals } from '@/shared/utils/arabic'
 import { useIsMobile } from '@/shared/composables/useIsMobile'
 import { useZekrScroll } from '@/features/azkar/composables/useZekrScroll'
 import { useZekrVibration } from '@/features/azkar/composables/useZekrVibration'
+import { Button } from '@/shared/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/shared/components/ui/dropdown-menu'
 
 import ZekrImage from './ZekrImage.vue'
 
@@ -105,120 +113,79 @@ const copyZekr = () => {
 </script>
 
 <template>
-  <div ref="card" class="zekr-card border rounded p-4" @click="onCardClick">
-    <div class="action-menu dropdown" @click.stop>
-      <button class="btn p-0 bg-transparent" type="button" data-bs-toggle="dropdown">
-        <IconHeartShare size="18" />
-      </button>
+  <!-- `.zekr-card` is the selector useZekrScroll walks to find the next zekr,
+       and `.action-menu` / `.btn-counter` are what the long-press handler above
+       excludes — keep all three class names. -->
+  <div
+    ref="card"
+    class="zekr-card relative rounded-xl border p-4 max-lg:cursor-pointer max-lg:select-none"
+    @click="onCardClick"
+  >
+    <div class="action-menu absolute end-2 bottom-2" @click.stop>
+      <DropdownMenu>
+        <DropdownMenuTrigger as-child>
+          <Button variant="ghost" size="icon-sm" type="button" class="text-muted-foreground" aria-label="خيارات الذكر">
+            <IconHeartShare class="size-[1.125rem]" />
+          </Button>
+        </DropdownMenuTrigger>
 
-      <ul class="dropdown-menu dropdown-menu-end">
-        <li>
-          <button class="dropdown-item d-flex align-items-center gap-2" @click="exportAsImage">
-            <IconDownload size="18" />
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem @click="exportAsImage">
+            <IconDownload />
             <span>تنزيل</span>
-          </button>
-        </li>
-        <li>
-          <button class="dropdown-item d-flex align-items-center gap-2" @click="shareZekr">
-            <IconShare3 size="18" />
+          </DropdownMenuItem>
+          <DropdownMenuItem @click="shareZekr">
+            <IconShare3 />
             <span>مشاركة</span>
-          </button>
-        </li>
-        <li>
-          <button class="dropdown-item d-flex align-items-center gap-2" @click="copyZekr">
-            <IconCopy size="18" />
+          </DropdownMenuItem>
+          <DropdownMenuItem @click="copyZekr">
+            <IconCopy />
             <span>نسخ</span>
-          </button>
-        </li>
-        <li><hr class="dropdown-divider" /></li>
-        <li>
-          <button class="dropdown-item d-flex align-items-center gap-2" :disabled="count === 0" @click="reset">
-            <IconRestore size="18" />
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem :disabled="count === 0" @click="reset">
+            <IconRestore />
             <span>تصفير</span>
-          </button>
-        </li>
-      </ul>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
 
-    <div class="row align-items-center g-4 text-center text-lg-start">
-      <div class="col-12 col-lg-auto">
-        <button
-          class="btn btn-counter border-flat"
-          @click.stop="increment"
-          :style="{ '--progress': count / repeat }"
-          :data-content="toArabicNumerals(`${count}/${repeat}`)"
-        ></button>
-      </div>
+    <div class="flex flex-col-reverse items-center gap-4 text-center lg:flex-row lg:text-start">
+      <!-- rem (not px) so the progress circle scales with the font and the
+           counter text (e.g. "100/100") stays centered without overflowing. -->
+      <button
+        class="btn-counter grid size-30 shrink-0 cursor-pointer place-items-center rounded-full text-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+        type="button"
+        @click.stop="increment"
+        :style="{ '--progress': count / repeat }"
+      >
+        {{ toArabicNumerals(`${count}/${repeat}`) }}
+      </button>
 
-      <div class="col-12 col-lg">
-        <p class="zekr-text font-quran m-0">{{ text }}</p>
+      <div class="w-full min-w-0 lg:flex-1">
+        <p class="font-quran text-[1.625rem] leading-[2] text-justify">{{ text }}</p>
 
-        <p class="text-muted m-0 pe-2" v-if="benefit || reference">
-          <small v-if="reference">{{ reference }}</small>
-          <small v-if="benefit && reference"> - </small>
-          <small v-if="benefit">{{ benefit }}</small>
+        <p class="pe-2 text-sm text-muted-foreground" v-if="benefit || reference">
+          <span v-if="reference">{{ reference }}</span>
+          <span v-if="benefit && reference"> - </span>
+          <span v-if="benefit">{{ benefit }}</span>
         </p>
       </div>
     </div>
   </div>
 </template>
 
-<style lang="scss" scoped>
-.zekr-card {
-  position: relative;
-
-  .btn-counter {
-    position: relative;
-    border-radius: 50%;
-    /* rem (not px) so the progress circle scales with the font and the
-       counter text (e.g. "100/100") stays centered without overflowing. */
-    width: 7.5rem;
-    height: 7.5rem;
-    font-size: 1.25rem;
-    border: none;
-
-    background:
-      radial-gradient(closest-side, var(--bs-body-bg) 79%, transparent 80% 100%),
-      conic-gradient(var(--bs-primary) calc(var(--progress) * 100%), rgba(var(--bs-secondary-rgb), 0.1) 0);
-
-    &::before {
-      content: attr(data-content);
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-  }
-
-  .zekr-text {
-    text-align: justify;
-    font-size: 1.625rem;
-    line-height: 2;
-  }
-
-  .action-menu {
-    position: absolute;
-    inset-inline-end: 0.5rem;
-    inset-block-end: 0.5rem;
-
-    [data-bs-toggle='dropdown'] {
-      width: 30px;
-      height: 30px;
-      display: grid;
-      place-items: center;
-      color: var(--bs-secondary);
-    }
-  }
-}
-
-@media screen and (max-width: 992px) {
-  .zekr-card {
-    cursor: pointer;
-    user-select: none;
-
-    > .row {
-      flex-direction: column-reverse;
-    }
-  }
+<style scoped>
+/* The counter's progress ring is a conic-gradient driven by the inline
+   `--progress` custom property; no Tailwind utility expresses that, so it stays
+   plain CSS. Every color reads the token layer, so the user's runtime accent
+   and background still apply. */
+.btn-counter {
+  background:
+    radial-gradient(closest-side, var(--background) 79%, transparent 80% 100%),
+    conic-gradient(var(--primary) calc(var(--progress) * 100%), var(--secondary) 0);
 }
 </style>

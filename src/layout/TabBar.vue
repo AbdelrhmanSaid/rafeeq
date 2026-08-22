@@ -14,247 +14,137 @@ import {
   IconX,
 } from '@tabler/icons-vue'
 
+import { cn } from '@/shared/lib/utils'
+
+import { Button } from '@/shared/components/ui/button'
+import { Separator } from '@/shared/components/ui/separator'
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/shared/components/ui/drawer'
+
 const radio = useRadioStore()
+
+// The slide-up sheet is reka-ui's drawer now, so it owns the open/close
+// animation; this ref only mirrors its state so navigating from a link can
+// close it.
 const showMoreMenu = ref(false)
-const isClosing = ref(false)
 
 const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
 
-const toggleMoreMenu = () => {
-  if (showMoreMenu.value) {
-    closeMoreMenu()
-  } else {
-    showMoreMenu.value = true
-    isClosing.value = false
-  }
+const closeMoreMenu = () => {
+  showMoreMenu.value = false
 }
 
-const closeMoreMenu = () => {
-  isClosing.value = true
-  setTimeout(() => {
-    showMoreMenu.value = false
-    isClosing.value = false
-  }, 300) // Match animation duration
-}
+const tabItemClass =
+  'flex min-w-16 flex-col items-center gap-1 rounded-md px-2 py-1 text-muted-foreground transition-colors hover:text-foreground [&.router-link-active]:bg-primary/10 [&.router-link-active]:text-foreground'
+
+// Merged with cn() at the call sites: the detail-route active state has to
+// beat the base `text-muted-foreground`, and Tailwind emits that utility
+// after `text-foreground`, so plain class concatenation would lose.
+const tabItemActiveClass = 'bg-primary/10 text-foreground'
+
+const moreMenuItemClass =
+  'flex w-full items-center gap-3 px-5 py-3 text-start transition-colors hover:bg-secondary [&.router-link-active]:bg-primary/10 [&.router-link-active]:text-primary'
 </script>
 
 <template>
   <div>
-    <!-- More Menu Overlay -->
-    <div
-      v-if="showMoreMenu"
-      class="position-fixed top-0 start-0 end-0 bottom-0 d-flex align-items-end more-menu-overlay"
-      :class="{ closing: isClosing }"
-      @click="closeMoreMenu"
-    >
-      <div
-        class="bg-body rounded-top-3 w-100 more-menu"
-        :class="{ closing: isClosing }"
-        @click.stop
-        style="max-height: 70vh"
+    <Drawer v-model:open="showMoreMenu">
+      <!-- Tab Bar -->
+      <!-- min-h (not h) so labels and icons at large font scales grow the bar
+           instead of clipping, and items stay vertically centered so short
+           content (small font) doesn't stick to the top of the bar. -->
+      <nav
+        class="fixed inset-x-0 bottom-0 z-40 flex min-h-[var(--navbar-height)] items-center justify-around border-t bg-background pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
       >
-        <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
-          <h5 class="mb-0">المزيد</h5>
-          <button class="btn btn-sm" @click="closeMoreMenu">
-            <IconX size="1.25rem" />
-          </button>
-        </div>
+        <RouterLink :to="{ name: 'home' }" :class="tabItemClass">
+          <IconHome size="1.5rem" />
+          <span class="text-[0.7rem]">الرئيسية</span>
+        </RouterLink>
 
-        <div class="py-3">
-          <RouterLink
-            :to="{ name: 'qibla' }"
-            class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item"
-            @click="closeMoreMenu"
-          >
+        <RouterLink :to="{ name: 'quran' }" :class="cn(tabItemClass, isQuranActive && tabItemActiveClass)">
+          <IconBook size="1.5rem" />
+          <span class="text-[0.7rem]">القرآن</span>
+        </RouterLink>
+
+        <RouterLink :to="{ name: 'azkar' }" :class="cn(tabItemClass, isAzkarActive && tabItemActiveClass)">
+          <IconSparkles size="1.5rem" />
+          <span class="text-[0.7rem]">الأذكار</span>
+        </RouterLink>
+
+        <RouterLink :to="{ name: 'radio' }" :class="cn(tabItemClass, 'relative', isRadioActive && tabItemActiveClass)">
+          <IconRadio size="1.5rem" />
+          <span class="text-[0.7rem]">الإذاعة</span>
+          <span
+            v-if="radio.isPlaying"
+            class="radio-status absolute -top-0.5 -end-0.5 size-1.5 rounded-full bg-destructive"
+          />
+        </RouterLink>
+
+        <DrawerTrigger as-child>
+          <button type="button" :class="tabItemClass">
+            <IconDotsCircleHorizontal size="1.5rem" />
+            <span class="text-[0.7rem]">المزيد</span>
+          </button>
+        </DrawerTrigger>
+      </nav>
+
+      <!-- More Menu -->
+      <DrawerContent class="data-[swipe-direction=down]:max-h-[70vh]">
+        <DrawerHeader class="flex-row items-center justify-between border-b p-3">
+          <DrawerTitle>المزيد</DrawerTitle>
+          <DrawerClose as-child>
+            <Button variant="ghost" size="icon" type="button" aria-label="إغلاق">
+              <IconX size="1.25rem" />
+            </Button>
+          </DrawerClose>
+        </DrawerHeader>
+
+        <div class="overflow-y-auto py-3">
+          <RouterLink :to="{ name: 'qibla' }" :class="moreMenuItemClass" @click="closeMoreMenu">
             اتجاه القبلة
           </RouterLink>
-          <RouterLink
-            :to="{ name: 'zakat' }"
-            class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item"
-            @click="closeMoreMenu"
-          >
+          <RouterLink :to="{ name: 'zakat' }" :class="moreMenuItemClass" @click="closeMoreMenu">
             حاسبة الزكاة
           </RouterLink>
-          <RouterLink
-            :to="{ name: 'sebha' }"
-            class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item"
-            @click="closeMoreMenu"
-          >
+          <RouterLink :to="{ name: 'sebha' }" :class="moreMenuItemClass" @click="closeMoreMenu">
             السبحة الإلكترونية
           </RouterLink>
-          <RouterLink
-            :to="{ name: 'settings' }"
-            class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item"
-            @click="closeMoreMenu"
-          >
+          <RouterLink :to="{ name: 'settings' }" :class="moreMenuItemClass" @click="closeMoreMenu">
             الإعدادات
           </RouterLink>
 
-          <hr class="my-3" />
+          <Separator class="my-3" />
 
-          <a
-            href="https://t.me/rafeeqme"
-            target="_blank"
-            class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item"
-            @click="closeMoreMenu"
-          >
-            <IconBrandTelegram class="me-2" size="1.25rem" />
+          <a href="https://t.me/rafeeqme" target="_blank" :class="moreMenuItemClass" @click="closeMoreMenu">
+            <IconBrandTelegram size="1.25rem" />
             قناة التليجرام
           </a>
         </div>
-      </div>
-    </div>
-
-    <!-- Tab Bar -->
-    <nav class="position-fixed bottom-0 start-0 end-0 bg-body border-top d-flex justify-content-around py-2 tab-bar">
-      <RouterLink
-        :to="{ name: 'home' }"
-        class="d-flex flex-column align-items-center text-decoration-none text-secondary px-2 py-1 rounded tab-item"
-      >
-        <IconHome size="1.5rem" />
-        <span class="mt-1 small">الرئيسية</span>
-      </RouterLink>
-
-      <RouterLink
-        :to="{ name: 'quran' }"
-        class="d-flex flex-column align-items-center text-decoration-none text-secondary px-2 py-1 rounded tab-item"
-        :class="{ 'is-active': isQuranActive }"
-      >
-        <IconBook size="1.5rem" />
-        <span class="mt-1 small">القرآن</span>
-      </RouterLink>
-
-      <RouterLink
-        :to="{ name: 'azkar' }"
-        class="d-flex flex-column align-items-center text-decoration-none text-secondary px-2 py-1 rounded tab-item"
-        :class="{ 'is-active': isAzkarActive }"
-      >
-        <IconSparkles size="1.5rem" />
-        <span class="mt-1 small">الأذكار</span>
-      </RouterLink>
-
-      <RouterLink
-        :to="{ name: 'radio' }"
-        class="d-flex flex-column align-items-center text-decoration-none text-secondary px-2 py-1 rounded position-relative tab-item"
-        :class="{ 'is-active': isRadioActive }"
-      >
-        <IconRadio size="1.5rem" />
-        <span class="mt-1 small">الإذاعة</span>
-        <span class="position-absolute top-0 end-0 radio-status" v-if="radio.isPlaying"></span>
-      </RouterLink>
-
-      <button
-        class="d-flex flex-column align-items-center text-secondary bg-transparent border-0 px-2 py-1 rounded tab-item"
-        @click="toggleMoreMenu"
-      >
-        <IconDotsCircleHorizontal size="1.5rem" />
-        <span class="mt-1 small">المزيد</span>
-      </button>
-    </nav>
+      </DrawerContent>
+    </Drawer>
   </div>
 </template>
 
-<style lang="scss" scoped>
-.tab-bar {
-  /* min-height so labels/icons at large font scales grow the bar, not clip. */
-  min-height: var(--navbar-height);
-  /* center items vertically so short content (small font) doesn't stick to
-     the top of the bar. */
-  align-items: center;
-  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
-  z-index: 1020;
-}
-
-.tab-item {
-  transition: color 0.2s;
-  min-width: 60px;
-  font-size: 0.75rem;
-
-  span:not(.radio-status) {
-    font-size: 0.7rem;
+<style scoped>
+/* Tailwind's `animate-pulse` fades opacity; the radio dot pulses by scale. */
+@keyframes radio-pulse {
+  0%,
+  100% {
+    transform: scale(0.9);
   }
 
-  &:hover,
-  &.router-link-active,
-  &.is-active {
-    color: var(--bs-secondary) !important;
-  }
-
-  &.router-link-active,
-  &.is-active {
-    background-color: rgba(var(--bs-secondary-rgb), 0.1) !important;
+  50% {
+    transform: scale(1.1);
   }
 }
 
 .radio-status {
-  width: 0.4rem;
-  height: 0.4rem;
-  background-color: var(--bs-danger);
-  border-radius: 50%;
-  animation: pulse 1s infinite;
-  transform: translate(25%, -25%);
-}
-
-@keyframes pulse {
-  0% {
-    transform: translate(25%, -25%) scale(0.9);
-  }
-  50% {
-    transform: translate(25%, -25%) scale(1.1);
-  }
-  100% {
-    transform: translate(25%, -25%) scale(0.9);
-  }
-}
-
-.more-menu-overlay {
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1030;
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-  opacity: 1;
-  transition: opacity 0.3s ease-out;
-
-  &.closing {
-    opacity: 0;
-  }
-}
-
-.more-menu {
-  animation: slideUp 0.3s ease-out;
-
-  &.closing {
-    animation: none;
-    transform: translateY(100%);
-    opacity: 0;
-    transition:
-      transform 0.3s ease-out,
-      opacity 0.3s ease-out;
-  }
-}
-
-.more-menu-item {
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: var(--bs-secondary-bg) !important;
-    color: var(--bs-body-color) !important;
-  }
-
-  &.router-link-active {
-    background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
-    color: var(--bs-primary) !important;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  animation: radio-pulse 1s infinite;
 }
 </style>

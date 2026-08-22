@@ -1,5 +1,5 @@
 <script setup>
-import { cn } from '@/shared/lib/utils';
+import { cn } from '@/shared/lib/utils'
 
 const props = defineProps({
   class: {
@@ -7,14 +7,11 @@ const props = defineProps({
     required: false,
     skipCheck: true,
   },
-});
+})
 </script>
 
 <template>
-  <div
-    data-slot="dialog-header"
-    :class="cn('flex flex-col gap-2 text-center sm:text-left', props.class)"
-  >
+  <div data-slot="dialog-header" :class="cn('flex flex-col gap-2 text-center sm:text-left', props.class)">
     <slot />
   </div>
 </template>

@@ -2,7 +2,7 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import { IconArrowLeft, IconArrowRight } from '@tabler/icons-vue'
 import { useOnline } from '@vueuse/core'
-import { useRoute } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import { useRouteParams } from '@vueuse/router'
 import { toast } from 'vue-sonner'
 
@@ -13,6 +13,7 @@ import AsyncContent from '@/shared/ui/AsyncContent.vue'
 import AudioPlayer from '@/features/quran/components/QuranPlayer.vue'
 import AyahActionSheet from '@/features/quran/components/AyahActionSheet.vue'
 import TafseerSheet from '@/features/quran/components/TafseerSheet.vue'
+import { Button } from '@/shared/components/ui/button'
 import { useQuranStore } from '@/features/quran/store'
 import { useQuranBookmark } from '@/features/quran/composables/useQuranBookmark'
 import { useAsyncData } from '@/shared/composables/useAsyncData'
@@ -103,6 +104,19 @@ const isCurrentVerse = (verse) => {
 
 const isBookmarkedVerse = (verse) => isBookmarked(surahId.value, verse.numberInSurah)
 
+// Both highlights paint the inline text fragments, so an ayah that is bookmarked
+// and playing at once shows the bookmark styling, as it did before.
+const ayahHighlightClass = (verse) => {
+  if (isBookmarkedVerse(verse)) {
+    // The ring is inset (not outset) so the outline stays inside each line
+    // fragment, and the padding is horizontal only — vertical padding grows the
+    // fragment boxes and reintroduces overlap even at the taller line-height.
+    return 'box-decoration-clone rounded-sm bg-primary/10 px-1 inset-ring inset-ring-primary/35'
+  }
+
+  return isCurrentVerse(verse) ? 'bg-secondary' : ''
+}
+
 const handleBookmark = () => {
   const ayah = activeAyah.value
   if (!ayah || !surah.value) return
@@ -136,7 +150,9 @@ watch(
 
 <template>
   <AsyncContent :pending="isFetching" :error="error" loading-message="جاري تحميل السورة...">
-    <Page class="quran-page" v-if="surah">
+    <!-- Narrower than the shared page container so the ayat column stays
+         readable; both max-widths are plain utilities, hence the `!`. -->
+    <Page class="flex max-w-[43.75rem]! flex-col gap-2.5" v-if="surah">
       <Heading
         :title="normalizeQuranicText(surah.data.name)"
         :subtitle="`عدد الآيات: ${toArabicNumerals(surah.data.numberOfAyahs)} آية - سورة ${revelationLabel}`"
@@ -146,45 +162,59 @@ watch(
       <!-- Audio Player -->
       <AudioPlayer v-if="online" ref="playerRef" />
 
-      <div class="ayat font-quran mb-4">
-        <span class="basmallah" v-if="surahId != 9">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
+      <div
+        class="mb-4 rounded-lg border p-4 text-justify font-quran [text-align-last:center] [text-justify:inter-word]"
+      >
+        <span class="mb-4 block text-center text-[2rem] leading-[2.5]" v-if="surahId != 9"
+          >بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span
+        >
 
         <template v-for="(ayah, index) in ayat" :key="ayah.number">
+          <!-- Kitab glyph boxes are taller than em*2, so line-height 2 lets
+               multi-line inline backgrounds (bookmark/current) overlap between
+               lines — 2.4 keeps them apart. -->
           <span
             :id="`ayah-${ayah.numberInSurah}`"
-            class="ayah clickable-ayah"
-            :class="{ 'current-ayah': isCurrentVerse(ayah), 'bookmarked-ayah': isBookmarkedVerse(ayah) }"
+            class="ayah mb-3 cursor-pointer text-[1.625rem] leading-[2.4]"
+            :class="ayahHighlightClass(ayah)"
             @click="activeAyah = ayah"
             :title="`خيارات الآية ${toArabicNumerals(ayah.numberInSurah)}`"
             >{{ ayah.text }}</span
           >
-          <span class="ayah-number" aria-hidden="true">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
-          <div v-if="index < ayat.length - 1 && ayah.page !== ayat[index + 1].page" class="page-separator">
-            <span class="page-number">{{ toArabicNumerals(ayah.page) }}</span>
+          <span class="ayah-number mb-3" aria-hidden="true">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
+          <div
+            v-if="index < ayat.length - 1 && ayah.page !== ayat[index + 1].page"
+            class="page-separator my-8 flex w-full items-center"
+          >
+            <span class="rounded-full border px-3 py-0.5 font-sans text-sm whitespace-nowrap text-muted-foreground">{{
+              toArabicNumerals(ayah.page)
+            }}</span>
           </div>
         </template>
       </div>
 
-      <div class="d-flex justify-content-center align-items-center gap-2">
-        <RouterLink
+      <div class="flex items-center justify-center gap-2">
+        <Button
+          :as="RouterLink"
           :to="{ name: 'quran-surah', params: { surah: surahNumber - 1 } }"
-          class="btn btn-flat d-inline-flex align-items-center gap-2"
-          :class="{ disabled: surahNumber === 1 }"
+          variant="ghost"
+          :class="{ 'pointer-events-none opacity-50': surahNumber === 1 }"
         >
-          <IconArrowRight size="1.25rem" />
+          <IconArrowRight class="size-5" />
           <span>السابقة</span>
-        </RouterLink>
+        </Button>
 
-        <BackButton :to="{ name: 'quran' }" button-class="btn-primary" />
+        <BackButton :to="{ name: 'quran' }" button-class="bg-primary text-primary-foreground hover:bg-primary/90" />
 
-        <RouterLink
+        <Button
+          :as="RouterLink"
           :to="{ name: 'quran-surah', params: { surah: surahNumber + 1 } }"
-          class="btn btn-flat d-inline-flex align-items-center gap-2"
-          :class="{ disabled: surahNumber === 114 }"
+          variant="ghost"
+          :class="{ 'pointer-events-none opacity-50': surahNumber === 114 }"
         >
           <span>التالية</span>
-          <IconArrowLeft size="1.25rem" />
-        </RouterLink>
+          <IconArrowLeft class="size-5" />
+        </Button>
       </div>
 
       <AyahActionSheet
@@ -210,86 +240,15 @@ watch(
   </AsyncContent>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 @import '@/shared/styles/quran.css';
 
-.quran-page {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-width: 700px;
-
-  .ayat {
-    padding: 1rem;
-    border-radius: var(--bs-border-radius-lg);
-    border: 1px solid var(--bs-border-color);
-    text-align: justify;
-    text-align-last: center;
-    text-justify: inter-word;
-
-    .basmallah {
-      display: block;
-      font-size: 2rem;
-      line-height: 2.5;
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-
-    .ayah {
-      // Kitab glyph boxes are taller than em*2, so line-height 2 lets
-      // multi-line inline backgrounds (bookmark/current) overlap between lines.
-      line-height: 2.4;
-      font-size: 1.625rem;
-    }
-
-    .ayah,
-    .ayah-number {
-      margin-bottom: 0.75rem;
-    }
-
-    .page-separator {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      margin: 2rem 0;
-
-      &::before,
-      &::after {
-        content: '';
-        flex: 1;
-        border-bottom: 1px solid var(--bs-border-color);
-      }
-
-      .page-number {
-        padding: 0.15rem 0.75rem;
-        font-size: 0.875rem;
-        color: var(--bs-gray-600);
-        font-family: 'Thmanyah Sans', sans-serif;
-        white-space: nowrap;
-        border: 1px solid var(--bs-border-color);
-        border-radius: var(--bs-border-radius-pill);
-      }
-    }
-
-    .clickable-ayah {
-      cursor: pointer;
-    }
-
-    .current-ayah {
-      background-color: var(--bs-secondary-bg);
-    }
-
-    .bookmarked-ayah {
-      background-color: rgba(var(--bs-primary-rgb), 0.12);
-      // Inset (not outset) so the outline stays inside each line fragment.
-      box-shadow: inset 0 0 0 1px rgba(var(--bs-primary-rgb), 0.35);
-      border-radius: var(--bs-border-radius-sm);
-      // Horizontal padding only — vertical padding grows fragment boxes and
-      // reintroduces overlap even with the taller line-height above.
-      padding: 0 0.25rem;
-      box-decoration-break: clone;
-      -webkit-box-decoration-break: clone;
-    }
-  }
+/* Rules running out from the centred page marker to both edges — pseudo
+   elements, so they cannot be expressed as utilities. */
+.page-separator::before,
+.page-separator::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border);
 }
 </style>

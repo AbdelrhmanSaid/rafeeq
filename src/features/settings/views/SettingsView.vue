@@ -10,6 +10,7 @@ import {
   IconCloudDownload,
 } from '@tabler/icons-vue'
 
+import { cn } from '@/shared/lib/utils'
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
 
@@ -68,21 +69,28 @@ const tabs = [
 
 const route = useRoute()
 const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab) ?? tabs[0])
+
+// The pills are links, not tab state: the active section comes from
+// /settings/:tab, so deep links and the back button keep working.
+const tabPillClass =
+  'flex shrink-0 items-center gap-3 rounded-md border px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground md:w-full md:shrink md:border-transparent md:py-2.5'
 </script>
 
 <template>
   <Page>
     <Heading class="mb-4" title="الإعدادات" subtitle="تعديل الإعدادات المختلفة للتطبيق" />
 
-    <div class="settings-layout">
-      <!-- Tabs navigation -->
-      <nav class="settings-nav tab-pills" aria-label="أقسام الإعدادات">
+    <div class="grid items-start gap-4 md:grid-cols-[15rem_1fr] md:gap-6">
+      <!-- Tabs navigation — a scrollable pill strip on mobile, a sticky sidebar from md up -->
+      <nav
+        class="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1.5 md:sticky md:top-[calc(var(--navbar-height)+1rem)] md:mx-0 md:flex-col md:gap-1 md:overflow-x-visible md:px-0 md:pb-0"
+        aria-label="أقسام الإعدادات"
+      >
         <RouterLink
           v-for="tab in tabs"
           :key="tab.id"
           :to="{ name: 'settings', params: { tab: tab.id } }"
-          class="settings-nav-item tab-pill"
-          :class="{ active: activeTab.id === tab.id }"
+          :class="cn(tabPillClass, activeTab.id === tab.id && 'border-transparent bg-primary/10 text-foreground')"
         >
           <component :is="tab.icon" :size="20" />
           <span>{{ tab.label }}</span>
@@ -90,80 +98,11 @@ const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab)
       </nav>
 
       <!-- Tab content -->
-      <div class="settings-content">
-        <div class="settings-stack">
+      <div class="min-w-0">
+        <div class="flex flex-col gap-6">
           <component v-for="(section, index) in activeTab.sections" :key="index" :is="section" />
         </div>
       </div>
     </div>
   </Page>
 </template>
-
-<style scoped>
-.settings-layout {
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 1.5rem;
-  align-items: start;
-}
-
-/* Navigation — sidebar on desktop */
-.settings-nav {
-  flex-direction: column;
-  gap: 0.25rem;
-  overflow-x: visible;
-  padding: 0;
-  margin: 0;
-  position: sticky;
-  top: calc(var(--navbar-height) + 1rem);
-}
-
-.settings-nav-item {
-  width: 100%;
-  flex-shrink: 1;
-  padding-block: 0.7rem;
-  border-color: transparent;
-  font-size: 0.9rem;
-}
-
-.settings-content {
-  min-width: 0;
-}
-
-.settings-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-/* Mobile — horizontal scrollable pills */
-@media (max-width: 767.98px) {
-  .settings-layout {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .settings-nav {
-    flex-direction: row;
-    position: static;
-    gap: 0.5rem;
-    overflow-x: auto;
-    padding-top: 0;
-    padding-bottom: 0.35rem;
-    margin-inline: -0.25rem;
-    padding-inline: 0.25rem;
-  }
-
-  .settings-nav-item {
-    width: auto;
-    flex-shrink: 0;
-    border-color: var(--bs-border-color);
-    padding: 0.5rem 0.9rem;
-    font-size: 0.85rem;
-  }
-
-  .settings-nav-item.active {
-    border-color: transparent;
-  }
-}
-</style>

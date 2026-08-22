@@ -1,6 +1,6 @@
 <script setup>
-import { computed } from 'vue'
 import { IconHeart, IconHeartFilled } from '@tabler/icons-vue'
+import { Button } from '@/shared/components/ui/button'
 import { useFavorites } from '@/shared/composables/useFavorites'
 import EmptyState from '@/shared/ui/EmptyState.vue'
 
@@ -39,24 +39,26 @@ const favorites = filterFavorites(
 <template>
   <div v-if="favorites.length && !search" class="mb-4">
     <slot name="favorites-title" />
-    <ul class="list-group">
+    <ul class="divide-y overflow-hidden rounded-xl border">
       <li
         v-for="(item, index) in favorites"
         :key="getKey(item)"
-        class="list-group-item list-group-item-action py-3"
+        class="px-4 py-3 transition-colors hover:bg-secondary [&.active]:bg-primary/10"
         :class="itemClass(item)"
       >
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="flex items-center justify-between gap-3">
           <slot :item="item" :index="index" />
 
-          <div class="d-flex gap-2">
-            <button
-              class="btn btn-flat position-relative z-1"
+          <div class="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              class="relative z-[1]"
               @click.stop="toggleFavorite(getKey(item))"
               title="إزالة من المفضلة"
             >
-              <IconHeartFilled size="1.25rem" class="text-danger" />
-            </button>
+              <IconHeartFilled class="size-5 text-destructive" />
+            </Button>
 
             <slot name="actions" :item="item" />
           </div>
@@ -66,39 +68,35 @@ const favorites = filterFavorites(
   </div>
 
   <slot v-if="favorites.length && !search" name="all-title" />
-  <ul class="list-group">
+  <ul class="divide-y overflow-hidden rounded-xl border">
     <li
       v-for="(item, index) in items"
       :key="getKey(item)"
-      class="list-group-item list-group-item-action py-3"
+      class="px-4 py-3 transition-colors hover:bg-secondary [&.active]:bg-primary/10"
       :class="itemClass(item)"
     >
-      <div class="d-flex justify-content-between align-items-center">
+      <div class="flex items-center justify-between gap-3">
         <slot :item="item" :index="index" />
 
-        <div class="d-flex gap-2">
-          <button
-            class="btn btn-flat position-relative z-1"
+        <div class="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            class="relative z-[1]"
             @click.stop="toggleFavorite(getKey(item))"
             :title="isFavorite(getKey(item)) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"
           >
-            <IconHeartFilled v-if="isFavorite(getKey(item))" size="1.25rem" class="text-danger" />
-            <IconHeart v-else size="1.25rem" />
-          </button>
+            <IconHeartFilled v-if="isFavorite(getKey(item))" class="size-5 text-destructive" />
+            <IconHeart v-else class="size-5" />
+          </Button>
 
           <slot name="actions" :item="item" />
         </div>
       </div>
     </li>
 
-    <li v-if="items.length === 0" class="list-group-item">
+    <li v-if="items.length === 0" class="px-4">
       <EmptyState />
     </li>
   </ul>
 </template>
-
-<style lang="scss" scoped>
-.list-group-item:hover {
-  background-color: rgba(var(--bs-secondary-rgb), 0.1);
-}
-</style>

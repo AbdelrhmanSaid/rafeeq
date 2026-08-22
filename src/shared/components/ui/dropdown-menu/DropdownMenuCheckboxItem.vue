@@ -1,12 +1,8 @@
 <script setup>
-import { Check } from "@lucide/vue";
-import { reactiveOmit } from "@vueuse/core";
-import {
-  DropdownMenuCheckboxItem,
-  DropdownMenuItemIndicator,
-  useForwardPropsEmits,
-} from "reka-ui";
-import { cn } from '@/shared/lib/utils';
+import { Check } from '@lucide/vue'
+import { reactiveOmit } from '@vueuse/core'
+import { DropdownMenuCheckboxItem, DropdownMenuItemIndicator, useForwardPropsEmits } from 'reka-ui'
+import { cn } from '@/shared/lib/utils'
 
 const props = defineProps({
   modelValue: { type: [Boolean, String], required: false },
@@ -19,12 +15,12 @@ const props = defineProps({
     required: false,
     skipCheck: true,
   },
-});
-const emits = defineEmits(["select", "update:modelValue"]);
+})
+const emits = defineEmits(['select', 'update:modelValue'])
 
-const delegatedProps = reactiveOmit(props, "class");
+const delegatedProps = reactiveOmit(props, 'class')
 
-const forwarded = useForwardPropsEmits(delegatedProps, emits);
+const forwarded = useForwardPropsEmits(delegatedProps, emits)
 </script>
 
 <template>
@@ -38,9 +34,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
       )
     "
   >
-    <span
-      class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center"
-    >
+    <span class="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
       <DropdownMenuItemIndicator>
         <slot name="indicator-icon">
           <Check class="size-4" />

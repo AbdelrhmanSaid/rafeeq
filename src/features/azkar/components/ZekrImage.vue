@@ -20,16 +20,44 @@ const props = defineProps({
   },
 })
 
-// The data-bs-theme="light" attribute below makes Bootstrap's
-// [data-bs-theme=light] rule re-declare --bs-primary/--bs-primary-rgb with the
-// compiled default, hiding the user's chosen theme color. Resolve both from the
-// root element (where applyPrimaryColor sets them inline) and pin them back as
-// inline styles on the export root so the whole export follows the theme color.
-// html2canvas also rasterizes inline SVGs without stylesheet context, so the
-// logo needs the resolved color as an inline style either way.
-const rootStyles = getComputedStyle(document.documentElement)
-const primaryColor = rootStyles.getPropertyValue('--bs-primary').trim() || '#795547'
-const primaryRgb = rootStyles.getPropertyValue('--bs-primary-rgb').trim() || '121, 85, 71'
+// The `theme-light` class below re-declares the light tokens on this subtree so
+// the export always renders light — but that also re-declares `--primary` with
+// the compiled default, hiding the accent the user picked at runtime (which
+// lives as an inline `--primary` on the root element, see
+// `src/shared/utils/css.js`). Resolve it from the root and pin it back as an
+// inline style on the export root so the whole export follows the theme color.
+//
+// html2canvas cannot rasterize modern color functions (`oklch`, `color-mix`),
+// so the accent is resolved all the way down to a plain `rgb()` and also
+// exposed as a raw channel triple: every translucent accent in the stylesheet
+// below is written as `rgba(var(--zekr-primary-rgb), a)` rather than as a
+// Tailwind opacity modifier, which would compile to `color-mix()`. html2canvas
+// also rasterizes inline SVGs without stylesheet context, so the logo needs the
+// resolved color as an inline style either way.
+const PRIMARY_FALLBACK = '#795547'
+
+const readPrimaryChannels = () => {
+  const token = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()
+
+  const probe = document.createElement('div')
+  probe.style.color = PRIMARY_FALLBACK
+  if (token) probe.style.color = token
+  document.body.appendChild(probe)
+
+  const resolved = getComputedStyle(probe).color
+  probe.remove()
+
+  return (
+    resolved
+      .match(/[\d.]+/g)
+      ?.slice(0, 3)
+      .map(Number) ?? [121, 85, 71]
+  )
+}
+
+const [red, green, blue] = readPrimaryChannels()
+const primaryColor = `rgb(${red}, ${green}, ${blue})`
+const primaryRgb = `${red}, ${green}, ${blue}`
 
 // Sizes are px (not rem) so the user's font-scale setting can't distort exports
 const textStyle = computed(() => {
@@ -52,11 +80,10 @@ const repeatLabel = computed(() => {
 
 <template>
   <div
-    class="zekr-export"
+    class="zekr-export theme-light"
     dir="rtl"
     lang="ar"
-    data-bs-theme="light"
-    :style="{ '--bs-primary': primaryColor, '--bs-primary-rgb': primaryRgb }"
+    :style="{ '--primary': primaryColor, '--zekr-primary-rgb': primaryRgb }"
   >
     <div class="frame-outer">
       <div class="frame-inner">
@@ -107,12 +134,16 @@ const repeatLabel = computed(() => {
  * Captured by html2canvas: stick to solid colors, simple linear-gradients,
  * borders and 2D transforms — no conic-gradient, color-mix, box-shadow
  * or flex gap. Ornaments are plain rotated divs for the same reason.
+ *
+ * Colors come from the `theme-light` token layer (plain hex there, so
+ * html2canvas can read them) and from the accent pinned inline on the root.
+ * Sizes stay in px so the user's font-scale setting can't distort the export.
  */
 .zekr-export {
   width: 512px;
   min-height: 560px;
   padding: 24px 24px 16px;
-  background: #fffdf9;
+  background: var(--background);
   font-family: 'Thmanyah Sans', sans-serif;
   display: flex;
   flex-direction: column;
@@ -122,7 +153,7 @@ const repeatLabel = computed(() => {
 .frame-outer {
   flex: 1 1 auto;
   display: flex;
-  border: 2px solid rgba(var(--bs-primary-rgb), 0.5);
+  border: 2px solid rgba(var(--zekr-primary-rgb), 0.5);
   border-radius: 8px;
   padding: 5px;
 }
@@ -133,18 +164,22 @@ const repeatLabel = computed(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 1px solid rgba(var(--bs-primary-rgb), 0.3);
+  border: 1px solid rgba(var(--zekr-primary-rgb), 0.3);
   border-radius: 4px;
-  background: rgba(var(--bs-primary-rgb), 0.03);
+  background: rgba(var(--zekr-primary-rgb), 0.03);
   padding: 26px 30px 24px;
 }
 
-/* Corner ornaments: square + rotated square = tiny eight-pointed star */
+/* Corner ornaments: square + rotated square = tiny eight-pointed star.
+   The physical offsets in this block (and in the star below) are genuinely
+   direction-independent — the four corners mirror each other and every diamond
+   sits symmetrically inside its own parent — and html2canvas reads the plain
+   physical box properties most reliably. */
 .corner {
   position: absolute;
   width: 7px;
   height: 7px;
-  background: rgba(var(--bs-primary-rgb), 0.4);
+  background: rgba(var(--zekr-primary-rgb), 0.4);
 }
 
 .corner-diamond {
@@ -153,7 +188,7 @@ const repeatLabel = computed(() => {
   left: 0;
   width: 7px;
   height: 7px;
-  background: rgba(var(--bs-primary-rgb), 0.4);
+  background: rgba(var(--zekr-primary-rgb), 0.4);
   transform: rotate(45deg);
 }
 
@@ -188,7 +223,7 @@ const repeatLabel = computed(() => {
 .ornament-rule {
   width: 96px;
   height: 2px;
-  background: linear-gradient(to right, transparent, rgba(var(--bs-primary-rgb), 0.45), transparent);
+  background: linear-gradient(to right, transparent, rgba(var(--zekr-primary-rgb), 0.45), transparent);
 }
 
 .star8 {
@@ -196,7 +231,7 @@ const repeatLabel = computed(() => {
   width: 15px;
   height: 15px;
   margin: 0 14px;
-  background: rgba(var(--bs-primary-rgb), 0.85);
+  background: rgba(var(--zekr-primary-rgb), 0.85);
 }
 
 .star8-diamond {
@@ -205,7 +240,7 @@ const repeatLabel = computed(() => {
   left: 0;
   width: 15px;
   height: 15px;
-  background: rgba(var(--bs-primary-rgb), 0.85);
+  background: rgba(var(--zekr-primary-rgb), 0.85);
   transform: rotate(45deg);
 }
 
@@ -216,7 +251,7 @@ const repeatLabel = computed(() => {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #fffdf9;
+  background: var(--background);
   z-index: 1;
 }
 
@@ -230,7 +265,7 @@ const repeatLabel = computed(() => {
 }
 
 .zekr-text {
-  color: #2b2521;
+  color: var(--foreground);
   margin: 0;
   max-width: 400px;
 }
@@ -245,19 +280,19 @@ const repeatLabel = computed(() => {
 .divider-rule {
   width: 56px;
   height: 1px;
-  background: linear-gradient(to right, transparent, rgba(var(--bs-primary-rgb), 0.4), transparent);
+  background: linear-gradient(to right, transparent, rgba(var(--zekr-primary-rgb), 0.4), transparent);
 }
 
 .divider-diamond {
   width: 6px;
   height: 6px;
   margin: 0 12px;
-  background: rgba(var(--bs-primary-rgb), 0.55);
+  background: rgba(var(--zekr-primary-rgb), 0.55);
   transform: rotate(45deg);
 }
 
 .zekr-reference {
-  color: var(--bs-primary);
+  color: var(--primary);
   font-size: 15px;
   font-weight: 600;
   line-height: 1.8;
@@ -265,7 +300,7 @@ const repeatLabel = computed(() => {
 }
 
 .zekr-benefit {
-  color: #6e665d;
+  color: var(--muted-foreground);
   font-size: 13.5px;
   line-height: 1.9;
   margin: 0;
@@ -278,20 +313,20 @@ const repeatLabel = computed(() => {
   margin-top: 22px;
   padding: 8px 20px;
   border-radius: 50px;
-  background: rgba(var(--bs-primary-rgb), 0.07);
-  border: 1px solid rgba(var(--bs-primary-rgb), 0.22);
+  background: rgba(var(--zekr-primary-rgb), 0.07);
+  border: 1px solid rgba(var(--zekr-primary-rgb), 0.22);
 }
 
 .pill-diamond {
   width: 5px;
   height: 5px;
   margin: 0 10px;
-  background: rgba(var(--bs-primary-rgb), 0.55);
+  background: rgba(var(--zekr-primary-rgb), 0.55);
   transform: rotate(45deg);
 }
 
 .pill-label {
-  color: var(--bs-primary);
+  color: var(--primary);
   font-size: 15px;
   font-weight: 600;
   line-height: 1.4;

@@ -177,9 +177,6 @@ router.afterEach((to) => {
     themeStore.clearQueryOverrides()
   }
 
-  // Close the mobile menu after clicking on a link
-  document.querySelector('.navbar-collapse')?.classList?.remove('show')
-
   // Stop the progress bar
   nProgress.done()
 

@@ -57,12 +57,16 @@ const shareStation = async () => {
     <OfflineState />
   </Page>
 
-  <Page v-else class="full-height d-flex align-items-center justify-content-center">
+  <Page v-else class="flex min-h-[calc(100vh-var(--navbar-height))] items-center justify-center">
     <!-- Not Found State -->
-    <div v-if="!station" class="text-center py-5 px-3">
-      <div class="display-1 mb-4 opacity-50">📻</div>
+    <div v-if="!station" class="px-4 py-12 text-center">
+      <div class="mb-6 text-7xl opacity-50">📻</div>
       <Heading title="لم يتم العثور على الإذاعة" subtitle="يمكنك العودة لقائمة الإذاعات المتاحة." />
-      <BackButton :to="{ name: 'radio' }" label="العودة إلى الإذاعات" button-class="btn-primary" />
+      <BackButton
+        :to="{ name: 'radio' }"
+        label="العودة إلى الإذاعات"
+        button-class="mt-6 bg-primary text-primary-foreground hover:bg-primary/90"
+      />
     </div>
 
     <!-- Main Player -->

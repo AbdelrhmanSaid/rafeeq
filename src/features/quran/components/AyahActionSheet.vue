@@ -4,6 +4,7 @@ import { toast } from 'vue-sonner'
 import { IconPlayerPlay, IconBook2, IconCopy, IconShare3, IconBookmark, IconBookmarkOff } from '@tabler/icons-vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
+import { Separator } from '@/shared/components/ui/separator'
 
 const props = defineProps({
   ayah: { type: Object, default: null },
@@ -13,6 +14,9 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['recite', 'tafseer', 'bookmark', 'close'])
+
+// The full-width row style every action in this sheet shares.
+const itemClass = 'flex w-full items-center gap-3 px-5 py-3 text-start transition-colors hover:bg-secondary'
 
 const title = computed(() => (props.ayah ? `${props.surahName} ${toArabicNumerals(props.ayah.numberInSurah)}` : ''))
 const shareText = computed(() => (props.ayah ? `${props.ayah.text}\n[${title.value}]` : ''))
@@ -46,34 +50,34 @@ const share = () => {
 
 <template>
   <BottomSheet :show="!!ayah" :title="title" @close="emit('close')">
-    <ul class="list-unstyled m-0 py-2">
+    <ul class="py-2">
       <li v-if="online">
-        <button class="bottom-sheet-item" @click="emitAndClose('recite')">
+        <button :class="itemClass" @click="emitAndClose('recite')">
           <IconPlayerPlay size="20" />
           <span>تلاوة</span>
         </button>
       </li>
       <li>
-        <button class="bottom-sheet-item" @click="emitAndClose('tafseer')">
+        <button :class="itemClass" @click="emitAndClose('tafseer')">
           <IconBook2 size="20" />
           <span>تفسير</span>
         </button>
       </li>
       <li>
-        <button class="bottom-sheet-item" @click="emitAndClose('bookmark')">
+        <button :class="itemClass" @click="emitAndClose('bookmark')">
           <component :is="bookmarked ? IconBookmarkOff : IconBookmark" size="20" />
           <span>{{ bookmarked ? 'إزالة الإشارة المرجعية' : 'تعيين كإشارة مرجعية' }}</span>
         </button>
       </li>
-      <li><hr class="my-2" /></li>
+      <li><Separator class="my-2" /></li>
       <li>
-        <button class="bottom-sheet-item" @click="copy">
+        <button :class="itemClass" @click="copy">
           <IconCopy size="20" />
           <span>نسخ</span>
         </button>
       </li>
       <li>
-        <button class="bottom-sheet-item" @click="share">
+        <button :class="itemClass" @click="share">
           <IconShare3 size="20" />
           <span>مشاركة</span>
         </button>

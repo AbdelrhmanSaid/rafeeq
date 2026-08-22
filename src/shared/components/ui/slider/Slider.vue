@@ -1,13 +1,7 @@
 <script setup>
-import { reactiveOmit } from "@vueuse/core";
-import {
-  SliderRange,
-  SliderRoot,
-  SliderThumb,
-  SliderTrack,
-  useForwardPropsEmits,
-} from "reka-ui";
-import { cn } from '@/shared/lib/utils';
+import { reactiveOmit } from '@vueuse/core'
+import { SliderRange, SliderRoot, SliderThumb, SliderTrack, useForwardPropsEmits } from 'reka-ui'
+import { cn } from '@/shared/lib/utils'
 
 const props = defineProps({
   defaultValue: { type: Array, required: false },
@@ -25,17 +19,20 @@ const props = defineProps({
   as: { type: null, required: false },
   name: { type: String, required: false },
   required: { type: Boolean, required: false },
+  // Declared as a prop (not left to attribute fallthrough) so the accessible
+  // name lands on the thumb, which is the element carrying role="slider".
+  ariaLabel: { type: String, required: false },
   class: {
     type: [Boolean, null, String, Object, Array],
     required: false,
     skipCheck: true,
   },
-});
-const emits = defineEmits(["update:modelValue", "valueCommit"]);
+})
+const emits = defineEmits(['update:modelValue', 'valueCommit'])
 
-const delegatedProps = reactiveOmit(props, "class");
+const delegatedProps = reactiveOmit(props, 'class', 'ariaLabel')
 
-const forwarded = useForwardPropsEmits(delegatedProps, emits);
+const forwarded = useForwardPropsEmits(delegatedProps, emits)
 </script>
 
 <template>
@@ -64,7 +61,8 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
       v-for="(_, key) in modelValue"
       :key="key"
       data-slot="slider-thumb"
-      class="bg-white border-primary ring-ring/50 block size-4 shrink-0 rounded-full border shadow-sm transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
+      :aria-label="ariaLabel"
+      class="bg-background border-primary ring-ring/50 block size-4 shrink-0 rounded-full border shadow-sm transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
     />
   </SliderRoot>
 </template>

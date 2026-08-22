@@ -1,6 +1,6 @@
 <script setup>
-import { useVModel } from "@vueuse/core";
-import { cn } from '@/shared/lib/utils';
+import { useVModel } from '@vueuse/core'
+import { cn } from '@/shared/lib/utils'
 
 const props = defineProps({
   class: {
@@ -10,14 +10,14 @@ const props = defineProps({
   },
   defaultValue: { type: [String, Number], required: false },
   modelValue: { type: [String, Number], required: false },
-});
+})
 
-const emits = defineEmits(["update:modelValue"]);
+const emits = defineEmits(['update:modelValue'])
 
-const modelValue = useVModel(props, "modelValue", emits, {
+const modelValue = useVModel(props, 'modelValue', emits, {
   passive: true,
   defaultValue: props.defaultValue,
-});
+})
 </script>
 
 <template>

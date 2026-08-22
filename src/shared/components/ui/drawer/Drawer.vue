@@ -1,5 +1,5 @@
 <script setup>
-import { DrawerRoot, useForwardPropsEmits } from "reka-ui";
+import { DrawerRoot, useForwardPropsEmits } from 'reka-ui'
 
 const props = defineProps({
   open: { type: Boolean, required: false },
@@ -10,15 +10,11 @@ const props = defineProps({
   snapPoint: { type: [Number, String, null], required: false },
   defaultSnapPoint: { type: [Number, String, null], required: false },
   snapToSequentialPoints: { type: Boolean, required: false },
-});
+})
 
-const emits = defineEmits([
-  "update:open",
-  "update:openComplete",
-  "update:snapPoint",
-]);
+const emits = defineEmits(['update:open', 'update:openComplete', 'update:snapPoint'])
 
-const forwarded = useForwardPropsEmits(props, emits);
+const forwarded = useForwardPropsEmits(props, emits)
 </script>
 
 <template>

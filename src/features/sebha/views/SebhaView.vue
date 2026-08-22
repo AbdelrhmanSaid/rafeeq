@@ -8,7 +8,9 @@ const isMobile = useMediaQuery('(max-width: 768px)')
 </script>
 
 <template>
-  <Page :class="{ 'sebha-page': true, 'full-height': isMobile }">
+  <!-- The counter takes the remaining row so it stays centred; on mobile the
+       page also stretches to the viewport minus the navbar. -->
+  <Page class="grid grid-rows-[auto_1fr]" :class="{ 'min-h-[calc(100vh-var(--navbar-height))]': isMobile }">
     <Heading
       class="mb-4"
       title="السبحة الإلكترونية"
@@ -19,10 +21,3 @@ const isMobile = useMediaQuery('(max-width: 768px)')
     <Sebha />
   </Page>
 </template>
-
-<style lang="scss" scoped>
-.sebha-page {
-  display: grid;
-  grid-template-rows: auto 1fr;
-}
-</style>

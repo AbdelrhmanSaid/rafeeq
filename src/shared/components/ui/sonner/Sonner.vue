@@ -1,14 +1,7 @@
 <script setup>
-import {
-  CircleCheckIcon,
-  InfoIcon,
-  Loader2Icon,
-  OctagonXIcon,
-  TriangleAlertIcon,
-  XIcon,
-} from "@lucide/vue";
-import { Toaster as Sonner } from "vue-sonner";
-import { cn } from '@/shared/lib/utils';
+import { CircleCheckIcon, InfoIcon, Loader2Icon, OctagonXIcon, TriangleAlertIcon, XIcon } from '@lucide/vue'
+import { Toaster as Sonner } from 'vue-sonner'
+import { cn } from '@/shared/lib/utils'
 
 const props = defineProps({
   id: { type: String, required: false },
@@ -32,7 +25,7 @@ const props = defineProps({
   swipeDirections: { type: Array, required: false },
   icons: { type: Object, required: false },
   containerAriaLabel: { type: String, required: false },
-});
+})
 </script>
 
 <template>

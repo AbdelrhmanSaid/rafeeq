@@ -17,13 +17,11 @@ defineProps({
 </script>
 
 <template>
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-lg-6 text-center">
-        <component v-if="icon" :is="icon" size="3rem" class="mb-3" />
-        <h1 v-if="code" class="display-1">{{ toArabicNumerals(code) }}</h1>
-        <p class="lead">{{ message }}</p>
-      </div>
+  <div class="container-page">
+    <div class="mx-auto max-w-lg text-center">
+      <component v-if="icon" :is="icon" class="mx-auto mb-3 size-12 text-muted-foreground" />
+      <h1 v-if="code" class="font-display text-6xl leading-tight">{{ toArabicNumerals(code) }}</h1>
+      <p class="text-xl font-light text-muted-foreground">{{ message }}</p>
     </div>
   </div>
 </template>

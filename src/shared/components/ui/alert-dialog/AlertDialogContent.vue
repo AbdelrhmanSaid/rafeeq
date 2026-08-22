@@ -1,16 +1,11 @@
 <script setup>
-import { reactiveOmit } from "@vueuse/core";
-import {
-  AlertDialogContent,
-  AlertDialogOverlay,
-  AlertDialogPortal,
-  useForwardPropsEmits,
-} from "reka-ui";
-import { cn } from '@/shared/lib/utils';
+import { reactiveOmit } from '@vueuse/core'
+import { AlertDialogContent, AlertDialogOverlay, AlertDialogPortal, useForwardPropsEmits } from 'reka-ui'
+import { cn } from '@/shared/lib/utils'
 
 defineOptions({
   inheritAttrs: false,
-});
+})
 
 const props = defineProps({
   forceMount: { type: Boolean, required: false },
@@ -22,19 +17,19 @@ const props = defineProps({
     required: false,
     skipCheck: true,
   },
-});
+})
 const emits = defineEmits([
-  "escapeKeyDown",
-  "pointerDownOutside",
-  "focusOutside",
-  "interactOutside",
-  "openAutoFocus",
-  "closeAutoFocus",
-]);
+  'escapeKeyDown',
+  'pointerDownOutside',
+  'focusOutside',
+  'interactOutside',
+  'openAutoFocus',
+  'closeAutoFocus',
+])
 
-const delegatedProps = reactiveOmit(props, "class");
+const delegatedProps = reactiveOmit(props, 'class')
 
-const forwarded = useForwardPropsEmits(delegatedProps, emits);
+const forwarded = useForwardPropsEmits(delegatedProps, emits)
 </script>
 
 <template>

@@ -1,9 +1,9 @@
 <script setup>
-import { reactiveOmit } from "@vueuse/core";
-import { ToggleGroupItem, useForwardProps } from "reka-ui";
-import { inject } from "vue";
-import { cn } from '@/shared/lib/utils';
-import { toggleVariants } from '@/shared/components/ui/toggle';
+import { reactiveOmit } from '@vueuse/core'
+import { ToggleGroupItem, useForwardProps } from 'reka-ui'
+import { inject } from 'vue'
+import { cn } from '@/shared/lib/utils'
+import { toggleVariants } from '@/shared/components/ui/toggle'
 
 const props = defineProps({
   value: { type: null, required: true },
@@ -17,12 +17,12 @@ const props = defineProps({
   },
   variant: { type: null, required: false },
   size: { type: null, required: false },
-});
+})
 
-const context = inject("toggleGroup");
+const context = inject('toggleGroup')
 
-const delegatedProps = reactiveOmit(props, "class", "size", "variant");
-const forwardedProps = useForwardProps(delegatedProps);
+const delegatedProps = reactiveOmit(props, 'class', 'size', 'variant')
+const forwardedProps = useForwardProps(delegatedProps)
 </script>
 
 <template>

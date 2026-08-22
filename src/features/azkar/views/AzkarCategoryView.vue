@@ -13,6 +13,7 @@ import Heading from '@/shared/ui/Heading.vue'
 import BackButton from '@/shared/ui/BackButton.vue'
 import AsyncContent from '@/shared/ui/AsyncContent.vue'
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
+import { Button } from '@/shared/components/ui/button'
 import ZekrCard from '@/features/azkar/components/ZekrCard.vue'
 import { useAsyncData } from '@/shared/composables/useAsyncData'
 import { usePageMeta } from '@/shared/composables/usePageMeta'
@@ -71,35 +72,38 @@ onBeforeRouteLeave(async () => {
         :benefit="zekr.benefit"
       />
 
-      <div class="d-flex justify-content-center gap-2">
-        <button
-          v-if="totalClicked > 0"
-          type="button"
-          class="btn btn-flat d-inline-flex align-items-center gap-2"
-          @click="resetProgress"
-        >
-          <IconRestore size="1.25rem" />
+      <div class="flex justify-center gap-2">
+        <Button v-if="totalClicked > 0" variant="ghost" type="button" @click="resetProgress">
+          <IconRestore class="size-5" />
           <span>تصفير</span>
-        </button>
+        </Button>
 
-        <BackButton :to="{ name: 'azkar' }" button-class="btn-primary" />
+        <BackButton :to="{ name: 'azkar' }" button-class="bg-primary text-primary-foreground hover:bg-primary/90" />
       </div>
     </Page>
   </AsyncContent>
 
   <!-- Leave confirmation sheet -->
   <BottomSheet :show="isRevealed" title="لم تنتهِ بعد" @close="cancel">
-    <p class="px-4 pt-3 mb-2 lh-lg text-secondary">لم تنتهِ من جميع الأذكار بعد، هل تريد المغادرة؟</p>
-    <ul class="list-unstyled m-0 py-2">
+    <p class="mb-2 px-4 pt-3 leading-relaxed text-muted-foreground">لم تنتهِ من جميع الأذكار بعد، هل تريد المغادرة؟</p>
+    <ul class="py-2">
       <li>
-        <button class="bottom-sheet-item" @click="cancel">
-          <IconArrowBackUp size="20" />
+        <button
+          type="button"
+          class="flex w-full items-center gap-3 px-5 py-3 text-start transition-colors hover:bg-secondary"
+          @click="cancel"
+        >
+          <IconArrowBackUp class="size-5" />
           <span>البقاء ومتابعة الأذكار</span>
         </button>
       </li>
       <li>
-        <button class="bottom-sheet-item text-danger" @click="confirm">
-          <IconDoorExit size="20" />
+        <button
+          type="button"
+          class="flex w-full items-center gap-3 px-5 py-3 text-start text-destructive transition-colors hover:bg-secondary"
+          @click="confirm"
+        >
+          <IconDoorExit class="size-5" />
           <span>مغادرة</span>
         </button>
       </li>

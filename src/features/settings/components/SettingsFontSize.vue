@@ -5,6 +5,8 @@ import { useThemeStore } from '@/app/stores/theme'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import { MIN_FONT_SCALE, MAX_FONT_SCALE, DEFAULT_FONT_SCALE, FONT_SCALE_STEP } from '@/shared/utils/css'
 import { IconTextSize, IconRotate } from '@tabler/icons-vue'
+import { Button } from '@/shared/components/ui/button'
+import { Slider } from '@/shared/components/ui/slider'
 import SettingsSection from './SettingsSection.vue'
 
 const theme = useThemeStore()
@@ -16,6 +18,14 @@ const step = FONT_SCALE_STEP
 
 const scaleLabel = computed(() => `${toArabicNumerals(fontScale.value)}٪`)
 const isDefault = computed(() => fontScale.value === DEFAULT_FONT_SCALE)
+
+// The slider works on an array of thumb values; the store keeps a single scale.
+const sliderValue = computed(() => [fontScale.value])
+
+function onSlide(value) {
+  const [next] = value ?? []
+  if (next != null) theme.setFontScale(next)
+}
 
 function decrease() {
   theme.setFontScale(fontScale.value - step)
@@ -29,88 +39,54 @@ function increase() {
 <template>
   <SettingsSection title="حجم الخط" description="تحكم في حجم النصوص في جميع أنحاء التطبيق" :icon="IconTextSize">
     <template #actions>
-      <button
-        v-if="!isDefault"
-        type="button"
-        class="btn btn-sm btn-flat d-inline-flex align-items-center gap-1"
-        @click="theme.resetFontScale()"
-      >
-        <IconRotate :size="15" />
+      <Button v-if="!isDefault" type="button" variant="ghost" size="sm" @click="theme.resetFontScale()">
+        <IconRotate />
         <span>إعادة تعيين</span>
-      </button>
+      </Button>
     </template>
 
-    <div class="p-3 border rounded">
-      <div class="d-flex align-items-center gap-3">
-        <button type="button" class="font-step" :disabled="fontScale <= min" aria-label="تصغير الخط" @click="decrease">
-          <span class="font-step-small">أ</span>
-        </button>
+    <div class="rounded-md border p-4">
+      <div class="flex items-center gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          :disabled="fontScale <= min"
+          aria-label="تصغير الخط"
+          @click="decrease"
+        >
+          <span class="text-sm leading-none">أ</span>
+        </Button>
 
-        <input
-          v-model.number="fontScale"
-          class="form-range flex-grow-1"
-          type="range"
+        <Slider
+          :model-value="sliderValue"
+          class="flex-1"
           :min="min"
           :max="max"
           :step="step"
           aria-label="حجم الخط"
+          @update:model-value="onSlide"
         />
 
-        <button type="button" class="font-step" :disabled="fontScale >= max" aria-label="تكبير الخط" @click="increase">
-          <span class="font-step-large">أ</span>
-        </button>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          :disabled="fontScale >= max"
+          aria-label="تكبير الخط"
+          @click="increase"
+        >
+          <span class="text-xl leading-none">أ</span>
+        </Button>
       </div>
 
-      <div class="d-flex justify-content-between align-items-center mt-2">
-        <small class="text-muted">صغير</small>
-        <small class="fw-medium">{{ scaleLabel }}</small>
-        <small class="text-muted">كبير</small>
+      <div class="mt-2 flex items-center justify-between">
+        <span class="text-xs text-muted-foreground">صغير</span>
+        <span class="text-xs font-medium">{{ scaleLabel }}</span>
+        <span class="text-xs text-muted-foreground">كبير</span>
       </div>
 
-      <p class="font-preview mb-0 mt-3">إِنَّ مَعَ ٱلْعُسْرِ يُسْرًا</p>
+      <p class="mt-4 border-t pt-3 text-center text-muted-foreground">إِنَّ مَعَ ٱلْعُسْرِ يُسْرًا</p>
     </div>
   </SettingsSection>
 </template>
-
-<style scoped>
-.font-step {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius-sm);
-  background: none;
-  color: var(--bs-body-color);
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.font-step:hover:not(:disabled) {
-  background: rgba(var(--bs-secondary-rgb), 0.1);
-}
-
-.font-step:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.font-step-small {
-  font-size: 0.85rem;
-  line-height: 1;
-}
-
-.font-step-large {
-  font-size: 1.35rem;
-  line-height: 1;
-}
-
-.font-preview {
-  text-align: center;
-  color: var(--bs-secondary-color);
-  border-top: 1px solid var(--bs-border-color);
-  padding-top: 0.75rem;
-}
-</style>

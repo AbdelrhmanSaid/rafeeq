@@ -1,4 +1,6 @@
 <script setup>
+import { IconLoader2 } from '@tabler/icons-vue'
+
 defineProps({
   message: {
     type: String,
@@ -8,11 +10,12 @@ defineProps({
 </script>
 
 <template>
-  <div class="d-flex flex-column align-items-center justify-content-center gap-4">
-    <div class="spinner-border" role="status">
-      <span class="visually-hidden">جاري التحميل...</span>
+  <div class="flex flex-col items-center justify-center gap-4">
+    <div role="status">
+      <IconLoader2 class="size-8 animate-spin text-muted-foreground" />
+      <span class="sr-only">جاري التحميل...</span>
     </div>
 
-    <p class="lead">{{ message }}</p>
+    <p class="text-xl font-light text-muted-foreground">{{ message }}</p>
   </div>
 </template>

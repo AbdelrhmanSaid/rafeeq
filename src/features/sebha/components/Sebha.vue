@@ -1,88 +1,31 @@
 <script setup>
 import { ref } from 'vue'
 import { IconRefreshDot } from '@tabler/icons-vue'
+import { Button } from '@/shared/components/ui/button'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 
 const sebha = ref(0)
 </script>
 
 <template>
-  <div class="sebha-shell">
-    <button @click="sebha++" class="sebha-btn">
-      <span class="sebha-count">{{ toArabicNumerals(sebha) }}</span>
-      <span class="sebha-label">اضغط للتسبيح</span>
+  <div class="flex flex-col items-center justify-center gap-7 px-4 pt-8 pb-12 text-center">
+    <!-- rem (not px) so the circle grows with the font scale and the counter
+         never overflows; still capped by viewport width on small screens. -->
+    <button
+      type="button"
+      @click="sebha++"
+      class="flex size-[min(13.75rem,70vw)] flex-col items-center justify-center gap-1.5 rounded-full border bg-background text-primary shadow-lg transition-[transform,box-shadow,border-color] duration-150 hover:-translate-y-0.5 hover:border-primary hover:shadow-xl active:translate-y-0"
+    >
+      <span class="text-[clamp(2rem,4vw,2.75rem)] font-bold">{{ toArabicNumerals(sebha) }}</span>
+      <span class="text-sm text-muted-foreground">اضغط للتسبيح</span>
     </button>
 
-    <div class="sebha-actions">
-      <button @click="sebha = 0" class="btn btn-flat">
-        <IconRefreshDot class="me-2" size="1.25rem" />
+    <div class="grid justify-items-center gap-3">
+      <Button variant="ghost" @click="sebha = 0">
+        <IconRefreshDot class="size-5" />
         <span>إعادة العداد</span>
-      </button>
-      <span class="sebha-hint">استمر بالذكر، واحتسب الأجر</span>
+      </Button>
+      <span class="text-sm text-muted-foreground">استمر بالذكر، واحتسب الأجر</span>
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.sebha-shell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1.75rem;
-  padding: 2rem 1rem 3rem;
-  text-align: center;
-}
-
-.sebha-btn {
-  /* rem (not px) so the circle grows with the font scale and the counter
-     never overflows; still capped by viewport width on small screens. */
-  width: min(13.75rem, 70vw);
-  height: min(13.75rem, 70vw);
-  border-radius: 50%;
-  border: 1px solid var(--bs-border-color);
-  background: var(--bs-body-bg);
-  color: var(--bs-primary);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  box-shadow: 0 12px 24px rgba(16, 24, 40, 0.08);
-  transition:
-    transform 160ms ease,
-    box-shadow 160ms ease,
-    border-color 160ms ease;
-}
-
-.sebha-btn:hover {
-  transform: translateY(-3px);
-  border-color: var(--bs-primary);
-  box-shadow: 0 18px 30px rgba(16, 24, 40, 0.12);
-}
-
-.sebha-btn:active {
-  transform: translateY(0);
-}
-
-.sebha-count {
-  font-size: clamp(2rem, 4vw, 2.75rem);
-  font-weight: 700;
-}
-
-.sebha-label {
-  font-size: 0.95rem;
-  color: var(--bs-secondary-color);
-}
-
-.sebha-actions {
-  display: grid;
-  gap: 0.75rem;
-  justify-items: center;
-}
-
-.sebha-hint {
-  font-size: 0.9rem;
-  color: var(--bs-secondary-color);
-}
-</style>

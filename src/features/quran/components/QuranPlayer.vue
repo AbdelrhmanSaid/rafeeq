@@ -6,6 +6,9 @@ import { IconPlayerPlay, IconPlayerPause, IconMicrophone2, IconGauge } from '@ta
 import { toArabicNumerals, formatTime } from '@/shared/utils/arabic'
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
 import SettingsReciter from '@/features/settings/components/SettingsReciter.vue'
+import { Button } from '@/shared/components/ui/button'
+import { Card, CardContent } from '@/shared/components/ui/card'
+import { Progress } from '@/shared/components/ui/progress'
 
 // Render settings cards (the reciter picker) form-only inside the sheet — the
 // sheet provides its own title, so the card chrome would be redundant.
@@ -124,63 +127,62 @@ defineExpose({ seekToAyah })
 </script>
 
 <template>
-  <div class="card">
-    <div class="card-body d-flex align-items-center gap-3">
-      <button
+  <Card class="gap-0 py-0">
+    <CardContent class="flex items-center gap-3 p-4">
+      <Button
         @click="togglePlayPause"
-        class="btn-play btn btn-primary rounded-circle d-flex align-items-center justify-content-center"
+        size="icon"
+        class="size-10 shrink-0 rounded-full"
         :disabled="loading || !quranStore.surahAudioUrl"
       >
-        <IconPlayerPlay v-if="!isPlaying" />
-        <IconPlayerPause v-else />
-      </button>
+        <IconPlayerPlay v-if="!isPlaying" class="size-5" />
+        <IconPlayerPause v-else class="size-5" />
+      </Button>
 
-      <div class="flex-grow-1 min-w-0">
+      <div class="min-w-0 flex-1">
         <template v-if="currentAyahDisplay">
-          <span class="d-inline-block fw-semibold text-primary me-2">{{ currentAyahDisplay.surahName }}</span>
-          <span v-if="currentAyahDisplay.ayahNumber > 0" class="d-inline-block text-secondary small"
+          <span class="me-2 inline-block font-semibold text-primary">{{ currentAyahDisplay.surahName }}</span>
+          <span v-if="currentAyahDisplay.ayahNumber > 0" class="inline-block text-sm text-muted-foreground"
             >آية {{ toArabicNumerals(currentAyahDisplay.ayahNumber) }}</span
           >
         </template>
-        <span v-else-if="quranStore.surahName" class="text-muted">{{ quranStore.surahName }}</span>
-        <span v-else class="text-muted">اضغط على آية للاستماع</span>
+        <span v-else-if="quranStore.surahName" class="text-muted-foreground">{{ quranStore.surahName }}</span>
+        <span v-else class="text-muted-foreground">اضغط على آية للاستماع</span>
       </div>
 
-      <button
+      <Button
         @click="openReciterSheet"
-        class="btn btn-sm d-flex align-items-center gap-1 flex-shrink-0 player-chip"
+        variant="secondary"
+        size="sm"
+        class="shrink-0 text-muted-foreground hover:text-foreground"
         :title="`القارئ: ${quranStore.reciter?.name}`"
       >
         <IconMicrophone2 size="18" />
-        <span class="small text-truncate">{{ quranStore.reciter?.name }}</span>
-      </button>
-    </div>
+        <span class="max-w-30 truncate">{{ quranStore.reciter?.name }}</span>
+      </Button>
+    </CardContent>
 
     <BottomSheet :show="showReciterSheet" title="اختيار القارئ" @close="closeReciterSheet">
-      <div class="p-3">
+      <div class="p-4">
         <SettingsReciter />
       </div>
     </BottomSheet>
 
-    <div class="px-3 pb-3">
-      <div class="progress" style="height: 0.25rem">
-        <div class="progress-bar" :style="{ width: progress + '%' }"></div>
-      </div>
-      <div class="d-flex justify-content-between align-items-center small text-muted mt-1">
+    <div class="px-4 pb-4">
+      <!-- The indicator is moved with translateX, and CSS transforms are never
+           mirrored for RTL, so the whole track is flipped to keep the bar
+           filling from the start edge. -->
+      <Progress :model-value="progress" class="h-1 -scale-x-100" />
+      <div class="mt-1 flex items-center justify-between text-sm text-muted-foreground">
         <span>{{ formatTime(currentTime) }}</span>
 
-        <div class="d-flex align-items-center gap-2">
+        <div class="flex items-center gap-2">
           <span>{{ formatTime(duration) }}</span>
 
-          <button
-            type="button"
-            class="btn btn-flat btn-sm d-flex align-items-center gap-1"
-            @click="cycleRate"
-            :title="`سرعة التلاوة: ${rateLabel}`"
-          >
+          <Button type="button" variant="ghost" size="sm" @click="cycleRate" :title="`سرعة التلاوة: ${rateLabel}`">
             <IconGauge size="15" />
             <span>{{ rateLabel }}</span>
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -195,27 +197,5 @@ defineExpose({ seekToAyah })
       @loadedmetadata="duration = $event.target.duration"
       preload="metadata"
     ></audio>
-  </div>
+  </Card>
 </template>
-
-<style lang="scss" scoped>
-.btn-play {
-  width: 40px;
-  height: 40px;
-  padding: 0.625rem;
-}
-
-.player-chip {
-  color: var(--bs-secondary-color);
-  background-color: var(--bs-secondary-bg);
-
-  &:hover {
-    color: var(--bs-body-color);
-    background-color: var(--bs-tertiary-bg);
-  }
-
-  .text-truncate {
-    max-width: 7.5rem;
-  }
-}
-</style>

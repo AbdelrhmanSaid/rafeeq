@@ -10,8 +10,13 @@ import {
   IconDevices,
   IconClockHour4,
 } from '@tabler/icons-vue'
+import { Button } from '@/shared/components/ui/button'
+import { Input } from '@/shared/components/ui/input'
+import { Label } from '@/shared/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select'
+import { ToggleGroup, ToggleGroupItem } from '@/shared/components/ui/toggle-group'
 import SettingsSection from './SettingsSection.vue'
-import { CALCULATION_FIELDS } from '@/features/prayers/constants/calculationOptions'
+import { AUTO, CALCULATION_FIELDS } from '@/features/prayers/constants/calculationOptions'
 
 const store = usePrayersStore()
 
@@ -25,54 +30,79 @@ const location = computed(() => {
 
   return `${store.latitude}, ${store.longitude}`
 })
+
+// A single-select <ToggleGroup> clears its value when the active item is pressed
+// again; the layout setting has no "unset" state, so ignore the empty update
+// instead of writing an unknown layout to the store.
+function onLayoutChange(value) {
+  if (value) store.layout = value
+}
+
+// reka-ui's <SelectItem> throws on an empty-string value because '' is reserved
+// for "cleared, show the placeholder", but AUTO is '' in the stored settings —
+// so swap it for a sentinel going into the Select and back to AUTO coming out.
+const AUTO_OPTION_VALUE = '__auto__'
+const toOptionValue = (value) => (value === AUTO ? AUTO_OPTION_VALUE : value)
+const fromOptionValue = (value) => (value === AUTO_OPTION_VALUE ? AUTO : value)
 </script>
 
 <template>
   <SettingsSection title="مواقيت الصلاة" description="حدّد موقعك وطريقة عرض المواقيت" :icon="IconClockHour4">
-    <div class="mb-3">
-      <span class="d-block mb-2">طريقة العرض</span>
-      <div class="btn-group-toggle">
-        <button class="btn-toggle" :class="{ active: store.layout === 'cards' }" @click="store.layout = 'cards'">
+    <div class="mb-4 grid gap-2">
+      <span class="text-sm font-medium">طريقة العرض</span>
+      <ToggleGroup
+        type="single"
+        variant="outline"
+        :spacing="2"
+        class="grid w-full grid-cols-3"
+        :model-value="store.layout"
+        @update:model-value="onLayoutChange"
+      >
+        <ToggleGroupItem value="cards">
           <IconLayoutGrid :size="16" />
           <span>بطاقات</span>
-        </button>
-        <button class="btn-toggle" :class="{ active: store.layout === 'list' }" @click="store.layout = 'list'">
+        </ToggleGroupItem>
+        <ToggleGroupItem value="list">
           <IconLayoutList :size="16" />
           <span>قائمة</span>
-        </button>
-        <button class="btn-toggle" :class="{ active: store.layout === 'auto' }" @click="store.layout = 'auto'">
+        </ToggleGroupItem>
+        <ToggleGroupItem value="auto">
           <IconDevices :size="16" />
           <span>تلقائي</span>
-        </button>
-      </div>
+        </ToggleGroupItem>
+      </ToggleGroup>
     </div>
 
-    <div class="mb-3">
-      <div class="input-group">
-        <div class="form-floating">
-          <input id="location" type="text" class="form-control" :value="location" readonly />
-          <label for="location">الموقع</label>
-        </div>
+    <div class="mb-4 grid gap-2">
+      <Label for="location">الموقع</Label>
+      <div class="flex items-center gap-2">
+        <Input id="location" type="text" :model-value="location" readonly class="flex-1" />
 
-        <button type="button" class="input-group-text" @click="detect">
+        <Button type="button" variant="outline" size="icon" aria-label="تحديد الموقع" @click="detect">
           <IconRefreshDot size="1.25rem" />
-        </button>
+        </Button>
 
-        <button type="button" class="input-group-text" @click="store.clear">
+        <Button type="button" variant="outline" size="icon" aria-label="حذف الموقع" @click="store.clear">
           <IconTrash size="1.25rem" />
-        </button>
+        </Button>
       </div>
     </div>
 
-    <div v-for="field in calculationFields" :key="field.key" class="mb-3">
-      <div class="form-floating">
-        <select :id="field.key" class="form-select" v-model="store[field.key]">
-          <option v-for="option in field.options" :key="option.value" :value="option.value">
+    <div v-for="field in calculationFields" :key="field.key" class="mb-4 grid gap-2 last:mb-0">
+      <Label :for="field.key">{{ field.label }}</Label>
+      <Select
+        :model-value="toOptionValue(store[field.key])"
+        @update:model-value="store[field.key] = fromOptionValue($event)"
+      >
+        <SelectTrigger :id="field.key" class="w-full">
+          <SelectValue :placeholder="field.label" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem v-for="option in field.options" :key="option.value" :value="toOptionValue(option.value)">
             {{ option.label }}
-          </option>
-        </select>
-        <label :for="field.key">{{ field.label }}</label>
-      </div>
+          </SelectItem>
+        </SelectContent>
+      </Select>
     </div>
   </SettingsSection>
 </template>

@@ -1,18 +1,13 @@
 <script setup>
-import { X } from "@lucide/vue";
-import { reactiveOmit } from "@vueuse/core";
-import {
-  DialogClose,
-  DialogContent,
-  DialogPortal,
-  useForwardPropsEmits,
-} from "reka-ui";
-import { cn } from '@/shared/lib/utils';
-import DialogOverlay from "./DialogOverlay.vue";
+import { X } from '@lucide/vue'
+import { reactiveOmit } from '@vueuse/core'
+import { DialogClose, DialogContent, DialogPortal, useForwardPropsEmits } from 'reka-ui'
+import { cn } from '@/shared/lib/utils'
+import DialogOverlay from './DialogOverlay.vue'
 
 defineOptions({
   inheritAttrs: false,
-});
+})
 
 const props = defineProps({
   forceMount: { type: Boolean, required: false },
@@ -25,19 +20,19 @@ const props = defineProps({
     skipCheck: true,
   },
   showCloseButton: { type: Boolean, required: false, default: true },
-});
+})
 const emits = defineEmits([
-  "escapeKeyDown",
-  "pointerDownOutside",
-  "focusOutside",
-  "interactOutside",
-  "openAutoFocus",
-  "closeAutoFocus",
-]);
+  'escapeKeyDown',
+  'pointerDownOutside',
+  'focusOutside',
+  'interactOutside',
+  'openAutoFocus',
+  'closeAutoFocus',
+])
 
-const delegatedProps = reactiveOmit(props, "class");
+const delegatedProps = reactiveOmit(props, 'class')
 
-const forwarded = useForwardPropsEmits(delegatedProps, emits);
+const forwarded = useForwardPropsEmits(delegatedProps, emits)
 </script>
 
 <template>

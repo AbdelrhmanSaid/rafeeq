@@ -111,14 +111,14 @@ A restrained palette: one warm brown voice over neutral surfaces, with full ligh
 - **Warm Earth** (#795547): The single brand voice — buttons, active states, links, progress, focus rings, and the PWA theme color. Applied at low opacities for fills: 12% tint for active pills, 15% for subtle backgrounds, 25% for focus shadows. Hover/active states derive by mixing toward black (88% / 78% via `color-mix`), never by introducing a second hue.
 
 ### Neutral
-- **Ink** (#212529): Body text in light mode (Bootstrap body color).
-- **Surface Light** (#ffffff): Light-mode body background; secondary/tertiary surfaces derive from Bootstrap's layering.
-- **Border Light** (#e9ecef): Hairline borders that define cards, pills, and toggles in light mode — a step quieter than the Bootstrap default.
+- **Ink** (#212529): Body text in light mode (the `--foreground` token).
+- **Surface Light** (#ffffff): Light-mode body background (`--background`); card, popover, muted and accent surfaces layer on top of it.
+- **Border Light** (#e9ecef): Hairline borders that define cards, pills, and toggles in light mode — a step quieter than the shadcn default.
 - **Surface Dark** (#121212): Dark-mode body — true near-black, not tinted navy.
 - **Border Dark** (#282828): Dark-mode hairlines; the primary depth cue in dark mode.
 
 ### Named Rules
-**The Runtime Theme Rule.** Colors are never hardcoded in components. Everything flows through Bootstrap CSS variables (`--bs-primary`, `--bs-body-bg`, …) and `color-mix()` derivations, because the user can change both the primary color and the background at runtime. A hex value in a component is a bug.
+**The Runtime Theme Rule.** Colors are never hardcoded in components. Everything flows through the design tokens declared in `src/shared/styles/main.css` (`--primary`, `--background`, `--card`, `--muted-foreground`, …), reached from markup as Tailwind utilities (`bg-primary`, `text-muted-foreground`, `bg-primary/10`). The theme store rewrites `--primary` and the surface tokens at runtime (`src/shared/utils/css.js`), so a hex value in a component is a bug.
 
 **The One Warm Voice Rule.** Warm Earth is the only accent. It appears on a small fraction of any screen — a filled button, an active state, a highlight. Its restraint is what keeps the interface calm.
 
@@ -149,47 +149,47 @@ A restrained palette: one warm brown voice over neutral surfaces, with full ligh
 The system is flat by default: surfaces are defined by 1px hairline borders and subtle background tints, not shadows. Soft ambient shadows are allowed sparingly — a gentle lift on cards where warmth helps — and true overlays (bottom sheets, dropdowns, toasts) carry real shadows to separate from the page. In dark mode, borders (#282828) and tonal layering do all the depth work.
 
 ### Shadow Vocabulary
-- **Focus ring** (`box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25)`): Form controls and interactive focus states, tinted by the runtime primary.
-- **Overlay** (Bootstrap sheet/dropdown shadows): Bottom sheets, dropdown menus, toasts only.
+- **Focus ring** (`focus-visible:ring-3 focus-visible:ring-ring/50`): Form controls and interactive focus states — `--ring` follows the runtime primary.
+- **Overlay** (the shadcn drawer/dropdown shadows): Bottom sheets, dropdown menus, toasts only.
 
 ### Named Rules
 **The Borders-First Rule.** If a border or a background tint can create the separation, it does. A shadow is the exception that must justify itself.
 
 ## 5. Components
 
-Refined and restrained: quiet outlines, gentle tint fills, nothing shouting. All interactive states transition in 150–200ms, and every animation collapses to near-instant under `prefers-reduced-motion: reduce` (global rule in `base.scss`).
+Refined and restrained: quiet outlines, gentle tint fills, nothing shouting. All interactive states transition in 150–200ms, and every animation collapses to near-instant under `prefers-reduced-motion: reduce` (global rule in `main.css`).
 
-**The Radius Rule.** Corner rounding always comes from the shared scale via CSS variables — `--bs-border-radius-sm` (0.5rem) for compact controls, `--bs-border-radius` (0.75rem) for buttons/inputs/pills, `--bs-border-radius-lg` (1rem) for cards and content surfaces, `--bs-border-radius-xl` (1.5rem) for dialogs, `--bs-border-radius-pill` for pills and count badges. A hardcoded radius in a component is a bug (exception: `border-radius: 50%` for true circles, and the isolated `ZekrImage` export renderer).
+**The Radius Rule.** Corner rounding always comes from the shared scale, which derives from the single `--radius` token — `rounded-sm` (0.5rem) for compact controls, `rounded-md` (0.75rem) for buttons/inputs/pills, `rounded-lg` (1rem) for cards and content surfaces, `rounded-xl` (1.5rem) for dialogs, `rounded-full` for pills and count badges. A hardcoded radius in a component is a bug (exception: `border-radius: 50%` for true circles, and the isolated `ZekrImage` export renderer).
 
 ### Buttons
 - **Shape:** Softly rounded (0.75rem), touch-first padding (0.5rem 1rem, ~44px tall), 500 weight labels
-- **Primary:** Warm Earth fill, white text (`--bs-primary` driven so runtime theming holds)
+- **Primary:** Warm Earth fill, white text (`bg-primary text-primary-foreground`, so runtime theming holds)
 - **Hover / Focus:** Darkens by mixing 12% black into the primary; focus ring is the 25% primary tint
 - **Outline:** Transparent with Warm Earth text and border; fills solid on hover
-- **Flat (`.btn-flat`):** Borderless, shadowless utility button for icon actions (share, close)
+- **Ghost (`<Button variant="ghost">`):** Borderless, shadowless utility button for icon actions (share, close)
 
 ### Chips (Tab Pills)
 - **Style:** Transparent with hairline border, secondary text, 0.85rem/500, icon + label, horizontally scrollable row with hidden scrollbar
-- **State:** Hover gets a 10% secondary tint; active gets a 12% Warm Earth tint with the border removed
+- **State:** Hover gets the accent tint; active gets a Warm Earth tint (`bg-primary/10`) with the border removed
 
 ### Cards / Containers
-- **Corner Style:** 1rem (`--bs-border-radius-lg`)
+- **Corner Style:** 1rem (`rounded-lg`)
 - **Background:** Body/secondary surface layers
 - **Shadow Strategy:** Flat with hairline border; soft ambient lift allowed sparingly (see Elevation)
-- **Border:** 1px `--bs-border-color`, synced to runtime theme
-- **Internal Padding:** 1.25rem default (`$card-spacer`), 1–1.5rem range
+- **Border:** 1px `--border`, synced to runtime theme
+- **Internal Padding:** 1.25rem default, 1–1.5rem range
 
 ### Inputs / Fields
-- **Style:** Bootstrap form controls, hairline border, 0.75rem radius, touch-first padding
-- **Focus:** Border mixes 35% toward white from primary; 0.25rem primary-tinted ring
-- **States:** Standard Bootstrap invalid/disabled treatments
+- **Style:** shadcn `<Input>` / `<Select>` / `<Textarea>`, hairline border, 0.75rem radius, touch-first padding
+- **Focus:** Border takes the ring color; 3px `--ring` tinted ring
+- **States:** The shadcn `aria-invalid` and `disabled` treatments
 
 ### Navigation
 - **Navbar:** 70px (85px ≥768px), height exposed as `--navbar-height` so full-height screens compute against it
 - **TabBar:** Mobile bottom tab bar for primary sections — the one-handed entry point
-- **Bottom sheets:** Action rows (`.bottom-sheet-item`) at 1rem with icon, full-width, tint on hover; the desktop dialog variant rounds at 1.5rem (`--bs-border-radius-xl`)
+- **Bottom sheets:** The shared `BottomSheet` wraps shadcn `<Drawer>`; action rows are full-width, icon + label, tinted on hover, and the panel is width-capped on desktop
 
-### Segmented Toggle (`.btn-group-toggle`)
+### Segmented Toggle (`<ToggleGroup type="single">`)
 Equal-width bordered segments, 0.75rem radius; the active segment fills solid Warm Earth with white text. Used for binary/ternary settings like theme mode.
 
 ### Utility States (signature)
@@ -198,11 +198,11 @@ Shared `LoadingState`, `ErrorState`, `OfflineState`, and `EmptyState` components
 ## 6. Do's and Don'ts
 
 ### Do:
-- **Do** drive every color through `--bs-primary` / `--bs-body-bg` variables and `color-mix()` derivations — the user can retheme both at runtime.
+- **Do** drive every color through the design tokens (`bg-primary`, `bg-background`, `text-muted-foreground`, `bg-primary/10` …) — the user can retheme the accent and the background at runtime.
 - **Do** size everything in `rem` so the 80–130% font-scale setting scales the whole interface.
 - **Do** keep Warm Earth (#795547) rare: filled CTAs, active states, and highlights only.
 - **Do** use `.font-quran` (Kitab) for Quran text and generous line-height (≥2) for vocalized script.
-- **Do** design RTL-first with logical properties (`margin-inline`, `text-align: start`); LTR is the derived case.
+- **Do** design RTL-first with logical utilities (`ms-*`/`me-*`, `ps-*`/`pe-*`, `start-*`/`end-*`, `text-start`); physical ones are not flipped for you.
 - **Do** reuse the shared Loading/Error/Offline/Empty state components for every async surface.
 
 ### Don't:

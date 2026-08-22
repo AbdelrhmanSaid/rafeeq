@@ -1,6 +1,8 @@
 <script setup>
+import { computed } from 'vue'
 import { IconShare3 } from '@tabler/icons-vue'
 import { toast } from 'vue-sonner'
+import { Button } from '@/shared/components/ui/button'
 
 const props = defineProps({
   title: {
@@ -19,6 +21,19 @@ const props = defineProps({
     default: false,
   },
 })
+
+// Tailwind's preflight strips the browser heading sizes, so the level prop has
+// to carry the type scale itself.
+const sizeClasses = {
+  1: 'text-4xl',
+  2: 'text-3xl',
+  3: 'text-2xl',
+  4: 'text-xl',
+  5: 'text-lg',
+  6: 'text-base',
+}
+
+const titleClass = computed(() => sizeClasses[props.size] ?? sizeClasses[1])
 
 const sharePage = async () => {
   const data = {
@@ -46,20 +61,22 @@ const sharePage = async () => {
 
 <template>
   <div>
-    <component :is="`h${size}`">
+    <component :is="`h${size}`" :class="titleClass">
       {{ title }}
-      <button
+      <Button
         v-if="share"
-        class="btn btn-flat p-0 bg-transparent"
+        variant="ghost"
+        size="icon-sm"
+        class="align-middle"
         type="button"
         title="مشاركة الصفحة"
         aria-label="مشاركة الصفحة"
         @click="sharePage"
       >
-        <IconShare3 size="18" />
-      </button>
+        <IconShare3 class="size-[1.125rem]" />
+      </Button>
     </component>
 
-    <p class="lead" v-if="subtitle">{{ subtitle }}</p>
+    <p class="mt-2 mb-4 text-xl font-light text-muted-foreground" v-if="subtitle">{{ subtitle }}</p>
   </div>
 </template>

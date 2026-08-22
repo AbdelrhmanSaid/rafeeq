@@ -1,5 +1,5 @@
 <script setup>
-import { cn } from '@/shared/lib/utils';
+import { cn } from '@/shared/lib/utils'
 
 const props = defineProps({
   class: {
@@ -7,7 +7,7 @@ const props = defineProps({
     required: false,
     skipCheck: true,
   },
-});
+})
 </script>
 
 <template>

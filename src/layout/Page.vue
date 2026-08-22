@@ -1,11 +1,5 @@
 <template>
-  <main class="container page-container">
+  <main class="container-page py-8">
     <slot />
   </main>
 </template>
-
-<style lang="scss" scoped>
-.page-container {
-  padding-block: 2rem;
-}
-</style>

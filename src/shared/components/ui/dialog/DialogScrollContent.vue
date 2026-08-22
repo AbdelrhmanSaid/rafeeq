@@ -1,18 +1,12 @@
 <script setup>
-import { X } from "@lucide/vue";
-import { reactiveOmit } from "@vueuse/core";
-import {
-  DialogClose,
-  DialogContent,
-  DialogOverlay,
-  DialogPortal,
-  useForwardPropsEmits,
-} from "reka-ui";
-import { cn } from '@/shared/lib/utils';
+import { X } from '@lucide/vue'
+import { reactiveOmit } from '@vueuse/core'
+import { DialogClose, DialogContent, DialogOverlay, DialogPortal, useForwardPropsEmits } from 'reka-ui'
+import { cn } from '@/shared/lib/utils'
 
 defineOptions({
   inheritAttrs: false,
-});
+})
 
 const props = defineProps({
   forceMount: { type: Boolean, required: false },
@@ -24,19 +18,19 @@ const props = defineProps({
     required: false,
     skipCheck: true,
   },
-});
+})
 const emits = defineEmits([
-  "escapeKeyDown",
-  "pointerDownOutside",
-  "focusOutside",
-  "interactOutside",
-  "openAutoFocus",
-  "closeAutoFocus",
-]);
+  'escapeKeyDown',
+  'pointerDownOutside',
+  'focusOutside',
+  'interactOutside',
+  'openAutoFocus',
+  'closeAutoFocus',
+])
 
-const delegatedProps = reactiveOmit(props, "class");
+const delegatedProps = reactiveOmit(props, 'class')
 
-const forwarded = useForwardPropsEmits(delegatedProps, emits);
+const forwarded = useForwardPropsEmits(delegatedProps, emits)
 </script>
 
 <template>
@@ -54,22 +48,17 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
         v-bind="{ ...$attrs, ...forwarded }"
         @pointer-down-outside="
           (event) => {
-            const originalEvent = event.detail.originalEvent;
-            const target = originalEvent.target;
-            if (
-              originalEvent.offsetX > target.clientWidth ||
-              originalEvent.offsetY > target.clientHeight
-            ) {
-              event.preventDefault();
+            const originalEvent = event.detail.originalEvent
+            const target = originalEvent.target
+            if (originalEvent.offsetX > target.clientWidth || originalEvent.offsetY > target.clientHeight) {
+              event.preventDefault()
             }
           }
         "
       >
         <slot />
 
-        <DialogClose
-          class="absolute top-4 right-4 p-0.5 transition-colors rounded-md hover:bg-secondary"
-        >
+        <DialogClose class="absolute top-4 right-4 p-0.5 transition-colors rounded-md hover:bg-secondary">
           <X class="w-4 h-4" />
           <span class="sr-only">Close</span>
         </DialogClose>

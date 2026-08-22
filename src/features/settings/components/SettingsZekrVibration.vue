@@ -4,12 +4,23 @@ import { storeToRefs } from 'pinia'
 import { IconDeviceMobileVibration } from '@tabler/icons-vue'
 import { useAppStore } from '@/app/stores/app'
 import { toArabicNumerals } from '@/shared/utils/arabic'
+import { Switch } from '@/shared/components/ui/switch'
+import { Slider } from '@/shared/components/ui/slider'
 import SettingsSection from './SettingsSection.vue'
 
 const appStore = useAppStore()
 const { zekrVibrationEnabled, zekrVibrationIntensity } = storeToRefs(appStore)
 
 const vibrationValueLabel = computed(() => toArabicNumerals(zekrVibrationIntensity.value))
+
+// <Slider> models its thumbs as an array; the stored setting is a single number
+// in milliseconds, so wrap/unwrap it here instead of changing what is persisted.
+const vibrationIntensity = computed({
+  get: () => [zekrVibrationIntensity.value],
+  set: (value) => {
+    if (value?.length) zekrVibrationIntensity.value = value[0]
+  },
+})
 </script>
 
 <template>
@@ -19,22 +30,20 @@ const vibrationValueLabel = computed(() => toArabicNumerals(zekrVibrationIntensi
     :icon="IconDeviceMobileVibration"
   >
     <template #actions>
-      <div class="form-check form-switch m-0">
-        <input v-model="zekrVibrationEnabled" class="form-check-input" type="checkbox" />
-      </div>
+      <Switch v-model="zekrVibrationEnabled" aria-label="تفعيل الاهتزاز عند الانتهاء" />
     </template>
 
-    <div v-if="zekrVibrationEnabled" class="p-3 border rounded">
-      <div class="d-flex justify-content-between align-items-center gap-3 mb-2">
+    <div v-if="zekrVibrationEnabled" class="rounded-lg border p-3">
+      <div class="mb-2 flex items-center justify-between gap-3">
         <span>قوة الاهتزاز</span>
-        <small class="text-muted">{{ vibrationValueLabel }} مللي ثانية</small>
+        <span class="text-sm text-muted-foreground">{{ vibrationValueLabel }} مللي ثانية</span>
       </div>
 
-      <input v-model.number="zekrVibrationIntensity" class="form-range" type="range" min="20" max="250" step="10" />
+      <Slider v-model="vibrationIntensity" :min="20" :max="250" :step="10" aria-label="قوة الاهتزاز" />
 
-      <div class="d-flex justify-content-between text-muted">
-        <small>خفيف</small>
-        <small>قوي</small>
+      <div class="mt-2 flex justify-between text-sm text-muted-foreground">
+        <span>خفيف</span>
+        <span>قوي</span>
       </div>
     </div>
   </SettingsSection>

@@ -1,8 +1,8 @@
 <script setup>
-import { reactiveOmit } from "@vueuse/core";
-import { Toggle, useForwardPropsEmits } from "reka-ui";
-import { cn } from '@/shared/lib/utils';
-import { toggleVariants } from ".";
+import { reactiveOmit } from '@vueuse/core'
+import { Toggle, useForwardPropsEmits } from 'reka-ui'
+import { cn } from '@/shared/lib/utils'
+import { toggleVariants } from '.'
 
 const props = defineProps({
   defaultValue: { type: Boolean, required: false },
@@ -17,14 +17,14 @@ const props = defineProps({
     required: false,
     skipCheck: true,
   },
-  variant: { type: null, required: false, default: "default" },
-  size: { type: null, required: false, default: "default" },
-});
+  variant: { type: null, required: false, default: 'default' },
+  size: { type: null, required: false, default: 'default' },
+})
 
-const emits = defineEmits(["update:modelValue"]);
+const emits = defineEmits(['update:modelValue'])
 
-const delegatedProps = reactiveOmit(props, "class", "size", "variant");
-const forwarded = useForwardPropsEmits(delegatedProps, emits);
+const delegatedProps = reactiveOmit(props, 'class', 'size', 'variant')
+const forwarded = useForwardPropsEmits(delegatedProps, emits)
 </script>
 
 <template>

@@ -1,8 +1,8 @@
 <script setup>
-import { reactiveOmit } from "@vueuse/core";
-import { AlertDialogAction } from "reka-ui";
-import { cn } from '@/shared/lib/utils';
-import { buttonVariants } from '@/shared/components/ui/button';
+import { reactiveOmit } from '@vueuse/core'
+import { AlertDialogAction } from 'reka-ui'
+import { cn } from '@/shared/lib/utils'
+import { buttonVariants } from '@/shared/components/ui/button'
 
 const props = defineProps({
   asChild: { type: Boolean, required: false },
@@ -12,16 +12,13 @@ const props = defineProps({
     required: false,
     skipCheck: true,
   },
-});
+})
 
-const delegatedProps = reactiveOmit(props, "class");
+const delegatedProps = reactiveOmit(props, 'class')
 </script>
 
 <template>
-  <AlertDialogAction
-    v-bind="delegatedProps"
-    :class="cn(buttonVariants(), props.class)"
-  >
+  <AlertDialogAction v-bind="delegatedProps" :class="cn(buttonVariants(), props.class)">
     <slot />
   </AlertDialogAction>
 </template>

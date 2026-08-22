@@ -1,7 +1,7 @@
 <script setup>
-import { reactiveOmit } from "@vueuse/core";
-import { Label } from "reka-ui";
-import { cn } from '@/shared/lib/utils';
+import { reactiveOmit } from '@vueuse/core'
+import { Label } from 'reka-ui'
+import { cn } from '@/shared/lib/utils'
 
 const props = defineProps({
   for: { type: String, required: false },
@@ -12,9 +12,9 @@ const props = defineProps({
     required: false,
     skipCheck: true,
   },
-});
+})
 
-const delegatedProps = reactiveOmit(props, "class");
+const delegatedProps = reactiveOmit(props, 'class')
 </script>
 
 <template>

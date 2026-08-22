@@ -1,5 +1,6 @@
 <script setup>
 import PrayerIcon from '@/features/prayers/components/icons/PrayerIcon.vue'
+import { Card, CardContent } from '@/shared/components/ui/card'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 
 const prayers = [
@@ -40,34 +41,39 @@ const formatRakaa = (value) => {
   if (value === 2) return 'ركعتان'
   return `${toArabicNumerals(value)} ركعات`
 }
+
+// Fixed-width rakaa columns so the "قبل" / "بعد" headings line up with the
+// values in every row.
+const rakaaCol = 'w-18 shrink-0 text-center'
 </script>
 
 <template>
-  <!-- Single root so class/attrs from parents (e.g. mb-5 in HomeView) still fall through -->
+  <!-- Single root so class/attrs from parents (e.g. mb-10 in HomeView) still fall through -->
   <div>
     <!-- List layout (below lg) -->
-    <div class="d-lg-none">
-      <div class="d-flex justify-content-end px-3 pb-1 small text-body-secondary">
-        <span class="rakaa-col">قبل</span>
-        <span class="rakaa-col">بعد</span>
+    <div class="lg:hidden">
+      <div class="flex justify-end px-3 pb-1 text-sm text-muted-foreground">
+        <span :class="rakaaCol">قبل</span>
+        <span :class="rakaaCol">بعد</span>
       </div>
-      <div class="d-flex flex-column gap-1">
+      <div class="flex flex-col gap-1">
         <div
           v-for="(prayer, index) in prayers"
           :key="index"
-          class="d-flex align-items-center justify-content-between px-3 py-2 rounded-2 small border"
+          class="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
         >
-          <div class="d-flex align-items-center gap-2">
-            <span class="icon-container text-secondary">
+          <div class="flex items-center gap-2">
+            <!-- Match the icon sizing of the prayer times list rows. -->
+            <span class="grid size-6 shrink-0 place-items-center text-muted-foreground [&_svg]:size-[1.15rem]">
               <PrayerIcon :name="prayer.icon" />
             </span>
-            <span class="fw-semibold">{{ prayer.name }}</span>
+            <span class="font-semibold">{{ prayer.name }}</span>
           </div>
-          <div class="d-flex">
-            <span class="rakaa-col fw-semibold" :class="{ 'text-body-secondary': prayer.before === 0 }">
+          <div class="flex">
+            <span class="font-semibold" :class="[rakaaCol, { 'text-muted-foreground': prayer.before === 0 }]">
               {{ formatRakaa(prayer.before) }}
             </span>
-            <span class="rakaa-col fw-semibold" :class="{ 'text-body-secondary': prayer.after === 0 }">
+            <span class="font-semibold" :class="[rakaaCol, { 'text-muted-foreground': prayer.after === 0 }]">
               {{ formatRakaa(prayer.after) }}
             </span>
           </div>
@@ -76,56 +82,34 @@ const formatRakaa = (value) => {
     </div>
 
     <!-- Cards layout (lg and up) -->
-    <div class="d-none d-lg-flex row row-cols-lg-5 g-2">
-      <div v-for="(prayer, index) in prayers" :key="index" class="col">
-        <div class="card h-100">
-          <div class="card-body p-3">
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <span class="icon-circle text-secondary">
-                <PrayerIcon :name="prayer.icon" />
-              </span>
-              <h3 class="card-title mb-0 fs-6 fw-semibold">{{ prayer.name }}</h3>
-            </div>
+    <div class="hidden gap-2 lg:grid lg:grid-cols-5">
+      <Card v-for="(prayer, index) in prayers" :key="index" class="h-full gap-0 py-0">
+        <CardContent class="p-3">
+          <div class="mb-3 flex items-center gap-2">
+            <span
+              class="grid size-9 shrink-0 place-items-center rounded-full border text-muted-foreground [&_svg]:size-[1.15rem]"
+            >
+              <PrayerIcon :name="prayer.icon" />
+            </span>
+            <h3 class="text-base font-semibold">{{ prayer.name }}</h3>
+          </div>
 
-            <div class="row g-0 text-center small">
-              <div class="col-6 pe-2">
-                <div class="text-body-secondary mb-1">قبل</div>
-                <div class="fw-semibold" :class="{ 'text-body-secondary': prayer.before === 0 }">
-                  {{ formatRakaa(prayer.before) }}
-                </div>
+          <div class="grid grid-cols-2 text-center text-sm">
+            <div class="pe-2">
+              <div class="mb-1 text-muted-foreground">قبل</div>
+              <div class="font-semibold" :class="{ 'text-muted-foreground': prayer.before === 0 }">
+                {{ formatRakaa(prayer.before) }}
               </div>
-              <div class="col-6 ps-2 border-start">
-                <div class="text-body-secondary mb-1">بعد</div>
-                <div class="fw-semibold" :class="{ 'text-body-secondary': prayer.after === 0 }">
-                  {{ formatRakaa(prayer.after) }}
-                </div>
+            </div>
+            <div class="border-s ps-2">
+              <div class="mb-1 text-muted-foreground">بعد</div>
+              <div class="font-semibold" :class="{ 'text-muted-foreground': prayer.after === 0 }">
+                {{ formatRakaa(prayer.after) }}
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.rakaa-col {
-  width: 4.5rem;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-/* Match the icon sizing of the prayer times list rows. */
-.icon-container {
-  display: grid;
-  place-items: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  flex-shrink: 0;
-
-  :deep(svg) {
-    width: 1.15rem;
-    height: 1.15rem;
-  }
-}
-</style>

@@ -32,57 +32,43 @@ const support = [
     link: '/privacy',
   },
 ]
+
+// Muted by default, accented on hover; in dark mode the accent is too dim
+// against the surface, so the hover lands on the plain foreground instead.
+const footerLinkClass = 'text-muted-foreground transition-colors hover:text-primary dark:hover:text-foreground'
 </script>
 
 <template>
-  <footer class="py-5 border-top">
-    <div class="container">
-      <div class="row g-4">
-        <div class="col-md-5">
-          <p class="text-muted text-center text-md-start mb-0">
-            تطبيق رفيق، تطبيق إسلامي مفتوح المصدر، لا توجد حقوق على المواد المستخدمة داخل الموقع، يمكنك استخدامها أو
-            إعادة نشرها دون الرجوع إلينا مطلقًا، ولكن لا تنسانا من صالح دعائك.
-          </p>
-        </div>
+  <footer class="border-t py-12">
+    <div class="container-page grid grid-cols-1 gap-6 md:grid-cols-12">
+      <div class="md:col-span-5">
+        <p class="text-center text-muted-foreground md:text-start">
+          تطبيق رفيق، تطبيق إسلامي مفتوح المصدر، لا توجد حقوق على المواد المستخدمة داخل الموقع، يمكنك استخدامها أو إعادة
+          نشرها دون الرجوع إلينا مطلقًا، ولكن لا تنسانا من صالح دعائك.
+        </p>
+      </div>
 
-        <div class="col-md-3 offset-md-1">
-          <p class="h5">المواد المستخدمة</p>
-          <ul class="list-unstyled text-small">
-            <li v-for="(resource, index) in resources" :key="index">
-              <a :href="resource.link" class="footer-link" target="_blank">
-                {{ resource.title }}
-              </a>
-            </li>
-          </ul>
-        </div>
+      <div class="md:col-span-3 md:col-start-7">
+        <p class="font-serif text-xl font-medium">المواد المستخدمة</p>
+        <ul class="mt-2 space-y-1 text-sm">
+          <li v-for="(resource, index) in resources" :key="index">
+            <a :href="resource.link" :class="footerLinkClass" target="_blank">
+              {{ resource.title }}
+            </a>
+          </li>
+        </ul>
+      </div>
 
-        <div class="col-md-3">
-          <p class="h5">الدعم والمساهمة</p>
-          <ul class="list-unstyled text-small">
-            <li v-for="(item, index) in support" :key="index">
-              <a :href="item.link" class="footer-link" target="_blank">
-                {{ item.title }}
-              </a>
-            </li>
-          </ul>
-        </div>
+      <div class="md:col-span-3">
+        <p class="font-serif text-xl font-medium">الدعم والمساهمة</p>
+        <ul class="mt-2 space-y-1 text-sm">
+          <li v-for="(item, index) in support" :key="index">
+            <a :href="item.link" :class="footerLinkClass" target="_blank">
+              {{ item.title }}
+            </a>
+          </li>
+        </ul>
       </div>
     </div>
   </footer>
 </template>
-
-<style lang="scss" scoped>
-.footer-link {
-  color: var(--bs-secondary-color);
-  text-decoration: none;
-  transition: color 0.2s;
-
-  &:hover {
-    color: var(--bs-primary);
-  }
-}
-
-[data-bs-theme='dark'] .footer-link:hover {
-  color: #fff;
-}
-</style>

@@ -3,10 +3,12 @@ import { RouterView, useRoute } from 'vue-router'
 import Navbar from '@/layout/Navbar.vue'
 import Footer from '@/layout/Footer.vue'
 import TabBar from '@/layout/TabBar.vue'
-import { IconWifiOff } from '@tabler/icons-vue'
+import { IconWifiOff, IconX } from '@tabler/icons-vue'
 import { computed, ref, watch } from 'vue'
 import { useOnline } from '@vueuse/core'
+import { ConfigProvider } from 'reka-ui'
 import { Toaster, toast } from 'vue-sonner'
+import { Button } from '@/shared/components/ui/button'
 import { useThemeStore } from '@/app/stores/theme'
 import { useAppStore } from '@/app/stores/app'
 import { useRadioNotifications } from '@/features/radio/composables/useRadioNotifications'
@@ -59,98 +61,77 @@ const updateSW = registerSW({
 </script>
 
 <template>
-  <div :class="['app-shell', { 'main-content-embed': isEmbedRoute }]">
-    <!-- Offline indicator -->
-    <div v-if="!online && showOfflineBanner" class="offline-banner">
-      <div class="container">
-        <div class="d-flex align-items-center text-white">
-          <IconWifiOff class="me-2" size="1.25rem" />
-          <span>لا يوجد اتصال بالإنترنت</span>
+  <!-- reka-ui reads the direction from here, so every menu, select and slider
+       in the app is laid out RTL without setting `dir` on each of them. -->
+  <ConfigProvider dir="rtl">
+    <div :class="['app-shell', { 'main-content-embed': isEmbedRoute }]">
+      <!-- Offline indicator -->
+      <div
+        v-if="!online && showOfflineBanner"
+        class="offline-banner sticky top-0 z-50 flex h-12 items-center bg-destructive text-destructive-foreground animate-in fade-in slide-in-from-top duration-300"
+      >
+        <div class="container-page">
+          <div class="flex items-center">
+            <IconWifiOff class="me-2" size="1.25rem" />
+            <span>لا يوجد اتصال بالإنترنت</span>
 
-          <button
-            type="button"
-            class="btn-close btn-close-white ms-auto"
-            aria-label="Close"
-            @click="showOfflineBanner = false"
-          ></button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              class="ms-auto text-destructive-foreground hover:bg-destructive-foreground/15 hover:text-destructive-foreground"
+              type="button"
+              aria-label="Close"
+              @click="showOfflineBanner = false"
+            >
+              <IconX size="1.125rem" />
+            </Button>
+          </div>
         </div>
       </div>
+
+      <!-- Desktop Navbar -->
+      <Navbar class="hidden md:block" v-if="!isEmbedRoute" />
+
+      <!-- Main Content -->
+      <div
+        class="main-content"
+        :class="
+          isEmbedRoute
+            ? 'flex min-h-screen items-center justify-center'
+            : 'min-h-[calc(100vh-var(--navbar-height))] pb-[var(--navbar-height)] lg:min-h-[calc(100vh-25rem)] lg:pb-0'
+        "
+      >
+        <RouterView />
+      </div>
+
+      <!-- Desktop Footer -->
+      <Footer class="hidden md:block" v-if="!isEmbedRoute" />
+
+      <!-- Mobile TabBar -->
+      <TabBar class="block md:hidden" v-if="!isEmbedRoute" />
     </div>
 
-    <!-- Desktop Navbar -->
-    <Navbar class="d-none d-md-block" v-if="!isEmbedRoute" />
-
-    <!-- Main Content -->
-    <div class="main-content">
-      <RouterView />
-    </div>
-
-    <!-- Desktop Footer -->
-    <Footer class="d-none d-md-block" v-if="!isEmbedRoute" />
-
-    <!-- Mobile TabBar -->
-    <TabBar class="d-block d-md-none" v-if="!isEmbedRoute" />
-  </div>
-
-  <!-- Toast -->
-  <Toaster
-    :theme="themeStore.mode"
-    position="bottom-left"
-    offset="20px"
-    :toast-options="{
-      style: {
-        gap: '20px',
-        fontFamily: 'Thmanyah Sans, sans-serif',
-      },
-    }"
-  />
+    <!-- Toast -->
+    <Toaster
+      :theme="themeStore.mode"
+      position="bottom-left"
+      offset="20px"
+      :toast-options="{
+        style: {
+          gap: '20px',
+          fontFamily: 'Thmanyah Sans, sans-serif',
+        },
+      }"
+    />
+  </ConfigProvider>
 </template>
 
-<style lang="scss" scoped>
-.offline-banner {
-  min-height: 50px;
-  background-color: #dc3545;
-  padding: 0.75rem 0;
-  position: sticky;
-  top: 0;
-  z-index: 1030;
-  animation: slideDown 0.3s ease-out;
-}
-
-.offline-banner + .navbar {
-  top: 50px; /* Adjust navbar position when offline banner is visible */
-}
-
-.main-content {
-  min-height: calc(100vh - var(--navbar-height)); /* Adjust for navbar and footer on desktop */
-  padding-bottom: var(--navbar-height);
-}
-
-/* Embed adjustments */
-.main-content-embed .main-content {
-  min-height: 100vh;
-  padding-bottom: unset;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Desktop adjustments */
-@media (min-width: 992px) {
-  .main-content {
-    min-height: calc(100vh - 400px);
-    padding-bottom: 0;
-  }
-}
-
-@keyframes slideDown {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+<style scoped>
+/* The banner sticks to the top of the viewport, so the navbar right after it
+   (also sticky) has to start below it instead of underneath. Kept as a rule
+   rather than a utility because it only applies while the banner is rendered,
+   and it has to reach the Navbar root element. */
+.offline-banner + * {
+  top: 3rem;
 }
 </style>

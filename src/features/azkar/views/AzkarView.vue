@@ -21,17 +21,19 @@ const items = categories.map((category, index) => ({ ...category, id: index + 1 
       label="تبحث عن باب معين؟"
     >
       <template #favorites-title>
-        <h5 class="mb-3">الأبواب المفضلة</h5>
+        <h5 class="mb-3 text-lg">الأبواب المفضلة</h5>
       </template>
 
       <template #all-title>
-        <h5 class="mb-3">كل الأبواب</h5>
+        <h5 class="mb-3 text-lg">كل الأبواب</h5>
       </template>
 
       <template #default="{ item }">
+        <!-- The negative block margin pulls the link over the row's own
+             padding, so the whole row height stays clickable. -->
         <RouterLink
           :to="{ name: 'azkar-category', params: { category: item.slug } }"
-          class="stretched-link text-decoration-none text-reset"
+          class="-my-3 block min-w-0 flex-1 py-3"
         >
           {{ toArabicNumerals(item.id) }}. {{ item.name }}
         </RouterLink>

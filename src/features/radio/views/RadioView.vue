@@ -7,6 +7,7 @@ import { useOnline } from '@vueuse/core'
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
 import SearchableFavoritesList from '@/shared/ui/SearchableFavoritesList.vue'
+import { Button } from '@/shared/components/ui/button'
 import radiosData from '@/features/radio/data/radios.js'
 import OfflineState from '@/shared/ui/OfflineState.vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
@@ -41,58 +42,31 @@ const radiosList = computed(() =>
       :item-class="(item) => ({ active: store.station === item.url })"
     >
       <template #favorites-title>
-        <h5 class="mb-3">الإذاعات المفضلة</h5>
+        <h2 class="mb-4 text-xl">الإذاعات المفضلة</h2>
       </template>
 
       <template #all-title>
-        <h5 class="mb-3">كل الإذاعات</h5>
+        <h2 class="mb-4 text-xl">كل الإذاعات</h2>
       </template>
 
       <template #default="{ item, index }">
-        <RouterLink :to="{ name: 'radio-station', params: { slug: item.slug } }" class="flex-grow-1 radio-link">
+        <RouterLink
+          :to="{ name: 'radio-station', params: { slug: item.slug } }"
+          class="min-w-0 flex-1 truncate text-start"
+        >
           {{ toArabicNumerals(index + 1) }}. {{ item.name }}
         </RouterLink>
       </template>
 
       <template #actions="{ item }">
-        <button class="btn btn-flat" @click.stop="store.stop()" v-if="store.station === item.url">
-          <IconPlayerPause size="1.25rem" />
-        </button>
+        <Button variant="ghost" size="icon" @click.stop="store.stop()" v-if="store.station === item.url">
+          <IconPlayerPause class="size-5" />
+        </Button>
 
-        <button class="btn btn-flat" @click.stop="store.play(item.url)" v-else>
-          <IconPlayerPlay size="1.25rem" />
-        </button>
+        <Button variant="ghost" size="icon" @click.stop="store.play(item.url)" v-else>
+          <IconPlayerPlay class="size-5" />
+        </Button>
       </template>
     </SearchableFavoritesList>
   </Page>
 </template>
-
-<style lang="scss" scoped>
-.radio-link {
-  color: inherit;
-  text-decoration: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-:deep(.list-group-item) {
-  transition:
-    background-color 0.3s,
-    border-color 0.3s,
-    color 0.3s;
-
-  &.active {
-    background-color: var(--bs-primary);
-    color: var(--bs-white);
-
-    button {
-      color: var(--bs-white);
-    }
-  }
-
-  &:hover:not(.active) {
-    background-color: rgba(var(--bs-secondary-rgb), 0.1);
-  }
-}
-</style>

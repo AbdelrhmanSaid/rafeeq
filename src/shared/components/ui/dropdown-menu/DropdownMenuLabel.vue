@@ -1,7 +1,7 @@
 <script setup>
-import { reactiveOmit } from "@vueuse/core";
-import { DropdownMenuLabel, useForwardProps } from "reka-ui";
-import { cn } from '@/shared/lib/utils';
+import { reactiveOmit } from '@vueuse/core'
+import { DropdownMenuLabel, useForwardProps } from 'reka-ui'
+import { cn } from '@/shared/lib/utils'
 
 const props = defineProps({
   asChild: { type: Boolean, required: false },
@@ -12,10 +12,10 @@ const props = defineProps({
     skipCheck: true,
   },
   inset: { type: Boolean, required: false },
-});
+})
 
-const delegatedProps = reactiveOmit(props, "class", "inset");
-const forwardedProps = useForwardProps(delegatedProps);
+const delegatedProps = reactiveOmit(props, 'class', 'inset')
+const forwardedProps = useForwardProps(delegatedProps)
 </script>
 
 <template>
@@ -23,9 +23,7 @@ const forwardedProps = useForwardProps(delegatedProps);
     data-slot="dropdown-menu-label"
     :data-inset="inset ? '' : undefined"
     v-bind="forwardedProps"
-    :class="
-      cn('px-2 py-1.5 text-sm font-medium data-[inset]:pl-8', props.class)
-    "
+    :class="cn('px-2 py-1.5 text-sm font-medium data-[inset]:pl-8', props.class)"
   >
     <slot />
   </DropdownMenuLabel>

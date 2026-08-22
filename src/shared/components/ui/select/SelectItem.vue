@@ -1,13 +1,8 @@
 <script setup>
-import { Check } from "@lucide/vue";
-import { reactiveOmit } from "@vueuse/core";
-import {
-  SelectItem,
-  SelectItemIndicator,
-  SelectItemText,
-  useForwardProps,
-} from "reka-ui";
-import { cn } from '@/shared/lib/utils';
+import { Check } from '@lucide/vue'
+import { reactiveOmit } from '@vueuse/core'
+import { SelectItem, SelectItemIndicator, SelectItemText, useForwardProps } from 'reka-ui'
+import { cn } from '@/shared/lib/utils'
 
 const props = defineProps({
   value: { type: null, required: true },
@@ -20,11 +15,11 @@ const props = defineProps({
     required: false,
     skipCheck: true,
   },
-});
+})
 
-const delegatedProps = reactiveOmit(props, "class");
+const delegatedProps = reactiveOmit(props, 'class')
 
-const forwardedProps = useForwardProps(delegatedProps);
+const forwardedProps = useForwardProps(delegatedProps)
 </script>
 
 <template>

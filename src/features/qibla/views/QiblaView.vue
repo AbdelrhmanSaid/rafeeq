@@ -5,6 +5,7 @@ import { IconLocationFilled, IconDeviceMobile } from '@tabler/icons-vue'
 
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
+import { Card } from '@/shared/components/ui/card'
 import LoadingState from '@/shared/ui/LoadingState.vue'
 import ErrorState from '@/shared/ui/ErrorState.vue'
 import OfflineState from '@/shared/ui/OfflineState.vue'
@@ -67,41 +68,45 @@ onMounted(requestLocation)
 
 <template>
   <Page>
-    <Heading class="mb-4" title="اتجاه القبلة" subtitle="حدد اتجاه القبلة بسهولة باستخدام البوصلة الإلكترونية." />
+    <Heading class="mb-6" title="اتجاه القبلة" subtitle="حدد اتجاه القبلة بسهولة باستخدام البوصلة الإلكترونية." />
 
     <!-- Desktop not supported -->
-    <div v-if="!isMobile" class="qibla-card qibla-card--static text-center">
-      <IconDeviceMobile size="3rem" class="text-muted mb-3" />
-      <p class="h5 mb-2">هذه الميزة متاحة فقط على الهاتف</p>
-      <p class="text-muted mb-0">افتح التطبيق من هاتفك لاستخدام البوصلة</p>
-    </div>
+    <Card v-if="!isMobile" class="items-center gap-2 p-12 text-center">
+      <IconDeviceMobile class="size-12 text-muted-foreground" />
+      <p class="text-xl">هذه الميزة متاحة فقط على الهاتف</p>
+      <p class="text-muted-foreground">افتح التطبيق من هاتفك لاستخدام البوصلة</p>
+    </Card>
 
     <!-- Offline state -->
-    <div v-else-if="!online" class="qibla-card qibla-card--static">
+    <Card v-else-if="!online" class="p-12">
       <OfflineState />
-    </div>
+    </Card>
 
     <!-- Location loading -->
-    <div v-else-if="locationLoading" class="qibla-card qibla-card--static">
+    <Card v-else-if="locationLoading" class="p-12">
       <LoadingState message="جاري تحديد موقعك..." />
-    </div>
+    </Card>
 
     <!-- Location error -->
-    <div v-else-if="locationError" class="qibla-card qibla-card--clickable text-center" @click="requestLocation">
-      <IconLocationFilled size="3rem" class="text-danger mb-3" />
-      <p class="mb-2">{{ locationError }}</p>
-      <p class="text-muted small mb-0">إضغط للمحاولة مرة أخرى</p>
-    </div>
+    <Card
+      v-else-if="locationError"
+      class="cursor-pointer items-center gap-2 p-12 text-center transition-colors hover:border-primary"
+      @click="requestLocation"
+    >
+      <IconLocationFilled class="size-12 text-destructive" />
+      <p>{{ locationError }}</p>
+      <p class="text-sm text-muted-foreground">إضغط للمحاولة مرة أخرى</p>
+    </Card>
 
     <!-- Qibla API loading -->
-    <div v-else-if="isFetching" class="qibla-card qibla-card--static">
+    <Card v-else-if="isFetching" class="p-12">
       <LoadingState message="جاري تحديد اتجاه القبلة..." />
-    </div>
+    </Card>
 
     <!-- Qibla API error -->
-    <div v-else-if="error" class="qibla-card qibla-card--static">
+    <Card v-else-if="error" class="p-12">
       <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
-    </div>
+    </Card>
 
     <!-- Qibla compass -->
     <QiblaCompass
@@ -115,24 +120,3 @@ onMounted(requestLocation)
     />
   </Page>
 </template>
-
-<style lang="scss" scoped>
-.qibla-card {
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius-lg);
-  padding: 3rem;
-  transition: border-color 0.2s;
-
-  &--clickable {
-    cursor: pointer;
-
-    &:hover {
-      border-color: var(--bs-primary);
-    }
-  }
-
-  &--static {
-    cursor: default;
-  }
-}
-</style>
