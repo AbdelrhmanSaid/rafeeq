@@ -1,5 +1,5 @@
-import 'bootstrap'
-import '@/shared/styles/base.scss'
+import 'nprogress/nprogress.css'
+import '@/shared/styles/main.css'
 import 'vue-sonner/style.css'
 
 import { createApp } from 'vue'

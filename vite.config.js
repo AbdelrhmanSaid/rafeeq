@@ -3,7 +3,7 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
-import rtlcss from 'rtlcss'
+import tailwindcss from '@tailwindcss/vite'
 
 import { manifestIcons } from './src/app/pwa/manifest-icons.js'
 
@@ -11,6 +11,7 @@ import { manifestIcons } from './src/app/pwa/manifest-icons.js'
 export default defineConfig({
   plugins: [
     vue(),
+    tailwindcss(),
     VitePWA({
       registerType: 'prompt',
       cleanupOutdatedCaches: true,
@@ -65,12 +66,6 @@ export default defineConfig({
       },
     }),
   ],
-
-  css: {
-    postcss: {
-      plugins: [rtlcss()],
-    },
-  },
 
   resolve: {
     alias: {

@@ -1,0 +1,250 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import './fonts.css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+   Design tokens
+   ---------------------------------------------------------------------------
+   Colors flow through these CSS variables and are never hardcoded in
+   components: `--primary` and the surface variables are overwritten at runtime
+   by the theme store (see `src/shared/utils/css.js`) so the user can pick their
+   own accent/background. Values stay in `rem` so the font-scale setting scales
+   the whole interface.
+
+   `.theme-light` re-declares the light tokens on a subtree so a piece of UI can
+   opt out of dark mode (the shareable zekr image always renders on a light
+   card); such a subtree must style itself from the tokens, never with `dark:`.
+--------------------------------------------------------------------------- */
+:root,
+.theme-light {
+  --radius: 0.75rem;
+
+  --background: #ffffff;
+  --foreground: #212529;
+
+  --card: #ffffff;
+  --card-foreground: #212529;
+
+  --popover: #ffffff;
+  --popover-foreground: #212529;
+
+  --primary: #795547;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f8f9fa;
+  --secondary-foreground: #212529;
+
+  --muted: #f8f9fa;
+  --muted-foreground: #6c757d;
+
+  --accent: #f1f3f5;
+  --accent-foreground: #212529;
+
+  --destructive: #dc3545;
+  --destructive-foreground: #ffffff;
+
+  --success: #198754;
+  --success-foreground: #ffffff;
+
+  --border: #e9ecef;
+  --input: #e9ecef;
+  --ring: var(--primary);
+
+  --navbar-height: 70px;
+}
+
+.dark {
+  --background: #121212;
+  --foreground: #dee2e6;
+
+  --card: #181818;
+  --card-foreground: #dee2e6;
+
+  --popover: #181818;
+  --popover-foreground: #dee2e6;
+
+  --primary: #795547;
+  --primary-foreground: #ffffff;
+
+  --secondary: #1f1f1f;
+  --secondary-foreground: #dee2e6;
+
+  --muted: #1f1f1f;
+  --muted-foreground: #9ba1a6;
+
+  --accent: #262626;
+  --accent-foreground: #dee2e6;
+
+  --destructive: #e5484d;
+  --destructive-foreground: #ffffff;
+
+  --success: #2ea36a;
+  --success-foreground: #ffffff;
+
+  --border: #282828;
+  --input: #282828;
+  --ring: var(--primary);
+}
+
+@media screen and (min-width: 768px) {
+  :root {
+    --navbar-height: 85px;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 0.25rem);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 0.25rem);
+  --radius-xl: calc(var(--radius) + 0.75rem);
+
+  --font-sans:
+    'Thmanyah Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', 'Noto Sans', 'Liberation Sans',
+    Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-serif: 'Thmanyah Serif Text', 'Thmanyah Sans', serif;
+  --font-display: 'Thmanyah Serif Display', 'Thmanyah Serif Text', serif;
+  --font-quran: 'Kitab', 'Thmanyah Sans', sans-serif;
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before {
+    border-color: var(--border);
+  }
+
+  html {
+    /* The font-scale setting rewrites this value at runtime. */
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    line-height: 1.3;
+    margin: 0;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button {
+    font-family: inherit;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+}
+
+/* Collapse animations and transitions to near-instant for users who ask for
+   less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Shared utilities used across features
+-------------------------------------------------------------------------- */
+@utility font-quran {
+  font-family: var(--font-quran);
+}
+
+@utility container-page {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  max-width: 1140px;
+}
+
+/* Hide the scrollbar on horizontally scrolling strips (tab pills, chip rows). */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Third-party overrides
+-------------------------------------------------------------------------- */
+#nprogress .bar {
+  background: var(--primary);
+}
+
+#nprogress .peg {
+  box-shadow:
+    0 0 10px var(--primary),
+    0 0 5px var(--primary);
+}
+
+#nprogress .spinner-icon {
+  border-top-color: var(--primary);
+  border-left-color: var(--primary);
+}
+
+html[dir='rtl'],
+[data-sonner-toaster][dir='rtl'] {
+  --toast-button-margin-start: auto !important;
+  --toast-button-margin-end: 0 !important;
+}
+
+/* The embed route hides chrome that only makes sense inside the full app. */
+.main-content-embed .embed-hidden {
+  display: none !important;
+}
+
+.main-content-embed .embed-invisible {
+  visibility: hidden !important;
+}
+
+.main-content-embed .main-content > * {
+  width: 100%;
+}
