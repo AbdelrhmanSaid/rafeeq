@@ -146,23 +146,25 @@ watch(
       <!-- Audio Player -->
       <AudioPlayer v-if="online" ref="playerRef" />
 
-      <div class="ayat font-quran mb-4">
-        <span class="basmallah" v-if="surahId != 9">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
+      <div class="card">
+        <div class="ayat card-body font-quran mb-4">
+          <span class="basmallah" v-if="surahId != 9">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
 
-        <template v-for="(ayah, index) in ayat" :key="ayah.number">
-          <span
-            :id="`ayah-${ayah.numberInSurah}`"
-            class="ayah clickable-ayah"
-            :class="{ 'current-ayah': isCurrentVerse(ayah), 'bookmarked-ayah': isBookmarkedVerse(ayah) }"
-            @click="activeAyah = ayah"
-            :title="`خيارات الآية ${toArabicNumerals(ayah.numberInSurah)}`"
-            >{{ ayah.text }}</span
-          >
-          <span class="ayah-number" aria-hidden="true">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
-          <div v-if="index < ayat.length - 1 && ayah.page !== ayat[index + 1].page" class="page-separator">
-            <span class="page-number">{{ toArabicNumerals(ayah.page) }}</span>
-          </div>
-        </template>
+          <template v-for="(ayah, index) in ayat" :key="ayah.number">
+            <span
+              :id="`ayah-${ayah.numberInSurah}`"
+              class="ayah clickable-ayah"
+              :class="{ 'current-ayah': isCurrentVerse(ayah), 'bookmarked-ayah': isBookmarkedVerse(ayah) }"
+              @click="activeAyah = ayah"
+              :title="`خيارات الآية ${toArabicNumerals(ayah.numberInSurah)}`"
+              >{{ ayah.text }}</span
+            >
+            <span class="ayah-number" aria-hidden="true">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
+            <div v-if="index < ayat.length - 1 && ayah.page !== ayat[index + 1].page" class="page-separator">
+              <span class="page-number">{{ toArabicNumerals(ayah.page) }}</span>
+            </div>
+          </template>
+        </div>
       </div>
 
       <div class="d-flex justify-content-center align-items-center gap-2">
@@ -220,9 +222,6 @@ watch(
   max-width: 700px;
 
   .ayat {
-    padding: 1rem;
-    border-radius: var(--bs-border-radius-lg);
-    border: 1px solid var(--bs-border-color);
     text-align: justify;
     text-align-last: center;
     text-justify: inter-word;

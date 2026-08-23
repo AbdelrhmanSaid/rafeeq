@@ -105,59 +105,61 @@ const copyZekr = () => {
 </script>
 
 <template>
-  <div ref="card" class="zekr-card border rounded p-4" @click="onCardClick">
-    <div class="action-menu dropdown" @click.stop>
-      <button class="btn p-0 bg-transparent" type="button" data-bs-toggle="dropdown">
-        <IconHeartShare size="18" />
-      </button>
+  <div ref="card" class="card" @click="onCardClick">
+    <div class="card-body zekr-card">
+      <div class="action-menu dropdown" @click.stop>
+        <button class="btn p-0 bg-transparent" type="button" data-bs-toggle="dropdown">
+          <IconHeartShare size="18" />
+        </button>
 
-      <ul class="dropdown-menu dropdown-menu-end">
-        <li>
-          <button class="dropdown-item d-flex align-items-center gap-2" @click="exportAsImage">
-            <IconDownload size="18" />
-            <span>تنزيل</span>
-          </button>
-        </li>
-        <li>
-          <button class="dropdown-item d-flex align-items-center gap-2" @click="shareZekr">
-            <IconShare3 size="18" />
-            <span>مشاركة</span>
-          </button>
-        </li>
-        <li>
-          <button class="dropdown-item d-flex align-items-center gap-2" @click="copyZekr">
-            <IconCopy size="18" />
-            <span>نسخ</span>
-          </button>
-        </li>
-        <li><hr class="dropdown-divider" /></li>
-        <li>
-          <button class="dropdown-item d-flex align-items-center gap-2" :disabled="count === 0" @click="reset">
-            <IconRestore size="18" />
-            <span>تصفير</span>
-          </button>
-        </li>
-      </ul>
-    </div>
-
-    <div class="row align-items-center g-4 text-center text-lg-start">
-      <div class="col-12 col-lg-auto">
-        <button
-          class="btn btn-counter border-flat"
-          @click.stop="increment"
-          :style="{ '--progress': count / repeat }"
-          :data-content="toArabicNumerals(`${count}/${repeat}`)"
-        ></button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li>
+            <button class="dropdown-item d-flex align-items-center gap-2" @click="exportAsImage">
+              <IconDownload size="18" />
+              <span>تنزيل</span>
+            </button>
+          </li>
+          <li>
+            <button class="dropdown-item d-flex align-items-center gap-2" @click="shareZekr">
+              <IconShare3 size="18" />
+              <span>مشاركة</span>
+            </button>
+          </li>
+          <li>
+            <button class="dropdown-item d-flex align-items-center gap-2" @click="copyZekr">
+              <IconCopy size="18" />
+              <span>نسخ</span>
+            </button>
+          </li>
+          <li><hr class="dropdown-divider" /></li>
+          <li>
+            <button class="dropdown-item d-flex align-items-center gap-2" :disabled="count === 0" @click="reset">
+              <IconRestore size="18" />
+              <span>تصفير</span>
+            </button>
+          </li>
+        </ul>
       </div>
 
-      <div class="col-12 col-lg">
-        <p class="zekr-text font-quran m-0">{{ text }}</p>
+      <div class="row align-items-center g-4 text-center text-lg-start">
+        <div class="col-12 col-lg-auto">
+          <button
+            class="btn btn-counter border-flat"
+            @click.stop="increment"
+            :style="{ '--progress': count / repeat }"
+            :data-content="toArabicNumerals(`${count}/${repeat}`)"
+          ></button>
+        </div>
 
-        <p class="text-muted m-0 pe-2" v-if="benefit || reference">
-          <small v-if="reference">{{ reference }}</small>
-          <small v-if="benefit && reference"> - </small>
-          <small v-if="benefit">{{ benefit }}</small>
-        </p>
+        <div class="col-12 col-lg">
+          <p class="zekr-text font-quran m-0">{{ text }}</p>
+
+          <p class="text-muted m-0 pe-2" v-if="benefit || reference">
+            <small v-if="reference">{{ reference }}</small>
+            <small v-if="benefit && reference"> - </small>
+            <small v-if="benefit">{{ benefit }}</small>
+          </p>
+        </div>
       </div>
     </div>
   </div>
