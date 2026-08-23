@@ -131,8 +131,10 @@ const closeMoreMenu = () => {
   background: var(--app-glass);
   border-top: 1px solid var(--app-hairline);
   box-shadow: var(--app-shadow-bar);
+  /* No -webkit- duplicate here: Lightning CSS merges the pair and emits only
+     the prefixed property, which Chrome/Firefox ignore (no blur in prod
+     builds). The prefix is auto-generated at build time from cssTarget. */
   backdrop-filter: blur(18px) saturate(1.4);
-  -webkit-backdrop-filter: blur(18px) saturate(1.4);
 }
 
 .tab-item {
@@ -212,7 +214,6 @@ const closeMoreMenu = () => {
   background-color: rgba(0, 0, 0, 0.45);
   z-index: 1030;
   backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
   opacity: 1;
   transition: opacity 0.3s ease-out;
 
