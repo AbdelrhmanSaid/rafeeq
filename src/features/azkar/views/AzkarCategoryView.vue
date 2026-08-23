@@ -64,7 +64,10 @@ const sheetRowClass =
 <template>
   <AsyncContent :pending="isFetching" :error="error" loading-message="جاري تحميل الأذكار...">
     <Page v-if="category">
-      <Heading :title="category.meta.name" :subtitle="category.meta.description" :share="true" />
+      <!-- `mb-4` is explicit because almost every category ships without a
+           description, and Heading only carries its own bottom margin on the
+           subtitle it then does not render. -->
+      <Heading class="mb-4" :title="category.meta.name" :subtitle="category.meta.description" :share="true" />
 
       <!-- The cards stay direct siblings of one another: `useZekrScroll` walks
            `nextElementSibling` to reach the next `.zekr-card`. -->

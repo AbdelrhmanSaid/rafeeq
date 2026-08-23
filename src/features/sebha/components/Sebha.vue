@@ -8,24 +8,34 @@ const sebha = ref(0)
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center gap-7 px-4 pt-8 pb-12 text-center">
-    <!-- rem (not px) so the circle grows with the font scale and the counter
-         never overflows; still capped by viewport width on small screens. -->
+  <!-- One-handed screen: the reset sits up top, out of the way, and the counter
+       itself owns the lower half where the thumb lands. -->
+  <div class="flex flex-col items-center justify-center gap-8 py-2 text-center">
+    <Button
+      variant="ghost"
+      class="h-11 gap-2 rounded-full px-5 text-muted-foreground active:scale-[0.98]"
+      @click="sebha = 0"
+    >
+      <IconRefreshDot class="size-5" />
+      <span>إعادة العداد</span>
+    </Button>
+
+    <!-- rem (not px) so the circle grows with the font scale, capped by viewport
+         width on small screens. The whole disc is the tap target, and the only
+         press feedback is its own scale — the body kills the tap highlight. -->
     <button
       type="button"
       @click="sebha++"
-      class="flex size-[min(13.75rem,70vw)] flex-col items-center justify-center gap-1.5 rounded-full border bg-background text-primary shadow-lg transition-[transform,box-shadow,border-color] duration-150 hover:-translate-y-0.5 hover:border-primary hover:shadow-xl active:translate-y-0"
+      class="relative grid size-[min(17.5rem,76vw)] shrink-0 place-items-center rounded-full bg-card text-primary shadow-md transition duration-150 select-none active:scale-[0.97] active:bg-accent active:shadow-sm"
     >
-      <span class="text-[clamp(2rem,4vw,2.75rem)] font-bold">{{ toArabicNumerals(sebha) }}</span>
-      <span class="text-sm text-muted-foreground">اضغط للتسبيح</span>
+      <span class="pointer-events-none absolute inset-3 rounded-full ring-1 ring-primary/15"></span>
+
+      <span class="flex flex-col items-center gap-2">
+        <span class="font-display text-6xl leading-none tabular-nums sm:text-7xl">{{ toArabicNumerals(sebha) }}</span>
+        <span class="text-sm text-muted-foreground">اضغط للتسبيح</span>
+      </span>
     </button>
 
-    <div class="grid justify-items-center gap-3">
-      <Button variant="ghost" @click="sebha = 0">
-        <IconRefreshDot class="size-5" />
-        <span>إعادة العداد</span>
-      </Button>
-      <span class="text-sm text-muted-foreground">استمر بالذكر، واحتسب الأجر</span>
-    </div>
+    <span class="text-sm text-muted-foreground">استمر بالذكر، واحتسب الأجر</span>
   </div>
 </template>

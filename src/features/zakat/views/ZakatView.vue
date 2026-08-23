@@ -3,7 +3,6 @@ import { ref, computed } from 'vue'
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
 import ZakatCalculatorCard from '@/features/zakat/components/ZakatCalculatorCard.vue'
-import { Card, CardContent } from '@/shared/components/ui/card'
 import { Input } from '@/shared/components/ui/input'
 import { Label } from '@/shared/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
@@ -54,6 +53,24 @@ const tabs = [
   { id: 'business', title: 'التجارة', icon: IconBuildingStore },
 ]
 
+// A tab strip that scrolls to the screen edge instead of being clipped inside
+// the page gutters, using the app's selected-state wash for the active pill.
+const tabsListClass =
+  'no-scrollbar -mx-4 flex h-auto w-full justify-start gap-2 overflow-x-auto rounded-none bg-transparent px-4 py-1'
+
+const tabTriggerClass = [
+  'h-11 flex-none gap-2 rounded-full border-0 bg-muted px-4 text-sm font-medium text-muted-foreground',
+  'transition hover:bg-accent hover:text-accent-foreground active:scale-[0.98]',
+  'data-[state=active]:bg-primary/12 data-[state=active]:text-primary data-[state=active]:shadow-none',
+  'dark:text-muted-foreground dark:data-[state=active]:bg-primary/12 dark:data-[state=active]:text-primary',
+].join(' ')
+
+// Number entry on a phone wants a big field and the decimal keypad, so the
+// shared field/label/hint classes live here instead of on nine inputs.
+const fieldClass = 'h-12 rounded-2xl border-0 bg-muted px-4 text-base shadow-none md:text-base dark:bg-muted'
+const labelClass = 'mb-2 px-1 text-sm font-medium text-muted-foreground'
+const hintClass = 'mt-2 px-1 text-sm text-muted-foreground'
+
 const conditions = {
   money: ['أن يبلغ النصاب', 'أن يحول عليه الحول الهجري (سنة قمرية)', 'أن يكون زائداً عن الحاجات الأساسية'],
   gold: [
@@ -88,20 +105,14 @@ const conditions = {
 </script>
 
 <template>
-  <Page>
-    <Heading
-      :size="2"
-      class="mb-4"
-      title="حاسبة الزكاة"
-      subtitle="خذ من أموالهم صدقة تطهرهم وتزكيهم بها"
-      :share="true"
-    />
+  <Page class="space-y-6 md:space-y-8">
+    <Heading :size="2" title="حاسبة الزكاة" subtitle="خذ من أموالهم صدقة تطهرهم وتزكيهم بها" :share="true" />
 
-    <Tabs v-model="activeTab">
+    <Tabs v-model="activeTab" class="gap-4">
       <!-- Tabs Navigation -->
-      <TabsList class="mb-3 h-auto w-full justify-start gap-2 overflow-x-auto no-scrollbar p-1">
-        <TabsTrigger v-for="tab in tabs" :key="tab.id" :value="tab.id" class="h-auto flex-none gap-3 px-3.5 py-2">
-          <component :is="tab.icon" class="size-[1.1rem]" />
+      <TabsList :class="tabsListClass">
+        <TabsTrigger v-for="tab in tabs" :key="tab.id" :value="tab.id" :class="tabTriggerClass">
+          <component :is="tab.icon" class="size-4" />
           <span>{{ tab.title }}</span>
         </TabsTrigger>
       </TabsList>
@@ -115,31 +126,33 @@ const conditions = {
           conditions-title="شروط زكاة المال:"
           :conditions="conditions.money"
         >
-          <div class="mb-3">
-            <Label for="zakat-money-gold-price" class="mb-2">سعر جرام الذهب (عيار ٢٤) بالجنيه المصري</Label>
+          <div class="mb-4">
+            <Label for="zakat-money-gold-price" :class="labelClass">سعر جرام الذهب (عيار ٢٤) بالجنيه المصري</Label>
             <Input
               id="zakat-money-gold-price"
               v-model="goldPrice"
               type="number"
+              inputmode="decimal"
               placeholder="أدخل السعر الحالي"
               min="0"
               step="0.01"
+              :class="fieldClass"
             />
           </div>
 
           <div>
-            <Label for="zakat-money-amount" class="mb-2">إجمالي المال والمدخرات</Label>
+            <Label for="zakat-money-amount" :class="labelClass">إجمالي المال والمدخرات</Label>
             <Input
               id="zakat-money-amount"
               v-model="moneyAmount"
               type="number"
+              inputmode="decimal"
               placeholder="أدخل المبلغ"
               min="0"
               step="0.01"
+              :class="fieldClass"
             />
-            <p class="mt-1.5 text-sm text-muted-foreground" v-if="goldPrice">
-              النصاب: {{ formatCurrency(moneyNisab) }} جنيه مصري
-            </p>
+            <p :class="hintClass" v-if="goldPrice">النصاب: {{ formatCurrency(moneyNisab) }} جنيه مصري</p>
           </div>
         </ZakatCalculatorCard>
       </TabsContent>
@@ -153,16 +166,18 @@ const conditions = {
           conditions-title="شروط زكاة الذهب:"
           :conditions="conditions.gold"
         >
-          <Label for="zakat-gold-weight" class="mb-2">وزن الذهب (بالجرام)</Label>
+          <Label for="zakat-gold-weight" :class="labelClass">وزن الذهب (بالجرام)</Label>
           <Input
             id="zakat-gold-weight"
             v-model="goldWeight"
             type="number"
+            inputmode="decimal"
             placeholder="أدخل الوزن"
             min="0"
             step="0.1"
+            :class="fieldClass"
           />
-          <p class="mt-1.5 text-sm text-muted-foreground">النصاب: {{ toArabicNumerals(NISAB.gold) }} جرام</p>
+          <p :class="hintClass">النصاب: {{ toArabicNumerals(NISAB.gold) }} جرام</p>
         </ZakatCalculatorCard>
       </TabsContent>
 
@@ -175,16 +190,18 @@ const conditions = {
           conditions-title="شروط زكاة الفضة:"
           :conditions="conditions.silver"
         >
-          <Label for="zakat-silver-weight" class="mb-2">وزن الفضة (بالجرام)</Label>
+          <Label for="zakat-silver-weight" :class="labelClass">وزن الفضة (بالجرام)</Label>
           <Input
             id="zakat-silver-weight"
             v-model="silverWeight"
             type="number"
+            inputmode="decimal"
             placeholder="أدخل الوزن"
             min="0"
             step="0.1"
+            :class="fieldClass"
           />
-          <p class="mt-1.5 text-sm text-muted-foreground">النصاب: {{ toArabicNumerals(NISAB.silver) }} جرام</p>
+          <p :class="hintClass">النصاب: {{ toArabicNumerals(NISAB.silver) }} جرام</p>
         </ZakatCalculatorCard>
       </TabsContent>
 
@@ -197,23 +214,47 @@ const conditions = {
           conditions-title="شروط زكاة الأنعام:"
           :conditions="conditions.livestock"
         >
-          <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
-              <Label for="zakat-livestock-cows" class="mb-2">عدد الأبقار</Label>
-              <Input id="zakat-livestock-cows" v-model="livestockCows" type="number" placeholder="٠" min="0" />
-              <p class="mt-1.5 text-sm text-muted-foreground">النصاب: {{ toArabicNumerals(NISAB.cows) }}</p>
+              <Label for="zakat-livestock-cows" :class="labelClass">عدد الأبقار</Label>
+              <Input
+                id="zakat-livestock-cows"
+                v-model="livestockCows"
+                type="number"
+                inputmode="numeric"
+                placeholder="٠"
+                min="0"
+                :class="fieldClass"
+              />
+              <p :class="hintClass">النصاب: {{ toArabicNumerals(NISAB.cows) }}</p>
             </div>
 
             <div>
-              <Label for="zakat-livestock-sheep" class="mb-2">عدد الأغنام</Label>
-              <Input id="zakat-livestock-sheep" v-model="livestockSheep" type="number" placeholder="٠" min="0" />
-              <p class="mt-1.5 text-sm text-muted-foreground">النصاب: {{ toArabicNumerals(NISAB.sheep) }}</p>
+              <Label for="zakat-livestock-sheep" :class="labelClass">عدد الأغنام</Label>
+              <Input
+                id="zakat-livestock-sheep"
+                v-model="livestockSheep"
+                type="number"
+                inputmode="numeric"
+                placeholder="٠"
+                min="0"
+                :class="fieldClass"
+              />
+              <p :class="hintClass">النصاب: {{ toArabicNumerals(NISAB.sheep) }}</p>
             </div>
 
             <div>
-              <Label for="zakat-livestock-camels" class="mb-2">عدد الإبل</Label>
-              <Input id="zakat-livestock-camels" v-model="livestockCamels" type="number" placeholder="٠" min="0" />
-              <p class="mt-1.5 text-sm text-muted-foreground">النصاب: {{ toArabicNumerals(NISAB.camels) }}</p>
+              <Label for="zakat-livestock-camels" :class="labelClass">عدد الإبل</Label>
+              <Input
+                id="zakat-livestock-camels"
+                v-model="livestockCamels"
+                type="number"
+                inputmode="numeric"
+                placeholder="٠"
+                min="0"
+                :class="fieldClass"
+              />
+              <p :class="hintClass">النصاب: {{ toArabicNumerals(NISAB.camels) }}</p>
             </div>
           </div>
         </ZakatCalculatorCard>
@@ -231,16 +272,18 @@ const conditions = {
           conditions-title="شروط زكاة الزروع:"
           :conditions="conditions.crops"
         >
-          <Label for="zakat-crops-amount" class="mb-2">كمية المحصول (بالكيلوجرام)</Label>
+          <Label for="zakat-crops-amount" :class="labelClass">كمية المحصول (بالكيلوجرام)</Label>
           <Input
             id="zakat-crops-amount"
             v-model="cropsAmount"
             type="number"
+            inputmode="decimal"
             placeholder="أدخل الكمية"
             min="0"
             step="0.1"
+            :class="fieldClass"
           />
-          <p class="mt-1.5 text-sm text-muted-foreground">النصاب: {{ toArabicNumerals(NISAB.crops) }} كيلوجرام</p>
+          <p :class="hintClass">النصاب: {{ toArabicNumerals(NISAB.crops) }} كيلوجرام</p>
         </ZakatCalculatorCard>
       </TabsContent>
 
@@ -253,64 +296,67 @@ const conditions = {
           conditions-title="شروط زكاة التجارة:"
           :conditions="conditions.business"
         >
-          <div class="mb-3">
-            <Label for="zakat-business-gold-price" class="mb-2">سعر جرام الذهب (عيار ٢٤) بالجنيه المصري</Label>
+          <div class="mb-4">
+            <Label for="zakat-business-gold-price" :class="labelClass">سعر جرام الذهب (عيار ٢٤) بالجنيه المصري</Label>
             <Input
               id="zakat-business-gold-price"
               v-model="goldPrice"
               type="number"
+              inputmode="decimal"
               placeholder="أدخل السعر الحالي"
               min="0"
               step="0.01"
+              :class="fieldClass"
             />
           </div>
 
           <div>
-            <Label for="zakat-business-amount" class="mb-2">قيمة البضائع والأصول التجارية (بالجنيه المصري)</Label>
+            <Label for="zakat-business-amount" :class="labelClass">
+              قيمة البضائع والأصول التجارية (بالجنيه المصري)
+            </Label>
             <Input
               id="zakat-business-amount"
               v-model="businessAmount"
               type="number"
+              inputmode="decimal"
               placeholder="أدخل القيمة"
               min="0"
               step="0.01"
+              :class="fieldClass"
             />
-            <p class="mt-1.5 text-sm text-muted-foreground" v-if="goldPrice">
-              النصاب: {{ formatCurrency(businessNisab) }} جنيه مصري
-            </p>
+            <p :class="hintClass" v-if="goldPrice">النصاب: {{ formatCurrency(businessNisab) }} جنيه مصري</p>
           </div>
         </ZakatCalculatorCard>
       </TabsContent>
     </Tabs>
 
     <!-- General Information -->
-    <Card>
-      <CardContent>
-        <h5 class="mb-3 text-lg">معلومات مهمة عن الزكاة</h5>
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <h6 class="mb-2 text-base">مصارف الزكاة الثمانية:</h6>
-            <ul class="list-disc ps-5">
-              <li>الفقراء والمساكين</li>
-              <li>العاملين عليها</li>
-              <li>المؤلفة قلوبهم</li>
-              <li>في الرقاب</li>
-              <li>الغارمين</li>
-              <li>في سبيل الله</li>
-              <li>ابن السبيل</li>
-            </ul>
-          </div>
-          <div>
-            <h6 class="mb-2 text-base">أهمية الزكاة:</h6>
-            <ul class="list-disc ps-5">
-              <li>ركن من أركان الإسلام الخمسة</li>
-              <li>تطهير للنفس والمال</li>
-              <li>تحقيق العدالة الاجتماعية</li>
-              <li>تنمية وبركة في المال</li>
-            </ul>
-          </div>
+    <div class="rounded-2xl bg-card p-5 text-card-foreground shadow-sm">
+      <h5 class="mb-4 text-lg">معلومات مهمة عن الزكاة</h5>
+
+      <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+        <div>
+          <h6 class="mb-2 text-base">مصارف الزكاة الثمانية:</h6>
+          <ul class="list-disc space-y-1.5 ps-5 text-sm leading-relaxed text-muted-foreground">
+            <li>الفقراء والمساكين</li>
+            <li>العاملين عليها</li>
+            <li>المؤلفة قلوبهم</li>
+            <li>في الرقاب</li>
+            <li>الغارمين</li>
+            <li>في سبيل الله</li>
+            <li>ابن السبيل</li>
+          </ul>
         </div>
-      </CardContent>
-    </Card>
+        <div>
+          <h6 class="mb-2 text-base">أهمية الزكاة:</h6>
+          <ul class="list-disc space-y-1.5 ps-5 text-sm leading-relaxed text-muted-foreground">
+            <li>ركن من أركان الإسلام الخمسة</li>
+            <li>تطهير للنفس والمال</li>
+            <li>تحقيق العدالة الاجتماعية</li>
+            <li>تنمية وبركة في المال</li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </Page>
 </template>

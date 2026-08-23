@@ -128,8 +128,11 @@ const copyZekr = () => {
   >
     <!-- Rare actions sit at the top end of the card, clear of the thumb zone
          and clear of the text; the negative margins pull the 2.75rem target
-         back into the card's corner so it costs almost no height. -->
-    <div class="action-menu -mt-2 -me-2 flex justify-end" @click.stop>
+         back into the card's corner so it costs almost no height. `w-fit`
+         keeps `.action-menu` the size of its button: it both swallows the click
+         and is excluded from the long-press, so a full-width strip here would
+         cut a dead band across the top of the tap-to-count card. -->
+    <div class="action-menu -mt-2 -me-2 ms-auto w-fit" @click.stop>
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
           <Button

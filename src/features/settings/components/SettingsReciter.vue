@@ -33,9 +33,9 @@ const fieldTriggerClass =
     title="القرآن الكريم"
     description="اختر الرواية والقارئ المفضل لديك"
     :icon="IconMicrophone2"
-    body-class="divide-y p-0"
+    body-class="divide-y py-0"
   >
-    <div class="px-4 py-3">
+    <div class="py-3">
       <Label for="currentRewaya" class="mb-2">الرواية</Label>
       <Select :model-value="currentRewaya" @update:model-value="onRewayaChange">
         <SelectTrigger id="currentRewaya" :class="fieldTriggerClass">
@@ -49,7 +49,7 @@ const fieldTriggerClass =
       </Select>
     </div>
 
-    <div class="px-4 py-3">
+    <div class="py-3">
       <Label for="currentReciter" class="mb-2">القارئ الحالي</Label>
       <Select
         :model-value="Number(quranStore.currentReciter)"

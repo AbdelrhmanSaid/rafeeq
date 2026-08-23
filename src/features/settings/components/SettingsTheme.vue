@@ -24,7 +24,7 @@ const colors = [
 // A segmented control: one muted track with the chosen segment washed in the
 // app's selected-state fill, which reads the same way in both modes.
 const segmentClass =
-  'min-h-11 flex-1 rounded-full px-2 text-sm font-medium text-muted-foreground data-[state=on]:bg-primary/12 data-[state=on]:text-primary'
+  'min-h-11 flex-1 rounded-full px-2 text-sm font-medium text-muted-foreground data-[state=on]:bg-primary/15 data-[state=on]:text-primary data-[state=on]:shadow-sm'
 </script>
 
 <template>
@@ -60,7 +60,7 @@ const segmentClass =
             type="button"
             :class="
               cn(
-                'flex min-h-11 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl px-1 py-2.5 transition duration-200 hover:bg-accent/60 active:scale-[0.98]',
+                'flex min-h-11 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl px-1 py-2.5 transition duration-200 hover:bg-accent/60 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:scale-[0.98]',
                 theme.primaryColor === color.value && 'bg-accent',
               )
             "

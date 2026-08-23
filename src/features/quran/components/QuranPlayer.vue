@@ -130,13 +130,19 @@ defineExpose({ seekToAyah })
        with the surah, so it stays under the thumb while reading. On the phone it
        sits directly above the floating tab bar, whose footprint is the navbar
        height plus the home-indicator inset; from `md` that bar is gone and the
-       player rests on the bottom edge. It stays under the tab bar's `z-40`. -->
+       player rests on the bottom edge. It stays under the tab bar's `z-40`.
+       The strip spans the full width but the pill inside it is only as wide as
+       the reading column, so the strip itself is click-through — otherwise its
+       transparent flanks would swallow taps on whatever sits underneath (the
+       desktop footer links). Only the pill takes pointer events back. -->
   <div
-    class="fixed inset-x-0 bottom-[calc(var(--navbar-height)_+_env(safe-area-inset-bottom,0px))] z-30 md:bottom-0 md:pb-4"
+    class="pointer-events-none fixed inset-x-0 bottom-[calc(var(--navbar-height)_+_env(safe-area-inset-bottom,0px))] z-30 md:bottom-0 md:pb-4"
   >
     <!-- Same measure as the reading column above it. -->
     <div class="mx-auto w-full max-w-[43.75rem] px-3 pb-2 sm:px-4">
-      <div class="rounded-3xl border border-border/70 bg-card/95 p-3 shadow-xl backdrop-blur-xl">
+      <div
+        class="pointer-events-auto rounded-3xl border border-border/70 bg-card/95 p-3 shadow-xl backdrop-blur-xl"
+      >
         <div class="flex items-center gap-2.5">
           <span class="shrink-0 text-xs tabular-nums text-muted-foreground">{{ formatTime(currentTime) }}</span>
 

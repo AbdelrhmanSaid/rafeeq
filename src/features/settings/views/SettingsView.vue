@@ -73,7 +73,7 @@ const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab)
 // The pills are links, not tab state: the active section comes from
 // /settings/:tab, so deep links and the back button keep working.
 const tabPillClass =
-  'inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-medium text-muted-foreground transition duration-200 hover:bg-accent hover:text-accent-foreground active:scale-[0.98] md:w-full md:shrink md:rounded-2xl'
+  'inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-medium text-muted-foreground transition duration-200 hover:bg-accent hover:text-accent-foreground focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:scale-[0.98] md:w-full md:shrink md:rounded-2xl'
 const tabPillActiveClass = 'bg-primary/12 text-primary hover:bg-primary/12 hover:text-primary'
 
 // The strip scrolls sideways on the phone, so a deep link to a later tab would

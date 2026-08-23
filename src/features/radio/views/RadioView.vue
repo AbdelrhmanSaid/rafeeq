@@ -42,28 +42,45 @@ const radiosList = computed(() =>
       :item-class="(item) => ({ active: store.station === item.url })"
     >
       <template #favorites-title>
-        <h2 class="mb-4 text-xl">الإذاعات المفضلة</h2>
+        <h2 class="mb-3 px-1 text-lg">الإذاعات المفضلة</h2>
       </template>
 
       <template #all-title>
-        <h2 class="mb-4 text-xl">كل الإذاعات</h2>
+        <h2 class="mb-3 px-1 text-lg">كل الإذاعات</h2>
       </template>
 
       <template #default="{ item, index }">
+        <!-- The link stretches over the whole row (`after:inset-0`), so the row
+             is one big target; the action buttons sit above it on `z-[1]`. -->
         <RouterLink
           :to="{ name: 'radio-station', params: { slug: item.slug } }"
-          class="min-w-0 flex-1 truncate text-start"
+          class="min-w-0 flex-1 truncate text-start after:absolute after:inset-0"
         >
-          {{ toArabicNumerals(index + 1) }}. {{ item.name }}
+          <span class="me-2 text-sm tabular-nums text-muted-foreground">{{ toArabicNumerals(index + 1) }}.</span>
+          <span>{{ item.name }}</span>
         </RouterLink>
       </template>
 
       <template #actions="{ item }">
-        <Button variant="ghost" size="icon" @click.stop="store.stop()" v-if="store.station === item.url">
+        <Button
+          variant="ghost"
+          size="icon"
+          class="relative z-[1] size-11 shrink-0 rounded-full text-primary active:scale-90"
+          title="إيقاف"
+          @click.stop="store.stop()"
+          v-if="store.station === item.url"
+        >
           <IconPlayerPause class="size-5" />
         </Button>
 
-        <Button variant="ghost" size="icon" @click.stop="store.play(item.url)" v-else>
+        <Button
+          variant="ghost"
+          size="icon"
+          class="relative z-[1] size-11 shrink-0 rounded-full text-muted-foreground active:scale-90"
+          title="تشغيل"
+          @click.stop="store.play(item.url)"
+          v-else
+        >
           <IconPlayerPlay class="size-5" />
         </Button>
       </template>

@@ -52,7 +52,7 @@ const fieldTriggerClass =
   'h-11 w-full rounded-xl border-0 bg-muted text-base shadow-none data-[size=default]:h-11 dark:bg-muted dark:hover:bg-muted'
 
 const segmentClass =
-  'min-h-11 rounded-full px-2 text-sm font-medium text-muted-foreground data-[state=on]:bg-primary/12 data-[state=on]:text-primary'
+  'min-h-11 rounded-full px-2 text-sm font-medium text-muted-foreground data-[state=on]:bg-primary/15 data-[state=on]:text-primary data-[state=on]:shadow-sm'
 </script>
 
 <template>
@@ -60,9 +60,9 @@ const segmentClass =
     title="مواقيت الصلاة"
     description="حدّد موقعك وطريقة عرض المواقيت"
     :icon="IconClockHour4"
-    body-class="divide-y p-0"
+    body-class="divide-y py-0"
   >
-    <div class="px-4 py-3">
+    <div class="py-3">
       <span class="mb-2 block text-sm font-medium">طريقة العرض</span>
       <ToggleGroup
         type="single"
@@ -86,7 +86,7 @@ const segmentClass =
       </ToggleGroup>
     </div>
 
-    <div class="px-4 py-3">
+    <div class="py-3">
       <Label for="location" class="mb-2">الموقع</Label>
       <div class="flex items-center gap-2">
         <Input
@@ -121,7 +121,7 @@ const segmentClass =
       </div>
     </div>
 
-    <div v-for="field in calculationFields" :key="field.key" class="px-4 py-3">
+    <div v-for="field in calculationFields" :key="field.key" class="py-3">
       <Label :for="field.key" class="mb-2">{{ field.label }}</Label>
       <Select
         :model-value="toOptionValue(store[field.key])"

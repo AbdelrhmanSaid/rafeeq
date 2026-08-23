@@ -11,12 +11,15 @@ const lastUpdated = toArabicNumerals('2025-08-18')
     <Heading class="mb-6" title="سياسة الخصوصية" subtitle="نلتزم بحماية خصوصيتك وشرح كيفية تعاملنا مع بياناتك" />
 
     <!-- The policy is a long run of plain prose, so the typographic rhythm
-         (heading spacing, list bullets, link colour) is set once on the wrapper
-         instead of repeating the same classes on every element. -->
+         (measure, heading spacing, list bullets, link colour) is set once on the
+         wrapper instead of repeating the same classes on every element. It sits
+         on its own resting surface so a wall of Arabic text reads as a document
+         rather than as loose page copy, and the measure is capped near 65
+         characters so a phone line stays scannable. -->
     <div
-      class="max-w-3xl leading-relaxed [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-4 [&_h2]:mt-8 [&_h2]:mb-3 [&_h2]:text-xl [&_h2]:font-medium [&_li+li]:mt-2 [&_p]:mb-4 [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:ps-5"
+      class="mx-auto max-w-prose rounded-3xl bg-card p-5 text-base leading-loose text-card-foreground shadow-sm sm:p-8 [&_a]:text-primary [&_a]:underline [&_a]:decoration-primary/40 [&_a]:underline-offset-4 [&_h2]:mt-9 [&_h2]:mb-3 [&_h2]:text-lg [&_h2]:font-medium sm:[&_h2]:text-xl [&_li+li]:mt-2 [&_p]:mb-5 [&_strong]:font-medium [&_strong]:text-foreground [&_ul]:mb-5 [&_ul]:list-disc [&_ul]:ps-5 [&>p:last-child]:mb-0"
     >
-      <p class="text-lg text-muted-foreground">
+      <p class="text-base text-muted-foreground">
         نُقدّم تطبيق «رفيق» كخدمة مجانية ومفتوحة المصدر للمستخدمين. تهدف هذه السياسة إلى توضيح كيفية جمع البيانات
         واستخدامها والاحتفاظ بها ومشاركتها عند استخدامك للتطبيق.
       </p>
@@ -97,7 +100,7 @@ const lastUpdated = toArabicNumerals('2025-08-18')
         >.
       </p>
 
-      <p class="mt-8 text-sm text-muted-foreground">آخر تحديث: {{ lastUpdated }}</p>
+      <p class="mt-8 border-t pt-5 text-sm text-muted-foreground">آخر تحديث: {{ lastUpdated }}</p>
     </div>
   </Page>
 </template>

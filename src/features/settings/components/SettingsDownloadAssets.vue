@@ -18,6 +18,7 @@ import { useDownloadStore } from '@/features/downloads/store.js'
 import DownloadAssetItem from '@/features/downloads/components/DownloadAssetItem.vue'
 import CircleProgress from '@/shared/ui/CircleProgress.vue'
 import { Button } from '@/shared/components/ui/button'
+import { cn } from '@/shared/lib/utils'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 
@@ -79,12 +80,24 @@ const filteredAssets = computed(() => {
 const surahCount = computed(() => allAssets.value.filter((a) => a.type === 'surah').length)
 const azkarCount = computed(() => allAssets.value.filter((a) => a.type === 'azkar').length)
 
+const filterChipClass =
+  'inline-flex min-h-11 shrink-0 cursor-pointer items-center gap-2 rounded-full px-4 text-sm font-medium transition duration-200 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:scale-[0.98]'
+
 const filterButtonClass = (type) =>
   filterType.value === type
-    ? 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground dark:hover:bg-primary'
-    : 'text-muted-foreground'
+    ? 'bg-primary text-primary-foreground'
+    : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground'
 
-const filterCountClass = (type) => (filterType.value === type ? 'bg-primary-foreground/20' : 'bg-foreground/10')
+const filterCountClass = (type) =>
+  cn(
+    'rounded-full px-2 py-0.5 text-xs tabular-nums',
+    filterType.value === type ? 'bg-primary-foreground/20' : 'bg-foreground/10',
+  )
+
+// Round, muted icon buttons for the bulk controls that sit beside the primary
+// "download everything" action.
+const bulkButtonClass =
+  'size-11 shrink-0 rounded-full border-0 bg-muted shadow-none hover:bg-accent active:scale-95 dark:bg-muted dark:hover:bg-accent'
 
 const handleRemoveAll = () => {
   cancelAllDownloads()
@@ -111,114 +124,95 @@ const handleAssetAction = (asset) => {
 </script>
 
 <template>
-  <!-- `contain` keeps the long asset list from invalidating layout for the rest
-       of the settings page while downloads tick along. -->
-  <div class="overflow-hidden rounded-xl border bg-card text-card-foreground [contain:layout_style]">
-    <!-- Header -->
-    <div class="border-b px-6 py-5">
-      <div class="flex items-center justify-between gap-4">
-        <div class="flex items-center gap-2.5">
-          <span class="inline-flex size-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
-            <IconCloudDownload :size="20" />
-          </span>
-          <div>
-            <h3 class="text-base font-semibold">التنزيلات</h3>
-            <p class="mt-0.5 text-sm text-muted-foreground">للاستخدام بدون إنترنت</p>
-          </div>
+  <!-- Same card language as a settings section — one borderless rounded surface
+       cut into bands by hairlines. `contain` keeps the long asset list from
+       invalidating layout for the rest of the settings page while downloads
+       tick along. -->
+  <section class="divide-y overflow-hidden rounded-2xl bg-card text-card-foreground shadow-sm [contain:layout_style]">
+    <!-- Header: what this is, how far along it is, and the rare destructive
+         action kept up top and away from the thumb. -->
+    <div class="px-4 py-4">
+      <div class="flex items-start gap-3">
+        <span class="grid size-10 shrink-0 place-items-center rounded-full bg-primary/12 text-primary">
+          <IconCloudDownload class="size-5" />
+        </span>
+
+        <div class="min-w-0 flex-1">
+          <h3 class="font-sans text-base leading-snug font-medium">التنزيلات</h3>
+          <p class="mt-0.5 text-sm leading-relaxed text-muted-foreground">للاستخدام بدون إنترنت</p>
         </div>
 
-        <div class="flex items-center gap-3">
-          <div class="flex flex-col text-start">
-            <span class="text-xl font-bold"
-              >{{ toArabicNumerals(downloadedCount) }}/{{ toArabicNumerals(totalAssets) }}</span
-            >
-            <span class="text-xs text-muted-foreground">ملف محمّل</span>
+        <Button
+          variant="ghost"
+          size="icon"
+          class="-me-2 size-11 shrink-0 rounded-full text-muted-foreground hover:bg-destructive hover:text-destructive-foreground active:scale-95"
+          :disabled="isDownloading || downloadedCount === 0"
+          title="حذف الكل"
+          aria-label="حذف الكل"
+          @click="handleRemoveAll"
+        >
+          <IconTrash class="size-5" />
+        </Button>
+      </div>
+
+      <div class="mt-4 flex items-center gap-3 rounded-2xl bg-muted px-4 py-3">
+        <CircleProgress :percentage="progressPercentage" :size="44" />
+        <div class="min-w-0">
+          <div class="text-base font-medium tabular-nums">
+            {{ toArabicNumerals(downloadedCount) }}/{{ toArabicNumerals(totalAssets) }}
           </div>
-          <CircleProgress class="hidden md:block" :percentage="progressPercentage" />
+          <div class="text-sm text-muted-foreground">ملف محمّل</div>
         </div>
       </div>
 
       <!-- Status Bar -->
       <div
         v-if="isDownloading || isPaused || !online"
-        class="mt-4 flex min-w-0 items-center gap-2 overflow-hidden rounded-md bg-primary/10 px-3 py-2 text-sm"
+        class="mt-2 flex min-w-0 items-center gap-2 overflow-hidden rounded-2xl bg-primary/10 px-4 py-2.5 text-sm text-primary"
       >
         <template v-if="!online">
-          <IconWifiOff :size="16" />
+          <IconWifiOff class="size-4 shrink-0" />
           <span class="min-w-0 truncate">لا يوجد اتصال بالإنترنت</span>
         </template>
         <template v-else-if="isDownloading && currentItem">
-          <IconLoader2 :size="16" class="animate-spin" />
+          <IconLoader2 class="size-4 shrink-0 animate-spin" />
           <span class="min-w-0 truncate">جاري تحميل: {{ currentItem.name }}</span>
-          <span class="min-w-0 truncate ms-auto opacity-70">{{ toArabicNumerals(pendingCount) }} متبقي</span>
+          <span class="ms-auto min-w-0 shrink-0 truncate opacity-70">{{ toArabicNumerals(pendingCount) }} متبقي</span>
         </template>
         <template v-else-if="isPaused">
-          <IconPlayerPause :size="16" />
+          <IconPlayerPause class="size-4 shrink-0" />
           <span class="min-w-0 truncate">التحميل متوقف مؤقتاً</span>
         </template>
       </div>
     </div>
 
-    <!-- Toolbar -->
-    <div class="flex flex-wrap items-center justify-between gap-4 border-b px-4 py-3">
-      <div class="flex gap-1">
-        <Button variant="ghost" size="sm" :class="filterButtonClass('all')" @click="filterType = 'all'">
-          الكل
-          <span class="rounded-full px-1.5 py-0.5 text-xs" :class="filterCountClass('all')">
-            {{ toArabicNumerals(totalAssets) }}
-          </span>
-        </Button>
-        <Button variant="ghost" size="sm" :class="filterButtonClass('surah')" @click="filterType = 'surah'">
-          <IconBook2 :size="14" />
-          السور
-          <span class="rounded-full px-1.5 py-0.5 text-xs" :class="filterCountClass('surah')">
-            {{ toArabicNumerals(surahCount) }}
-          </span>
-        </Button>
-        <Button variant="ghost" size="sm" :class="filterButtonClass('azkar')" @click="filterType = 'azkar'">
-          <IconSparkles :size="14" />
-          الأذكار
-          <span class="rounded-full px-1.5 py-0.5 text-xs" :class="filterCountClass('azkar')">
-            {{ toArabicNumerals(azkarCount) }}
-          </span>
-        </Button>
-      </div>
+    <!-- Filters — a chip strip that scrolls past the card gutter on a phone. -->
+    <div
+      class="flex gap-2 overflow-x-auto px-4 py-3 edge-fade-x no-scrollbar"
+      style="--edge-fade-size: 1rem"
+      role="group"
+      aria-label="تصفية الملفات"
+    >
+      <button type="button" :class="cn(filterChipClass, filterButtonClass('all'))" @click="filterType = 'all'">
+        <span>الكل</span>
+        <span :class="filterCountClass('all')">{{ toArabicNumerals(totalAssets) }}</span>
+      </button>
 
-      <div class="flex gap-2">
-        <Button
-          v-if="isDownloading || isPaused"
-          variant="outline"
-          size="icon-sm"
-          :aria-label="isPaused ? 'استئناف' : 'إيقاف مؤقت'"
-          @click="isPaused ? resumeDownloads() : pauseDownloads()"
-        >
-          <component :is="isPaused ? IconPlayerPlay : IconPlayerPause" :size="16" />
-        </Button>
+      <button type="button" :class="cn(filterChipClass, filterButtonClass('surah'))" @click="filterType = 'surah'">
+        <IconBook2 class="size-4" />
+        <span>السور</span>
+        <span :class="filterCountClass('surah')">{{ toArabicNumerals(surahCount) }}</span>
+      </button>
 
-        <Button v-if="pendingCount > 0" variant="outline" size="icon-sm" title="إلغاء" @click="cancelAllDownloads">
-          <IconX :size="16" />
-        </Button>
-
-        <Button
-          variant="outline"
-          size="icon-sm"
-          class="hover:border-destructive hover:bg-destructive hover:text-destructive-foreground"
-          :disabled="isDownloading || downloadedCount === 0"
-          title="حذف الكل"
-          @click="handleRemoveAll"
-        >
-          <IconTrash :size="16" />
-        </Button>
-
-        <Button size="sm" :disabled="isDownloading || !online || isCompleted" @click="queueAllAssets">
-          <IconDownload :size="16" />
-          <span>تحميل الكل</span>
-        </Button>
-      </div>
+      <button type="button" :class="cn(filterChipClass, filterButtonClass('azkar'))" @click="filterType = 'azkar'">
+        <IconSparkles class="size-4" />
+        <span>الأذكار</span>
+        <span :class="filterCountClass('azkar')">{{ toArabicNumerals(azkarCount) }}</span>
+      </button>
     </div>
 
     <!-- List -->
-    <div class="dm-list max-h-75 overflow-y-auto">
+    <div class="dm-list max-h-75 divide-y overflow-y-auto">
       <DownloadAssetItem
         v-for="asset in filteredAssets"
         :key="asset.id"
@@ -228,15 +222,51 @@ const handleAssetAction = (asset) => {
       />
     </div>
 
+    <!-- The bulk controls sit under the list, in the thumb zone: the primary
+         action fills the row, the queue controls flank it. -->
+    <div class="flex items-center gap-2 px-4 py-3">
+      <Button
+        v-if="isDownloading || isPaused"
+        variant="outline"
+        size="icon"
+        :class="bulkButtonClass"
+        :aria-label="isPaused ? 'استئناف' : 'إيقاف مؤقت'"
+        @click="isPaused ? resumeDownloads() : pauseDownloads()"
+      >
+        <component :is="isPaused ? IconPlayerPlay : IconPlayerPause" class="size-5" />
+      </Button>
+
+      <Button
+        v-if="pendingCount > 0"
+        variant="outline"
+        size="icon"
+        :class="bulkButtonClass"
+        title="إلغاء"
+        aria-label="إلغاء"
+        @click="cancelAllDownloads"
+      >
+        <IconX class="size-5" />
+      </Button>
+
+      <Button
+        class="h-11 min-w-0 flex-1 rounded-full active:scale-[0.98]"
+        :disabled="isDownloading || !online || isCompleted"
+        @click="queueAllAssets"
+      >
+        <IconDownload class="size-4" />
+        <span>تحميل الكل</span>
+      </Button>
+    </div>
+
     <!-- Completed Banner -->
     <div
       v-if="isCompleted"
-      class="flex items-center justify-center gap-2 bg-success p-3 text-sm font-medium text-success-foreground"
+      class="flex items-center justify-center gap-2 bg-success/12 p-3 text-sm font-medium text-success"
     >
-      <IconCheck :size="20" />
+      <IconCheck class="size-5" />
       <span>تم تحميل جميع الملفات بنجاح!</span>
     </div>
-  </div>
+  </section>
 </template>
 
 <style scoped>

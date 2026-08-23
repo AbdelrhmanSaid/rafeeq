@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useOnline } from '@vueuse/core'
+import { IconRadio } from '@tabler/icons-vue'
 import { usePageMeta } from '@/shared/composables/usePageMeta'
 
 import Page from '@/layout/Page.vue'
@@ -57,15 +58,19 @@ const shareStation = async () => {
     <OfflineState />
   </Page>
 
-  <Page v-else class="flex min-h-[calc(100vh-var(--navbar-height))] items-center justify-center">
+  <Page v-else class="flex min-h-[60svh] items-center justify-center">
     <!-- Not Found State -->
-    <div v-if="!station" class="px-4 py-12 text-center">
-      <div class="mb-6 text-7xl opacity-50">📻</div>
-      <Heading title="لم يتم العثور على الإذاعة" subtitle="يمكنك العودة لقائمة الإذاعات المتاحة." />
+    <div v-if="!station" class="mx-auto flex max-w-sm flex-col items-center py-8 text-center">
+      <span class="mb-5 grid size-14 place-items-center rounded-full bg-muted text-muted-foreground">
+        <IconRadio class="size-6" />
+      </span>
+
+      <Heading :size="2" title="لم يتم العثور على الإذاعة" subtitle="يمكنك العودة لقائمة الإذاعات المتاحة." />
+
       <BackButton
         :to="{ name: 'radio' }"
         label="العودة إلى الإذاعات"
-        button-class="mt-6 bg-primary text-primary-foreground hover:bg-primary/90"
+        button-class="bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:text-primary-foreground"
       />
     </div>
 

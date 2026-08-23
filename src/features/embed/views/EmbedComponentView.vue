@@ -64,12 +64,17 @@ const componentProps = computed(() => resolveProps(entry.value?.schema ?? {}, ro
 </script>
 
 <template>
+  <!-- No app chrome here: the embed route hides it through `.main-content-embed`
+       (see `main.css`), so this view only supplies the optional caption and the
+       component itself. -->
   <Page>
     <template v-if="component">
       <Heading v-if="props.title" :size="2" class="mb-4" :title="props.title" :subtitle="props.subtitle" />
       <component :is="component" v-bind="componentProps" />
     </template>
 
-    <ErrorState v-else :icon="IconAlertTriangle" message="خطأ في الإعدادات: المكوّن غير موجود." />
+    <div v-else class="grid min-h-[40vh] place-items-center">
+      <ErrorState :icon="IconAlertTriangle" message="خطأ في الإعدادات: المكوّن غير موجود." />
+    </div>
   </Page>
 </template>

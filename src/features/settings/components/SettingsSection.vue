@@ -6,8 +6,8 @@ defineProps({
   title: { type: String, default: '' },
   description: { type: String, default: '' },
   icon: { type: [Object, Function], default: null },
-  // Escape hatch for a body that supplies its own row padding (a `divide-y`
-  // list of fields rather than a single padded block).
+  // Escape hatch for a body that is a `divide-y` list of rows rather than one
+  // padded block (those rows bring their own vertical padding).
   bodyClass: { type: [String, Array, Object], default: '' },
 })
 
@@ -31,7 +31,9 @@ const hasBody = computed(() => {
 </script>
 
 <template>
-  <div v-if="bare">
+  <!-- Bare mode: the host (a bottom sheet) owns the gutters, so the rows bring
+       only their vertical rhythm and the hairlines that separate them. -->
+  <div v-if="bare" class="divide-y">
     <slot />
   </div>
 
@@ -61,7 +63,7 @@ const hasBody = computed(() => {
       </div>
     </div>
 
-    <div v-if="hasBody" :class="cn('p-4', bodyClass)">
+    <div v-if="hasBody" :class="cn('px-4 py-4', bodyClass)">
       <slot />
     </div>
   </section>
