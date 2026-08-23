@@ -72,8 +72,8 @@ export const useThemeStore = defineStore('theme', () => {
     }
 
     if (theme.mode) applyMode(theme.mode)
-    if (theme.fg) applyPrimaryColor(theme.fg)
-    if (theme.bg) applyBgColor(theme.bg)
+    applyPrimaryColor(theme.fg)
+    applyBgColor(theme.bg)
 
     nextTick(syncMetaThemeColor)
   })
