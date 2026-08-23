@@ -135,9 +135,7 @@ defineExpose({ seekToAyah })
        the reading column, so the strip itself is click-through — otherwise its
        transparent flanks would swallow taps on whatever sits underneath (the
        desktop footer links). Only the pill takes pointer events back. -->
-  <div
-    class="pointer-events-none fixed inset-x-0 bottom-[calc(var(--navbar-height)_+_env(safe-area-inset-bottom,0px))] z-30 md:bottom-0 md:pb-4"
-  >
+  <div class="pointer-events-none fixed inset-x-0 bottom-[var(--tabbar-offset)] z-30 md:bottom-0 md:pb-4">
     <!-- Same measure as the reading column above it. -->
     <div class="mx-auto w-full max-w-[43.75rem] px-3 pb-2 sm:px-4">
       <div class="pointer-events-auto rounded-3xl border border-border/70 bg-card/95 p-3 shadow-xl backdrop-blur-xl">
@@ -194,6 +192,7 @@ defineExpose({ seekToAyah })
             variant="secondary"
             class="h-11 min-w-11 shrink-0 gap-1.5 rounded-full px-3 text-muted-foreground active:scale-95"
             :title="`القارئ: ${quranStore.reciter?.name}`"
+            :aria-label="`القارئ: ${quranStore.reciter?.name}`"
           >
             <IconMicrophone2 class="size-5" />
             <span class="hidden max-w-32 truncate text-xs sm:inline">{{ quranStore.reciter?.name }}</span>

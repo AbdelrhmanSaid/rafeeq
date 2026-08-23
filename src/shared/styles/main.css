@@ -71,6 +71,13 @@
   --shadow-strength: 0.07;
 
   --navbar-height: 70px;
+
+  /* What the mobile tab bar actually occupies at the bottom of the screen: the
+     floating pill plus the padding it sits in plus the home-indicator inset.
+     Anything that docks above the bar (the Quran and radio players) and the
+     page's own bottom padding all measure against this one value, so the bar's
+     geometry can change in TabBar.vue without leaving them behind. */
+  --tabbar-offset: calc(var(--navbar-height) + 1rem + env(safe-area-inset-bottom, 0px));
 }
 
 .dark {

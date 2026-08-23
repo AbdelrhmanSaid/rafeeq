@@ -58,7 +58,7 @@ function toRgb(color) {
 // of it: light accents get ink text, dark accents get white.
 function readableForeground(color) {
   const rgb = toRgb(color)
-  if (!rgb) return '#ffffff'
+  if (!rgb) return '#fff9f5'
 
   const [r, g, b] = rgb.map((channel) => {
     const c = channel / 255
@@ -66,7 +66,7 @@ function readableForeground(color) {
   })
 
   const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
-  return luminance > 0.6 ? '#212529' : '#ffffff'
+  return luminance > 0.6 ? '#241d17' : '#fff9f5'
 }
 
 function setVars(vars) {
@@ -118,16 +118,26 @@ export function applyBgColor(color) {
   const bg = normalizeColor(color)
 
   if (bg) {
-    // Surfaces layered on top of the custom background stay relative to it so
-    // cards and popovers keep separating from the page in both modes.
-    const lift = isDarkMode() ? '#fff' : '#000'
+    const dark = isDarkMode()
+
+    // Cards and popovers carry the design's depth now that surfaces are
+    // separated by tone and shadow rather than by a border, so they have to
+    // lift off a user-picked background instead of matching it. Both modes
+    // lift toward white — a light card on warm paper, a raised card on warm
+    // ink — but a dark background needs a far smaller mix to read as lifted.
+    const cardLift = dark ? 94 : 68
+    const popoverLift = dark ? 90 : 76
+
+    // Recessed fills go the other way: down in light mode, up in dark.
+    const sink = dark ? '#fff' : '#000'
+
     setVars({
       '--background': bg,
-      '--card': bg,
-      '--popover': bg,
-      '--secondary': `color-mix(in srgb, ${bg} 94%, ${lift})`,
-      '--muted': `color-mix(in srgb, ${bg} 94%, ${lift})`,
-      '--accent': `color-mix(in srgb, ${bg} 88%, ${lift})`,
+      '--card': `color-mix(in srgb, ${bg} ${cardLift}%, #fff)`,
+      '--popover': `color-mix(in srgb, ${bg} ${popoverLift}%, #fff)`,
+      '--secondary': `color-mix(in srgb, ${bg} 94%, ${sink})`,
+      '--muted': `color-mix(in srgb, ${bg} 94%, ${sink})`,
+      '--accent': `color-mix(in srgb, ${bg} 88%, ${sink})`,
     })
   } else {
     removeVars(BG_COLOR_VARS)

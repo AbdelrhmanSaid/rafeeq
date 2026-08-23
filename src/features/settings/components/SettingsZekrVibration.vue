@@ -34,7 +34,7 @@ const vibrationIntensity = computed({
            grows its hit area to the 2.75rem the rest of the app uses. -->
       <Switch
         v-model="zekrVibrationEnabled"
-        class="relative before:absolute before:-inset-3 before:content-['']"
+        class="relative before:absolute before:-inset-3.5 before:content-['']"
         aria-label="تفعيل الاهتزاز عند الانتهاء"
       />
     </template>

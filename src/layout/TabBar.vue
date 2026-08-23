@@ -129,7 +129,10 @@ const moreMenuIconClass =
           </DrawerClose>
         </DrawerHeader>
 
-        <div class="overflow-y-auto px-3 pt-1 pb-[calc(1rem_+_env(safe-area-inset-bottom,0px))]">
+        <!-- `min-h-0` so this body can shrink inside the height-capped flex
+             column and scroll itself; without it the rows keep their full
+             height and spill past the bottom of the sheet instead. -->
+        <div class="min-h-0 overflow-y-auto px-3 pt-1 pb-[calc(1rem_+_env(safe-area-inset-bottom,0px))]">
           <RouterLink :to="{ name: 'qibla' }" :class="moreMenuItemClass" @click="closeMoreMenu">
             <span :class="moreMenuIconClass">
               <IconCompass size="1.25rem" />

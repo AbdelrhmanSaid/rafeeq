@@ -81,18 +81,22 @@ defineEmits(['toggle', 'favorite', 'share'])
     <!-- The transport docks to the bottom like the Quran player: on the phone it
          sits directly above the floating tab bar (navbar height plus the
          home-indicator inset) and stays under that bar's `z-40`; from `md` the
-         tab bar is gone and it rests on the bottom edge. -->
-    <div
-      class="fixed inset-x-0 bottom-[calc(var(--navbar-height)_+_env(safe-area-inset-bottom,0px))] z-30 md:bottom-0 md:pb-4"
-    >
+         tab bar is gone and it rests on the bottom edge. The strip spans the
+         full width but the bar inside it is only as wide as the player column,
+         so the strip itself is click-through — otherwise its transparent flanks
+         would swallow taps on whatever sits underneath (the desktop footer
+         links). Only the bar takes pointer events back. -->
+    <div class="pointer-events-none fixed inset-x-0 bottom-[var(--tabbar-offset)] z-30 md:bottom-0 md:pb-4">
       <div class="mx-auto w-full max-w-lg px-3 pb-2 sm:px-4">
         <div
-          class="flex items-center gap-3 rounded-3xl border border-border/70 bg-card/95 p-3 shadow-xl backdrop-blur-xl"
+          class="pointer-events-auto flex items-center gap-3 rounded-3xl border border-border/70 bg-card/95 p-3 shadow-xl backdrop-blur-xl"
         >
           <Button
             type="button"
             size="icon"
             class="size-14 shrink-0 rounded-full shadow-sm active:scale-95"
+            :aria-label="isPlaying ? 'إيقاف' : 'تشغيل'"
+            :title="isPlaying ? 'إيقاف' : 'تشغيل'"
             @click="$emit('toggle')"
           >
             <IconPlayerPause v-if="isPlaying" class="size-6" />

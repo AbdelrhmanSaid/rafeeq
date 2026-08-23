@@ -1,13 +1,15 @@
 ---
 name: Rafeeq
-description: A calm, warm-minimal Muslim companion app — all worship, one calm place.
+description: A warm, layered Muslim companion app, designed phone-first — all worship, one calm place.
 colors:
-  warm-earth: "#795547"
-  ink: "#212529"
-  surface-light: "#ffffff"
-  border-light: "#e9ecef"
-  surface-dark: "#121212"
-  border-dark: "#282828"
+  clay: "#a25a3c"
+  clay-dark: "#cd8562"
+  paper: "#f5f1ea"
+  paper-card: "#fffdf9"
+  ink: "#241d17"
+  ink-dark: "#15110d"
+  ink-dark-card: "#211b16"
+  ink-dark-text: "#ece4d9"
 typography:
   display:
     fontFamily: "Thmanyah Serif Display, Thmanyah Serif Text, serif"
@@ -16,7 +18,7 @@ typography:
     lineHeight: 1.15
   headline:
     fontFamily: "Thmanyah Serif Text, Thmanyah Sans, serif"
-    fontSize: "2.5rem"
+    fontSize: "2.25rem"
     fontWeight: 500
     lineHeight: 1.2
   title:
@@ -31,7 +33,7 @@ typography:
     lineHeight: 1.6
   label:
     fontFamily: "Thmanyah Sans, system-ui, sans-serif"
-    fontSize: "0.85rem"
+    fontSize: "0.875rem"
     fontWeight: 500
     lineHeight: 1.4
   caption:
@@ -41,49 +43,35 @@ typography:
     lineHeight: 1.4
   quran:
     fontFamily: "Kitab, Thmanyah Sans, sans-serif"
-    fontSize: "1.4rem"
+    fontSize: "1.5rem"
     fontWeight: 400
-    lineHeight: 2
+    lineHeight: 2.1
 rounded:
   sm: "0.5rem"
   md: "0.75rem"
   lg: "1rem"
   xl: "1.5rem"
-  pill: "50rem"
+  pill: "9999px"
 spacing:
   xs: "0.25rem"
   sm: "0.5rem"
   md: "1rem"
   lg: "1.5rem"
-  xl: "3rem"
+  xl: "2rem"
 components:
   button-primary:
-    backgroundColor: "{colors.warm-earth}"
-    textColor: "#ffffff"
+    backgroundColor: "{colors.clay}"
+    textColor: "#fff9f5"
     rounded: "{rounded.md}"
     padding: "0.5rem 1rem"
-  button-primary-hover:
-    backgroundColor: "#6a4b3e"
-  button-outline-primary:
-    backgroundColor: "transparent"
-    textColor: "{colors.warm-earth}"
-    rounded: "{rounded.md}"
-    padding: "0.5rem 1rem"
-  tab-pill:
-    backgroundColor: "transparent"
-    textColor: "#6c757d"
-    rounded: "{rounded.md}"
-    padding: "0.5rem 0.9rem"
-  tab-pill-active:
-    backgroundColor: "#79554720"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.md}"
-    padding: "0.5rem 0.9rem"
-  toggle-active:
-    backgroundColor: "{colors.warm-earth}"
-    textColor: "#ffffff"
-    rounded: "{rounded.md}"
-    padding: "0.6rem"
+  card:
+    backgroundColor: "{colors.paper-card}"
+    rounded: "{rounded.xl}"
+    shadow: "soft two-layer warm"
+  nav-active:
+    backgroundColor: "12% clay wash"
+    textColor: "{colors.clay}"
+    rounded: "{rounded.pill}"
 ---
 
 # Design System: Rafeeq
@@ -92,124 +80,160 @@ components:
 
 **Creative North Star: "The Pocket Companion"**
 
-Rafeeq (رفيق) is designed as a companion you carry, not a destination you visit: light, ever-ready, personal, built around small moments of worship on the road. The system is warm minimalism — modern, clean surfaces carried by a single warm earth tone, generous Arabic typography, and quiet, flat-leaning components. Warmth comes from type, spacing, and the brown hue itself, never from ornament. The whole interface is Arabic and RTL-first; layout, alignment, and iconography read right-to-left by default.
+Rafeeq (رفيق) is a companion you carry, not a destination you visit. It is
+opened many times a day for thirty seconds at a time, in Arabic, right-to-left,
+almost always one-handed on a phone.
 
-The system explicitly rejects the anti-references in PRODUCT.md: cluttered Islamic apps drowning content in decoration, sterile SaaS-dashboard chrome, gamified dopamine mechanics, and skeuomorphic mushaf textures. Screens hold one primary task, reachable one-handed in a 30-second session.
+The system is **warm and layered**: tinted neutral surfaces rather than grey,
+generous rounding, soft real elevation rather than hairline boxes, and a
+confident type hierarchy that lets the content — prayer times, Quran, azkar —
+lead every screen. Warmth comes from the surfaces and the type, never from
+ornament.
+
+**The phone is the design canvas.** Unprefixed styles are the phone; `sm:`,
+`md:` and `lg:` only widen or reflow. A `max-*` utility written to undo a
+desktop style is the signal that a screen was built backwards.
 
 **Key Characteristics:**
-- One warm accent (Warm Earth) on calm neutral surfaces, both runtime-themeable by the user
-- Thmanyah Sans for UI text, Thmanyah Serif Text for headings, Thmanyah Serif Display for large display type; Kitab exclusively for Quran text
-- Flat, border-defined surfaces with soft ambient shadow allowed sparingly
-- Refined and restrained components: quiet outlines, gentle tint fills, nothing shouting
-- RTL-first, rem-based sizing so the user's font-scale setting scales everything
+- Warm paper in light, warm ink in dark; cards float on the page rather than
+  being drawn onto it with a border
+- One clay accent, user-themeable at runtime, used sparingly
+- Thmanyah Sans for UI, Thmanyah Serif Text for headings, Thmanyah Serif Display
+  for large display type; Kitab exclusively for Quran text
+- RTL-first, rem-based sizing so the 80–130% font-scale setting scales
+  everything
 
 ## 2. Colors
 
-A restrained palette: one warm brown voice over neutral surfaces, with full light/dark parity.
+Every colour is a token in `src/shared/styles/main.css`. Components reach them
+as Tailwind utilities (`bg-card`, `text-muted-foreground`, `bg-primary/10`).
 
-### Primary
-- **Warm Earth** (#795547): The single brand voice — buttons, active states, links, progress, focus rings, and the PWA theme color. Applied at low opacities for fills: 12% tint for active pills, 15% for subtle backgrounds, 25% for focus shadows. Hover/active states derive by mixing toward black (88% / 78% via `color-mix`), never by introducing a second hue.
+### Light — warm paper
+`--background` #f5f1ea · `--foreground` #241d17 · `--card` #fffdf9 ·
+`--popover` #fffdf9 · `--primary` #a25a3c · `--primary-foreground` #fff9f5 ·
+`--secondary` / `--muted` #efe9e0 · `--muted-foreground` #756759 ·
+`--accent` #e8e0d4 · `--destructive` #c14434 · `--success` #1e7a52 ·
+`--border` #e4dbcd · `--input` #d8ccbb
 
-### Neutral
-- **Ink** (#212529): Body text in light mode (the `--foreground` token).
-- **Surface Light** (#ffffff): Light-mode body background (`--background`); card, popover, muted and accent surfaces layer on top of it.
-- **Border Light** (#e9ecef): Hairline borders that define cards, pills, and toggles in light mode — a step quieter than the shadcn default.
-- **Surface Dark** (#121212): Dark-mode body — true near-black, not tinted navy.
-- **Border Dark** (#282828): Dark-mode hairlines; the primary depth cue in dark mode.
+### Dark — warm ink
+`--background` #15110d · `--foreground` #ece4d9 · `--card` #211b16 ·
+`--popover` #272019 (a step above card, so menus separate from cards) ·
+`--primary` #cd8562 · `--primary-foreground` #241a12 ·
+`--secondary` / `--muted` #2a221c · `--muted-foreground` #a89887 ·
+`--accent` #342a22 · `--destructive` #e5544a · `--success` #37a873 ·
+`--border` #332a23 · `--input` #3d332b
+
+Every text pair clears 4.5:1 in both modes.
 
 ### Named Rules
-**The Runtime Theme Rule.** Colors are never hardcoded in components. Everything flows through the design tokens declared in `src/shared/styles/main.css` (`--primary`, `--background`, `--card`, `--muted-foreground`, …), reached from markup as Tailwind utilities (`bg-primary`, `text-muted-foreground`, `bg-primary/10`). The theme store rewrites `--primary` and the surface tokens at runtime (`src/shared/utils/css.js`), so a hex value in a component is a bug.
 
-**The One Warm Voice Rule.** Warm Earth is the only accent. It appears on a small fraction of any screen — a filled button, an active state, a highlight. Its restraint is what keeps the interface calm.
+**The Runtime Theme Rule.** Colours are never hardcoded in components.
+`src/shared/utils/css.js` rewrites `--primary`, `--primary-foreground`, `--ring`
+and the surface tokens at runtime from the user's own choices, so a hex value in
+a component is a bug.
+
+**The Warm Foreground Rule.** In dark mode the semantic fills keep the *light*
+hue and pair it with a warm-ink foreground — `--primary-foreground` is #241a12,
+not white. Never assume a `*-foreground` token is white.
+
+**The One Accent Rule.** Clay is the only accent. Derive hover and active states
+from it by opacity or by mixing; never introduce a second hue.
 
 ## 3. Typography
 
-**Body Font:** Thmanyah Sans (with system-ui fallback), weights 300–900 self-hosted
-**Heading Font:** Thmanyah Serif Text (with Thmanyah Sans fallback), weights 300–900 self-hosted
-**Display Font:** Thmanyah Serif Display (with Thmanyah Serif Text fallback), weights 300–900 self-hosted
-**Quran Font:** Kitab (with Thmanyah Sans fallback), regular and bold
-
-**Character:** Thmanyah Sans carries the interface — contemporary, legible Arabic UI type. Headings step up to Thmanyah Serif Text for a quieter literary voice. Thmanyah Serif Display is reserved for large display moments (splash, hero titles). Kitab is reserved for the sacred text itself, giving Quran verses a distinct, traditional voice without skeuomorphism.
-
-### Hierarchy
-- **Headline** (500, 2.5rem, 1.2): Page titles via the shared `Heading` component.
-- **Title** (500, 1.25rem, 1.3): Section titles, card headers, and the `lead` subtitle (300 weight variant).
-- **Body** (400, 1rem, 1.6): Default reading text — the taller line-height gives vocalized Arabic room to breathe.
-- **Label** (500, 0.85rem, 1.4): Pills, toggles, and metadata.
-- **Caption** (400, 0.75rem, 1.4): The smallest step — tab-bar labels, badges, stat captions, fine print.
-- **Quran** (Kitab 400, ~1.4rem, 2.0): Quran verses only, via `.font-quran`. Generous line-height for vocalized Arabic script. The reader view deliberately steps up (1.625rem ayat, 2rem basmallah) — sacred text leads the screen.
+**Body:** Thmanyah Sans · **Headings:** Thmanyah Serif Text ·
+**Display:** Thmanyah Serif Display · **Quran:** Kitab
 
 ### Named Rules
-**The Kitab Rule.** Kitab renders Quran text and nothing else. UI text never uses Kitab; Quran text never uses Thmanyah.
 
-**The Rem Rule.** All type and spacing sizes in `rem`. The user's font-scale setting (80–130%) works by changing the root font-size; hardcoded pixel type breaks it.
+**The Kitab Rule.** Kitab renders Quran text and nothing else. UI text never
+uses Kitab; Quran text never uses Thmanyah. Reach it through `font-quran`.
+
+**The Rem Rule.** All type and spacing in `rem`. The font-scale setting works by
+changing the root font-size; hardcoded pixel type breaks it. The one documented
+exception is `ZekrImage.vue`, a fixed 1080px export canvas.
 
 ## 4. Elevation
 
-The system is flat by default: surfaces are defined by 1px hairline borders and subtle background tints, not shadows. Soft ambient shadows are allowed sparingly — a gentle lift on cards where warmth helps — and true overlays (bottom sheets, dropdowns, toasts) carry real shadows to separate from the page. In dark mode, borders (#282828) and tonal layering do all the depth work.
+Depth comes from tone and shadow, not borders. The whole Tailwind `shadow-*`
+scale is redefined as soft two-layer warm shadows (a tight contact shadow plus a
+wide diffuse one) driven by `--shadow-color` and `--shadow-strength`, which flip
+with the theme.
 
-### Shadow Vocabulary
-- **Focus ring** (`focus-visible:ring-3 focus-visible:ring-ring/50`): Form controls and interactive focus states — `--ring` follows the runtime primary.
-- **Overlay** (the shadcn drawer/dropdown shadows): Bottom sheets, dropdown menus, toasts only.
+- resting card on `bg-card` → `shadow-sm`, no border
+- raised / interactive → `shadow-md`
+- overlays (sheets, menus, popovers) → `shadow-xl`
 
 ### Named Rules
-**The Borders-First Rule.** If a border or a background tint can create the separation, it does. A shadow is the exception that must justify itself.
 
-## 5. Components
+**The Shadow Token Rule.** Never write a custom `box-shadow`. The shadow colour
+must stay tied to those variables so it flips with the theme.
 
-Refined and restrained: quiet outlines, gentle tint fills, nothing shouting. All interactive states transition in 150–200ms, and every animation collapses to near-instant under `prefers-reduced-motion: reduce` (global rule in `main.css`).
+**The Card Lift Rule.** A card must read as lifted even when the user has
+overridden the background — `applyBgColor` lifts `--card` and `--popover` off
+the picked colour for exactly this reason, and cards always carry `shadow-sm`
+rather than relying on `bg-card` alone.
 
-**The Radius Rule.** Corner rounding always comes from the shared scale, which derives from the single `--radius` token — `rounded-sm` (0.5rem) for compact controls, `rounded-md` (0.75rem) for buttons/inputs/pills, `rounded-lg` (1rem) for cards and content surfaces, `rounded-xl` (1.5rem) for dialogs, `rounded-full` for pills and count badges. A hardcoded radius in a component is a bug (exception: `border-radius: 50%` for true circles, and the isolated `ZekrImage` export renderer).
+## 5. Shape and rhythm
 
-### Buttons
-- **Shape:** Softly rounded (0.75rem), touch-first padding (0.5rem 1rem, ~44px tall), 500 weight labels
-- **Primary:** Warm Earth fill, white text (`bg-primary text-primary-foreground`, so runtime theming holds)
-- **Hover / Focus:** Darkens by mixing 12% black into the primary; focus ring is the 25% primary tint
-- **Outline:** Transparent with Warm Earth text and border; fills solid on hover
-- **Ghost (`<Button variant="ghost">`):** Borderless, shadowless utility button for icon actions (share, close)
+`--radius` is 1rem, and the scale is spaced so the shadcn and Tailwind names
+agree: `rounded-sm` 0.5rem, `rounded-md` 0.75rem (controls), `rounded-lg` /
+`rounded-2xl` 1rem (cards), `rounded-xl` / `rounded-3xl` 1.5rem (heroes and
+bottom sheets), `rounded-full` for pills, counters and icon buttons.
 
-### Chips (Tab Pills)
-- **Style:** Transparent with hairline border, secondary text, 0.85rem/500, icon + label, horizontally scrollable row with hidden scrollbar
-- **State:** Hover gets the accent tint; active gets a Warm Earth tint (`bg-primary/10`) with the border removed
+4pt grid. On mobile: `px-4` page gutters, `gap-3` within a group, `space-y-6` to
+`space-y-8` between sections.
 
-### Cards / Containers
-- **Corner Style:** 1rem (`rounded-lg`)
-- **Background:** Body/secondary surface layers
-- **Shadow Strategy:** Flat with hairline border; soft ambient lift allowed sparingly (see Elevation)
-- **Border:** 1px `--border`, synced to runtime theme
-- **Internal Padding:** 1.25rem default, 1–1.5rem range
-
-### Inputs / Fields
-- **Style:** shadcn `<Input>` / `<Select>` / `<Textarea>`, hairline border, 0.75rem radius, touch-first padding
-- **Focus:** Border takes the ring color; 3px `--ring` tinted ring
-- **States:** The shadcn `aria-invalid` and `disabled` treatments
+## 6. Components
 
 ### Navigation
-- **Navbar:** 70px (85px ≥768px), height exposed as `--navbar-height` so full-height screens compute against it
-- **TabBar:** Mobile bottom tab bar for primary sections — the one-handed entry point
-- **Bottom sheets:** The shared `BottomSheet` wraps shadcn `<Drawer>`; action rows are full-width, icon + label, tinted on hover, and the panel is width-capped on desktop
+- **TabBar** — the primary mobile navigation: a floating pill inset from the
+  screen edge, above the home indicator. Its true footprint is published as
+  `--tabbar-offset`; anything docking above it measures against that token
+  rather than re-deriving the geometry.
+- **Navbar** — desktop only (`hidden md:block`), with the TabBar `md:hidden`.
+- **Active nav language** — idle `text-muted-foreground`, hover
+  `hover:bg-accent hover:text-accent-foreground`, active
+  `bg-primary/12 text-primary`. Merge the active class with `cn()`, never plain
+  concatenation, or Tailwind's emit order decides the winner.
 
-### Segmented Toggle (`<ToggleGroup type="single">`)
-Equal-width bordered segments, 0.75rem radius; the active segment fills solid Warm Earth with white text. Used for binary/ternary settings like theme mode.
+### Surfaces
+Cards are `bg-card rounded-2xl shadow-sm`, borderless. Long lists are a divided
+list (`divide-y`) inside one rounded card rather than a grid of tiles.
 
-### Utility States (signature)
-Shared `LoadingState`, `ErrorState`, `OfflineState`, and `EmptyState` components give every feature the same calm fallback voice — centered icon, short Arabic message, single recovery action. New features must use them rather than inventing their own.
+### Modals
+`BottomSheet` (wrapping shadcn `<Drawer>`) is the modal primitive on every
+screen. Dialogs are not used on mobile.
 
-## 6. Do's and Don'ts
+### Utility States
+Shared `LoadingState`, `ErrorState`, `OfflineState` and `EmptyState` give every
+async surface the same calm voice. New features use them rather than inventing
+their own.
+
+### Custom utilities
+`surface-hero` (card plus a radial accent wash, for a single hero surface),
+`edge-fade-x` (masks the ends of a horizontal scroll strip), `pb-safe`,
+`no-scrollbar`, `font-quran`, `container-page`, `no-tap-highlight`.
+
+## 7. Do's and Don'ts
 
 ### Do:
-- **Do** drive every color through the design tokens (`bg-primary`, `bg-background`, `text-muted-foreground`, `bg-primary/10` …) — the user can retheme the accent and the background at runtime.
-- **Do** size everything in `rem` so the 80–130% font-scale setting scales the whole interface.
-- **Do** keep Warm Earth (#795547) rare: filled CTAs, active states, and highlights only.
-- **Do** use `.font-quran` (Kitab) for Quran text and generous line-height (≥2) for vocalized script.
-- **Do** design RTL-first with logical utilities (`ms-*`/`me-*`, `ps-*`/`pe-*`, `start-*`/`end-*`, `text-start`); physical ones are not flipped for you.
-- **Do** reuse the shared Loading/Error/Offline/Empty state components for every async surface.
+- **Do** design at 390px first; add `sm:`/`md:`/`lg:` only to widen or reflow.
+- **Do** keep every tap target at least 2.75rem in both dimensions.
+- **Do** put a screen's primary action in the lower half, within thumb reach,
+  and rare or destructive actions up top.
+- **Do** drive every colour through the tokens — the user re-themes at runtime.
+- **Do** size everything in `rem` so the 80–130% font-scale setting works.
+- **Do** design RTL-first with logical utilities (`ms-*`/`me-*`, `ps-*`/`pe-*`,
+  `start-*`/`end-*`, `text-start`); physical ones are not flipped for you, and a
+  "next" chevron points **left**.
+- **Do** pad anything pinned to the bottom with the safe-area inset.
 
 ### Don't:
-- **Don't** build cluttered screens where decoration buries content — PRODUCT.md's "cluttered Islamic apps" anti-reference.
-- **Don't** reach for stat tiles, card grids, or corporate dashboard chrome — the "generic SaaS dashboard" anti-reference.
-- **Don't** add streaks, badges, or dopamine mechanics — the "over-gamified apps" anti-reference; worship is not a game.
-- **Don't** use faux leather, paper textures, or literal book metaphors — the "heavy skeuomorphic mushaf" anti-reference.
-- **Don't** hardcode hex colors in components; the Runtime Theme Rule forbids it.
-- **Don't** introduce a second accent hue; hover and active states derive from Warm Earth by mixing toward black.
-- **Don't** stack heavy shadows on resting surfaces; borders and tints first, shadows for overlays and rare ambient lift.
+- **Don't** build cluttered screens where decoration buries content.
+- **Don't** reach for stat tiles or corporate dashboard chrome.
+- **Don't** add streaks, badges, or dopamine mechanics; worship is not a game.
+- **Don't** use faux leather, paper textures, or literal book metaphors.
+- **Don't** hardcode hex colours, or size type and spacing in `px`.
+- **Don't** introduce a second accent hue.
+- **Don't** start a grid at more than one column.

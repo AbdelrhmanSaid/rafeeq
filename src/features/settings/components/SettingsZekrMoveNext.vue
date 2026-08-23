@@ -18,7 +18,7 @@ const { zekrMoveNextOnComplete } = storeToRefs(appStore)
     <template #actions>
       <Switch
         v-model="zekrMoveNextOnComplete"
-        class="relative before:absolute before:-inset-3 before:content-['']"
+        class="relative before:absolute before:-inset-3.5 before:content-['']"
         aria-label="تفعيل الانتقال التلقائي للذكر التالي"
       />
     </template>

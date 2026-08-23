@@ -101,7 +101,7 @@ const updateSW = registerSW({
         :class="
           isEmbedRoute
             ? 'flex min-h-screen items-center justify-center'
-            : 'min-h-[calc(100vh-var(--navbar-height))] pb-[calc(var(--navbar-height)_+_1rem_+_env(safe-area-inset-bottom,0px))] md:pb-0 lg:min-h-[calc(100vh-25rem)]'
+            : 'min-h-[calc(100vh-var(--navbar-height))] pb-[var(--tabbar-offset)] md:pb-0 lg:min-h-[calc(100vh-25rem)]'
         "
       >
         <RouterView />

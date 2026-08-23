@@ -18,7 +18,7 @@ const { zekrSaveProgress } = storeToRefs(appStore)
     <template #actions>
       <Switch
         v-model="zekrSaveProgress"
-        class="relative before:absolute before:-inset-3 before:content-['']"
+        class="relative before:absolute before:-inset-3.5 before:content-['']"
         aria-label="تفعيل حفظ تقدم الأذكار"
       />
     </template>
