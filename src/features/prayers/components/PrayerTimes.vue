@@ -216,6 +216,10 @@ const remainingTime = computed(() => {
   color: rgba(255, 255, 255, 0.85);
 }
 
+.prayer-row {
+  background-color: var(--bs-body-bg);
+}
+
 .prayer-row--next {
   border-color: var(--bs-primary) !important;
   font-weight: 700;
