@@ -43,7 +43,7 @@ const favorites = filterFavorites(
       <li
         v-for="(item, index) in favorites"
         :key="getKey(item)"
-        class="list-group-item list-group-item-action py-3"
+        class="list-group-item list-group-item-action fav-row"
         :class="itemClass(item)"
       >
         <div class="d-flex justify-content-between align-items-center">
@@ -51,7 +51,7 @@ const favorites = filterFavorites(
 
           <div class="d-flex gap-2">
             <button
-              class="btn btn-flat position-relative z-1"
+              class="btn btn-flat btn-icon fav-btn is-active position-relative z-1"
               @click.stop="toggleFavorite(getKey(item))"
               title="إزالة من المفضلة"
             >
@@ -70,7 +70,7 @@ const favorites = filterFavorites(
     <li
       v-for="(item, index) in items"
       :key="getKey(item)"
-      class="list-group-item list-group-item-action py-3"
+      class="list-group-item list-group-item-action fav-row"
       :class="itemClass(item)"
     >
       <div class="d-flex justify-content-between align-items-center">
@@ -78,7 +78,8 @@ const favorites = filterFavorites(
 
         <div class="d-flex gap-2">
           <button
-            class="btn btn-flat position-relative z-1"
+            class="btn btn-flat btn-icon fav-btn position-relative z-1"
+            :class="{ 'is-active': isFavorite(getKey(item)) }"
             @click.stop="toggleFavorite(getKey(item))"
             :title="isFavorite(getKey(item)) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"
           >
@@ -98,7 +99,29 @@ const favorites = filterFavorites(
 </template>
 
 <style lang="scss" scoped>
-.list-group-item:hover {
-  background-color: rgba(var(--bs-secondary-rgb), 0.1);
+.fav-row {
+  padding-block: 0.9rem;
+}
+
+.fav-btn {
+  border-radius: 50%;
+  color: var(--bs-secondary-color);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s var(--app-ease);
+
+  &:hover {
+    background-color: rgba(var(--bs-danger-rgb), 0.1);
+    color: var(--bs-danger);
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
+
+  &.is-active {
+    color: var(--bs-danger);
+  }
 }
 </style>

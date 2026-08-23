@@ -171,8 +171,17 @@ const copyZekr = () => {
 </template>
 
 <style lang="scss" scoped>
+/* Dim the content, not the card: opacity on the card would create a stacking
+   context and let the next card paint over this one's action dropdown. */
 .completed {
-  opacity: 0.8;
+  border-color: var(--app-hairline-strong);
+  background-color: color-mix(in srgb, var(--bs-primary) 4%, var(--app-surface));
+
+  .zekr-text,
+  .text-muted,
+  .btn-counter {
+    opacity: 0.7;
+  }
 }
 
 .zekr-card {
@@ -188,9 +197,17 @@ const copyZekr = () => {
     font-size: 1.25rem;
     border: none;
 
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--bs-body-color);
     background:
-      radial-gradient(closest-side, var(--bs-body-bg) 79%, transparent 80% 100%),
-      conic-gradient(var(--bs-primary) calc(var(--progress) * 100%), rgba(var(--bs-secondary-rgb), 0.1) 0);
+      radial-gradient(closest-side, var(--app-surface) 79%, transparent 80% 100%),
+      conic-gradient(var(--bs-primary) calc(var(--progress) * 100%), var(--app-tint) 0);
+    transition: transform 0.15s var(--app-ease);
+
+    &:active {
+      transform: scale(0.96);
+    }
 
     &::before {
       content: attr(data-content);
@@ -216,11 +233,20 @@ const copyZekr = () => {
 
     > button,
     [data-bs-toggle='dropdown'] {
-      width: 30px;
-      height: 30px;
+      width: 32px;
+      height: 32px;
       display: grid;
       place-items: center;
-      color: var(--bs-secondary);
+      border-radius: 50%;
+      color: var(--bs-secondary-color);
+      transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+
+      &:hover:not(:disabled) {
+        background-color: var(--app-tint);
+        color: var(--bs-primary);
+      }
 
       &:disabled {
         opacity: 0.35;

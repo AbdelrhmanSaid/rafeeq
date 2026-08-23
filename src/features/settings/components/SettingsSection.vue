@@ -35,7 +35,7 @@ const hasBody = computed(() => {
     <div class="card-body">
       <header v-if="title || $slots.actions" class="settings-section-header" :class="{ 'is-flush': !hasBody }">
         <div class="settings-section-heading">
-          <span v-if="icon" class="settings-section-icon">
+          <span v-if="icon" class="icon-tile settings-section-icon">
             <component :is="icon" :size="18" />
           </span>
           <div>
@@ -77,19 +77,10 @@ const hasBody = computed(() => {
 }
 
 .settings-section-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
-  border-radius: var(--bs-border-radius);
-  background: color-mix(in srgb, var(--bs-primary) 12%, transparent);
   color: var(--bs-primary);
 }
 
 [data-bs-theme='dark'] .settings-section-icon {
-  background: color-mix(in srgb, var(--bs-primary) 24%, transparent);
   color: color-mix(in srgb, var(--bs-primary) 28%, #fff);
 }
 

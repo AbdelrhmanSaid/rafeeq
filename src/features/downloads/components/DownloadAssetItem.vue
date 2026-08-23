@@ -11,10 +11,10 @@ defineEmits(['action'])
 
 <template>
   <div class="dm-item" :class="asset.status">
-    <div class="dm-item-icon" :class="asset.type">
+    <span class="icon-tile dm-item-icon" :class="asset.type">
       <IconBook2 v-if="asset.type === 'surah'" :size="18" />
       <IconSparkles v-else :size="18" />
-    </div>
+    </span>
 
     <div class="dm-item-info">
       <span class="dm-item-name">{{ asset.name }}</span>
@@ -40,40 +40,42 @@ defineEmits(['action'])
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--bs-border-color);
+  padding: 0.7rem 1.25rem;
+  border-bottom: 1px solid var(--app-hairline);
+  transition: background-color 0.2s ease;
 }
 
 .dm-item:last-child {
   border-bottom: none;
 }
 
+.dm-item:hover {
+  background: var(--app-surface-hover);
+}
+
 .dm-item.downloaded {
-  background: color-mix(in srgb, var(--bs-success) 8%, transparent);
+  background: color-mix(in srgb, var(--bs-success) 7%, transparent);
 }
 
 .dm-item.downloading {
-  background: color-mix(in srgb, var(--bs-primary) 8%, transparent);
+  background: var(--app-tint);
 }
 
 .dm-item-icon {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--bs-border-radius);
-  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
 }
 
 .dm-item-icon.surah {
-  background: color-mix(in srgb, var(--bs-primary) 15%, transparent);
   color: var(--bs-primary);
 }
 
 .dm-item-icon.azkar {
-  background: color-mix(in srgb, var(--bs-success) 15%, transparent);
   color: var(--bs-success);
+}
+
+[data-bs-theme='dark'] .dm-item-icon.surah {
+  color: color-mix(in srgb, var(--bs-primary) 28%, #fff);
 }
 
 .dm-item-info {
@@ -83,7 +85,7 @@ defineEmits(['action'])
 
 .dm-item-name {
   display: block;
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -96,33 +98,42 @@ defineEmits(['action'])
 }
 
 .dm-item-action {
-  width: 36px;
-  height: 36px;
+  width: 2.25rem;
+  height: 2.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
   border: none;
   border-radius: 50%;
   cursor: pointer;
+  flex-shrink: 0;
   transition:
     background 0.15s,
-    color 0.15s;
-  flex-shrink: 0;
+    color 0.15s,
+    transform 0.15s var(--app-ease);
+}
+
+.dm-item-action:active:not(:disabled) {
+  transform: scale(0.92);
 }
 
 .dm-item-action.not-downloaded {
-  background: rgba(var(--bs-secondary-rgb), 0.1);
+  background: var(--app-tint);
   color: var(--bs-primary);
+}
+
+[data-bs-theme='dark'] .dm-item-action.not-downloaded {
+  color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
 }
 
 .dm-item-action.not-downloaded:hover:not(:disabled) {
   background: var(--bs-primary);
-  color: white;
+  color: #fff;
 }
 
 .dm-item-action.downloaded {
   background: var(--bs-success);
-  color: white;
+  color: #fff;
 }
 
 .dm-item-action.downloaded:hover {
@@ -131,7 +142,7 @@ defineEmits(['action'])
 
 .dm-item-action.downloading {
   background: var(--bs-primary);
-  color: white;
+  color: #fff;
 }
 
 .dm-item-action.queued {

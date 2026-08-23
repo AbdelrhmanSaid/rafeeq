@@ -4,7 +4,14 @@ import { useFetch, useOnline } from '@vueuse/core'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals, removeBismillah, normalizeQuranicText } from '@/shared/utils/arabic'
 import { API } from '@/shared/constants/api'
-import { IconRefresh, IconChevronRight, IconChevronLeft, IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
+import {
+  IconRefresh,
+  IconChevronRight,
+  IconChevronLeft,
+  IconPlayerPlay,
+  IconPlayerPause,
+  IconBookmark,
+} from '@tabler/icons-vue'
 import { useReconnectExecute } from '@/shared/composables/useReconnectExecute'
 import { useQuranStore } from '@/features/quran/store'
 
@@ -97,7 +104,7 @@ async function toggleAyahPlayback() {
 </script>
 
 <template>
-  <div class="card">
+  <div class="card ayah-card">
     <div v-if="isFetching || isRecoveringOnReconnect" class="card-body p-5">
       <LoadingState message="جاري تحميل آية..." />
     </div>
@@ -109,9 +116,14 @@ async function toggleAyahPlayback() {
 
     <template v-else-if="ayah">
       <div class="ayah-toolbar">
-        <span class="ayah-surah">{{ normalizeQuranicText(ayah.surah.name) }}</span>
+        <span class="chip ayah-surah">
+          <IconBookmark size="14" aria-hidden="true" />
+          <span>{{ normalizeQuranicText(ayah.surah.name) }}</span>
+          <span class="ayah-surah__sep" aria-hidden="true">·</span>
+          <span>آية {{ toArabicNumerals(ayah.numberInSurah) }}</span>
+        </span>
 
-        <div class="d-flex align-items-center">
+        <div class="ayah-actions">
           <button class="btn btn-flat btn-icon" @click="prevAyah" title="الآية السابقة" aria-label="الآية السابقة">
             <IconChevronRight size="18" />
           </button>
@@ -121,7 +133,8 @@ async function toggleAyahPlayback() {
           </button>
 
           <button
-            class="btn btn-flat btn-icon"
+            class="btn btn-flat btn-icon ayah-play"
+            :class="{ 'is-playing': isPlaying }"
             @click="toggleAyahPlayback"
             :disabled="!recitation?.audio"
             :title="isPlaying ? 'إيقاف التلاوة' : 'تشغيل التلاوة'"
@@ -137,14 +150,14 @@ async function toggleAyahPlayback() {
         </div>
       </div>
 
-      <div class="card-body pt-2">
+      <div class="card-body pt-3">
         <p class="ayah-text font-quran">
           {{ displayText }} <span class="ayah-number">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
         </p>
 
         <div v-if="tafsir" class="ayah-tafsir">
-          <span class="d-block small fw-semibold text-secondary mb-2">{{ tafsir.edition.name }}</span>
-          <p class="small mb-0">{{ tafsir.text }}</p>
+          <span class="ayah-tafsir__label">{{ tafsir.edition.name }}</span>
+          <p class="mb-0">{{ tafsir.text }}</p>
         </div>
       </div>
     </template>
@@ -154,23 +167,64 @@ async function toggleAyahPlayback() {
 <style lang="scss" scoped>
 @import '@/shared/styles/quran.css';
 
+.ayah-card {
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(30rem 12rem at 50% -4rem, var(--app-tint), transparent 70%), var(--app-surface);
+}
+
 .ayah-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0.65rem 0.85rem 0;
+  padding: 0.85rem 1rem 0;
 }
 
 .ayah-surah {
   min-width: 0;
   font-family: 'Thmanyah Serif Text', 'Thmanyah Sans', serif;
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.ayah-surah__sep {
+  opacity: 0.5;
+}
+
+.ayah-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+
+  .btn {
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 50%;
+    color: var(--bs-secondary-color);
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background-color: var(--app-tint);
+      color: var(--bs-primary);
+    }
+  }
+}
+
+.ayah-play.is-playing {
+  background-color: var(--bs-primary);
+  color: #fff;
+
+  &:hover {
+    background-color: var(--bs-primary) !important;
+    color: #fff !important;
+  }
 }
 
 .ayah-text {
   margin: 0;
+  padding-inline: 0.5rem;
   font-size: clamp(1.5rem, 3vw, 2rem);
   line-height: 2;
   text-align: center;
@@ -178,7 +232,19 @@ async function toggleAyahPlayback() {
 
 .ayah-tafsir {
   margin-top: 1.25rem;
-  padding-top: 1.15rem;
-  border-top: 1px solid var(--bs-border-color);
+  padding: 1rem 1.15rem;
+  border-radius: var(--bs-border-radius);
+  background: color-mix(in srgb, var(--bs-primary) 5%, var(--bs-body-bg));
+  border: 1px solid var(--app-hairline);
+  font-size: 0.9rem;
+  line-height: 1.9;
+}
+
+.ayah-tafsir__label {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  color: var(--bs-primary);
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 </style>

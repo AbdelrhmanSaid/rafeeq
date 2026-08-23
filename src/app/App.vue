@@ -116,7 +116,7 @@ const updateSW = registerSW({
 
 .offline-banner {
   min-height: 50px;
-  background-color: #dc3545;
+  background: linear-gradient(90deg, #c62828, #dc3545);
   padding: 0.75rem 0;
   position: sticky;
   top: 0;

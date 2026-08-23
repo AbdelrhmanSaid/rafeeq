@@ -23,7 +23,7 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
 </script>
 
 <template>
-  <nav class="navbar navbar-expand-lg sticky-top bg-body border-bottom py-3">
+  <nav class="navbar navbar-expand-lg sticky-top py-3 app-navbar">
     <div class="container">
       <RouterLink to="/" class="navbar-brand">
         <Logo />
@@ -94,7 +94,7 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
 
         <ul class="navbar-nav ms-auto gap-2">
           <li class="nav-item">
-            <a href="https://telegram.me/rafeeqme" target="_blank" class="nav-link">
+            <a href="https://telegram.me/rafeeqme" target="_blank" class="nav-link nav-link--cta">
               <IconBrandTelegram class="me-2" size="1.25rem" />
               <span>قناة التليجرام</span>
             </a>
@@ -110,25 +110,61 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
   /* min-height (not height) so taller content at large font scales grows the
      bar instead of clipping. */
   min-height: var(--navbar-height);
+  background: var(--app-glass);
+  border-bottom: 1px solid var(--app-hairline);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
 }
 
-[data-bs-theme='dark'] {
-  .navbar-brand {
-    filter: brightness(0) invert(1);
+.navbar-brand {
+  color: var(--bs-primary);
+  transition: transform 0.25s var(--app-ease);
+
+  &:hover {
+    transform: translateY(-1px);
   }
 }
 
 .nav-item .nav-link {
   display: flex;
   align-items: center;
-  border-radius: var(--bs-border-radius-sm);
-  transition: background-color 0.2s;
+  padding-inline: 0.85rem;
+  border-radius: 999px;
+  color: var(--bs-body-color);
+  font-weight: 500;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 
-  &:hover,
-  &.router-link-active,
-  &.is-active {
+  &:hover {
     background-color: rgba(var(--bs-secondary-rgb), 0.1);
   }
+
+  &.router-link-active,
+  &.is-active {
+    background-color: var(--app-tint);
+    color: var(--bs-primary);
+  }
+}
+
+[data-bs-theme='dark'] .nav-item .nav-link {
+  &.router-link-active,
+  &.is-active {
+    color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
+  }
+}
+
+.nav-link--cta {
+  border: 1px solid var(--app-hairline-strong);
+  color: var(--bs-primary) !important;
+
+  &:hover {
+    background-color: var(--app-tint) !important;
+  }
+}
+
+[data-bs-theme='dark'] .nav-link--cta {
+  color: color-mix(in srgb, var(--bs-primary) 35%, #fff) !important;
 }
 
 .radio-status {
@@ -137,20 +173,17 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
   height: 0.5rem;
   background-color: var(--bs-danger);
   border-radius: 50%;
-  animation: pulse 1s infinite;
+  box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.5);
+  animation: pulse-ring 1.4s infinite;
 }
 
-@keyframes pulse {
+@keyframes pulse-ring {
   0% {
-    transform: scale(0.9);
-  }
-
-  50% {
-    transform: scale(1.1);
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.55);
   }
 
   100% {
-    transform: scale(0.9);
+    box-shadow: 0 0 0 0.5rem rgba(220, 53, 69, 0);
   }
 }
 </style>

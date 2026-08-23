@@ -110,7 +110,7 @@ const router = createRouter({
     },
 
     {
-      path: '/zakat',
+      path: '/zakat/:tab(money|gold|silver|livestock|crops|business)?',
       name: 'zakat',
       component: () => import('@/features/zakat/views/ZakatView.vue'),
       meta: {
