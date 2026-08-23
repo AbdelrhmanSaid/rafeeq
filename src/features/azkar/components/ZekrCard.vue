@@ -205,9 +205,6 @@ const copyZekr = () => {
 .btn-counter {
   background:
     radial-gradient(closest-side, var(--card) 80%, transparent 81% 100%),
-    conic-gradient(
-      var(--primary) calc(var(--progress) * 100%),
-      color-mix(in oklab, var(--primary) 15%, transparent) 0
-    );
+    conic-gradient(var(--primary) calc(var(--progress) * 100%), color-mix(in oklab, var(--primary) 15%, transparent) 0);
 }
 </style>
