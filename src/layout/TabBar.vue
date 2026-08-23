@@ -11,6 +11,10 @@ import {
   IconRadio,
   IconDotsCircleHorizontal,
   IconBrandTelegram,
+  IconCompass,
+  IconCoins,
+  IconAbacus,
+  IconSettings,
   IconX,
 } from '@tabler/icons-vue'
 
@@ -66,28 +70,32 @@ const closeMoreMenu = () => {
             class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item"
             @click="closeMoreMenu"
           >
-            اتجاه القبلة
+            <IconCompass class="me-2" size="1.25rem" aria-hidden="true" />
+            <span>اتجاه القبلة</span>
           </RouterLink>
           <RouterLink
             :to="{ name: 'zakat' }"
             class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item"
             @click="closeMoreMenu"
           >
-            حاسبة الزكاة
+            <IconCoins class="me-2" size="1.25rem" aria-hidden="true" />
+            <span>حاسبة الزكاة</span>
           </RouterLink>
           <RouterLink
             :to="{ name: 'sebha' }"
             class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item"
             @click="closeMoreMenu"
           >
-            السبحة الإلكترونية
+            <IconAbacus class="me-2" size="1.25rem" aria-hidden="true" />
+            <span>السبحة الإلكترونية</span>
           </RouterLink>
           <RouterLink
             :to="{ name: 'settings' }"
             class="d-flex align-items-center px-4 py-2 text-decoration-none text-body more-menu-item"
             @click="closeMoreMenu"
           >
-            الإعدادات
+            <IconSettings class="me-2" size="1.25rem" aria-hidden="true" />
+            <span>الإعدادات</span>
           </RouterLink>
 
           <hr class="my-3" />

@@ -10,6 +10,10 @@ import {
   IconRadio,
   IconDotsCircleHorizontal,
   IconBrandTelegram,
+  IconCompass,
+  IconCoins,
+  IconAbacus,
+  IconSettings,
 } from '@tabler/icons-vue'
 
 import Logo from '@/shared/ui/Logo.vue'
@@ -66,9 +70,30 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
               <span>المزيد</span>
             </a>
             <ul class="dropdown-menu">
-              <li><RouterLink class="dropdown-item" :to="{ name: 'zakat' }">حاسبة الزكاة</RouterLink></li>
-              <li><RouterLink class="dropdown-item" :to="{ name: 'sebha' }">السبحة الإلكترونية</RouterLink></li>
-              <li><RouterLink class="dropdown-item" :to="{ name: 'settings' }">الإعدادات</RouterLink></li>
+              <li>
+                <RouterLink class="dropdown-item d-flex align-items-center gap-2" :to="{ name: 'qibla' }">
+                  <IconCompass size="1.25rem" aria-hidden="true" />
+                  <span>اتجاه القبلة</span>
+                </RouterLink>
+              </li>
+              <li>
+                <RouterLink class="dropdown-item d-flex align-items-center gap-2" :to="{ name: 'zakat' }">
+                  <IconCoins size="1.25rem" aria-hidden="true" />
+                  <span>حاسبة الزكاة</span>
+                </RouterLink>
+              </li>
+              <li>
+                <RouterLink class="dropdown-item d-flex align-items-center gap-2" :to="{ name: 'sebha' }">
+                  <IconAbacus size="1.25rem" aria-hidden="true" />
+                  <span>السبحة الإلكترونية</span>
+                </RouterLink>
+              </li>
+              <li>
+                <RouterLink class="dropdown-item d-flex align-items-center gap-2" :to="{ name: 'settings' }">
+                  <IconSettings size="1.25rem" aria-hidden="true" />
+                  <span>الإعدادات</span>
+                </RouterLink>
+              </li>
             </ul>
           </li>
         </ul>
