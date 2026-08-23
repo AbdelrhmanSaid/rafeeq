@@ -36,6 +36,7 @@ const mountCard = (repeat) => {
 }
 
 const clickCounter = (wrapper) => wrapper.find('.btn-counter').trigger('click')
+const clickReset = (wrapper) => wrapper.find('.btn-reset button').trigger('click')
 
 describe('ZekrCard', () => {
   beforeEach(() => {
@@ -79,5 +80,30 @@ describe('ZekrCard', () => {
     expect(counts[0]).toBe(2)
     expect(vibrateOnFinish).toHaveBeenCalledTimes(1)
     expect(scrollToNextZekr).toHaveBeenCalledTimes(1)
+  })
+
+  it('resets the count without the click also reaching the tap-to-count card', async () => {
+    const { wrapper, counts } = mountCard(3)
+
+    await clickCounter(wrapper)
+    await clickCounter(wrapper)
+    expect(counts[0]).toBe(2)
+
+    await clickReset(wrapper)
+
+    // The card itself counts on click below `lg`, so the reset button sits in a
+    // `@click.stop` wrapper. Without it the same press would reset and then
+    // immediately count back up to 1.
+    expect(counts[0]).toBe(0)
+  })
+
+  it('keeps the reset button disabled at a count of zero', async () => {
+    const { wrapper } = mountCard(3)
+
+    expect(wrapper.find('.btn-reset button').attributes('disabled')).toBeDefined()
+
+    await clickCounter(wrapper)
+
+    expect(wrapper.find('.btn-reset button').attributes('disabled')).toBeUndefined()
   })
 })

@@ -145,18 +145,25 @@ const copyZekr = () => {
          target and sits in the middle; resetting and the content actions
          (download / share / copy) flank it as quiet icon buttons. -->
     <div class="flex items-center justify-between gap-3 border-t border-border/60 bg-muted/30 px-3 py-3">
-      <Button
-        class="btn-reset size-11 shrink-0 rounded-full text-muted-foreground active:scale-90"
-        variant="ghost"
-        size="icon"
-        type="button"
-        :disabled="count === 0"
-        aria-label="تصفير العداد"
-        title="تصفير العداد"
-        @click.stop="reset"
-      >
-        <IconRestore class="size-5" />
-      </Button>
+      <!-- The click-stopping wrapper is not decoration: a disabled shadcn
+           Button carries `disabled:pointer-events-none`, so at a count of zero
+           the press would fall straight THROUGH the button onto the
+           tap-to-count card behind it and add a count. With the wrapper, the
+           event targets it instead and stops there. -->
+      <div class="btn-reset shrink-0" @click.stop>
+        <Button
+          class="size-11 rounded-full text-muted-foreground active:scale-90"
+          variant="ghost"
+          size="icon"
+          type="button"
+          :disabled="count === 0"
+          aria-label="تصفير العداد"
+          title="تصفير العداد"
+          @click="reset"
+        >
+          <IconRestore class="size-5" />
+        </Button>
+      </div>
 
       <!-- rem (not px) so the progress ring scales with the font and the
            counter text (e.g. "100/100") stays centered without overflowing. -->
