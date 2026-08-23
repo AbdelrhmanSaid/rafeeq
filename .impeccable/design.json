@@ -117,7 +117,7 @@
       {
         "name": "reduced-motion",
         "value": "near-instant under prefers-reduced-motion: reduce",
-        "purpose": "Global rule in base.scss collapses all animations/transitions for users who ask for less motion."
+        "purpose": "Global rule in main.css collapses all animations/transitions for users who ask for less motion."
       }
     ],
     "breakpoints": [
@@ -138,7 +138,7 @@
       "refersTo": "button-primary",
       "description": "The single filled CTA — Warm Earth, runtime-themeable.",
       "html": "<button class=\"ds-btn-primary\">ابدأ الآن</button>",
-      "css": ".ds-btn-primary { background: var(--bs-primary, #795547); color: #fff; padding: 0.5rem 1rem; border: 1px solid var(--bs-primary, #795547); border-radius: 0.75rem; font-family: 'Thmanyah Sans', system-ui, sans-serif; font-size: 1rem; font-weight: 400; cursor: pointer; transition: background 0.15s, border-color 0.15s; } .ds-btn-primary:hover { background: #6a4b3e; border-color: #61443a; } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 0.25rem rgba(121, 85, 71, 0.25); } .ds-btn-primary:active { background: #5e4237; }"
+      "css": ".ds-btn-primary { background: var(--primary, #795547); color: #fff; padding: 0.5rem 1rem; border: 1px solid var(--primary, #795547); border-radius: 0.75rem; font-family: 'Thmanyah Sans', system-ui, sans-serif; font-size: 1rem; font-weight: 400; cursor: pointer; transition: background 0.15s, border-color 0.15s; } .ds-btn-primary:hover { background: #6a4b3e; border-color: #61443a; } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 0.25rem rgba(121, 85, 71, 0.25); } .ds-btn-primary:active { background: #5e4237; }"
     },
     {
       "name": "Outline Button",
@@ -146,7 +146,7 @@
       "refersTo": "button-outline-primary",
       "description": "Secondary action — transparent with Warm Earth text, fills on hover.",
       "html": "<button class=\"ds-btn-outline\">المزيد</button>",
-      "css": ".ds-btn-outline { background: transparent; color: var(--bs-primary, #795547); padding: 0.5rem 1rem; border: 1px solid var(--bs-primary, #795547); border-radius: 0.75rem; font-family: 'Thmanyah Sans', system-ui, sans-serif; font-size: 1rem; cursor: pointer; transition: background 0.15s, color 0.15s; } .ds-btn-outline:hover { background: var(--bs-primary, #795547); color: #fff; } .ds-btn-outline:focus-visible { outline: none; box-shadow: 0 0 0 0.25rem rgba(121, 85, 71, 0.25); }"
+      "css": ".ds-btn-outline { background: transparent; color: var(--primary, #795547); padding: 0.5rem 1rem; border: 1px solid var(--primary, #795547); border-radius: 0.75rem; font-family: 'Thmanyah Sans', system-ui, sans-serif; font-size: 1rem; cursor: pointer; transition: background 0.15s, color 0.15s; } .ds-btn-outline:hover { background: var(--primary, #795547); color: #fff; } .ds-btn-outline:focus-visible { outline: none; box-shadow: 0 0 0 0.25rem rgba(121, 85, 71, 0.25); }"
     },
     {
       "name": "Tab Pill",
@@ -154,7 +154,7 @@
       "refersTo": "tab-pill",
       "description": "Scrollable filter/section pill with icon; active state gets a 12% Warm Earth tint.",
       "html": "<div style=\"display:flex;gap:0.5rem\"><button class=\"ds-tab-pill ds-active\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 3\"/></svg>الكل</button><button class=\"ds-tab-pill\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M12 3v18M3 12h18\"/></svg>أذكار الصباح</button></div>",
-      "css": ".ds-tab-pill { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.9rem; border: 1px solid #e9ecef; border-radius: 0.75rem; background: transparent; color: #6c757d; font-family: 'Thmanyah Sans', system-ui, sans-serif; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: background 0.15s, color 0.15s; } .ds-tab-pill:hover { background: rgba(108, 117, 125, 0.1); color: #212529; } .ds-tab-pill.ds-active { background: color-mix(in srgb, var(--bs-primary, #795547) 12%, transparent); border-color: transparent; color: #212529; }"
+      "css": ".ds-tab-pill { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.9rem; border: 1px solid #e9ecef; border-radius: 0.75rem; background: transparent; color: #6c757d; font-family: 'Thmanyah Sans', system-ui, sans-serif; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: background 0.15s, color 0.15s; } .ds-tab-pill:hover { background: rgba(108, 117, 125, 0.1); color: #212529; } .ds-tab-pill.ds-active { background: color-mix(in srgb, var(--primary, #795547) 12%, transparent); border-color: transparent; color: #212529; }"
     },
     {
       "name": "Segmented Toggle",
@@ -162,14 +162,14 @@
       "refersTo": "toggle-active",
       "description": "Equal-width segments for settings; active segment fills solid Warm Earth.",
       "html": "<div class=\"ds-toggle-group\"><button class=\"ds-toggle ds-active\">فاتح</button><button class=\"ds-toggle\">داكن</button><button class=\"ds-toggle\">النظام</button></div>",
-      "css": ".ds-toggle-group { display: flex; gap: 0.5rem; width: 100%; } .ds-toggle { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.6rem; border: 1px solid #e9ecef; border-radius: 0.75rem; background: none; color: #6c757d; font-family: 'Thmanyah Sans', system-ui, sans-serif; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; } .ds-toggle:hover { background: rgba(108, 117, 125, 0.1); } .ds-toggle.ds-active { background: var(--bs-primary, #795547); border-color: var(--bs-primary, #795547); color: #fff; }"
+      "css": ".ds-toggle-group { display: flex; gap: 0.5rem; width: 100%; } .ds-toggle { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.6rem; border: 1px solid #e9ecef; border-radius: 0.75rem; background: none; color: #6c757d; font-family: 'Thmanyah Sans', system-ui, sans-serif; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; } .ds-toggle:hover { background: rgba(108, 117, 125, 0.1); } .ds-toggle.ds-active { background: var(--primary, #795547); border-color: var(--primary, #795547); color: #fff; }"
     },
     {
       "name": "Text Field",
       "kind": "input",
-      "description": "Bootstrap-style field with primary-tinted focus ring.",
+      "description": "Text field with a primary-tinted focus ring.",
       "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"ابحث في الأذكار...\" dir=\"rtl\" />",
-      "css": ".ds-input { width: 100%; padding: 0.5rem 1rem; border: 1px solid #e9ecef; border-radius: 0.75rem; background: #fff; color: #212529; font-family: 'Thmanyah Sans', system-ui, sans-serif; font-size: 1rem; transition: border-color 0.15s, box-shadow 0.15s; } .ds-input:focus { outline: none; border-color: color-mix(in srgb, var(--bs-primary, #795547) 65%, #fff); box-shadow: 0 0 0 0.25rem rgba(121, 85, 71, 0.25); } .ds-input::placeholder { color: #6c757d; }"
+      "css": ".ds-input { width: 100%; padding: 0.5rem 1rem; border: 1px solid #e9ecef; border-radius: 0.75rem; background: #fff; color: #212529; font-family: 'Thmanyah Sans', system-ui, sans-serif; font-size: 1rem; transition: border-color 0.15s, box-shadow 0.15s; } .ds-input:focus { outline: none; border-color: color-mix(in srgb, var(--primary, #795547) 65%, #fff); box-shadow: 0 0 0 0.25rem rgba(121, 85, 71, 0.25); } .ds-input::placeholder { color: #6c757d; }"
     },
     {
       "name": "Bottom Sheet Item",
@@ -200,7 +200,7 @@
     "rules": [
       {
         "name": "The Runtime Theme Rule",
-        "body": "Colors are never hardcoded in components. Everything flows through Bootstrap CSS variables (--bs-primary, --bs-body-bg, …) and color-mix() derivations, because the user can change both the primary color and the background at runtime. A hex value in a component is a bug.",
+        "body": "Colors are never hardcoded in components. Everything flows through the design tokens declared in src/shared/styles/main.css (--primary, --background, --card, --muted-foreground, …), reached from markup as Tailwind utilities (bg-primary, text-muted-foreground, bg-primary/10). The theme store rewrites --primary and the surface tokens at runtime, so a hex value in a component is a bug.",
         "section": "colors"
       },
       {
@@ -225,12 +225,12 @@
       },
       {
         "name": "The Radius Rule",
-        "body": "Corner rounding always comes from the shared scale via CSS variables — --bs-border-radius-sm (0.5rem) for compact controls, --bs-border-radius (0.75rem) for buttons/inputs/pills, --bs-border-radius-lg (1rem) for cards, --bs-border-radius-xl (1.5rem) for dialogs, --bs-border-radius-pill for pills and badges. A hardcoded radius in a component is a bug (exception: 50% circles and the isolated ZekrImage export renderer).",
+        "body": "Corner rounding always comes from the shared scale, which derives from the single --radius token — rounded-sm (0.5rem) for compact controls, rounded-md (0.75rem) for buttons/inputs/pills, rounded-lg (1rem) for cards, rounded-xl (1.5rem) for dialogs, rounded-full for pills and badges. A hardcoded radius in a component is a bug (exception: 50% circles and the isolated ZekrImage export renderer).",
         "section": "components"
       }
     ],
     "dos": [
-      "Do drive every color through --bs-primary / --bs-body-bg variables and color-mix() derivations — the user can retheme both at runtime.",
+      "Do drive every color through the design tokens (bg-primary, bg-background, text-muted-foreground, bg-primary/10 …) — the user can retheme the accent and the background at runtime.",
       "Do size everything in rem so the 80–130% font-scale setting scales the whole interface.",
       "Do keep Warm Earth (#795547) rare: filled CTAs, active states, and highlights only.",
       "Do use .font-quran (Kitab) for Quran text and generous line-height (≥2) for vocalized script.",
