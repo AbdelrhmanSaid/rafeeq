@@ -1,155 +1,127 @@
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import { useOnline } from '@vueuse/core'
+import { create } from 'zustand'
 
-import { useOfflineData } from '@/shared/offline/useOfflineData'
+import { offlineData } from '@/shared/offline/offlineData'
 import { fetchSurah } from '@/features/quran/api'
 import { fetchCategory } from '@/features/azkar/api'
 import surahs from '@/features/quran/data/surahs.js'
 import azkarCategories from '@/features/azkar/data/categories.js'
 import { sleep } from '@/shared/utils/async'
 
-export const useDownloadStore = defineStore('download', () => {
-  const online = useOnline()
+// One entry per downloadable asset type — adding a type is data, not new branches.
+const ASSET_TYPES = {
+  surah: {
+    offline: offlineData('quran'),
+    assets: surahs.map((surah) => ({
+      id: `surah-${surah.id}`,
+      type: 'surah',
+      name: surah.name,
+      key: String(surah.id),
+      data: surah,
+    })),
+    fetch: (asset) => fetchSurah(asset.data.id),
+  },
+  azkar: {
+    offline: offlineData('azkar'),
+    assets: azkarCategories.map((category) => ({
+      id: `azkar-${category.slug}`,
+      type: 'azkar',
+      name: category.name,
+      key: category.slug,
+      data: category,
+    })),
+    fetch: (asset) => fetchCategory(asset.data.slug),
+  },
+}
 
-  // One entry per downloadable asset type — adding a type is data, not new branches.
-  const assetTypes = {
-    surah: {
-      offline: useOfflineData('quran'),
-      assets: surahs.map((s) => ({ id: `surah-${s.id}`, type: 'surah', name: s.name, key: String(s.id), data: s })),
-      fetch: (asset) => fetchSurah(asset.data.id),
-    },
-    azkar: {
-      offline: useOfflineData('azkar'),
-      assets: azkarCategories.map((c) => ({
-        id: `azkar-${c.slug}`,
-        type: 'azkar',
-        name: c.name,
-        key: c.slug,
-        data: c,
-      })),
-      fetch: (asset) => fetchCategory(asset.data.slug),
-    },
-  }
-  const types = Object.values(assetTypes)
+const types = Object.entries(ASSET_TYPES)
 
-  const downloadQueue = ref([])
-  const isDownloading = ref(false)
-  const isPaused = ref(false)
-  const currentItem = ref(null)
+export const ALL_ASSETS = types.flatMap(([, type]) => type.assets)
+export const TOTAL_ASSETS = ALL_ASSETS.length
 
-  const allAssets = computed(() => types.flatMap((t) => t.assets))
+const downloadedKeysSnapshot = () => Object.fromEntries(types.map(([name, type]) => [name, type.offline.getKeys()]))
 
-  const totalAssets = computed(() => allAssets.value.length)
-  const downloadedCount = computed(() => types.reduce((sum, t) => sum + t.offline.downloadedCount.value, 0))
-  const isCompleted = computed(() => downloadedCount.value === totalAssets.value)
-  const progressPercentage = computed(() =>
-    totalAssets.value === 0 ? 0 : Math.round((downloadedCount.value / totalAssets.value) * 100),
-  )
-  const pendingCount = computed(() => downloadQueue.value.length)
+export const useDownloadStore = create((set, get) => ({
+  // Mirrors the offline stores so components re-render as downloads land.
+  downloadedKeys: downloadedKeysSnapshot(),
 
-  function isDownloaded(asset) {
-    return assetTypes[asset.type].offline.isDownloaded(asset.key)
-  }
+  queue: [],
+  isDownloading: false,
+  isPaused: false,
+  currentItem: null,
 
-  function isInQueue(asset) {
-    return downloadQueue.value.some((item) => item.id === asset.id)
-  }
+  isDownloaded: (asset) => get().downloadedKeys[asset.type].includes(asset.key),
 
-  async function fetchAsset(asset) {
-    await assetTypes[asset.type].fetch(asset)
-  }
+  isQueued: (asset) => get().queue.some((item) => item.id === asset.id),
 
-  async function processQueue() {
-    if (isDownloading.value || isPaused.value || downloadQueue.value.length === 0) return
+  async processQueue() {
+    if (get().isDownloading || get().isPaused || get().queue.length === 0) return
 
-    isDownloading.value = true
+    set({ isDownloading: true })
 
-    while (downloadQueue.value.length > 0 && !isPaused.value) {
-      if (!online.value) {
+    while (get().queue.length > 0 && !get().isPaused) {
+      if (!navigator.onLine) {
         await sleep(1000)
         continue
       }
 
-      const asset = downloadQueue.value[0]
-      currentItem.value = asset
+      const asset = get().queue[0]
+      set({ currentItem: asset })
 
       try {
-        await fetchAsset(asset)
-        downloadQueue.value.shift()
+        await ASSET_TYPES[asset.type].fetch(asset)
+        set((state) => ({ queue: state.queue.slice(1) }))
         await sleep(100)
       } catch (error) {
         console.error(`Failed to download ${asset.name}:`, error)
-        downloadQueue.value.shift()
-        downloadQueue.value.push(asset)
+        // Send the failure to the back of the queue and keep going.
+        set((state) => ({ queue: [...state.queue.slice(1), asset] }))
         await sleep(1000)
       }
     }
 
-    isDownloading.value = false
-    currentItem.value = null
-  }
+    set({ isDownloading: false, currentItem: null })
+  },
 
-  function queueAsset(asset) {
-    if (!isDownloaded(asset) && !isInQueue(asset)) {
-      downloadQueue.value.push(asset)
-      processQueue()
-    }
-  }
+  queueAsset(asset) {
+    const { isDownloaded, isQueued, processQueue } = get()
+    if (isDownloaded(asset) || isQueued(asset)) return
 
-  function queueAllAssets() {
-    const pending = allAssets.value.filter((a) => !isDownloaded(a) && !isInQueue(a))
-    downloadQueue.value.push(...pending)
+    set((state) => ({ queue: [...state.queue, asset] }))
     processQueue()
-  }
+  },
 
-  async function removeAsset(asset) {
-    await assetTypes[asset.type].offline.remove(asset.key)
-  }
+  queueAllAssets() {
+    const { isDownloaded, isQueued, processQueue } = get()
+    const pending = ALL_ASSETS.filter((asset) => !isDownloaded(asset) && !isQueued(asset))
 
-  async function removeAllAssets() {
-    await Promise.all(types.map((t) => t.offline.removeAll()))
-  }
-
-  function pauseDownloads() {
-    isPaused.value = true
-  }
-
-  function resumeDownloads() {
-    isPaused.value = false
+    set((state) => ({ queue: [...state.queue, ...pending] }))
     processQueue()
-  }
+  },
 
-  function cancelAllDownloads() {
-    downloadQueue.value = []
-    isPaused.value = false
-  }
+  removeAsset: (asset) => ASSET_TYPES[asset.type].offline.remove(asset.key),
 
-  function removeFromQueue(asset) {
-    const index = downloadQueue.value.findIndex((item) => item.id === asset.id)
-    if (index > -1) downloadQueue.value.splice(index, 1)
-  }
+  removeAllAssets: () => Promise.all(types.map(([, type]) => type.offline.removeAll())),
 
-  return {
-    online,
-    downloadQueue,
-    isDownloading,
-    isPaused,
-    currentItem,
-    allAssets,
-    totalAssets,
-    downloadedCount,
-    isCompleted,
-    progressPercentage,
-    pendingCount,
-    isDownloaded,
-    queueAsset,
-    queueAllAssets,
-    removeAsset,
-    removeAllAssets,
-    pauseDownloads,
-    resumeDownloads,
-    cancelAllDownloads,
-    removeFromQueue,
-  }
-})
+  pauseDownloads: () => set({ isPaused: true }),
+
+  resumeDownloads() {
+    set({ isPaused: false })
+    get().processQueue()
+  },
+
+  cancelAllDownloads: () => set({ queue: [], isPaused: false }),
+
+  removeFromQueue: (asset) => set((state) => ({ queue: state.queue.filter((item) => item.id !== asset.id) })),
+}))
+
+for (const [, type] of types) {
+  type.offline.subscribe(() => useDownloadStore.setState({ downloadedKeys: downloadedKeysSnapshot() }))
+}
+
+export const selectDownloadedCount = (state) =>
+  types.reduce((sum, [name]) => sum + state.downloadedKeys[name].length, 0)
+
+export const selectProgressPercentage = (state) =>
+  TOTAL_ASSETS === 0 ? 0 : Math.round((selectDownloadedCount(state) / TOTAL_ASSETS) * 100)
+
+export const selectIsCompleted = (state) => selectDownloadedCount(state) === TOTAL_ASSETS

@@ -1,0 +1,44 @@
+.navbar {
+  /* min-height (not height) so taller content at large font scales grows the
+     bar instead of clipping. */
+  min-height: var(--navbar-height);
+}
+
+:global([data-bs-theme='dark']) .navbar :global(.navbar-brand) {
+  filter: brightness(0) invert(1);
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  border-radius: var(--bs-border-radius-sm);
+  transition: background-color 0.2s;
+
+  &:hover,
+  &.active {
+    background-color: rgba(var(--bs-secondary-rgb), 0.1);
+  }
+}
+
+.radioStatus {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: var(--bs-danger);
+  border-radius: 50%;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.9);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(0.9);
+  }
+}

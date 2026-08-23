@@ -1,0 +1,19 @@
+.rakaaColumn {
+  width: 4.5rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Match the icon sizing of the prayer times list rows. */
+.iconContainer {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+
+  svg {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+}

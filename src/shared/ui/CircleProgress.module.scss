@@ -1,0 +1,34 @@
+.circleProgress {
+  position: relative;
+}
+
+.circleProgress svg {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.ringBg {
+  fill: none;
+  stroke: color-mix(in srgb, var(--bs-primary) 18%, transparent);
+  stroke-width: 3;
+}
+
+.ringFill {
+  fill: none;
+  stroke: var(--bs-primary);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dashoffset: 0;
+  transition: stroke-dasharray 0.3s ease;
+}
+
+.ringText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--bs-primary);
+}

@@ -1,0 +1,48 @@
+/* App shell layout. These class names are global because the embed rules in
+   base.scss target them alongside .embed-hidden / .embed-invisible. */
+.offline-banner {
+  min-height: 50px;
+  background-color: #dc3545;
+  padding: 0.75rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  animation: slideDown 0.3s ease-out;
+}
+
+.offline-banner + .navbar {
+  top: 50px; /* Adjust navbar position when offline banner is visible */
+}
+
+.main-content {
+  min-height: calc(100vh - var(--navbar-height)); /* Adjust for navbar and footer on desktop */
+  padding-bottom: var(--navbar-height);
+}
+
+/* Embed adjustments */
+.main-content-embed .main-content {
+  min-height: 100vh;
+  padding-bottom: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Desktop adjustments */
+@media (min-width: 992px) {
+  .main-content {
+    min-height: calc(100vh - 400px);
+    padding-bottom: 0;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

@@ -59,12 +59,12 @@ describe('removeBismillah', () => {
   it('removes each known basmala variant and trims the remainder', () => {
     for (const variant of BISMILLAH_VARIANTS) {
       expect(removeBismillah(`${variant} الْحَمْدُ لِلَّهِ`)).toBe('الْحَمْدُ لِلَّهِ')
-      expect(removeBismillah(`﻿${variant}`)).toBe('')
+      expect(removeBismillah(`\uFEFF${variant}`)).toBe('')
     }
   })
 
   it('strips a leading BOM', () => {
-    expect(removeBismillah('﻿نص عادي')).toBe('نص عادي')
+    expect(removeBismillah('\uFEFFنص عادي')).toBe('نص عادي')
   })
 
   it('leaves text without a basmala unchanged', () => {

@@ -1,15 +1,20 @@
-import { defineStore } from 'pinia'
-import { useAudioPlayer } from '@/shared/composables/useAudioPlayer'
+import { create } from 'zustand'
+import { createAudioPlayer } from '@/shared/lib/audioPlayer'
 
-export const useRadioStore = defineStore('radio', () => {
-  const { src: station, isPlaying, status, retryCount, play, stop } = useAudioPlayer()
+// The radio plays across route changes, so a single player instance lives with
+// the store rather than with any component.
+export const useRadioStore = create((set) => {
+  const player = createAudioPlayer({
+    onChange: ({ src, isPlaying, status, retryCount }) => set({ station: src, isPlaying, status, retryCount }),
+  })
 
   return {
-    station,
-    isPlaying,
-    status,
-    retryCount,
-    play,
-    stop,
+    station: null,
+    isPlaying: false,
+    status: 'idle',
+    retryCount: 0,
+
+    play: player.play,
+    stop: player.stop,
   }
 })

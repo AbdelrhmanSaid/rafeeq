@@ -45,7 +45,7 @@ const setMetaTag = ({ name, property, content }) => {
 }
 
 /**
- * Use the meta tags for the current route
+ * Apply the meta tags for the current route
  *
  * @param {Object} meta - The meta tags for the current route
  * @param {string} meta.title - The title of the current route
@@ -53,7 +53,7 @@ const setMetaTag = ({ name, property, content }) => {
  * @param {string[]} meta.keywords - The keywords of the current route
  * @returns {void}
  */
-export const useMeta = (meta) => {
+export const setMeta = (meta) => {
   // Merge the default meta with the route meta
   let { title, description, keywords } = Object.assign({}, defaultMeta, meta)
 

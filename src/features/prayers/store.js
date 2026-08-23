@@ -1,68 +1,63 @@
-import { defineStore } from 'pinia'
-import { useLocalStorage } from '@vueuse/core'
-import { computed, ref } from 'vue'
-import { getCurrentPosition } from '@/shared/composables/useGeolocation'
-import { useIsMobile } from '@/shared/composables/useIsMobile'
+import { create } from 'zustand'
+import { persistFields } from '@/shared/lib/persist'
+import { getCurrentPosition } from '@/shared/lib/geolocation'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
-import { AUTO } from '@/features/prayers/constants/calculationOptions'
+import { AUTO, CALCULATION_FIELDS } from '@/features/prayers/constants/calculationOptions'
 
-export const usePrayersStore = defineStore('prayers', function () {
-  const longitude = useLocalStorage(STORAGE_KEYS.longitude, 0)
-  const latitude = useLocalStorage(STORAGE_KEYS.latitude, 0)
+export const usePrayersStore = create(
+  persistFields({
+    longitude: STORAGE_KEYS.longitude,
+    latitude: STORAGE_KEYS.latitude,
+    layout: STORAGE_KEYS.prayerTimesLayout,
+    calcMethod: STORAGE_KEYS.prayerCalcMethod,
+    calcSchool: STORAGE_KEYS.prayerCalcSchool,
+    calcLatitudeAdjustment: STORAGE_KEYS.prayerCalcLatitudeAdjustment,
+    calcMidnightMode: STORAGE_KEYS.prayerCalcMidnightMode,
+    calcShafaq: STORAGE_KEYS.prayerCalcShafaq,
+  })((set, get) => ({
+    longitude: 0,
+    latitude: 0,
 
-  // Display layout: 'cards' | 'list' | 'auto'
-  const layout = useLocalStorage(STORAGE_KEYS.prayerTimesLayout, 'auto')
+    // Display layout: 'cards' | 'list' | 'auto'
+    layout: 'auto',
 
-  const calcMethod = useLocalStorage(STORAGE_KEYS.prayerCalcMethod, AUTO)
-  const calcSchool = useLocalStorage(STORAGE_KEYS.prayerCalcSchool, AUTO)
-  const calcLatitudeAdjustment = useLocalStorage(STORAGE_KEYS.prayerCalcLatitudeAdjustment, AUTO)
-  const calcMidnightMode = useLocalStorage(STORAGE_KEYS.prayerCalcMidnightMode, AUTO)
-  const calcShafaq = useLocalStorage(STORAGE_KEYS.prayerCalcShafaq, AUTO)
+    calcMethod: AUTO,
+    calcSchool: AUTO,
+    calcLatitudeAdjustment: AUTO,
+    calcMidnightMode: AUTO,
+    calcShafaq: AUTO,
 
-  const isCompactViewport = useIsMobile()
+    isDetecting: false,
 
-  // Effective orientation consumed by <PrayerTimes>
-  const vertical = computed(() => {
-    if (layout.value === 'list') return true
-    if (layout.value === 'cards') return false
-    return isCompactViewport.value
-  })
+    setLayout: (layout) => set({ layout }),
+    setCalculationField: (field, value) => set({ [field]: value }),
 
-  const isDetecting = ref(false)
+    async detect() {
+      set({ isDetecting: true })
 
-  async function detect() {
-    isDetecting.value = true
+      try {
+        const position = await getCurrentPosition()
+        set({
+          longitude: Number(position.coords.longitude.toFixed(6)),
+          latitude: Number(position.coords.latitude.toFixed(6)),
+        })
+        return { ok: true }
+      } catch (error) {
+        get().clear()
+        return { ok: false, code: error?.code }
+      } finally {
+        set({ isDetecting: false })
+      }
+    },
 
-    try {
-      const position = await getCurrentPosition()
-      longitude.value = position.coords.longitude.toFixed(6)
-      latitude.value = position.coords.latitude.toFixed(6)
-      return { ok: true }
-    } catch (error) {
-      clear()
-      return { ok: false, code: error?.code }
-    } finally {
-      isDetecting.value = false
-    }
-  }
+    clear: () => set({ longitude: 0, latitude: 0 }),
+  })),
+)
 
-  function clear() {
-    longitude.value = 0
-    latitude.value = 0
-  }
+export const selectHasLocation = (state) => state.latitude !== 0 && state.longitude !== 0
 
-  return {
-    longitude,
-    latitude,
-    layout,
-    vertical,
-    calcMethod,
-    calcSchool,
-    calcLatitudeAdjustment,
-    calcMidnightMode,
-    calcShafaq,
-    isDetecting,
-    detect,
-    clear,
-  }
-})
+// Query string for the calculation options the user has changed from 'auto'.
+export const selectCalculationParams = (state) =>
+  CALCULATION_FIELDS.filter(({ key }) => state[key])
+    .map(({ param, key }) => `${param}=${encodeURIComponent(state[key])}`)
+    .join('&')

@@ -1,0 +1,138 @@
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.item.downloaded {
+  background: color-mix(in srgb, var(--bs-success) 8%, transparent);
+}
+
+.item.downloading {
+  background: color-mix(in srgb, var(--bs-primary) 8%, transparent);
+}
+
+.itemIcon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--bs-border-radius);
+  flex-shrink: 0;
+}
+
+.itemIcon.surah {
+  background: color-mix(in srgb, var(--bs-primary) 15%, transparent);
+  color: var(--bs-primary);
+}
+
+.itemIcon.azkar {
+  background: color-mix(in srgb, var(--bs-success) 15%, transparent);
+  color: var(--bs-success);
+}
+
+.itemInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemName {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemType {
+  font-size: 0.75rem;
+  color: var(--bs-secondary-color);
+}
+
+.itemAction {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  flex-shrink: 0;
+}
+
+.itemAction.notDownloaded {
+  background: rgba(var(--bs-secondary-rgb), 0.1);
+  color: var(--bs-primary);
+}
+
+.itemAction.notDownloaded:hover:not(:disabled) {
+  background: var(--bs-primary);
+  color: white;
+}
+
+.itemAction.downloaded {
+  background: var(--bs-success);
+  color: white;
+}
+
+.itemAction.downloaded:hover {
+  background: var(--bs-danger);
+}
+
+.itemAction.downloading {
+  background: var(--bs-primary);
+  color: white;
+}
+
+.itemAction.queued {
+  background: rgba(var(--bs-secondary-rgb), 0.1);
+  color: var(--bs-secondary-color);
+}
+
+.itemAction:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.queuedDot {
+  width: 8px;
+  height: 8px;
+  background: var(--bs-secondary-color);
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}

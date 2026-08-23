@@ -1,0 +1,19 @@
+.playButton {
+  width: 40px;
+  height: 40px;
+  padding: 0.625rem;
+}
+
+.reciterChip {
+  color: var(--bs-secondary-color);
+  background-color: var(--bs-secondary-bg);
+
+  &:hover {
+    color: var(--bs-body-color);
+    background-color: var(--bs-tertiary-bg);
+  }
+
+  .name {
+    max-width: 7.5rem;
+  }
+}

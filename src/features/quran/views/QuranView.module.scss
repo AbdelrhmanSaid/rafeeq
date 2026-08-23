@@ -1,0 +1,55 @@
+.bookmarkCard {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  background-color: rgba(var(--bs-primary-rgb), 0.06);
+  color: var(--bs-body-color);
+  text-decoration: none;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+
+  &:hover {
+    background-color: rgba(var(--bs-primary-rgb), 0.12);
+    border-color: rgba(var(--bs-primary-rgb), 0.5);
+  }
+}
+
+.bookmarkIcon {
+  flex-shrink: 0;
+  color: var(--bs-primary);
+}
+
+.bookmarkBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.bookmarkLabel {
+  font-size: 0.85rem;
+  color: var(--bs-secondary-color);
+}
+
+.bookmarkTitle {
+  font-weight: 600;
+}
+
+.bookmarkText {
+  font-size: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bookmarkChevron {
+  flex-shrink: 0;
+  color: var(--bs-secondary-color);
+}

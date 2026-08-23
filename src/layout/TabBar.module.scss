@@ -1,0 +1,87 @@
+.tabBar {
+  /* min-height so labels/icons at large font scales grow the bar, not clip. */
+  min-height: var(--navbar-height);
+  /* center items vertically so short content (small font) doesn't stick to
+     the top of the bar. */
+  align-items: center;
+  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+  z-index: 1020;
+}
+
+.tabItem {
+  transition: color 0.2s;
+  min-width: 60px;
+  font-size: 0.75rem;
+
+  span:not(.radioStatus) {
+    font-size: 0.7rem;
+  }
+
+  &:hover,
+  &.active {
+    color: var(--bs-secondary) !important;
+  }
+
+  &.active {
+    background-color: rgba(var(--bs-secondary-rgb), 0.1) !important;
+  }
+}
+
+.radioStatus {
+  width: 0.4rem;
+  height: 0.4rem;
+  background-color: var(--bs-danger);
+  border-radius: 50%;
+  animation: pulse 1s infinite;
+  transform: translate(25%, -25%);
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(25%, -25%) scale(0.9);
+  }
+  50% {
+    transform: translate(25%, -25%) scale(1.1);
+  }
+  100% {
+    transform: translate(25%, -25%) scale(0.9);
+  }
+}
+
+.overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1030;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  opacity: 1;
+  transition: opacity 0.3s ease-out;
+}
+
+.overlay:not(.visible) {
+  opacity: 0;
+}
+
+.menu {
+  transition:
+    transform 0.3s ease-out,
+    opacity 0.3s ease-out;
+}
+
+.overlay:not(.visible) .menu {
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+.menuItem {
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: var(--bs-secondary-bg) !important;
+    color: var(--bs-body-color) !important;
+  }
+
+  &.active {
+    background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
+    color: var(--bs-primary) !important;
+  }
+}

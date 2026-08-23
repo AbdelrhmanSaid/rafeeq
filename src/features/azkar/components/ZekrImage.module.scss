@@ -1,0 +1,200 @@
+/*
+ * Captured by html2canvas: stick to solid colors, simple linear-gradients,
+ * borders and 2D transforms — no conic-gradient, color-mix, box-shadow
+ * or flex gap. Ornaments are plain rotated divs for the same reason.
+ */
+.export {
+  width: 512px;
+  min-height: 560px;
+  padding: 24px 24px 16px;
+  background: #fffdf9;
+  font-family: 'Thmanyah Sans', sans-serif;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.frameOuter {
+  flex: 1 1 auto;
+  display: flex;
+  border: 2px solid rgba(var(--bs-primary-rgb), 0.5);
+  border-radius: 8px;
+  padding: 5px;
+}
+
+.frameInner {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid rgba(var(--bs-primary-rgb), 0.3);
+  border-radius: 4px;
+  background: rgba(var(--bs-primary-rgb), 0.03);
+  padding: 26px 30px 24px;
+}
+
+/* Corner ornaments: square + rotated square = tiny eight-pointed star */
+.corner {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background: rgba(var(--bs-primary-rgb), 0.4);
+}
+
+.cornerDiamond {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  background: rgba(var(--bs-primary-rgb), 0.4);
+  transform: rotate(45deg);
+}
+
+.cornerTopLeft {
+  top: 12px;
+  right: 12px;
+}
+
+.cornerTopRight {
+  top: 12px;
+  left: 12px;
+}
+
+.cornerBottomLeft {
+  bottom: 12px;
+  right: 12px;
+}
+
+.cornerBottomRight {
+  bottom: 12px;
+  left: 12px;
+}
+
+/* Header medallion: eight-pointed star flanked by fading rules */
+.ornamentRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.ornamentRule {
+  width: 96px;
+  height: 2px;
+  background: linear-gradient(to right, transparent, rgba(var(--bs-primary-rgb), 0.45), transparent);
+}
+
+.star {
+  position: relative;
+  width: 15px;
+  height: 15px;
+  margin: 0 14px;
+  background: rgba(var(--bs-primary-rgb), 0.85);
+}
+
+.starDiamond {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 15px;
+  height: 15px;
+  background: rgba(var(--bs-primary-rgb), 0.85);
+  transform: rotate(45deg);
+}
+
+.starDot {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fffdf9;
+  z-index: 1;
+}
+
+.textZone {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 6px 0;
+}
+
+.text {
+  color: #2b2521;
+  margin: 0;
+  max-width: 400px;
+}
+
+.dividerRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 18px 0 14px;
+}
+
+.dividerRule {
+  width: 56px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(var(--bs-primary-rgb), 0.4), transparent);
+}
+
+.dividerDiamond {
+  width: 6px;
+  height: 6px;
+  margin: 0 12px;
+  background: rgba(var(--bs-primary-rgb), 0.55);
+  transform: rotate(45deg);
+}
+
+.reference {
+  color: var(--bs-primary);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.8;
+  margin: 0 0 4px;
+}
+
+.benefit {
+  color: #6e665d;
+  font-size: 13.5px;
+  line-height: 1.9;
+  margin: 0;
+  max-width: 380px;
+}
+
+.repeatPill {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 22px;
+  padding: 8px 20px;
+  border-radius: 50px;
+  background: rgba(var(--bs-primary-rgb), 0.07);
+  border: 1px solid rgba(var(--bs-primary-rgb), 0.22);
+}
+
+.pillDiamond {
+  width: 5px;
+  height: 5px;
+  margin: 0 10px;
+  background: rgba(var(--bs-primary-rgb), 0.55);
+  transform: rotate(45deg);
+}
+
+.pillLabel {
+  color: var(--bs-primary);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 14px;
+  opacity: 0.9;
+}

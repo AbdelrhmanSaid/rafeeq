@@ -1,6 +1,8 @@
-import { defineStore } from 'pinia'
-import { computed, nextTick, ref, watchEffect } from 'vue'
-import { useLocalStorage, usePreferredDark } from '@vueuse/core'
+import { useEffect } from 'react'
+import { create } from 'zustand'
+import { persistFields } from '@/shared/lib/persist'
+import { useMediaQuery } from '@/shared/hooks/useMediaQuery'
+import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 import {
   applyPrimaryColor,
   applyBgColor,
@@ -10,87 +12,74 @@ import {
   syncMetaThemeColor,
   DEFAULT_FONT_SCALE,
 } from '@/shared/utils/css'
-import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 
-export const useThemeStore = defineStore('theme', () => {
-  const mode = useLocalStorage(STORAGE_KEYS.themeMode, 'system')
-  const primaryColor = useLocalStorage(STORAGE_KEYS.themePrimary, '')
-  const fontScale = useLocalStorage(STORAGE_KEYS.fontScale, DEFAULT_FONT_SCALE)
-  const prefersDark = usePreferredDark()
+const MODES = ['light', 'dark', 'system']
 
-  // Embed query params (mode/fg/bg) that must survive watchEffect re-runs.
-  const queryOverrides = ref(null)
+export const useThemeStore = create(
+  persistFields({
+    mode: STORAGE_KEYS.themeMode,
+    primaryColor: STORAGE_KEYS.themePrimary,
+    fontScale: STORAGE_KEYS.fontScale,
+  })((set) => ({
+    mode: 'system',
+    primaryColor: '',
+    fontScale: DEFAULT_FONT_SCALE,
 
-  const resolvedMode = computed(() => {
-    if (mode.value === 'system') return prefersDark.value ? 'dark' : 'light'
-    return mode.value
-  })
+    // Embed query params (mode/fg/bg), which override the stored theme for as
+    // long as an embed route is open.
+    queryOverrides: null,
 
-  function setMode(next) {
-    if (['light', 'dark', 'system'].includes(next)) {
-      mode.value = next
-    }
-  }
+    setMode: (mode) => {
+      if (MODES.includes(mode)) set({ mode })
+    },
+    setPrimaryColor: (color) => set({ primaryColor: color || '' }),
+    setFontScale: (scale) => set({ fontScale: clampFontScale(scale) }),
+    resetFontScale: () => set({ fontScale: DEFAULT_FONT_SCALE }),
 
-  function setPrimaryColor(color) {
-    primaryColor.value = color || ''
-  }
+    applyQueryOverrides: ({ mode, fg, bg } = {}) => {
+      const nextMode = mode === 'light' || mode === 'dark' ? mode : null
+      const overrides = nextMode || fg || bg ? { mode: nextMode, fg: fg || null, bg: bg || null } : null
 
-  function setFontScale(next) {
-    fontScale.value = clampFontScale(next)
-  }
+      set({ queryOverrides: overrides })
+    },
+    clearQueryOverrides: () => set({ queryOverrides: null }),
+  })),
+)
 
-  function resetFontScale() {
-    fontScale.value = DEFAULT_FONT_SCALE
-  }
+// The concrete mode in effect right now: 'system' resolves against the OS
+// preference, and an embed override wins over both.
+export function useResolvedThemeMode() {
+  const mode = useThemeStore((state) => state.mode)
+  const overrideMode = useThemeStore((state) => state.queryOverrides?.mode)
+  const prefersDark = useMediaQuery('(prefers-color-scheme: dark)')
 
-  function applyQueryOverrides({ mode: modeParam, fg, bg } = {}) {
-    const nextMode = modeParam === 'light' || modeParam === 'dark' ? modeParam : null
-    const nextFg = fg || null
-    const nextBg = bg || null
+  if (overrideMode) return overrideMode
+  if (mode === 'system') return prefersDark ? 'dark' : 'light'
 
-    if (nextMode || nextFg || nextBg) {
-      queryOverrides.value = { mode: nextMode, fg: nextFg, bg: nextBg }
-    } else {
-      queryOverrides.value = null
-    }
-  }
+  return mode
+}
 
-  function clearQueryOverrides() {
-    queryOverrides.value = null
-  }
+// Writes the active theme to the document. Mounted once, at the app shell.
+export function useApplyTheme() {
+  const resolvedMode = useResolvedThemeMode()
+  const primaryColor = useThemeStore((state) => state.primaryColor)
+  const fontScale = useThemeStore((state) => state.fontScale)
+  const queryOverrides = useThemeStore((state) => state.queryOverrides)
 
-  watchEffect(() => {
-    const theme = {
-      mode: resolvedMode.value,
-      fg: primaryColor.value || null,
-      bg: null,
-    }
+  const fg = queryOverrides?.fg || primaryColor || null
+  const bg = queryOverrides?.bg || null
 
-    if (queryOverrides.value) {
-      Object.assign(theme, queryOverrides.value)
-    }
+  useEffect(() => {
+    applyMode(resolvedMode)
+    applyPrimaryColor(fg)
+    applyBgColor(bg)
 
-    if (theme.mode) applyMode(theme.mode)
-    if (theme.fg) applyPrimaryColor(theme.fg)
-    if (theme.bg) applyBgColor(theme.bg)
+    // Let the browser paint the new variables before reading the resulting color.
+    const frame = requestAnimationFrame(syncMetaThemeColor)
+    return () => cancelAnimationFrame(frame)
+  }, [resolvedMode, fg, bg])
 
-    nextTick(syncMetaThemeColor)
-  })
-
-  watchEffect(() => {
-    applyFontScale(fontScale.value)
-  })
-
-  return {
-    mode,
-    primaryColor,
-    fontScale,
-    setMode,
-    setPrimaryColor,
-    setFontScale,
-    resetFontScale,
-    applyQueryOverrides,
-    clearQueryOverrides,
-  }
-})
+  useEffect(() => {
+    applyFontScale(fontScale)
+  }, [fontScale])
+}

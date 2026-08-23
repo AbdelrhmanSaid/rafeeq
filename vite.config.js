@@ -1,7 +1,7 @@
 import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import rtlcss from 'rtlcss'
 
@@ -10,7 +10,7 @@ import { manifestIcons } from './src/app/pwa/manifest-icons.js'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    vue(),
+    react(),
     VitePWA({
       registerType: 'prompt',
       cleanupOutdatedCaches: true,

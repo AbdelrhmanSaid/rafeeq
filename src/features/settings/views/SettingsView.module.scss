@@ -1,0 +1,66 @@
+.layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+/* Navigation — sidebar on desktop */
+.nav {
+  flex-direction: column;
+  gap: 0.25rem;
+  overflow-x: visible;
+  padding: 0;
+  margin: 0;
+  position: sticky;
+  top: calc(var(--navbar-height) + 1rem);
+}
+
+.navItem {
+  width: 100%;
+  flex-shrink: 1;
+  padding-block: 0.7rem;
+  border-color: transparent;
+  font-size: 0.9rem;
+}
+
+.content {
+  min-width: 0;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Mobile — horizontal scrollable pills */
+@media (max-width: 767.98px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .nav {
+    flex-direction: row;
+    position: static;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-top: 0;
+    padding-bottom: 0.35rem;
+    margin-inline: -0.25rem;
+    padding-inline: 0.25rem;
+  }
+
+  .navItem {
+    width: auto;
+    flex-shrink: 0;
+    border-color: var(--bs-border-color);
+    padding: 0.5rem 0.9rem;
+    font-size: 0.85rem;
+  }
+
+  .navItem:global(.active) {
+    border-color: transparent;
+  }
+}

@@ -1,0 +1,13 @@
+.link {
+  color: var(--bs-secondary-color);
+  text-decoration: none;
+  transition: color 0.2s;
+
+  &:hover {
+    color: var(--bs-primary);
+  }
+}
+
+:global([data-bs-theme='dark']) .link:hover {
+  color: #fff;
+}

@@ -1,8 +1,8 @@
-import { useOfflineData } from '@/shared/offline/useOfflineData'
+import { offlineData } from '@/shared/offline/offlineData'
 import { cachedFetch } from '@/shared/offline/cachedFetch'
 import { API } from '@/shared/constants/api'
 
-export const azkarOffline = () => useOfflineData('azkar')
+export const azkarOffline = () => offlineData('azkar')
 
 export function fetchCategory(slug) {
   return cachedFetch(azkarOffline(), slug, async () => {

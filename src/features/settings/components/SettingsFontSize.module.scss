@@ -1,0 +1,40 @@
+.step {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius-sm);
+  background: none;
+  color: var(--bs-body-color);
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover:not(:disabled) {
+    background: rgba(var(--bs-secondary-rgb), 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.stepSmall {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.stepLarge {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.preview {
+  text-align: center;
+  color: var(--bs-secondary-color);
+  border-top: 1px solid var(--bs-border-color);
+  padding-top: 0.75rem;
+}

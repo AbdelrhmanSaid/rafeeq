@@ -1,6 +1,5 @@
-import { useLocalStorage } from '@vueuse/core'
-import { defineStore } from 'pinia'
-import { ref, computed, watch } from 'vue'
+import { create } from 'zustand'
+import { persistFields } from '@/shared/lib/persist'
 import reciters from '@/features/quran/data/reciters.js'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 import { API } from '@/shared/constants/api'
@@ -11,117 +10,93 @@ const DEFAULT_TAFSEER = 'ar.muyassar'
 // Playback speed presets offered by the player, from slowest to fastest.
 export const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
 
-export const useQuranStore = defineStore('quran', () => {
-  const currentReciter = useLocalStorage(STORAGE_KEYS.currentReciter, DEFAULT_RECITER_ID)
-  const currentTafseer = useLocalStorage(STORAGE_KEYS.currentTafseer, DEFAULT_TAFSEER)
-  const playbackRate = useLocalStorage(STORAGE_KEYS.playbackRate, 1)
+const findReciter = (id) => reciters.find((reciter) => reciter.id === Number(id))
 
-  const surahAudioUrl = ref(null)
-  const surahName = ref(null)
-  const currentSurahNumber = ref(null)
-  const ayahTimings = ref([])
-  const currentAyahIndex = ref(-1)
+async function fetchTimings(reciter, surahNumber) {
+  const response = await fetch(`${API.mp3quran}/ayat_timing?surah=${surahNumber}&read=${reciter.id}`)
+  if (!response.ok) throw new Error('Failed to fetch ayah timings')
+  return response.json()
+}
 
-  const reciter = computed(() => {
-    const id = Number(currentReciter.value)
-    return reciters.find((r) => r.id === id)
-  })
+export const useQuranStore = create(
+  persistFields({
+    currentReciter: STORAGE_KEYS.currentReciter,
+    currentTafseer: STORAGE_KEYS.currentTafseer,
+    playbackRate: STORAGE_KEYS.playbackRate,
+  })((set, get) => ({
+    currentReciter: DEFAULT_RECITER_ID,
+    currentTafseer: DEFAULT_TAFSEER,
+    playbackRate: 1,
 
-  watch(
-    reciter,
-    (r) => {
-      if (!r) currentReciter.value = DEFAULT_RECITER_ID
-    },
-    { immediate: true },
-  )
+    surahAudioUrl: null,
+    surahName: null,
+    currentSurahNumber: null,
+    ayahTimings: [],
+    currentAyahIndex: -1,
 
-  const currentAyah = computed(() => {
-    if (currentAyahIndex.value < 0 || currentAyahIndex.value >= ayahTimings.value.length) return null
-    return ayahTimings.value[currentAyahIndex.value]
-  })
+    setCurrentTafseer: (identifier) => set({ currentTafseer: identifier }),
+    setPlaybackRate: (rate) => set({ playbackRate: rate }),
 
-  function getSurahAudioUrl(surahNumber) {
-    const r = reciter.value
-    if (!r) return null
-    const paddedNumber = String(surahNumber).padStart(3, '0')
-    return `${r.folder_url}${paddedNumber}.mp3`
-  }
+    // Persist the selection only. Reloading the (potentially large) audio file is
+    // deferred to reloadSurahAudio() so rapid reciter switches don't each trigger
+    // a download — the caller reloads once when it's done changing.
+    changeReciter: (reciterId) => set({ currentReciter: reciterId }),
 
-  async function fetchTimings(surahNumber) {
-    const r = reciter.value
-    if (!r) return []
+    async loadSurahAudio(surahNumber, name) {
+      const reciter = findReciter(get().currentReciter)
+      const paddedNumber = String(surahNumber).padStart(3, '0')
 
-    const response = await fetch(`${API.mp3quran}/ayat_timing?surah=${surahNumber}&read=${r.id}`)
-    if (!response.ok) throw new Error('Failed to fetch ayah timings')
-    return await response.json()
-  }
+      set({
+        currentSurahNumber: surahNumber,
+        surahName: name,
+        surahAudioUrl: reciter ? `${reciter.folder_url}${paddedNumber}.mp3` : null,
+        currentAyahIndex: -1,
+        ayahTimings: [],
+      })
 
-  async function loadSurahAudio(surahNumber, name) {
-    currentSurahNumber.value = surahNumber
-    surahName.value = name
-    surahAudioUrl.value = getSurahAudioUrl(surahNumber)
-    currentAyahIndex.value = -1
+      if (!reciter) return
 
-    try {
-      const timings = await fetchTimings(surahNumber)
-      ayahTimings.value = timings
-    } catch {
-      ayahTimings.value = []
-    }
-  }
-
-  function updateCurrentAyahFromTime(timeMs) {
-    const timings = ayahTimings.value
-    if (!timings.length) return
-
-    for (let i = timings.length - 1; i >= 0; i--) {
-      if (timeMs >= timings[i].start_time) {
-        if (currentAyahIndex.value !== i) {
-          currentAyahIndex.value = i
-        }
-        return
+      try {
+        set({ ayahTimings: await fetchTimings(reciter, surahNumber) })
+      } catch {
+        set({ ayahTimings: [] })
       }
-    }
-    currentAyahIndex.value = 0
-  }
+    },
 
-  function getAyahStartTime(ayahNumber) {
-    const timing = ayahTimings.value.find((t) => t.ayah === ayahNumber)
-    return timing ? timing.start_time / 1000 : null
-  }
+    reloadSurahAudio() {
+      const { currentSurahNumber, surahName, loadSurahAudio } = get()
+      if (currentSurahNumber && surahName) return loadSurahAudio(currentSurahNumber, surahName)
+    },
 
-  function resetAyahTracking() {
-    currentAyahIndex.value = -1
-  }
+    updateCurrentAyahFromTime(timeMs) {
+      const { ayahTimings, currentAyahIndex } = get()
+      if (!ayahTimings.length) return
 
-  // Persist the selection only. Reloading the (potentially large) audio file is
-  // deferred to reloadSurahAudio() so rapid reciter switches don't each trigger
-  // a download — the caller reloads once when it's done changing.
-  function changeReciter(reciterId) {
-    currentReciter.value = reciterId
-  }
+      for (let index = ayahTimings.length - 1; index >= 0; index--) {
+        if (timeMs >= ayahTimings[index].start_time) {
+          if (currentAyahIndex !== index) set({ currentAyahIndex: index })
+          return
+        }
+      }
 
-  function reloadSurahAudio() {
-    if (currentSurahNumber.value && surahName.value) {
-      return loadSurahAudio(currentSurahNumber.value, surahName.value)
-    }
-  }
+      set({ currentAyahIndex: 0 })
+    },
 
-  return {
-    currentReciter,
-    currentTafseer,
-    playbackRate,
-    surahAudioUrl,
-    surahName,
+    getAyahStartTime(ayahNumber) {
+      const timing = get().ayahTimings.find((item) => item.ayah === ayahNumber)
+      return timing ? timing.start_time / 1000 : null
+    },
 
-    reciter,
-    currentAyah,
+    resetAyahTracking: () => set({ currentAyahIndex: -1 }),
+  })),
+)
 
-    loadSurahAudio,
-    reloadSurahAudio,
-    updateCurrentAyahFromTime,
-    getAyahStartTime,
-    resetAyahTracking,
-    changeReciter,
-  }
-})
+// A reciter that no longer exists (removed from the data set) falls back to the
+// default instead of leaving playback broken.
+if (!findReciter(useQuranStore.getState().currentReciter)) {
+  useQuranStore.setState({ currentReciter: DEFAULT_RECITER_ID })
+}
+
+export const selectReciter = (state) => findReciter(state.currentReciter)
+
+export const selectCurrentAyah = (state) => state.ayahTimings[state.currentAyahIndex] ?? null

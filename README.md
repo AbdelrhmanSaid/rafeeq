@@ -6,7 +6,7 @@
 [![GitHub issues](https://img.shields.io/github/issues/AbdelrhmanSaid/rafeeq)](https://github.com/AbdelrhmanSaid/rafeeq/issues)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Rafeeq is a Muslim companion application designed to provide helpful resources and tools for Muslims. This repository contains the source code for the application.
+Rafeeq is a Muslim companion application designed to provide helpful resources and tools for Muslims. This repository contains the source code for the application, built as a React 19 + Vite progressive web app.
 
 ## Features
 - **Prayer Times**: Accurate prayer timings based on location.

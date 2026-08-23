@@ -1,0 +1,74 @@
+.header {
+  background: linear-gradient(135deg, var(--bs-primary) 0%, color-mix(in srgb, var(--bs-primary) 85%, #000) 100%);
+}
+
+/* Secondary text on the primary-colored header; plain white at reduced alpha
+   keeps contrast readable where a gray would wash out. */
+.header .soft {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.nextRow {
+  border-color: var(--bs-primary) !important;
+  font-weight: 700;
+}
+
+.card {
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.nextCard {
+  border-color: var(--bs-primary);
+}
+
+/* Reserve room for loading / detect / error states so the swap to loaded
+   content doesn't shift the page. */
+.state {
+  display: grid;
+  place-items: center;
+  min-height: 13rem;
+}
+
+.detectButton {
+  background: transparent;
+  color: var(--bs-body-color);
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: rgba(var(--bs-secondary-rgb), 0.1);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+  }
+}
+
+.iconContainer {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+
+  svg {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+}
+
+.headerIcon {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #fff;
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+  }
+}

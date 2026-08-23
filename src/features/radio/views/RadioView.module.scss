@@ -1,0 +1,27 @@
+.link {
+  color: inherit;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.list :global(.list-group-item) {
+  transition:
+    background-color 0.3s,
+    border-color 0.3s,
+    color 0.3s;
+
+  &:global(.active) {
+    background-color: var(--bs-primary);
+    color: var(--bs-white);
+
+    button {
+      color: var(--bs-white);
+    }
+  }
+
+  &:hover:not(:global(.active)) {
+    background-color: rgba(var(--bs-secondary-rgb), 0.1);
+  }
+}
