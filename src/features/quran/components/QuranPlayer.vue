@@ -55,7 +55,7 @@ const playerTitle = computed(() =>
 
 const ayahLabel = computed(() => {
   const ayah = quranStore.currentAyah
-  if (!ayah || !(ayah.ayah > 0) || !quranStore.surahName) return 'اضغط لبدء التلاوة'
+  if (!ayah || !(ayah.ayah > 0) || !quranStore.surahName) return 'تلاوة'
   return `آية ${toArabicNumerals(ayah.ayah)}`
 })
 
