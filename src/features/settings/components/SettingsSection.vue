@@ -88,6 +88,11 @@ const hasBody = computed(() => {
   color: var(--bs-primary);
 }
 
+[data-bs-theme='dark'] .settings-section-icon {
+  background: color-mix(in srgb, var(--bs-primary) 22%, transparent);
+  color: color-mix(in srgb, var(--bs-primary) 40%, #fff);
+}
+
 .settings-section-title {
   margin: 0;
   font-size: 1rem;

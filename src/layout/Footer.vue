@@ -35,7 +35,7 @@ const support = [
 </script>
 
 <template>
-  <footer class="py-5 border-top">
+  <footer class="py-5 border-top bg-body">
     <div class="container">
       <div class="row g-4">
         <div class="col-md-5">
