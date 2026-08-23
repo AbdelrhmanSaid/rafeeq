@@ -70,14 +70,10 @@ const tabs = [
 const route = useRoute()
 const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab) ?? tabs[0])
 
-// The pills are links, not tab state: the active section comes from
-// /settings/:tab, so deep links and the back button keep working.
 const tabPillClass =
-  'inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-medium text-muted-foreground transition duration-200 hover:bg-accent hover:text-accent-foreground focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:scale-[0.98] md:w-full md:shrink md:rounded-2xl'
+  'inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-medium text-muted-foreground transition duration-200 hover:bg-accent hover:text-accent-foreground focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:scale-95 md:w-full md:shrink md:rounded-2xl'
 const tabPillActiveClass = 'bg-primary/12 text-primary hover:bg-primary/12 hover:text-primary'
 
-// The strip scrolls sideways on the phone, so a deep link to a later tab would
-// otherwise land with its pill off-screen; nudge the active one into view.
 const strip = ref(null)
 
 async function revealActiveTab() {
@@ -91,15 +87,10 @@ async function revealActiveTab() {
 onMounted(revealActiveTab)
 watch(() => activeTab.value.id, revealActiveTab)
 </script>
-
 <template>
   <Page>
     <Heading title="الإعدادات" subtitle="تعديل الإعدادات المختلفة للتطبيق" />
-
     <div class="grid items-start gap-4 md:grid-cols-[15rem_1fr] md:gap-8">
-      <!-- Tabs navigation — a scrolling pill strip that bleeds past the page
-           gutter on the phone (faded at both ends so it reads as continuing),
-           and a sticky sidebar of full-width rows from md up. -->
       <nav
         ref="strip"
         class="-mx-4 flex gap-2 overflow-x-auto px-4 py-1 edge-fade-x no-scrollbar md:sticky md:top-[calc(var(--navbar-height)+1rem)] md:mx-0 md:flex-col md:gap-1 md:overflow-x-visible md:px-0 md:[mask-image:none]"
@@ -117,9 +108,6 @@ watch(() => activeTab.value.id, revealActiveTab)
           <span>{{ tab.label }}</span>
         </RouterLink>
       </nav>
-
-      <!-- Tab content: one card per setting, close together so the tab reads as
-           a single grouped list rather than a stack of unrelated panels. -->
       <div class="min-w-0 space-y-3">
         <component v-for="(section, index) in activeTab.sections" :key="index" :is="section" />
       </div>

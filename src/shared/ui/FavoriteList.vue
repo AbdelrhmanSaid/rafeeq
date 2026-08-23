@@ -35,15 +35,8 @@ const favorites = filterFavorites(
   (item) => getKey(item),
 )
 
-// A long list reads faster as one divided card than as a grid of tiles, so both
-// groups share the same surface. Kept in constants because the favourites list
-// and the full list have to look identical.
 const listClass = 'divide-y overflow-hidden rounded-2xl bg-card text-card-foreground shadow-sm'
 
-// `[&.active]` is a hook for callers (`item-class`): the radio screen marks the
-// station that is playing. It tints the row and draws a bar down its start
-// edge. `relative` also anchors the full-row link overlay some callers stretch
-// across a row, and the row padding keeps every row past the 2.75rem target.
 const rowClass = [
   'relative flex min-h-11 items-center justify-between gap-3 px-4 py-3 transition-colors',
   'hover:bg-accent/60 active:bg-accent',
@@ -52,16 +45,14 @@ const rowClass = [
   '[&.active]:before:rounded-e-full [&.active]:before:bg-primary',
 ].join(' ')
 
-const favoriteButtonClass = 'relative z-[1] size-11 shrink-0 rounded-full active:scale-90'
+const favoriteButtonClass = 'relative z-1 size-11 shrink-0 rounded-full active:scale-90'
 </script>
-
 <template>
   <div v-if="favorites.length && !search" class="mb-6">
     <slot name="favorites-title" />
     <ul :class="listClass">
       <li v-for="(item, index) in favorites" :key="getKey(item)" :class="[rowClass, itemClass(item)]">
         <slot :item="item" :index="index" />
-
         <div class="flex shrink-0 items-center gap-1">
           <Button
             variant="ghost"
@@ -72,18 +63,15 @@ const favoriteButtonClass = 'relative z-[1] size-11 shrink-0 rounded-full active
           >
             <IconHeartFilled class="size-5 text-destructive" />
           </Button>
-
           <slot name="actions" :item="item" />
         </div>
       </li>
     </ul>
   </div>
-
   <slot v-if="favorites.length && !search" name="all-title" />
   <ul :class="listClass">
     <li v-for="(item, index) in items" :key="getKey(item)" :class="[rowClass, itemClass(item)]">
       <slot :item="item" :index="index" />
-
       <div class="flex shrink-0 items-center gap-1">
         <Button
           variant="ghost"
@@ -95,11 +83,9 @@ const favoriteButtonClass = 'relative z-[1] size-11 shrink-0 rounded-full active
           <IconHeartFilled v-if="isFavorite(getKey(item))" class="size-5 text-destructive" />
           <IconHeart v-else class="size-5 text-muted-foreground" />
         </Button>
-
         <slot name="actions" :item="item" />
       </div>
     </li>
-
     <li v-if="items.length === 0">
       <EmptyState />
     </li>

@@ -66,7 +66,7 @@ async function importSettings(event) {
     :icon="IconRestore"
   >
     <div class="flex flex-col gap-2 sm:flex-row">
-      <Button type="button" class="h-11 flex-1 rounded-full active:scale-[0.98]" @click="exportSettings">
+      <Button type="button" class="h-11 flex-1 rounded-full active:scale-95" @click="exportSettings">
         <IconFileExport class="size-4" />
         <span>تصدير الإعدادات</span>
       </Button>
@@ -74,7 +74,7 @@ async function importSettings(event) {
       <Button
         type="button"
         variant="ghost"
-        class="h-11 flex-1 rounded-full bg-muted hover:bg-accent active:scale-[0.98] dark:hover:bg-accent"
+        class="h-11 flex-1 rounded-full bg-muted hover:bg-accent active:scale-95 dark:hover:bg-accent"
         :disabled="isImporting"
         @click="fileInput?.click()"
       >

@@ -21,13 +21,9 @@ function onRewayaChange(value) {
   if (first) quranStore.changeReciter(first.id)
 }
 
-// Fields read as filled pills rather than outlined boxes. The `data-[size=…]`
-// and `dark:` overrides repeat the prefix the vendored trigger uses, so
-// tailwind-merge replaces those classes instead of losing a specificity race.
 const fieldTriggerClass =
   'h-11 w-full rounded-xl border-0 bg-muted text-base shadow-none data-[size=default]:h-11 dark:bg-muted dark:hover:bg-muted'
 </script>
-
 <template>
   <SettingsSection
     title="القرآن الكريم"
@@ -48,7 +44,6 @@ const fieldTriggerClass =
         </SelectContent>
       </Select>
     </div>
-
     <div class="py-3">
       <Label for="currentReciter" class="mb-2">القارئ الحالي</Label>
       <Select

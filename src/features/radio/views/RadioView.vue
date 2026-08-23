@@ -23,15 +23,12 @@ const radiosList = computed(() =>
   })),
 )
 </script>
-
 <template>
   <Page v-if="!online">
     <OfflineState />
   </Page>
-
   <Page v-else>
     <Heading title="الإذاعة" subtitle="استمع لإذاعات القرآن الكريم المختلفة حول العالم" :share="true" />
-
     <SearchableFavoritesList
       :items="radiosList"
       item-key="slug"
@@ -43,14 +40,10 @@ const radiosList = computed(() =>
       <template #favorites-title>
         <h2 class="mb-3 px-1 text-lg">الإذاعات المفضلة</h2>
       </template>
-
       <template #all-title>
         <h2 class="mb-3 px-1 text-lg">كل الإذاعات</h2>
       </template>
-
       <template #default="{ item, index }">
-        <!-- The link stretches over the whole row (`after:inset-0`), so the row
-             is one big target; the action buttons sit above it on `z-[1]`. -->
         <RouterLink
           :to="{ name: 'radio-station', params: { slug: item.slug } }"
           class="min-w-0 flex-1 truncate text-start after:absolute after:inset-0"
@@ -59,23 +52,21 @@ const radiosList = computed(() =>
           <span>{{ item.name }}</span>
         </RouterLink>
       </template>
-
       <template #actions="{ item }">
         <Button
           variant="ghost"
           size="icon"
-          class="relative z-[1] size-11 shrink-0 rounded-full text-primary active:scale-90"
+          class="relative z-1 size-11 shrink-0 rounded-full text-primary active:scale-90"
           title="إيقاف"
           @click.stop="store.stop()"
           v-if="store.station === item.url"
         >
           <IconPlayerPause class="size-5" />
         </Button>
-
         <Button
           variant="ghost"
           size="icon"
-          class="relative z-[1] size-11 shrink-0 rounded-full text-muted-foreground active:scale-90"
+          class="relative z-1 size-11 shrink-0 rounded-full text-muted-foreground active:scale-90"
           title="تشغيل"
           @click.stop="store.play(item.url)"
           v-else

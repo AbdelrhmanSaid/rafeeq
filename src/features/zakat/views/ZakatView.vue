@@ -53,20 +53,16 @@ const tabs = [
   { id: 'business', title: 'التجارة', icon: IconBuildingStore },
 ]
 
-// A tab strip that scrolls to the screen edge instead of being clipped inside
-// the page gutters, using the app's selected-state wash for the active pill.
 const tabsListClass =
   'no-scrollbar -mx-4 flex h-auto w-full justify-start gap-2 overflow-x-auto rounded-none bg-transparent px-4 py-1'
 
 const tabTriggerClass = [
   'h-11 flex-none gap-2 rounded-full border-0 bg-muted px-4 text-sm font-medium text-muted-foreground',
-  'transition hover:bg-accent hover:text-accent-foreground active:scale-[0.98]',
+  'transition hover:bg-accent hover:text-accent-foreground active:scale-95',
   'data-[state=active]:bg-primary/12 data-[state=active]:text-primary data-[state=active]:shadow-none',
   'dark:text-muted-foreground dark:data-[state=active]:bg-primary/12 dark:data-[state=active]:text-primary',
 ].join(' ')
 
-// Number entry on a phone wants a big field and the decimal keypad, so the
-// shared field/label/hint classes live here instead of on nine inputs.
 const fieldClass = 'h-12 rounded-2xl border-0 bg-muted px-4 text-base shadow-none md:text-base dark:bg-muted'
 const labelClass = 'mb-2 px-1 text-sm font-medium text-muted-foreground'
 const hintClass = 'mt-2 px-1 text-sm text-muted-foreground'
@@ -103,11 +99,9 @@ const conditions = {
   ],
 }
 </script>
-
 <template>
   <Page class="space-y-6 md:space-y-8">
     <Heading :size="2" title="حاسبة الزكاة" subtitle="خذ من أموالهم صدقة تطهرهم وتزكيهم بها" :share="true" />
-
     <Tabs v-model="activeTab" class="gap-4">
       <!-- Tabs Navigation -->
       <TabsList :class="tabsListClass">
@@ -116,7 +110,6 @@ const conditions = {
           <span>{{ tab.title }}</span>
         </TabsTrigger>
       </TabsList>
-
       <!-- Money/Savings -->
       <TabsContent value="money">
         <ZakatCalculatorCard
@@ -139,7 +132,6 @@ const conditions = {
               :class="fieldClass"
             />
           </div>
-
           <div>
             <Label for="zakat-money-amount" :class="labelClass">إجمالي المال والمدخرات</Label>
             <Input
@@ -156,7 +148,6 @@ const conditions = {
           </div>
         </ZakatCalculatorCard>
       </TabsContent>
-
       <!-- Gold -->
       <TabsContent value="gold">
         <ZakatCalculatorCard
@@ -180,7 +171,6 @@ const conditions = {
           <p :class="hintClass">النصاب: {{ toArabicNumerals(NISAB.gold) }} جرام</p>
         </ZakatCalculatorCard>
       </TabsContent>
-
       <!-- Silver -->
       <TabsContent value="silver">
         <ZakatCalculatorCard
@@ -204,7 +194,6 @@ const conditions = {
           <p :class="hintClass">النصاب: {{ toArabicNumerals(NISAB.silver) }} جرام</p>
         </ZakatCalculatorCard>
       </TabsContent>
-
       <!-- Livestock -->
       <TabsContent value="livestock">
         <ZakatCalculatorCard
@@ -228,7 +217,6 @@ const conditions = {
               />
               <p :class="hintClass">النصاب: {{ toArabicNumerals(NISAB.cows) }}</p>
             </div>
-
             <div>
               <Label for="zakat-livestock-sheep" :class="labelClass">عدد الأغنام</Label>
               <Input
@@ -242,7 +230,6 @@ const conditions = {
               />
               <p :class="hintClass">النصاب: {{ toArabicNumerals(NISAB.sheep) }}</p>
             </div>
-
             <div>
               <Label for="zakat-livestock-camels" :class="labelClass">عدد الإبل</Label>
               <Input
@@ -259,7 +246,6 @@ const conditions = {
           </div>
         </ZakatCalculatorCard>
       </TabsContent>
-
       <!-- Crops -->
       <TabsContent value="crops">
         <ZakatCalculatorCard
@@ -286,7 +272,6 @@ const conditions = {
           <p :class="hintClass">النصاب: {{ toArabicNumerals(NISAB.crops) }} كيلوجرام</p>
         </ZakatCalculatorCard>
       </TabsContent>
-
       <!-- Business -->
       <TabsContent value="business">
         <ZakatCalculatorCard
@@ -309,7 +294,6 @@ const conditions = {
               :class="fieldClass"
             />
           </div>
-
           <div>
             <Label for="zakat-business-amount" :class="labelClass">
               قيمة البضائع والأصول التجارية (بالجنيه المصري)
@@ -329,11 +313,9 @@ const conditions = {
         </ZakatCalculatorCard>
       </TabsContent>
     </Tabs>
-
     <!-- General Information -->
     <div class="rounded-2xl bg-card p-5 text-card-foreground shadow-sm">
       <h5 class="mb-4 text-lg">معلومات مهمة عن الزكاة</h5>
-
       <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
         <div>
           <h6 class="mb-2 text-base">مصارف الزكاة الثمانية:</h6>

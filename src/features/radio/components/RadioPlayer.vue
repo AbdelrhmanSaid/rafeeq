@@ -12,17 +12,15 @@ defineProps({
 
 defineEmits(['toggle', 'favorite', 'share'])
 </script>
-
 <template>
   <div class="mx-auto w-full max-w-lg">
     <!-- Navigation Header -->
     <div class="embed-hidden mb-6 flex items-center justify-between gap-2">
       <BackButton :to="{ name: 'radio' }" />
-
       <Button
         variant="ghost"
         type="button"
-        class="h-11 gap-2 rounded-full px-5 text-muted-foreground active:scale-[0.98]"
+        class="h-11 gap-2 rounded-full px-5 text-muted-foreground active:scale-95"
         @click="$emit('share')"
         v-if="canShare"
       >
@@ -30,9 +28,6 @@ defineEmits(['toggle', 'favorite', 'share'])
         <span>مشاركة</span>
       </Button>
     </div>
-
-    <!-- Station hero: the artwork disc carries the playing state (the ripples
-         only run while the stream is live), the name leads. -->
     <div class="surface-hero flex flex-col items-center gap-6 rounded-3xl px-5 py-10 text-center shadow-sm">
       <div class="relative grid size-56 shrink-0 place-items-center">
         <!-- Sound Waves -->
@@ -44,23 +39,19 @@ defineEmits(['toggle', 'favorite', 'share'])
             :style="{ '--i': i }"
           ></span>
         </div>
-
         <div class="relative z-10 grid size-40 place-items-center rounded-full bg-card shadow-md ring-1 ring-border/50">
           <div class="grid size-24 place-items-center rounded-full bg-primary text-primary-foreground shadow-md">
             <IconRadio class="size-11" />
           </div>
         </div>
       </div>
-
       <h1 class="text-2xl text-balance sm:text-3xl">{{ station.name }}</h1>
     </div>
-
-    <!-- Secondary actions and the source note stay above the docked transport. -->
     <div class="mt-6 flex flex-col items-center gap-4">
       <Button
         variant="ghost"
         type="button"
-        class="embed-hidden h-11 gap-2 rounded-full px-5 active:scale-[0.98]"
+        class="embed-hidden h-11 gap-2 rounded-full px-5 active:scale-95"
         :class="isFavorite ? 'text-destructive hover:text-destructive' : 'text-muted-foreground'"
         @click="$emit('favorite')"
       >
@@ -68,24 +59,11 @@ defineEmits(['toggle', 'favorite', 'share'])
         <IconHeart v-else class="size-5" />
         <span>{{ isFavorite ? 'في المفضلة' : 'إضافة للمفضلة' }}</span>
       </Button>
-
       <p class="max-w-xs text-sm leading-relaxed text-muted-foreground">
         يتم تشغيل البث المباشر من مصدره الرسمي بجودة عالية
       </p>
     </div>
-
-    <!-- Reserves the height the fixed transport below occupies, so the note is
-         never hidden under it. -->
     <div class="h-28" aria-hidden="true"></div>
-
-    <!-- The transport docks to the bottom like the Quran player: on the phone it
-         sits directly above the floating tab bar (navbar height plus the
-         home-indicator inset) and stays under that bar's `z-40`; from `md` the
-         tab bar is gone and it rests on the bottom edge. The strip spans the
-         full width but the bar inside it is only as wide as the player column,
-         so the strip itself is click-through — otherwise its transparent flanks
-         would swallow taps on whatever sits underneath (the desktop footer
-         links). Only the bar takes pointer events back. -->
     <div class="pointer-events-none fixed inset-x-0 bottom-[var(--tabbar-offset)] z-30 md:bottom-0 md:pb-4">
       <div class="mx-auto w-full max-w-lg px-3 pb-2 sm:px-4">
         <div
@@ -102,7 +80,6 @@ defineEmits(['toggle', 'favorite', 'share'])
             <IconPlayerPause v-if="isPlaying" class="size-6" />
             <IconPlayerPlay v-else class="size-6" />
           </Button>
-
           <div class="min-w-0 flex-1 text-start leading-tight">
             <span class="block truncate text-sm font-medium">{{ station.name }}</span>
             <span class="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
@@ -118,10 +95,7 @@ defineEmits(['toggle', 'favorite', 'share'])
     </div>
   </div>
 </template>
-
 <style scoped>
-/* The live dot and the ripple loop need real CSS (a keyframe and a glow ring);
-   colors still come from the tokens so runtime theming keeps working. */
 .live {
   background: var(--success);
   box-shadow: 0 0 0 0.125rem color-mix(in srgb, var(--success) 20%, transparent);
@@ -132,7 +106,6 @@ defineEmits(['toggle', 'favorite', 'share'])
   transform: scale(0.8);
 }
 
-/* Each ripple is offset by its index so the three rings chase each other. */
 .sound-waves.active .wave {
   animation: ripple 2.4s ease-out infinite;
   animation-delay: calc(var(--i) * 0.4s);

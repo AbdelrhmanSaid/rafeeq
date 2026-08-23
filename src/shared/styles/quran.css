@@ -1,18 +1,10 @@
-/* Shared Quran typography. Imported into the scoped style block of every
-   component that renders ayah text, so the rules pick up that component's
-   scope attribute. Colors come from the design tokens. */
 .ayah {
   display: inline;
   text-wrap: pretty;
   margin-inline: 0 0.2rem;
-  /* The playing/bookmarked wash fades in instead of snapping as the recitation
-     steps from one ayah to the next. */
   transition: background-color 200ms ease;
 }
 
-/* A quiet end-of-ayah marker rather than a badge: no fill, a hairline accent
-   ring and the numeral in the accent colour, so it punctuates the verse instead
-   of competing with it. */
 .ayah-number {
   min-width: 1.5rem;
   height: 1.5rem;
@@ -28,6 +20,5 @@
   font-size: 0.8125rem;
   font-variant-numeric: tabular-nums;
   line-height: 1;
-  /* The Kitab face is for Quran text only — the numeral sits in the UI font. */
   font-family: var(--font-sans);
 }

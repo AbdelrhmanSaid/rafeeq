@@ -45,21 +45,16 @@ watch([() => props.ayah, edition], ([ayah]) => {
   if (online.value) execute()
 })
 
-// Both steps share one pill; the end of the surah keeps its place in the row.
-const stepButtonClass = 'h-11 flex-1 gap-1.5 rounded-full text-muted-foreground active:scale-[0.98]'
+const stepButtonClass = 'h-11 flex-1 gap-1.5 rounded-full text-muted-foreground active:scale-95'
 </script>
-
 <template>
   <BottomSheet :show="!!ayah" title="تفسير الآية" @close="emit('close')">
     <div class="px-4 pb-4">
       <template v-if="displayAyah">
-        <!-- The verse leads the sheet on its own quiet panel; everything under
-             it is apparatus. -->
-        <p class="mb-4 rounded-2xl bg-muted/50 px-4 py-5 text-center text-[1.5rem] leading-[2.1] font-quran">
+        <p class="mb-4 rounded-2xl bg-muted/50 px-4 py-5 text-center text-2xl leading-quran font-quran">
           {{ displayAyah.text }}
           <span class="ayah-number">{{ toArabicNumerals(displayAyah.numberInSurah) }}</span>
         </p>
-
         <div class="mb-4 grid gap-2">
           <Label for="tafseerEdition" class="px-1 font-normal text-muted-foreground">التفسير</Label>
           <Select v-model="edition">
@@ -74,22 +69,16 @@ const stepButtonClass = 'h-11 flex-1 gap-1.5 rounded-full text-muted-foreground 
           </Select>
         </div>
       </template>
-
       <LoadingState v-if="isFetching" message="جاري تحميل التفسير..." />
-
       <OfflineState v-else-if="!online && !tafsir" />
-
       <ErrorState v-else-if="error" :code="500" message="حدث خطأ أثناء تحميل التفسير، برجاء المحاولة مرة أخرى." />
-
       <template v-else-if="displayAyah && tafsir">
         <p class="text-base leading-relaxed text-pretty">{{ tafsir.text }}</p>
-
         <div class="mt-5 flex items-center gap-2 border-t pt-3">
           <Button variant="ghost" :class="stepButtonClass" :disabled="!hasPrev" @click="emit('prev')">
             <IconChevronRight class="size-4" />
             <span>الآية السابقة</span>
           </Button>
-
           <Button variant="ghost" :class="stepButtonClass" :disabled="!hasNext" @click="emit('next')">
             <span>الآية التالية</span>
             <IconChevronLeft class="size-4" />
@@ -99,7 +88,6 @@ const stepButtonClass = 'h-11 flex-1 gap-1.5 rounded-full text-muted-foreground 
     </div>
   </BottomSheet>
 </template>
-
 <style scoped>
 @import '@/shared/styles/quran.css';
 </style>

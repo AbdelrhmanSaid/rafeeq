@@ -20,20 +20,6 @@ const props = defineProps({
   },
 })
 
-// The `theme-light` class below re-declares the light tokens on this subtree so
-// the export always renders light — but that also re-declares `--primary` with
-// the compiled default, hiding the accent the user picked at runtime (which
-// lives as an inline `--primary` on the root element, see
-// `src/shared/utils/css.js`). Resolve it from the root and pin it back as an
-// inline style on the export root so the whole export follows the theme color.
-//
-// html2canvas cannot rasterize modern color functions (`oklch`, `color-mix`),
-// so the accent is resolved all the way down to a plain `rgb()` and also
-// exposed as a raw channel triple: every translucent accent in the stylesheet
-// below is written as `rgba(var(--zekr-primary-rgb), a)` rather than as a
-// Tailwind opacity modifier, which would compile to `color-mix()`. html2canvas
-// also rasterizes inline SVGs without stylesheet context, so the logo needs the
-// resolved color as an inline style either way.
 const PRIMARY_FALLBACK = '#795547'
 
 const readPrimaryChannels = () => {
@@ -77,7 +63,6 @@ const repeatLabel = computed(() => {
   return 'يُردَّد مرة واحدة'
 })
 </script>
-
 <template>
   <div
     class="zekr-export theme-light"
@@ -85,39 +70,23 @@ const repeatLabel = computed(() => {
     lang="ar"
     :style="{ '--primary': primaryColor, '--zekr-primary-rgb': primaryRgb }"
   >
-    <!-- One soft card on warm paper: the repeat reads as a quiet header pill,
-         the zekr itself is the hero, and the attribution closes the card. -->
     <div class="export-card">
       <div class="repeat-pill">{{ repeatLabel }}</div>
-
       <div class="text-zone">
         <p class="font-quran zekr-text" :style="textStyle">{{ text }}</p>
       </div>
-
       <template v-if="reference || benefit">
         <span class="divider"></span>
         <p v-if="reference" class="zekr-reference">{{ reference }}</p>
         <p v-if="benefit" class="zekr-benefit">{{ benefit }}</p>
       </template>
     </div>
-
     <div class="export-footer" :style="{ color: primaryColor }">
       <Logo :size="20" :style="{ color: primaryColor }" />
     </div>
   </div>
 </template>
-
 <style scoped>
-/*
- * Captured by html2canvas: stick to solid colors, simple linear-gradients,
- * borders and 2D transforms — no conic-gradient, color-mix, box-shadow
- * or flex gap. Depth therefore comes from the card sitting a tone above the
- * warm paper behind it plus a hairline accent border, never from a shadow.
- *
- * Colors come from the `theme-light` token layer (plain hex there, so
- * html2canvas can read them) and from the accent pinned inline on the root.
- * Sizes stay in px so the user's font-scale setting can't distort the export.
- */
 .zekr-export {
   width: 512px;
   min-height: 560px;

@@ -6,8 +6,6 @@ defineProps({
   title: { type: String, default: '' },
   description: { type: String, default: '' },
   icon: { type: [Object, Function], default: null },
-  // Escape hatch for a body that is a `divide-y` list of rows rather than one
-  // padded block (those rows bring their own vertical padding).
   bodyClass: { type: [String, Array, Object], default: '' },
 })
 
@@ -29,19 +27,10 @@ const hasBody = computed(() => {
   })
 })
 </script>
-
 <template>
-  <!-- Bare mode: the host (a bottom sheet) owns the gutters, so the rows bring
-       only their vertical rhythm and the hairlines that separate them. -->
   <div v-if="bare" class="divide-y">
     <slot />
   </div>
-
-  <!-- One rounded, borderless card per setting, split by hairline dividers
-       rather than boxes: the header row states what the setting is and carries
-       its inline control (a switch, a badge, a reset), and anything that needs
-       more room lands in the body below the rule. A section that is nothing but
-       a switch is therefore a single legible row. -->
   <section v-else class="divide-y overflow-hidden rounded-2xl bg-card text-card-foreground shadow-sm">
     <div v-if="title || $slots.actions" class="flex min-h-14 items-center gap-3 px-4 py-3">
       <span
@@ -50,19 +39,16 @@ const hasBody = computed(() => {
       >
         <component :is="icon" />
       </span>
-
       <div class="min-w-0 flex-1">
         <h3 class="font-sans text-base leading-snug font-medium">{{ title }}</h3>
         <p v-if="description" class="mt-0.5 text-sm leading-relaxed text-pretty text-muted-foreground">
           {{ description }}
         </p>
       </div>
-
       <div v-if="$slots.actions" class="flex shrink-0 items-center">
         <slot name="actions" />
       </div>
     </div>
-
     <div v-if="hasBody" :class="cn('px-4 py-4', bodyClass)">
       <slot />
     </div>

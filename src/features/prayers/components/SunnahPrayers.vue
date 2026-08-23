@@ -41,23 +41,15 @@ const formatRakaa = (value) => {
   return `${toArabicNumerals(value)} ركعات`
 }
 
-// Fixed-width rakaa columns so the "قبل" / "بعد" headings line up with the
-// values in every row, at any font scale.
 const rakaaCol = 'w-18 shrink-0 text-center text-sm'
 </script>
-
 <template>
-  <!-- Single root so class/attrs from parents still fall through -->
   <div>
-    <!-- The column headings sit above the card rather than inside it, so the
-         card itself stays a clean list of prayers and the labels never read as
-         a sixth row. -->
     <div class="mb-2 flex items-center px-4 text-xs font-medium text-muted-foreground">
       <span class="flex-1"></span>
       <span :class="rakaaCol">قبل</span>
       <span :class="rakaaCol">بعد</span>
     </div>
-
     <div class="divide-y overflow-hidden rounded-2xl bg-card text-card-foreground shadow-sm">
       <div v-for="(prayer, index) in prayers" :key="index" class="flex min-h-14 items-center px-4 py-3">
         <div class="flex min-w-0 flex-1 items-center gap-3">
@@ -68,8 +60,6 @@ const rakaaCol = 'w-18 shrink-0 text-center text-sm'
           </span>
           <span class="min-w-0 truncate text-base font-medium">{{ prayer.name }}</span>
         </div>
-
-        <!-- A dash in muted grey says "no sunnah here" without shouting. -->
         <span :class="[rakaaCol, prayer.before === 0 ? 'text-muted-foreground' : 'font-medium']">
           {{ formatRakaa(prayer.before) }}
         </span>

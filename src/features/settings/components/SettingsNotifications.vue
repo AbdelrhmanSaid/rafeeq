@@ -19,7 +19,7 @@ const { enabled, loading, state, toggle } = usePushNotifications()
     <Button
       type="button"
       :variant="enabled ? 'destructive' : 'default'"
-      class="h-11 w-full rounded-full active:scale-[0.98]"
+      class="h-11 w-full rounded-full active:scale-95"
       :disabled="loading"
       @click="toggle"
     >

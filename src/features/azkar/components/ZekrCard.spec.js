@@ -91,9 +91,6 @@ describe('ZekrCard', () => {
 
     await clickReset(wrapper)
 
-    // The card itself counts on click below `lg`, so the reset button sits in a
-    // `@click.stop` wrapper. Without it the same press would reset and then
-    // immediately count back up to 1.
     expect(counts[0]).toBe(0)
   })
 

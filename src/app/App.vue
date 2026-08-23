@@ -59,10 +59,7 @@ const updateSW = registerSW({
   },
 })
 </script>
-
 <template>
-  <!-- reka-ui reads the direction from here, so every menu, select and slider
-       in the app is laid out RTL without setting `dir` on each of them. -->
   <ConfigProvider dir="rtl">
     <div :class="['app-shell', { 'main-content-embed': isEmbedRoute }]">
       <!-- Offline indicator -->
@@ -75,7 +72,6 @@ const updateSW = registerSW({
             <IconWifiOff size="1.125rem" />
           </span>
           <span class="text-sm font-medium">لا يوجد اتصال بالإنترنت</span>
-
           <Button
             variant="ghost"
             size="icon"
@@ -88,14 +84,9 @@ const updateSW = registerSW({
           </Button>
         </div>
       </div>
-
       <!-- Desktop Navbar -->
       <Navbar class="hidden md:block" v-if="!isEmbedRoute" />
-
       <!-- Main Content -->
-      <!-- The mobile tab bar floats over the page, so the content clears its
-           whole footprint (bar height + home-indicator inset) plus a little air;
-           from `md` the tab bar is gone and the footer takes over. -->
       <div
         class="main-content"
         :class="
@@ -106,17 +97,12 @@ const updateSW = registerSW({
       >
         <RouterView />
       </div>
-
       <!-- Desktop Footer -->
       <Footer class="hidden md:block" v-if="!isEmbedRoute" />
-
       <!-- Mobile TabBar -->
       <TabBar class="block md:hidden" v-if="!isEmbedRoute" />
     </div>
-
     <!-- Toast -->
-    <!-- On a phone the toast has to sit above the floating tab bar, so it gets
-         its own offset; desktop keeps the tighter one. -->
     <Toaster
       :theme="themeStore.mode"
       position="bottom-left"
@@ -131,13 +117,7 @@ const updateSW = registerSW({
     />
   </ConfigProvider>
 </template>
-
 <style scoped>
-/* The banner sticks to the top of the viewport, so the navbar right after it
-   (also sticky) has to start below it instead of underneath. Kept as a rule
-   rather than a utility because it only applies while the banner is rendered,
-   and it has to reach the Navbar root element. The offset tracks the banner's
-   own height (`h-14`). */
 .offline-banner + * {
   top: 3.5rem;
 }

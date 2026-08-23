@@ -22,10 +22,6 @@ const props = defineProps({
   },
 })
 
-// Tailwind's preflight strips the browser heading sizes, so the level prop has
-// to carry the type scale itself. Every step is a phone size first and grows
-// one notch from `sm` up, so a long Arabic title still fits 390px without
-// wrapping into a wall.
 const sizeClasses = {
   1: 'text-3xl sm:text-4xl',
   2: 'text-2xl sm:text-3xl',
@@ -60,16 +56,12 @@ const sharePage = async () => {
   }
 }
 </script>
-
 <template>
   <div>
-    <!-- Title and share sit on one row so the action stays at the top end of
-         the screen (out of the thumb zone) instead of interrupting the title. -->
     <div class="flex items-start justify-between gap-2">
       <component :is="`h${size}`" :class="titleClass" class="min-w-0 flex-1 text-balance">
         {{ title }}
       </component>
-
       <Button
         v-if="share"
         variant="ghost"
@@ -83,9 +75,6 @@ const sharePage = async () => {
         <IconShare3 class="size-5" />
       </Button>
     </div>
-
-    <!-- Preflight also strips paragraph margins, so the gap under a subtitle is
-         explicit; it is what separates the heading block from the content. -->
     <p class="mt-1.5 mb-5 max-w-prose text-sm leading-relaxed text-pretty text-muted-foreground" v-if="subtitle">
       {{ subtitle }}
     </p>

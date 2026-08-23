@@ -58,7 +58,7 @@ const shareStation = async () => {
     <OfflineState />
   </Page>
 
-  <Page v-else class="flex min-h-[60svh] items-center justify-center">
+  <Page v-else class="flex min-h-[55dvh] items-center justify-center">
     <!-- Not Found State -->
     <div v-if="!station" class="mx-auto flex max-w-sm flex-col items-center py-8 text-center">
       <span class="mb-5 grid size-14 place-items-center rounded-full bg-muted text-muted-foreground">

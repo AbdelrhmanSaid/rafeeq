@@ -7,11 +7,8 @@ const props = defineProps({
   size: { type: Number, default: 56 },
 })
 
-// The `size` prop stays a plain number for callers, but the ring is drawn in
-// `rem` so it grows with the user's font-scale setting.
 const boxSize = computed(() => `${props.size / 16}rem`)
 </script>
-
 <template>
   <div class="relative shrink-0" :style="{ width: boxSize, height: boxSize }">
     <svg viewBox="0 0 36 36" class="size-full -rotate-90">

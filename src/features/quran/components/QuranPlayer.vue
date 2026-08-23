@@ -124,25 +124,14 @@ onUnmounted(() => audio.value?.pause())
 
 defineExpose({ seekToAyah })
 </script>
-
 <template>
-  <!-- The transport sits in normal flow above the surah rather than docking to
-       the bottom of the screen: the reading column is the point of the page, and
-       a pinned bar both covers the last line and follows the reader down a very
-       long surah. -->
   <div class="mb-4">
     <div class="rounded-3xl border border-border/70 bg-card p-3 shadow-sm">
       <div class="flex items-center gap-2.5">
         <span class="shrink-0 text-xs tabular-nums text-muted-foreground">{{ formatTime(currentTime) }}</span>
-
-        <!-- The indicator is moved with translateX, and CSS transforms are
-               never mirrored for RTL, so the whole track is flipped to keep the
-               bar filling from the start edge. -->
         <Progress :model-value="progress" class="h-1 min-w-0 flex-1 -scale-x-100" />
-
         <span class="shrink-0 text-xs tabular-nums text-muted-foreground">{{ formatTime(duration) }}</span>
       </div>
-
       <div class="mt-3 flex items-center gap-2">
         <Button
           @click="togglePlayPause"
@@ -153,7 +142,6 @@ defineExpose({ seekToAyah })
           <IconPlayerPlay v-if="!isPlaying" class="size-5" />
           <IconPlayerPause v-else class="size-5" />
         </Button>
-
         <div class="min-w-0 flex-1 leading-tight">
           <template v-if="currentAyahDisplay">
             <span class="block truncate text-sm font-medium text-primary">{{ currentAyahDisplay.surahName }}</span>
@@ -166,7 +154,6 @@ defineExpose({ seekToAyah })
           }}</span>
           <span v-else class="line-clamp-2 text-xs text-muted-foreground">اضغط على آية للاستماع</span>
         </div>
-
         <Button
           type="button"
           variant="ghost"
@@ -177,9 +164,6 @@ defineExpose({ seekToAyah })
           <IconGauge class="hidden size-4 sm:block" />
           <span>{{ rateLabel }}</span>
         </Button>
-
-        <!-- The reciter's name only fits from `sm`; on the phone the button is
-               an icon target and the name lives in its tooltip. -->
         <Button
           @click="openReciterSheet"
           variant="secondary"
@@ -192,13 +176,11 @@ defineExpose({ seekToAyah })
         </Button>
       </div>
     </div>
-
     <BottomSheet :show="showReciterSheet" title="اختيار القارئ" @close="closeReciterSheet">
       <div class="px-4 pb-4">
         <SettingsReciter />
       </div>
     </BottomSheet>
-
     <audio
       ref="audio"
       .playbackRate="Number(quranStore.playbackRate)"

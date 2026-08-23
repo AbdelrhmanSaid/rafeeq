@@ -62,71 +62,58 @@ const qiblaDirection = computed(() => {
 
 const { heading, hasSupport, error: compassError, canRequestPermission, requestPermission } = useDeviceCompass()
 
-// Every async/blocked state renders on the same resting surface, so the screen
-// never jumps between a bordered box and a bare block while it resolves.
 const stateCardClass = 'rounded-2xl bg-card text-card-foreground shadow-sm'
 
 onMounted(requestLocation)
 </script>
-
 <template>
   <Page class="space-y-6">
     <Heading title="اتجاه القبلة" subtitle="حدد اتجاه القبلة بسهولة باستخدام البوصلة الإلكترونية." />
-
     <!-- Desktop not supported -->
     <div v-if="!isMobile" :class="stateCardClass">
       <div class="flex flex-col items-center gap-4 px-4 py-10 text-center">
         <span class="grid size-14 place-items-center rounded-full bg-muted text-muted-foreground">
           <IconDeviceMobile class="size-6" />
         </span>
-
         <div class="space-y-1">
           <p class="text-lg">هذه الميزة متاحة فقط على الهاتف</p>
           <p class="text-sm leading-relaxed text-muted-foreground">افتح التطبيق من هاتفك لاستخدام البوصلة</p>
         </div>
       </div>
     </div>
-
     <!-- Offline state -->
     <div v-else-if="!online" :class="stateCardClass">
       <OfflineState />
     </div>
-
     <!-- Location loading -->
     <div v-else-if="locationLoading" :class="stateCardClass">
       <LoadingState message="جاري تحديد موقعك..." />
     </div>
-
-    <!-- Location error — the whole card retries, so it is a real button. -->
     <button
       v-else-if="locationError"
       type="button"
       :class="[
         stateCardClass,
-        'flex w-full flex-col items-center gap-4 px-4 py-10 text-center transition hover:bg-accent/50 active:scale-[0.99]',
+        'flex w-full flex-col items-center gap-4 px-4 py-10 text-center transition hover:bg-accent/50 active:scale-95',
       ]"
       @click="requestLocation"
     >
       <span class="grid size-14 place-items-center rounded-full bg-destructive/10 text-destructive">
         <IconLocationFilled class="size-6" />
       </span>
-
       <div class="space-y-1">
         <p class="text-base">{{ locationError }}</p>
         <p class="text-sm text-muted-foreground">إضغط للمحاولة مرة أخرى</p>
       </div>
     </button>
-
     <!-- Qibla API loading -->
     <div v-else-if="isFetching" :class="stateCardClass">
       <LoadingState message="جاري تحديد اتجاه القبلة..." />
     </div>
-
     <!-- Qibla API error -->
     <div v-else-if="error" :class="stateCardClass">
       <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
     </div>
-
     <!-- Qibla compass -->
     <QiblaCompass
       v-else-if="qiblaDirection !== null"

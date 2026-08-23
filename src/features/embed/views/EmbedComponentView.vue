@@ -62,18 +62,13 @@ const component = computed(() => entry.value?.component)
 const props = computed(() => resolveProps(schema, route.query))
 const componentProps = computed(() => resolveProps(entry.value?.schema ?? {}, route.query))
 </script>
-
 <template>
-  <!-- No app chrome here: the embed route hides it through `.main-content-embed`
-       (see `main.css`), so this view only supplies the optional caption and the
-       component itself. -->
   <Page>
     <template v-if="component">
       <Heading v-if="props.title" :size="2" class="mb-4" :title="props.title" :subtitle="props.subtitle" />
       <component :is="component" v-bind="componentProps" />
     </template>
-
-    <div v-else class="grid min-h-[40vh] place-items-center">
+    <div v-else class="grid min-h-[40dvh] place-items-center">
       <ErrorState :icon="IconAlertTriangle" message="خطأ في الإعدادات: المكوّن غير موجود." />
     </div>
   </Page>

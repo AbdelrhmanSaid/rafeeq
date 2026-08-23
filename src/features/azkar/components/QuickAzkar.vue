@@ -23,19 +23,14 @@ const azkar = [
   },
 ]
 
-// Every row is one whole link, so the shortcuts read (and tap) as a single
-// divided card instead of four separate tiles competing on a phone screen.
 const rowClass = [
   'flex min-h-14 items-center gap-3 px-4 py-3 transition-colors',
   'hover:bg-accent/60 active:bg-accent',
-  // The ring is inset because the rows share one clipped card, so an outer ring
-  // would be cut off at the card's edges.
   'focus-visible:bg-accent focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset focus-visible:outline-none',
 ].join(' ')
 
 const iconClass = 'grid size-11 shrink-0 place-items-center rounded-full bg-primary/10 text-primary'
 </script>
-
 <template>
   <div class="divide-y overflow-hidden rounded-2xl bg-card text-card-foreground shadow-sm">
     <RouterLink
@@ -48,26 +43,20 @@ const iconClass = 'grid size-11 shrink-0 place-items-center rounded-full bg-prim
       <span :class="iconClass">
         <component :is="item.icon" class="size-5" />
       </span>
-
       <div class="min-w-0 flex-1">
         <h3 class="text-base font-medium">{{ item.name }}</h3>
         <p class="text-sm leading-relaxed text-muted-foreground">{{ item.description }}</p>
       </div>
-
-      <!-- Forward in an RTL document points left. -->
       <IconChevronLeft class="size-4 shrink-0 text-muted-foreground" />
     </RouterLink>
-
     <RouterLink :to="{ name: 'azkar' }" :class="rowClass" aria-label="المزيد">
       <span :class="iconClass">
         <IconDots class="size-5" />
       </span>
-
       <div class="min-w-0 flex-1">
         <h3 class="text-base font-medium">المزيد</h3>
         <p class="text-sm leading-relaxed text-muted-foreground">اضغط هنا لعرض كل الأذكار المتاحة</p>
       </div>
-
       <IconChevronLeft class="size-4 shrink-0 text-muted-foreground" />
     </RouterLink>
   </div>

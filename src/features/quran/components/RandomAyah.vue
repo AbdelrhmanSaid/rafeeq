@@ -98,37 +98,29 @@ async function toggleAyahPlayback() {
   }
 }
 
-// The four controls share one round 2.75rem target sitting in a single row
-// under the verse — the text leads, the apparatus follows.
 const actionClass = 'size-11 rounded-full text-muted-foreground active:scale-90'
 </script>
-
 <template>
   <Card class="gap-0 overflow-hidden border-0 py-0 shadow-sm">
     <CardContent v-if="isFetching || isRecoveringOnReconnect" class="p-6">
       <LoadingState message="جاري تحميل آية..." />
     </CardContent>
-
     <CardContent v-else-if="error" class="p-6">
       <OfflineState v-if="!online" />
       <ErrorState :code="500" message="حدث خطأ أثناء تحميل الآية، برجاء المحاولة مرة أخرى." v-else />
     </CardContent>
-
     <template v-else-if="ayah">
       <CardContent class="px-4 pt-6 pb-4 sm:px-6">
-        <p class="text-center text-[1.75rem] leading-[2.2] font-quran sm:text-[2rem]" :class="tafsir ? 'mb-5' : ''">
+        <p class="text-center text-3xl leading-quran font-quran sm:text-3xl" :class="tafsir ? 'mb-5' : ''">
           {{ displayText }} <span class="ayah-number">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
         </p>
-
         <template v-if="tafsir">
           <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ tafsir.edition.name }}</span>
           <p class="text-sm leading-relaxed text-pretty text-muted-foreground">{{ tafsir.text }}</p>
         </template>
       </CardContent>
-
       <div class="flex items-center justify-between gap-2 border-t px-2 py-1.5">
         <span class="min-w-0 truncate ps-2 text-sm font-medium">{{ normalizeQuranicText(ayah.surah.name) }}</span>
-
         <div class="flex shrink-0 items-center">
           <Button
             variant="ghost"
@@ -140,7 +132,6 @@ const actionClass = 'size-11 rounded-full text-muted-foreground active:scale-90'
           >
             <IconChevronRight class="size-5" />
           </Button>
-
           <Button
             variant="ghost"
             size="icon"
@@ -151,7 +142,6 @@ const actionClass = 'size-11 rounded-full text-muted-foreground active:scale-90'
           >
             <IconChevronLeft class="size-5" />
           </Button>
-
           <Button
             variant="ghost"
             size="icon"
@@ -164,7 +154,6 @@ const actionClass = 'size-11 rounded-full text-muted-foreground active:scale-90'
             <IconPlayerPause v-if="isPlaying" class="size-5" />
             <IconPlayerPlay v-else class="size-5" />
           </Button>
-
           <Button
             variant="ghost"
             size="icon"
@@ -180,7 +169,6 @@ const actionClass = 'size-11 rounded-full text-muted-foreground active:scale-90'
     </template>
   </Card>
 </template>
-
 <style scoped>
 @import '@/shared/styles/quran.css';
 </style>

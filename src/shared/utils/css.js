@@ -1,7 +1,3 @@
-// Runtime theming. The app ships a token layer (see `src/shared/styles/main.css`)
-// where every color is a CSS variable; the user (and the embed query params) can
-// override the accent and the background at runtime by rewriting those same
-// variables on <html>. Components must never hardcode a color.
 const PRIMARY_COLOR_VARS = ['--primary', '--primary-foreground', '--ring']
 
 const BG_COLOR_VARS = ['--background', '--card', '--popover', '--secondary', '--muted', '--accent']
@@ -54,8 +50,6 @@ function toRgb(color) {
   return rgb.match(/\d+/g)?.slice(0, 3).map(Number) ?? null
 }
 
-// Relative luminance (WCAG) so a user-picked accent keeps readable text on top
-// of it: light accents get ink text, dark accents get white.
 function readableForeground(color) {
   const rgb = toRgb(color)
   if (!rgb) return '#fff9f5'
@@ -120,15 +114,9 @@ export function applyBgColor(color) {
   if (bg) {
     const dark = isDarkMode()
 
-    // Cards and popovers carry the design's depth now that surfaces are
-    // separated by tone and shadow rather than by a border, so they have to
-    // lift off a user-picked background instead of matching it. Both modes
-    // lift toward white — a light card on warm paper, a raised card on warm
-    // ink — but a dark background needs a far smaller mix to read as lifted.
     const cardLift = dark ? 94 : 68
     const popoverLift = dark ? 90 : 76
 
-    // Recessed fills go the other way: down in light mode, up in dark.
     const sink = dark ? '#fff' : '#000'
 
     setVars({
@@ -149,8 +137,6 @@ export function isDarkMode() {
 }
 
 export function applyMode(mode) {
-  // Tailwind's dark variant keys off the `dark` class on <html>; the attribute
-  // mirrors it so plain CSS (and anything reading the DOM) can branch too.
   document.documentElement.classList.toggle('dark', mode === 'dark')
   document.documentElement.setAttribute('data-theme', mode)
 }

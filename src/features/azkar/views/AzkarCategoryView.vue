@@ -55,22 +55,13 @@ onBeforeRouteLeave(async () => {
   return !isCanceled
 })
 
-// The two rows of the leave sheet share the app's list-row shape; only the
-// destructive one changes color.
 const sheetRowClass =
   'flex w-full min-h-14 items-center gap-3 rounded-2xl px-3 text-start transition-colors hover:bg-accent/60 active:bg-accent'
 </script>
-
 <template>
   <AsyncContent :pending="isFetching" :error="error" loading-message="جاري تحميل الأذكار...">
     <Page v-if="category">
-      <!-- `mb-4` is explicit because almost every category ships without a
-           description, and Heading only carries its own bottom margin on the
-           subtitle it then does not render. -->
       <Heading class="mb-4" :title="category.meta.name" :subtitle="category.meta.description" :share="true" />
-
-      <!-- The cards stay direct siblings of one another: `useZekrScroll` walks
-           `nextElementSibling` to reach the next `.zekr-card`. -->
       <div class="space-y-4">
         <ZekrCard
           v-for="(zekr, index) in category.content"
@@ -82,21 +73,17 @@ const sheetRowClass =
           :benefit="zekr.benefit"
         />
       </div>
-
-      <!-- End-of-list actions, stacked full width so the last one sits under
-           the thumb on a phone and only spreads into a row from `sm`. -->
       <div class="mt-8 flex flex-col gap-2 sm:flex-row sm:justify-center">
         <Button
           v-if="totalClicked > 0"
           variant="ghost"
           type="button"
-          class="h-11 gap-1.5 rounded-full px-5 text-muted-foreground active:scale-[0.98]"
+          class="h-11 gap-1.5 rounded-full px-5 text-muted-foreground active:scale-95"
           @click="resetProgress"
         >
           <IconRestore class="size-5" />
           <span>تصفير</span>
         </Button>
-
         <BackButton
           :to="{ name: 'azkar' }"
           button-class="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
@@ -104,11 +91,9 @@ const sheetRowClass =
       </div>
     </Page>
   </AsyncContent>
-
   <!-- Leave confirmation sheet -->
   <BottomSheet :show="isRevealed" title="لم تنتهِ بعد" @close="cancel">
     <p class="px-4 pb-4 leading-relaxed text-muted-foreground">لم تنتهِ من جميع الأذكار بعد، هل تريد المغادرة؟</p>
-
     <ul class="space-y-1 px-2 pb-2">
       <li>
         <button type="button" :class="sheetRowClass" @click="cancel">

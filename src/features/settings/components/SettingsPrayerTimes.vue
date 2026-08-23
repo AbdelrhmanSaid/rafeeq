@@ -31,30 +31,20 @@ const location = computed(() => {
   return `${store.latitude}, ${store.longitude}`
 })
 
-// A single-select <ToggleGroup> clears its value when the active item is pressed
-// again; the layout setting has no "unset" state, so ignore the empty update
-// instead of writing an unknown layout to the store.
 function onLayoutChange(value) {
   if (value) store.layout = value
 }
 
-// reka-ui's <SelectItem> throws on an empty-string value because '' is reserved
-// for "cleared, show the placeholder", but AUTO is '' in the stored settings —
-// so swap it for a sentinel going into the Select and back to AUTO coming out.
 const AUTO_OPTION_VALUE = '__auto__'
 const toOptionValue = (value) => (value === AUTO ? AUTO_OPTION_VALUE : value)
 const fromOptionValue = (value) => (value === AUTO_OPTION_VALUE ? AUTO : value)
 
-// Fields read as filled pills rather than outlined boxes. The `data-[size=…]`
-// and `dark:` overrides repeat the prefix the vendored trigger uses, so
-// tailwind-merge replaces those classes instead of losing a specificity race.
 const fieldTriggerClass =
   'h-11 w-full rounded-xl border-0 bg-muted text-base shadow-none data-[size=default]:h-11 dark:bg-muted dark:hover:bg-muted'
 
 const segmentClass =
   'min-h-11 rounded-full px-2 text-sm font-medium text-muted-foreground data-[state=on]:bg-primary/15 data-[state=on]:text-primary data-[state=on]:shadow-sm'
 </script>
-
 <template>
   <SettingsSection
     title="مواقيت الصلاة"
@@ -85,7 +75,6 @@ const segmentClass =
         </ToggleGroupItem>
       </ToggleGroup>
     </div>
-
     <div class="py-3">
       <Label for="location" class="mb-2">الموقع</Label>
       <div class="flex items-center gap-2">
@@ -96,7 +85,6 @@ const segmentClass =
           readonly
           class="h-11 min-w-0 flex-1 rounded-full border-0 bg-muted px-4 text-base shadow-none dark:bg-muted"
         />
-
         <Button
           type="button"
           variant="outline"
@@ -107,7 +95,6 @@ const segmentClass =
         >
           <IconRefreshDot class="size-5" />
         </Button>
-
         <Button
           type="button"
           variant="outline"
@@ -120,7 +107,6 @@ const segmentClass =
         </Button>
       </div>
     </div>
-
     <div v-for="field in calculationFields" :key="field.key" class="py-3">
       <Label :for="field.key" class="mb-2">{{ field.label }}</Label>
       <Select

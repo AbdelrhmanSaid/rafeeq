@@ -81,7 +81,7 @@ const surahCount = computed(() => allAssets.value.filter((a) => a.type === 'sura
 const azkarCount = computed(() => allAssets.value.filter((a) => a.type === 'azkar').length)
 
 const filterChipClass =
-  'inline-flex min-h-11 shrink-0 cursor-pointer items-center gap-2 rounded-full px-4 text-sm font-medium transition duration-200 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:scale-[0.98]'
+  'inline-flex min-h-11 shrink-0 cursor-pointer items-center gap-2 rounded-full px-4 text-sm font-medium transition duration-200 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:scale-95'
 
 const filterButtonClass = (type) =>
   filterType.value === type
@@ -94,8 +94,6 @@ const filterCountClass = (type) =>
     filterType.value === type ? 'bg-primary-foreground/20' : 'bg-foreground/10',
   )
 
-// Round, muted icon buttons for the bulk controls that sit beside the primary
-// "download everything" action.
 const bulkButtonClass =
   'size-11 shrink-0 rounded-full border-0 bg-muted shadow-none hover:bg-accent active:scale-95 dark:bg-muted dark:hover:bg-accent'
 
@@ -122,26 +120,17 @@ const handleAssetAction = (asset) => {
   }
 }
 </script>
-
 <template>
-  <!-- Same card language as a settings section — one borderless rounded surface
-       cut into bands by hairlines. `contain` keeps the long asset list from
-       invalidating layout for the rest of the settings page while downloads
-       tick along. -->
   <section class="divide-y overflow-hidden rounded-2xl bg-card text-card-foreground shadow-sm [contain:layout_style]">
-    <!-- Header: what this is, how far along it is, and the rare destructive
-         action kept up top and away from the thumb. -->
     <div class="px-4 py-4">
       <div class="flex items-start gap-3">
         <span class="grid size-10 shrink-0 place-items-center rounded-full bg-primary/12 text-primary">
           <IconCloudDownload class="size-5" />
         </span>
-
         <div class="min-w-0 flex-1">
           <h3 class="font-sans text-base leading-snug font-medium">التنزيلات</h3>
           <p class="mt-0.5 text-sm leading-relaxed text-muted-foreground">للاستخدام بدون إنترنت</p>
         </div>
-
         <Button
           variant="ghost"
           size="icon"
@@ -154,7 +143,6 @@ const handleAssetAction = (asset) => {
           <IconTrash class="size-5" />
         </Button>
       </div>
-
       <div class="mt-4 flex items-center gap-3 rounded-2xl bg-muted px-4 py-3">
         <CircleProgress :percentage="progressPercentage" :size="44" />
         <div class="min-w-0">
@@ -164,7 +152,6 @@ const handleAssetAction = (asset) => {
           <div class="text-sm text-muted-foreground">ملف محمّل</div>
         </div>
       </div>
-
       <!-- Status Bar -->
       <div
         v-if="isDownloading || isPaused || !online"
@@ -185,8 +172,6 @@ const handleAssetAction = (asset) => {
         </template>
       </div>
     </div>
-
-    <!-- Filters — a chip strip that scrolls past the card gutter on a phone. -->
     <div
       class="flex gap-2 overflow-x-auto px-4 py-3 edge-fade-x no-scrollbar"
       style="--edge-fade-size: 1rem"
@@ -197,20 +182,17 @@ const handleAssetAction = (asset) => {
         <span>الكل</span>
         <span :class="filterCountClass('all')">{{ toArabicNumerals(totalAssets) }}</span>
       </button>
-
       <button type="button" :class="cn(filterChipClass, filterButtonClass('surah'))" @click="filterType = 'surah'">
         <IconBook2 class="size-4" />
         <span>السور</span>
         <span :class="filterCountClass('surah')">{{ toArabicNumerals(surahCount) }}</span>
       </button>
-
       <button type="button" :class="cn(filterChipClass, filterButtonClass('azkar'))" @click="filterType = 'azkar'">
         <IconSparkles class="size-4" />
         <span>الأذكار</span>
         <span :class="filterCountClass('azkar')">{{ toArabicNumerals(azkarCount) }}</span>
       </button>
     </div>
-
     <!-- List -->
     <div class="dm-list max-h-75 divide-y overflow-y-auto">
       <DownloadAssetItem
@@ -221,9 +203,6 @@ const handleAssetAction = (asset) => {
         @action="handleAssetAction"
       />
     </div>
-
-    <!-- The bulk controls sit under the list, in the thumb zone: the primary
-         action fills the row, the queue controls flank it. -->
     <div class="flex items-center gap-2 px-4 py-3">
       <Button
         v-if="isDownloading || isPaused"
@@ -235,7 +214,6 @@ const handleAssetAction = (asset) => {
       >
         <component :is="isPaused ? IconPlayerPlay : IconPlayerPause" class="size-5" />
       </Button>
-
       <Button
         v-if="pendingCount > 0"
         variant="outline"
@@ -247,9 +225,8 @@ const handleAssetAction = (asset) => {
       >
         <IconX class="size-5" />
       </Button>
-
       <Button
-        class="h-11 min-w-0 flex-1 rounded-full active:scale-[0.98]"
+        class="h-11 min-w-0 flex-1 rounded-full active:scale-95"
         :disabled="isDownloading || !online || isCompleted"
         @click="queueAllAssets"
       >
@@ -257,7 +234,6 @@ const handleAssetAction = (asset) => {
         <span>تحميل الكل</span>
       </Button>
     </div>
-
     <!-- Completed Banner -->
     <div
       v-if="isCompleted"
@@ -268,10 +244,7 @@ const handleAssetAction = (asset) => {
     </div>
   </section>
 </template>
-
 <style scoped>
-/* Scrollbar pseudo-elements have no utility equivalent; the colors still come
-   from the design tokens so runtime theming keeps working. */
 .dm-list::-webkit-scrollbar {
   width: 6px;
 }

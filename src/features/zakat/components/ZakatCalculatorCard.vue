@@ -7,11 +7,7 @@ defineProps({
   conditions: { type: Array, required: true },
 })
 </script>
-
 <template>
-  <!-- One resting surface per calculator: inputs first, then the answer, then
-       the conditions. On a phone that is the reading order; from `lg` the answer
-       moves alongside the fields so the wide screen is not mostly empty. -->
   <div class="rounded-2xl bg-card p-5 text-card-foreground shadow-sm">
     <div class="mb-5 flex items-center gap-3">
       <span class="grid size-11 shrink-0 place-items-center rounded-full bg-primary/10 text-primary [&_svg]:size-5">
@@ -19,12 +15,10 @@ defineProps({
       </span>
       <h5 class="min-w-0 text-lg">{{ title }}</h5>
     </div>
-
     <div class="grid grid-cols-1 gap-5 lg:grid-cols-12">
       <div class="lg:col-span-7">
         <slot />
       </div>
-
       <div class="lg:col-span-5">
         <div class="flex h-full flex-col items-center justify-center gap-1.5 rounded-2xl bg-primary/10 p-5 text-center">
           <span class="text-sm text-muted-foreground">مقدار الزكاة</span>
@@ -35,7 +29,6 @@ defineProps({
         </div>
       </div>
     </div>
-
     <div class="mt-5 rounded-2xl bg-muted px-5 py-4">
       <h6 class="mb-2 text-base">{{ conditionsTitle }}</h6>
       <ul class="list-disc space-y-1.5 ps-5 text-sm leading-relaxed text-muted-foreground">

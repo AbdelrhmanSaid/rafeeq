@@ -5,17 +5,9 @@ import { toArabicNumerals } from '@/shared/utils/arabic'
 
 const lastUpdated = toArabicNumerals('2025-08-18')
 </script>
-
 <template>
   <Page>
     <Heading class="mb-6" title="سياسة الخصوصية" subtitle="نلتزم بحماية خصوصيتك وشرح كيفية تعاملنا مع بياناتك" />
-
-    <!-- The policy is a long run of plain prose, so the typographic rhythm
-         (measure, heading spacing, list bullets, link colour) is set once on the
-         wrapper instead of repeating the same classes on every element. It sits
-         on its own resting surface so a wall of Arabic text reads as a document
-         rather than as loose page copy, and the measure is capped near 65
-         characters so a phone line stays scannable. -->
     <div
       class="mx-auto max-w-prose rounded-3xl bg-card p-5 text-base leading-loose text-card-foreground shadow-sm sm:p-8 [&_a]:text-primary [&_a]:underline [&_a]:decoration-primary/40 [&_a]:underline-offset-4 [&_h2]:mt-9 [&_h2]:mb-3 [&_h2]:text-lg [&_h2]:font-medium sm:[&_h2]:text-xl [&_li+li]:mt-2 [&_p]:mb-5 [&_strong]:font-medium [&_strong]:text-foreground [&_ul]:mb-5 [&_ul]:list-disc [&_ul]:ps-5 [&>p:last-child]:mb-0"
     >
@@ -23,7 +15,6 @@ const lastUpdated = toArabicNumerals('2025-08-18')
         نُقدّم تطبيق «رفيق» كخدمة مجانية ومفتوحة المصدر للمستخدمين. تهدف هذه السياسة إلى توضيح كيفية جمع البيانات
         واستخدامها والاحتفاظ بها ومشاركتها عند استخدامك للتطبيق.
       </p>
-
       <h2>١. البيانات التي نجمعها</h2>
       <ul>
         <li>
@@ -37,20 +28,17 @@ const lastUpdated = toArabicNumerals('2025-08-18')
           <span dir="ltr">localStorage</span> على جهازك فقط.
         </li>
       </ul>
-
       <h2>٢. كيف نستخدم البيانات</h2>
       <ul>
         <li>حساب مواقيت الصلاة وعرض المحتوى المناسب لبلدك أو مدينتك (باستخدام الموقع الجغرافي على جهازك).</li>
         <li>تذكيرك بالأذكار عبر إشعارات محلية على جهازك بعد منح الإذن.</li>
         <li>تحسين الأداء وتجربة الاستخدام بالاستفادة من بيانات التحليلات المجمّعة.</li>
       </ul>
-
       <h2>٣. الإشعارات</h2>
       <p>
         يستخدم التطبيق واجهة إشعارات المتصفح/النظام بعد طلب إذنك الصريح. قد يُجدول التطبيق إشعارات للأذكار (صباحًا
         ومساءً) محليًا على جهازك. يمكنك التحكم بهذه الإشعارات أو إيقافها من إعدادات التطبيق أو إعدادات النظام.
       </p>
-
       <h2>٤. الجهات الخارجية والخدمات المستخدمة</h2>
       <ul>
         <li>
@@ -67,31 +55,24 @@ const lastUpdated = toArabicNumerals('2025-08-18')
           لجلب بيانات محطات الإذاعة.
         </li>
       </ul>
-
       <h2>٥. تخزين البيانات والاحتفاظ بها</h2>
       <ul>
         <li>لا نخزن بيانات شخصية على خوادمنا. تبقى تفضيلاتك على جهازك المحلي.</li>
         <li>تحتفظ خدمات التحليلات التابعة لجهات خارجية ببيانات الاستخدام وفق سياساتها الخاصة.</li>
       </ul>
-
       <h2>٦. مشاركة البيانات</h2>
       <p>لا نبيع أو نتاجر في بياناتك. قد تتم مشاركة بيانات الاستخدام المجمّعة مع مزودي الخدمات بغرض تحسين التطبيق.</p>
-
       <h2>٧. أمان المعلومات</h2>
       <p>نبذل جهدًا معقولًا لحماية بياناتك. لكن لا توجد وسيلة نقل أو تخزين عبر الإنترنت آمنة بنسبة ١٠٠%.</p>
-
       <h2>٨. خصوصية الأطفال</h2>
       <p>لا يستهدف التطبيق الأطفال دون سن ١٣ عامًا بصفة خاصة ولا يجمع عن قصد معلومات شخصية منهم.</p>
-
       <h2>٩. حقوقك</h2>
       <ul>
         <li>يمكنك سحب الإذن بالموقع الجغرافي أو الإشعارات من إعدادات المتصفح/النظام.</li>
         <li>يمكنك حذف بيانات التفضيلات من المتصفح عبر مسح بيانات الموقع أو <span dir="ltr">localStorage</span>.</li>
       </ul>
-
       <h2>١٠. التغييرات على هذه السياسة</h2>
       <p>قد نقوم بتحديث هذه السياسة من حين لآخر. سنُحدّث تاريخ "آخر تحديث" أدناه عند حدوث أي تغيير جوهري.</p>
-
       <h2>١١. التواصل</h2>
       <p>
         لأي استفسار حول الخصوصية، يُرجى فتح تذكرة عبر
@@ -99,7 +80,6 @@ const lastUpdated = toArabicNumerals('2025-08-18')
           >صفحة المشاكل على GitHub</a
         >.
       </p>
-
       <p class="mt-8 border-t pt-5 text-sm text-muted-foreground">آخر تحديث: {{ lastUpdated }}</p>
     </div>
   </Page>

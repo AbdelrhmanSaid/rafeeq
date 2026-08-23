@@ -69,9 +69,6 @@ const onCardClick = () => {
   longPressed = false
 }
 
-// Mobile long presses often emit no click, so count them here (ignoring the
-// controls in the footer row). onCardClick swallows any trailing click;
-// onMouseUp clears the flag in case none arrives.
 onLongPress(
   card,
   (e) => {
@@ -112,44 +109,22 @@ const copyZekr = () => {
   })
 }
 </script>
-
 <template>
-  <!-- `.zekr-card` is the selector useZekrScroll walks to find the next zekr,
-       and `.btn-counter` / `.action-menu` / `.btn-reset` are what the long-press
-       handler above excludes — keep all four class names.
-
-       The whole card is the tap target below `lg` (that is the viewport
-       `useIsMobile` reports on), so the pointer/selection affordances are the
-       phone default and get switched off from `lg` up, where only the counter
-       counts. -->
   <div
     ref="card"
     class="zekr-card cursor-pointer overflow-hidden rounded-2xl bg-card text-card-foreground shadow-sm select-none lg:cursor-auto lg:select-auto"
     :class="{ 'opacity-75': done }"
     @click="onCardClick"
   >
-    <!-- The zekr itself carries the card: nothing competes with it above, and
-         every control lives in the footer row below. -->
     <div class="px-5 pt-6 pb-5 text-center lg:px-6">
-      <p class="font-quran text-2xl leading-[2.15] text-pretty sm:text-[1.625rem]">{{ text }}</p>
-
+      <p class="font-quran text-2xl leading-quran text-pretty sm:text-2xl">{{ text }}</p>
       <p class="mt-3 text-sm leading-relaxed text-muted-foreground" v-if="benefit || reference">
         <span v-if="reference">{{ reference }}</span>
         <span v-if="benefit && reference"> - </span>
         <span v-if="benefit">{{ benefit }}</span>
       </p>
     </div>
-
-    <!-- One controls row, so the card reads as content-then-controls instead of
-         hiding a counter action inside a share menu. The counter is the primary
-         target and sits in the middle; resetting and the content actions
-         (download / share / copy) flank it as quiet icon buttons. -->
     <div class="flex items-center justify-between gap-3 border-t border-border/60 bg-muted/30 px-3 py-3">
-      <!-- The click-stopping wrapper is not decoration: a disabled shadcn
-           Button carries `disabled:pointer-events-none`, so at a count of zero
-           the press would fall straight THROUGH the button onto the
-           tap-to-count card behind it and add a count. With the wrapper, the
-           event targets it instead and stops there. -->
       <div class="btn-reset shrink-0" @click.stop>
         <Button
           class="size-11 rounded-full text-muted-foreground active:scale-90"
@@ -164,9 +139,6 @@ const copyZekr = () => {
           <IconRestore class="size-5" />
         </Button>
       </div>
-
-      <!-- rem (not px) so the progress ring scales with the font and the
-           counter text (e.g. "100/100") stays centered without overflowing. -->
       <button
         class="btn-counter grid size-24 shrink-0 cursor-pointer place-items-center rounded-full text-lg font-medium text-primary tabular-nums transition outline-none select-none active:scale-95 focus-visible:ring-3 focus-visible:ring-ring/50"
         :class="{ 'is-done': done }"
@@ -178,7 +150,6 @@ const copyZekr = () => {
         <IconCheck v-if="done" class="size-7" />
         <template v-else>{{ toArabicNumerals(`${count}/${repeat}`) }}</template>
       </button>
-
       <div class="action-menu shrink-0" @click.stop>
         <DropdownMenu>
           <DropdownMenuTrigger as-child>
@@ -192,7 +163,6 @@ const copyZekr = () => {
               <IconDots class="size-5" />
             </Button>
           </DropdownMenuTrigger>
-
           <DropdownMenuContent align="end" class="min-w-44 rounded-2xl border-0 p-1.5 shadow-xl">
             <DropdownMenuItem class="min-h-11 gap-3 rounded-xl px-3 text-sm" @click="exportAsImage">
               <IconDownload class="size-5" />
@@ -212,16 +182,7 @@ const copyZekr = () => {
     </div>
   </div>
 </template>
-
 <style scoped>
-/* The counter's progress ring is a conic-gradient driven by the inline
-   `--progress` custom property; no Tailwind utility expresses that, so it stays
-   plain CSS. Every color reads the token layer, so the user's runtime accent
-   and background still apply.
-
-   The disc punched out of the middle is a faint accent tint rather than the
-   surface color: on a card the counter has to read as a button, and a
-   card-colored disc left the ring floating with nothing inside it. */
 .btn-counter {
   background:
     radial-gradient(closest-side, color-mix(in oklab, var(--primary) 10%, var(--card)) 78%, transparent 79% 100%),

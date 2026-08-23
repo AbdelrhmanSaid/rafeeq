@@ -1,4 +1,3 @@
-/* Thmanyah Sans — UI / body text */
 @font-face {
   font-family: 'Thmanyah Sans';
   font-style: normal;
@@ -39,7 +38,6 @@
   src: url('../assets/fonts/thmanyahsans/woff2/thmanyahsans-Black.woff2') format('woff2');
 }
 
-/* Thmanyah Serif Text — headings */
 @font-face {
   font-family: 'Thmanyah Serif Text';
   font-style: normal;
@@ -80,7 +78,6 @@
   src: url('../assets/fonts/thmanyahseriftext/woff2/thmanyahseriftext-Black.woff2') format('woff2');
 }
 
-/* Thmanyah Serif Display — display / hero headings */
 @font-face {
   font-family: 'Thmanyah Serif Display';
   font-style: normal;
