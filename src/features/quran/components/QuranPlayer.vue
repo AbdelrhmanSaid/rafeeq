@@ -135,15 +135,17 @@ defineExpose({ seekToAyah })
         <IconPlayerPause v-else />
       </button>
 
-      <div class="flex-grow-1 min-w-0">
+      <!-- Single flex line: the name truncates and the ayah chip sits beside it,
+           so the ayah indicator appearing never wraps or grows the player. -->
+      <div class="flex-grow-1 min-w-0 d-flex align-items-center gap-2">
         <template v-if="currentAyahDisplay">
-          <span class="d-inline-block fw-semibold text-primary me-2">{{ currentAyahDisplay.surahName }}</span>
-          <span v-if="currentAyahDisplay.ayahNumber > 0" class="d-inline-block text-secondary small"
+          <span class="fw-semibold text-primary text-truncate">{{ currentAyahDisplay.surahName }}</span>
+          <span v-if="currentAyahDisplay.ayahNumber > 0" class="text-secondary small text-nowrap flex-shrink-0"
             >آية {{ toArabicNumerals(currentAyahDisplay.ayahNumber) }}</span
           >
         </template>
-        <span v-else-if="quranStore.surahName" class="text-muted">{{ quranStore.surahName }}</span>
-        <span v-else class="text-muted">اضغط على آية للاستماع</span>
+        <span v-else-if="quranStore.surahName" class="text-muted text-truncate">{{ quranStore.surahName }}</span>
+        <span v-else class="text-muted text-truncate">اضغط على آية للاستماع</span>
       </div>
 
       <button
@@ -205,17 +207,27 @@ defineExpose({ seekToAyah })
   padding: 0.625rem;
 }
 
+/* Same soft primary-tint language as .chip, instead of the gray secondary pair. */
 .player-chip {
-  color: var(--bs-secondary-color);
-  background-color: var(--bs-secondary-bg);
+  color: var(--bs-primary);
+  background-color: var(--app-tint);
+  border-radius: var(--bs-border-radius-pill);
 
   &:hover {
-    color: var(--bs-body-color);
-    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-primary);
+    background-color: var(--app-tint-strong);
   }
 
   .text-truncate {
     max-width: 7.5rem;
+  }
+}
+
+[data-bs-theme='dark'] .player-chip {
+  color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
+
+  &:hover {
+    color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
   }
 }
 </style>

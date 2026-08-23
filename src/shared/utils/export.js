@@ -1,5 +1,7 @@
 import { createApp, nextTick } from 'vue'
-import html2canvas from 'html2canvas'
+// html2canvas-pro, not html2canvas: the original can't parse the color() /
+// color-mix() values the theme now computes to, and dies before capturing.
+import html2canvas from 'html2canvas-pro'
 
 /**
  * Export a Vue component as an image

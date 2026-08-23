@@ -274,6 +274,16 @@ watch(
       cursor: pointer;
     }
 
+    .current-ayah,
+    .bookmarked-ayah {
+      border-radius: var(--bs-border-radius-sm);
+      // Horizontal padding only — vertical padding grows fragment boxes and
+      // reintroduces overlap even with the taller line-height above.
+      padding: 0 0.25rem;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+    }
+
     .current-ayah {
       background-color: var(--bs-secondary-bg);
     }
@@ -282,12 +292,6 @@ watch(
       background-color: rgba(var(--bs-primary-rgb), 0.12);
       // Inset (not outset) so the outline stays inside each line fragment.
       box-shadow: inset 0 0 0 1px rgba(var(--bs-primary-rgb), 0.35);
-      border-radius: var(--bs-border-radius-sm);
-      // Horizontal padding only — vertical padding grows fragment boxes and
-      // reintroduces overlap even with the taller line-height above.
-      padding: 0 0.25rem;
-      box-decoration-break: clone;
-      -webkit-box-decoration-break: clone;
     }
   }
 }

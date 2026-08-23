@@ -182,7 +182,11 @@ const closeMoreMenu = () => {
   }
 }
 
+/* Secondary-color is too dim on the dark glass bar; use the light body color
+   (same as the more/settings menu items) and keep the active tint on top. */
 [data-bs-theme='dark'] .tab-item {
+  color: var(--bs-body-color);
+
   &.router-link-active,
   &.is-active {
     color: color-mix(in srgb, var(--bs-primary) 35%, #fff);

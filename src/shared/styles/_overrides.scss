@@ -135,6 +135,40 @@ html[dir='rtl'],
   --bs-progress-bar-color: #fff;
 }
 
+/* Keep range slider thumbs in sync with runtime primary color — Bootstrap bakes
+   the compile-time $primary into the thumb, so overrides never reached it. */
+.form-range {
+  &::-webkit-slider-thumb {
+    background-color: var(--bs-primary);
+
+    &:active {
+      background-color: color-mix(in srgb, var(--bs-primary) 30%, #fff);
+    }
+  }
+
+  &::-moz-range-thumb {
+    background-color: var(--bs-primary);
+
+    &:active {
+      background-color: color-mix(in srgb, var(--bs-primary) 30%, #fff);
+    }
+  }
+
+  &:focus {
+    &::-webkit-slider-thumb {
+      box-shadow:
+        0 0 0 1px var(--bs-body-bg),
+        0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+    }
+
+    &::-moz-range-thumb {
+      box-shadow:
+        0 0 0 1px var(--bs-body-bg),
+        0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+    }
+  }
+}
+
 /* Keep checkbox/radio checked + focus outline in sync with runtime primary color. */
 .form-check-input:checked {
   background-color: var(--bs-primary);
