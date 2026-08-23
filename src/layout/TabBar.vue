@@ -11,6 +11,11 @@ import {
   IconRadio,
   IconDotsCircleHorizontal,
   IconBrandTelegram,
+  IconChevronLeft,
+  IconCompass,
+  IconCoins,
+  IconCircleDotted,
+  IconSettings,
   IconX,
 } from '@tabler/icons-vue'
 
@@ -40,90 +45,128 @@ const closeMoreMenu = () => {
   showMoreMenu.value = false
 }
 
+// A tab is a full-height rounded pill: muted when idle, filled with a soft wash
+// of the (user-themeable) accent when active. `min-h-11` keeps every tab a 44px
+// touch target even before the label is measured.
 const tabItemClass =
-  'flex min-w-16 flex-col items-center gap-1 rounded-md px-2 py-1 text-muted-foreground transition-colors hover:text-foreground [&.router-link-active]:bg-primary/10 [&.router-link-active]:text-foreground'
+  'flex min-h-11 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-0.5 py-1 text-muted-foreground transition duration-200 active:scale-95 hover:text-foreground [&.router-link-active]:bg-primary/12 [&.router-link-active]:text-primary'
 
-// Merged with cn() at the call sites: the detail-route active state has to
-// beat the base `text-muted-foreground`, and Tailwind emits that utility
-// after `text-foreground`, so plain class concatenation would lose.
-const tabItemActiveClass = 'bg-primary/10 text-foreground'
+// Merged with cn() at the call sites: the detail-route active state has to beat
+// the base `text-muted-foreground`, and plain concatenation would leave the
+// winner up to the order Tailwind happens to emit the two utilities in.
+const tabItemActiveClass = 'bg-primary/12 text-primary'
 
+const tabLabelClass = 'text-[0.7rem] leading-none whitespace-nowrap'
+
+// Sheet rows are list rows, not buttons: a leading icon chip, the label, and a
+// chevron pointing left — the "forward" direction in RTL.
 const moreMenuItemClass =
-  'flex w-full items-center gap-3 px-5 py-3 text-start transition-colors hover:bg-secondary [&.router-link-active]:bg-primary/10 [&.router-link-active]:text-primary'
+  'flex min-h-14 w-full items-center gap-3 rounded-2xl px-3 text-start transition-colors hover:bg-accent active:bg-accent [&.router-link-active]:bg-primary/12 [&.router-link-active]:text-primary'
+
+const moreMenuIconClass =
+  'flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground [.router-link-active_&]:bg-primary/15 [.router-link-active_&]:text-primary'
 </script>
 
 <template>
   <div>
     <Drawer v-model:open="showMoreMenu">
       <!-- Tab Bar -->
-      <!-- min-h (not h) so labels and icons at large font scales grow the bar
-           instead of clipping, and items stay vertically centered so short
-           content (small font) doesn't stick to the top of the bar. -->
-      <nav
-        class="fixed inset-x-0 bottom-0 z-40 flex min-h-[var(--navbar-height)] items-center justify-around border-t bg-background pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
-      >
-        <RouterLink :to="{ name: 'home' }" :class="tabItemClass">
-          <IconHome size="1.5rem" />
-          <span class="text-[0.7rem]">الرئيسية</span>
-        </RouterLink>
+      <!-- The bar floats: the <nav> is only the footprint (its padding carries
+           the side inset and the home-indicator safe area) and the pill inside
+           it is what the user sees.
+           min-h (not h) on that pill so labels and icons at large font scales
+           grow the bar instead of clipping, and items stay vertically centered
+           so short content (small font) doesn't stick to the top of the bar. -->
+      <nav class="fixed inset-x-0 bottom-0 z-40 px-3 pt-2 pb-[calc(0.5rem_+_env(safe-area-inset-bottom,0px))]">
+        <div
+          class="mx-auto flex min-h-[calc(var(--navbar-height)_-_1rem)] max-w-md items-stretch gap-1 rounded-3xl border border-border/70 bg-card/95 p-1 shadow-xl backdrop-blur-xl"
+        >
+          <RouterLink :to="{ name: 'home' }" :class="tabItemClass">
+            <IconHome size="1.5rem" />
+            <span :class="tabLabelClass">الرئيسية</span>
+          </RouterLink>
 
-        <RouterLink :to="{ name: 'quran' }" :class="cn(tabItemClass, isQuranActive && tabItemActiveClass)">
-          <IconBook size="1.5rem" />
-          <span class="text-[0.7rem]">القرآن</span>
-        </RouterLink>
+          <RouterLink :to="{ name: 'quran' }" :class="cn(tabItemClass, isQuranActive && tabItemActiveClass)">
+            <IconBook size="1.5rem" />
+            <span :class="tabLabelClass">القرآن</span>
+          </RouterLink>
 
-        <RouterLink :to="{ name: 'azkar' }" :class="cn(tabItemClass, isAzkarActive && tabItemActiveClass)">
-          <IconSparkles size="1.5rem" />
-          <span class="text-[0.7rem]">الأذكار</span>
-        </RouterLink>
+          <RouterLink :to="{ name: 'azkar' }" :class="cn(tabItemClass, isAzkarActive && tabItemActiveClass)">
+            <IconSparkles size="1.5rem" />
+            <span :class="tabLabelClass">الأذكار</span>
+          </RouterLink>
 
-        <RouterLink :to="{ name: 'radio' }" :class="cn(tabItemClass, 'relative', isRadioActive && tabItemActiveClass)">
-          <IconRadio size="1.5rem" />
-          <span class="text-[0.7rem]">الإذاعة</span>
-          <span
-            v-if="radio.isPlaying"
-            class="radio-status absolute -top-0.5 -end-0.5 size-1.5 rounded-full bg-destructive"
-          />
-        </RouterLink>
+          <RouterLink :to="{ name: 'radio' }" :class="cn(tabItemClass, isRadioActive && tabItemActiveClass)">
+            <span class="relative flex">
+              <IconRadio size="1.5rem" />
+              <span
+                v-if="radio.isPlaying"
+                class="radio-status absolute -top-0.5 -end-0.5 size-2 rounded-full bg-destructive ring-2 ring-card"
+              />
+            </span>
+            <span :class="tabLabelClass">الإذاعة</span>
+          </RouterLink>
 
-        <DrawerTrigger as-child>
-          <button type="button" :class="tabItemClass">
-            <IconDotsCircleHorizontal size="1.5rem" />
-            <span class="text-[0.7rem]">المزيد</span>
-          </button>
-        </DrawerTrigger>
+          <DrawerTrigger as-child>
+            <button type="button" :class="tabItemClass">
+              <IconDotsCircleHorizontal size="1.5rem" />
+              <span :class="tabLabelClass">المزيد</span>
+            </button>
+          </DrawerTrigger>
+        </div>
       </nav>
 
       <!-- More Menu -->
-      <DrawerContent class="data-[swipe-direction=down]:max-h-[70vh]">
-        <DrawerHeader class="flex-row items-center justify-between border-b p-3">
-          <DrawerTitle>المزيد</DrawerTitle>
+      <DrawerContent
+        class="bg-popover text-popover-foreground shadow-xl data-[swipe-direction=down]:max-h-[70vh] data-[swipe-direction=down]:rounded-t-3xl"
+      >
+        <DrawerHeader class="flex-row items-center justify-between px-4 pt-2 pb-1">
+          <DrawerTitle class="font-serif text-xl font-medium">المزيد</DrawerTitle>
           <DrawerClose as-child>
-            <Button variant="ghost" size="icon" type="button" aria-label="إغلاق">
+            <Button variant="ghost" size="icon" type="button" class="size-11 rounded-full" aria-label="إغلاق">
               <IconX size="1.25rem" />
             </Button>
           </DrawerClose>
         </DrawerHeader>
 
-        <div class="overflow-y-auto py-3">
+        <div class="overflow-y-auto px-3 pt-1 pb-[calc(1rem_+_env(safe-area-inset-bottom,0px))]">
           <RouterLink :to="{ name: 'qibla' }" :class="moreMenuItemClass" @click="closeMoreMenu">
+            <span :class="moreMenuIconClass">
+              <IconCompass size="1.25rem" />
+            </span>
             اتجاه القبلة
+            <IconChevronLeft class="ms-auto size-4 shrink-0 text-muted-foreground" />
           </RouterLink>
           <RouterLink :to="{ name: 'zakat' }" :class="moreMenuItemClass" @click="closeMoreMenu">
+            <span :class="moreMenuIconClass">
+              <IconCoins size="1.25rem" />
+            </span>
             حاسبة الزكاة
+            <IconChevronLeft class="ms-auto size-4 shrink-0 text-muted-foreground" />
           </RouterLink>
           <RouterLink :to="{ name: 'sebha' }" :class="moreMenuItemClass" @click="closeMoreMenu">
+            <span :class="moreMenuIconClass">
+              <IconCircleDotted size="1.25rem" />
+            </span>
             السبحة الإلكترونية
+            <IconChevronLeft class="ms-auto size-4 shrink-0 text-muted-foreground" />
           </RouterLink>
           <RouterLink :to="{ name: 'settings' }" :class="moreMenuItemClass" @click="closeMoreMenu">
+            <span :class="moreMenuIconClass">
+              <IconSettings size="1.25rem" />
+            </span>
             الإعدادات
+            <IconChevronLeft class="ms-auto size-4 shrink-0 text-muted-foreground" />
           </RouterLink>
 
           <Separator class="my-3" />
 
           <a href="https://t.me/rafeeqme" target="_blank" :class="moreMenuItemClass" @click="closeMoreMenu">
-            <IconBrandTelegram size="1.25rem" />
+            <span :class="moreMenuIconClass">
+              <IconBrandTelegram size="1.25rem" />
+            </span>
             قناة التليجرام
+            <IconChevronLeft class="ms-auto size-4 shrink-0 text-muted-foreground" />
           </a>
         </div>
       </DrawerContent>

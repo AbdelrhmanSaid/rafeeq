@@ -33,24 +33,26 @@ const support = [
   },
 ]
 
-// Muted by default, accented on hover; in dark mode the accent is too dim
-// against the surface, so the hover lands on the plain foreground instead.
-const footerLinkClass = 'text-muted-foreground transition-colors hover:text-primary dark:hover:text-foreground'
+// Muted by default, accented on hover. The dark accent is a lighter clay now,
+// so it carries the hover in both modes and no longer needs a `dark:` fallback.
+const footerLinkClass = 'inline-block py-1 text-muted-foreground transition-colors hover:text-primary'
+
+const footerHeadingClass = 'text-sm font-medium text-foreground'
 </script>
 
 <template>
-  <footer class="border-t py-12">
-    <div class="container-page grid grid-cols-1 gap-6 md:grid-cols-12">
+  <footer class="border-t border-border/60 py-12">
+    <div class="container-page grid grid-cols-1 gap-8 md:grid-cols-12">
       <div class="md:col-span-5">
-        <p class="text-center text-muted-foreground md:text-start">
+        <p class="text-center text-sm leading-relaxed text-muted-foreground md:text-start">
           تطبيق رفيق، تطبيق إسلامي مفتوح المصدر، لا توجد حقوق على المواد المستخدمة داخل الموقع، يمكنك استخدامها أو إعادة
           نشرها دون الرجوع إلينا مطلقًا، ولكن لا تنسانا من صالح دعائك.
         </p>
       </div>
 
       <div class="md:col-span-3 md:col-start-7">
-        <p class="font-serif text-xl font-medium">المواد المستخدمة</p>
-        <ul class="mt-2 space-y-1 text-sm">
+        <p :class="footerHeadingClass">المواد المستخدمة</p>
+        <ul class="mt-1 text-sm">
           <li v-for="(resource, index) in resources" :key="index">
             <a :href="resource.link" :class="footerLinkClass" target="_blank">
               {{ resource.title }}
@@ -60,8 +62,8 @@ const footerLinkClass = 'text-muted-foreground transition-colors hover:text-prim
       </div>
 
       <div class="md:col-span-3">
-        <p class="font-serif text-xl font-medium">الدعم والمساهمة</p>
-        <ul class="mt-2 space-y-1 text-sm">
+        <p :class="footerHeadingClass">الدعم والمساهمة</p>
+        <ul class="mt-1 text-sm">
           <li v-for="(item, index) in support" :key="index">
             <a :href="item.link" :class="footerLinkClass" target="_blank">
               {{ item.title }}

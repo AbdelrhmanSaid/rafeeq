@@ -68,24 +68,24 @@ const updateSW = registerSW({
       <!-- Offline indicator -->
       <div
         v-if="!online && showOfflineBanner"
-        class="offline-banner sticky top-0 z-50 flex h-12 items-center bg-destructive text-destructive-foreground animate-in fade-in slide-in-from-top duration-300"
+        class="offline-banner sticky top-0 z-50 h-14 bg-destructive text-destructive-foreground shadow-md animate-in fade-in slide-in-from-top duration-300"
       >
-        <div class="container-page">
-          <div class="flex items-center">
-            <IconWifiOff class="me-2" size="1.25rem" />
-            <span>لا يوجد اتصال بالإنترنت</span>
+        <div class="container-page flex h-full items-center gap-3">
+          <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-destructive-foreground/15">
+            <IconWifiOff size="1.125rem" />
+          </span>
+          <span class="text-sm font-medium">لا يوجد اتصال بالإنترنت</span>
 
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              class="ms-auto text-destructive-foreground hover:bg-destructive-foreground/15 hover:text-destructive-foreground"
-              type="button"
-              aria-label="Close"
-              @click="showOfflineBanner = false"
-            >
-              <IconX size="1.125rem" />
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            class="ms-auto size-11 shrink-0 rounded-full text-destructive-foreground hover:bg-destructive-foreground/15 hover:text-destructive-foreground"
+            type="button"
+            aria-label="Close"
+            @click="showOfflineBanner = false"
+          >
+            <IconX size="1.125rem" />
+          </Button>
         </div>
       </div>
 
@@ -93,12 +93,15 @@ const updateSW = registerSW({
       <Navbar class="hidden md:block" v-if="!isEmbedRoute" />
 
       <!-- Main Content -->
+      <!-- The mobile tab bar floats over the page, so the content clears its
+           whole footprint (bar height + home-indicator inset) plus a little air;
+           from `md` the tab bar is gone and the footer takes over. -->
       <div
         class="main-content"
         :class="
           isEmbedRoute
             ? 'flex min-h-screen items-center justify-center'
-            : 'min-h-[calc(100vh-var(--navbar-height))] pb-[var(--navbar-height)] lg:min-h-[calc(100vh-25rem)] lg:pb-0'
+            : 'min-h-[calc(100vh-var(--navbar-height))] pb-[calc(var(--navbar-height)_+_1rem_+_env(safe-area-inset-bottom,0px))] md:pb-0 lg:min-h-[calc(100vh-25rem)]'
         "
       >
         <RouterView />
@@ -112,10 +115,13 @@ const updateSW = registerSW({
     </div>
 
     <!-- Toast -->
+    <!-- On a phone the toast has to sit above the floating tab bar, so it gets
+         its own offset; desktop keeps the tighter one. -->
     <Toaster
       :theme="themeStore.mode"
       position="bottom-left"
       offset="20px"
+      :mobile-offset="{ bottom: 'calc(var(--navbar-height) + 1.25rem + env(safe-area-inset-bottom, 0px))' }"
       :toast-options="{
         style: {
           gap: '20px',
@@ -130,8 +136,9 @@ const updateSW = registerSW({
 /* The banner sticks to the top of the viewport, so the navbar right after it
    (also sticky) has to start below it instead of underneath. Kept as a rule
    rather than a utility because it only applies while the banner is rendered,
-   and it has to reach the Navbar root element. */
+   and it has to reach the Navbar root element. The offset tracks the banner's
+   own height (`h-14`). */
 .offline-banner + * {
-  top: 3rem;
+  top: 3.5rem;
 }
 </style>

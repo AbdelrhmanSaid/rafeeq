@@ -12,7 +12,12 @@ import {
   IconDotsCircleHorizontal,
   IconBrandTelegram,
   IconMenu2,
+  IconCoins,
+  IconCircleDotted,
+  IconSettings,
 } from '@tabler/icons-vue'
+
+import { cn } from '@/shared/lib/utils'
 
 import Logo from '@/shared/ui/Logo.vue'
 import { Button } from '@/shared/components/ui/button'
@@ -39,27 +44,38 @@ watch(
   },
 )
 
+// Destinations are quiet pills: muted until hovered, washed with the
+// (user-themeable) accent once active. `min-h-11` keeps them a 44px target on
+// the tablet-width stacked menu.
 const navLinkClass =
-  'flex items-center gap-2 rounded-md px-3 py-2 font-medium transition-colors hover:bg-accent hover:text-accent-foreground [&.router-link-active]:bg-accent [&.router-link-active]:text-accent-foreground'
+  'flex min-h-11 items-center gap-2 rounded-full px-3.5 font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground [&.router-link-active]:bg-primary/12 [&.router-link-active]:text-primary'
 
-const navLinkActiveClass = 'bg-accent text-accent-foreground'
+// Merged with cn() at the call sites: the detail-route active state has to beat
+// the base `text-muted-foreground`, and plain concatenation would leave the
+// winner up to the order Tailwind happens to emit the two utilities in.
+const navLinkActiveClass = 'bg-primary/12 text-primary'
+
+const menuItemClass = 'flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-xl px-3'
 </script>
 
 <template>
   <!-- min-h (not h) so taller content at large font scales grows the bar
-       instead of clipping. -->
-  <nav class="sticky top-0 z-30 min-h-[var(--navbar-height)] border-b bg-background py-3">
+       instead of clipping. The bar is translucent so content scrolling under it
+       stays hinted at rather than cut off. -->
+  <nav
+    class="sticky top-0 z-30 min-h-[var(--navbar-height)] border-b border-border/70 bg-background/85 py-3 backdrop-blur-xl"
+  >
     <div class="container-page flex flex-wrap items-center">
       <!-- The logo is a single-color mark; in dark mode it is flattened to white. -->
-      <RouterLink to="/" class="dark:brightness-0 dark:invert">
-        <Logo />
+      <RouterLink to="/" class="flex shrink-0 items-center dark:brightness-0 dark:invert">
+        <Logo :size="36" />
       </RouterLink>
 
       <Button
         variant="ghost"
         size="icon"
         type="button"
-        class="ms-auto lg:hidden"
+        class="ms-auto size-11 rounded-full lg:hidden"
         aria-controls="menu"
         aria-label="القائمة"
         :aria-expanded="isMenuOpen"
@@ -73,7 +89,7 @@ const navLinkActiveClass = 'bg-accent text-accent-foreground'
         class="w-full lg:flex lg:w-auto lg:flex-1 lg:items-center"
         :class="isMenuOpen ? 'block' : 'hidden'"
       >
-        <ul class="mt-3 mb-2 flex flex-col gap-2 lg:mt-0 lg:mb-0 lg:ms-3 lg:me-auto lg:flex-row">
+        <ul class="mt-3 mb-2 flex flex-col gap-1 lg:mt-0 lg:mb-0 lg:ms-4 lg:me-auto lg:flex-row">
           <li>
             <RouterLink :to="{ name: 'home' }" :class="navLinkClass">
               <IconHome size="1.25rem" />
@@ -82,24 +98,24 @@ const navLinkActiveClass = 'bg-accent text-accent-foreground'
           </li>
 
           <li>
-            <RouterLink :to="{ name: 'quran' }" :class="[navLinkClass, isQuranActive && navLinkActiveClass]">
+            <RouterLink :to="{ name: 'quran' }" :class="cn(navLinkClass, isQuranActive && navLinkActiveClass)">
               <IconBook size="1.25rem" />
               <span>القرآن الكريم</span>
             </RouterLink>
           </li>
 
           <li>
-            <RouterLink :to="{ name: 'azkar' }" :class="[navLinkClass, isAzkarActive && navLinkActiveClass]">
+            <RouterLink :to="{ name: 'azkar' }" :class="cn(navLinkClass, isAzkarActive && navLinkActiveClass)">
               <IconSparkles size="1.25rem" />
               <span>الأذكار</span>
             </RouterLink>
           </li>
 
           <li>
-            <RouterLink :to="{ name: 'radio' }" :class="[navLinkClass, isRadioActive && navLinkActiveClass]">
+            <RouterLink :to="{ name: 'radio' }" :class="cn(navLinkClass, isRadioActive && navLinkActiveClass)">
               <IconRadio size="1.25rem" />
               <span>الإذاعة</span>
-              <span v-if="radio.isPlaying" class="radio-status ms-2 inline-block size-2 rounded-full bg-destructive" />
+              <span v-if="radio.isPlaying" class="radio-status ms-1 inline-block size-2 rounded-full bg-destructive" />
             </RouterLink>
           </li>
 
@@ -112,22 +128,31 @@ const navLinkActiveClass = 'bg-accent text-accent-foreground'
                 </button>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent align="start" class="w-48">
+              <DropdownMenuContent align="start" class="w-56 rounded-2xl p-1.5 shadow-xl">
                 <DropdownMenuItem as-child>
-                  <RouterLink :to="{ name: 'zakat' }" class="w-full cursor-pointer">حاسبة الزكاة</RouterLink>
+                  <RouterLink :to="{ name: 'zakat' }" :class="menuItemClass">
+                    <IconCoins size="1.125rem" />
+                    حاسبة الزكاة
+                  </RouterLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem as-child>
-                  <RouterLink :to="{ name: 'sebha' }" class="w-full cursor-pointer">السبحة الإلكترونية</RouterLink>
+                  <RouterLink :to="{ name: 'sebha' }" :class="menuItemClass">
+                    <IconCircleDotted size="1.125rem" />
+                    السبحة الإلكترونية
+                  </RouterLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem as-child>
-                  <RouterLink :to="{ name: 'settings' }" class="w-full cursor-pointer">الإعدادات</RouterLink>
+                  <RouterLink :to="{ name: 'settings' }" :class="menuItemClass">
+                    <IconSettings size="1.125rem" />
+                    الإعدادات
+                  </RouterLink>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </li>
         </ul>
 
-        <ul class="flex flex-col gap-2 lg:ms-auto lg:flex-row">
+        <ul class="flex flex-col gap-1 lg:ms-auto lg:flex-row">
           <li>
             <a href="https://telegram.me/rafeeqme" target="_blank" :class="navLinkClass">
               <IconBrandTelegram size="1.25rem" />

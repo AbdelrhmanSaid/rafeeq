@@ -1,5 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router'
+import { IconChevronRight } from '@tabler/icons-vue'
 import { Button } from '@/shared/components/ui/button'
 import { cn } from '@/shared/lib/utils'
 
@@ -27,7 +28,15 @@ defineProps({
 </script>
 
 <template>
-  <Button :as="RouterLink" :to="to" variant="ghost" :class="cn(buttonClass, { 'embed-hidden': embedHidden })">
+  <!-- The chevron points right: in an RTL document that is the "back" direction
+       (nothing flips icons for us). -->
+  <Button
+    :as="RouterLink"
+    :to="to"
+    variant="ghost"
+    :class="cn('h-11 gap-1.5 rounded-full px-5 active:scale-[0.98]', buttonClass, { 'embed-hidden': embedHidden })"
+  >
+    <IconChevronRight class="size-4 shrink-0" />
     <span>{{ label }}</span>
   </Button>
 </template>

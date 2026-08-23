@@ -13,79 +13,109 @@
    own accent/background. Values stay in `rem` so the font-scale setting scales
    the whole interface.
 
-   `.theme-light` re-declares the light tokens on a subtree so a piece of UI can
-   opt out of dark mode (the shareable zekr image always renders on a light
-   card); such a subtree must style itself from the tokens, never with `dark:`.
+   The palette is a warm tinted neutral, not grey: light mode reads as warm
+   paper, dark mode as warm ink. `--card` sits a clear step above `--background`
+   in BOTH modes because cards now carry elevation (shadow) instead of hairline
+   borders — and because the runtime background override flattens `--card` onto
+   `--background`, the shadow scale below has to carry that separation on its
+   own whenever the user picks a custom background.
+
+   Every value here is plain hex/rgb on purpose: `.theme-light` re-declares the
+   light tokens on a subtree so a piece of UI can opt out of dark mode (the
+   shareable zekr image always renders on a light card) and html2canvas, which
+   rasterizes that subtree, cannot parse `oklch()` or `color-mix()`. Such a
+   subtree must style itself from the tokens, never with `dark:`.
 --------------------------------------------------------------------------- */
 :root,
 .theme-light {
-  --radius: 0.75rem;
+  /* Generous rounding is part of the language: this drives the shadcn radius
+     steps below (`rounded-md` 0.75rem, `rounded-lg` 1rem, `rounded-xl` 1.5rem)
+     and lines them up with Tailwind's own `rounded-2xl`/`rounded-3xl`. */
+  --radius: 1rem;
 
-  --background: #ffffff;
-  --foreground: #212529;
+  --background: #f5f1ea;
+  --foreground: #241d17;
 
-  --card: #ffffff;
-  --card-foreground: #212529;
+  --card: #fffdf9;
+  --card-foreground: #241d17;
 
-  --popover: #ffffff;
-  --popover-foreground: #212529;
+  --popover: #fffdf9;
+  --popover-foreground: #241d17;
 
-  --primary: #795547;
-  --primary-foreground: #ffffff;
+  --primary: #a25a3c;
+  --primary-foreground: #fff9f5;
 
-  --secondary: #f8f9fa;
-  --secondary-foreground: #212529;
+  --secondary: #efe9e0;
+  --secondary-foreground: #3b3129;
 
-  --muted: #f8f9fa;
-  --muted-foreground: #6c757d;
+  --muted: #efe9e0;
+  --muted-foreground: #756759;
 
-  --accent: #f1f3f5;
-  --accent-foreground: #212529;
+  --accent: #e8e0d4;
+  --accent-foreground: #332a22;
 
-  --destructive: #dc3545;
+  --destructive: #c14434;
   --destructive-foreground: #ffffff;
 
-  --success: #198754;
+  --success: #1e7a52;
   --success-foreground: #ffffff;
 
-  --border: #e9ecef;
-  --input: #e9ecef;
+  --border: #e4dbcd;
+  --input: #d8ccbb;
   --ring: var(--primary);
+
+  /* Elevation. The whole `shadow-*` scale is tinted with this warm ink and
+     scaled by this strength, so light and dark get the same shapes at
+     different weights (see the `@theme` block). */
+  --shadow-color: 46 32 22;
+  --shadow-strength: 0.07;
 
   --navbar-height: 70px;
 }
 
 .dark {
-  --background: #121212;
-  --foreground: #dee2e6;
+  --background: #15110d;
+  --foreground: #ece4d9;
 
-  --card: #181818;
-  --card-foreground: #dee2e6;
+  --card: #211b16;
+  --card-foreground: #ece4d9;
 
-  --popover: #181818;
-  --popover-foreground: #dee2e6;
+  --popover: #272019;
+  --popover-foreground: #ece4d9;
 
-  --primary: #795547;
-  --primary-foreground: #ffffff;
+  /* Lighter clay so the accent still reads on ink; its foreground flips to
+     dark for contrast. A user-picked accent gets the same treatment at runtime
+     — `applyPrimaryColor()` derives `--primary-foreground` from luminance. */
+  --primary: #cd8562;
+  --primary-foreground: #241a12;
 
-  --secondary: #1f1f1f;
-  --secondary-foreground: #dee2e6;
+  --secondary: #2a221c;
+  --secondary-foreground: #ece4d9;
 
-  --muted: #1f1f1f;
-  --muted-foreground: #9ba1a6;
+  --muted: #2a221c;
+  --muted-foreground: #a89887;
 
-  --accent: #262626;
-  --accent-foreground: #dee2e6;
+  --accent: #342a22;
+  --accent-foreground: #f2ebe1;
 
-  --destructive: #e5484d;
-  --destructive-foreground: #ffffff;
+  /* In dark mode every semantic fill is the light one and its foreground is
+     warm ink — that keeps both `bg-destructive`/`bg-success` (filled control)
+     and `text-destructive`/`text-success` (label on the page) above AA. */
+  --destructive: #e5544a;
+  --destructive-foreground: #2b100c;
 
-  --success: #2ea36a;
-  --success-foreground: #ffffff;
+  --success: #37a873;
+  --success-foreground: #0d1f16;
 
-  --border: #282828;
-  --input: #282828;
+  --border: #332a23;
+  --input: #3d332b;
   --ring: var(--primary);
+
+  /* Dark elevation comes mostly from `--card` being lighter than
+     `--background`; the shadow turns neutral black and gets stronger only so
+     overlays still pool against the page. */
+  --shadow-color: 0 0 0;
+  --shadow-strength: 0.2;
 }
 
 @media screen and (min-width: 768px) {
@@ -117,10 +147,36 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --radius-sm: calc(var(--radius) - 0.25rem);
-  --radius-md: var(--radius);
-  --radius-lg: calc(var(--radius) + 0.25rem);
-  --radius-xl: calc(var(--radius) + 0.75rem);
+  /* shadcn's four steps, re-spaced around the raised `--radius` so they line up
+     with Tailwind's own scale instead of fighting it:
+       rounded-sm 0.5rem · rounded-md 0.75rem · rounded-lg 1rem (= rounded-2xl)
+       · rounded-xl 1.5rem (= rounded-3xl)
+     Controls (buttons, inputs, tabs) land on `rounded-md`, cards on
+     `rounded-xl`. */
+  --radius-sm: calc(var(--radius) - 0.5rem);
+  --radius-md: calc(var(--radius) - 0.25rem);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 0.5rem);
+
+  /* Soft, warm, low-contrast elevation. Two layers per step — a tight contact
+     shadow plus a wide diffuse one — so cards lift without a hard edge.
+     `shadow-sm` = resting card, `shadow-md` = raised/interactive,
+     `shadow-xl` = overlay (sheet, menu, popover). Never stack them. */
+  --shadow-2xs: 0 1px 1px 0 rgb(var(--shadow-color) / calc(var(--shadow-strength) * 0.6));
+  --shadow-xs: 0 1px 2px 0 rgb(var(--shadow-color) / calc(var(--shadow-strength) * 0.8));
+  --shadow-sm:
+    0 1px 2px 0 rgb(var(--shadow-color) / var(--shadow-strength)),
+    0 2px 8px -2px rgb(var(--shadow-color) / calc(var(--shadow-strength) * 1.2));
+  --shadow-md:
+    0 2px 4px -1px rgb(var(--shadow-color) / calc(var(--shadow-strength) * 1.1)),
+    0 8px 20px -4px rgb(var(--shadow-color) / calc(var(--shadow-strength) * 1.6));
+  --shadow-lg:
+    0 4px 8px -2px rgb(var(--shadow-color) / calc(var(--shadow-strength) * 1.2)),
+    0 16px 32px -8px rgb(var(--shadow-color) / calc(var(--shadow-strength) * 2));
+  --shadow-xl:
+    0 8px 16px -4px rgb(var(--shadow-color) / calc(var(--shadow-strength) * 1.4)),
+    0 24px 48px -12px rgb(var(--shadow-color) / calc(var(--shadow-strength) * 2.6));
+  --shadow-2xl: 0 32px 64px -16px rgb(var(--shadow-color) / calc(var(--shadow-strength) * 3));
 
   --font-sans:
     'Thmanyah Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', 'Noto Sans', 'Liberation Sans',
@@ -148,6 +204,11 @@
     font-family: var(--font-sans);
     line-height: 1.6;
     margin: 0;
+    /* App-like feel on touch: no grey flash box on tap (components provide
+       their own pressed/active state), and smoother Arabic on retina. */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1,
@@ -171,6 +232,11 @@
     font-family: inherit;
   }
 
+  ::selection {
+    background-color: var(--accent);
+    color: var(--accent-foreground);
+  }
+
   [hidden] {
     display: none !important;
   }
@@ -191,6 +257,8 @@
 /* --------------------------------------------------------------------------
    Shared utilities used across features
 -------------------------------------------------------------------------- */
+
+/* Kitab, for Quran text only — never for UI. */
 @utility font-quran {
   font-family: var(--font-quran);
 }
@@ -210,6 +278,46 @@
   &::-webkit-scrollbar {
     display: none;
   }
+}
+
+/* Hero surface: a card that carries a soft wash of the (user-themeable) accent
+   pooling at its top edge. Pair with `bg-card`-level text colors and a
+   `rounded-3xl` shape. The gradient is centred, so it needs no RTL flip.
+   Uses `color-mix()`, so keep it out of `.theme-light` export subtrees. */
+@utility surface-hero {
+  background-color: var(--card);
+  background-image: radial-gradient(
+    125% 100% at 50% 0%,
+    color-mix(in oklab, var(--primary) 20%, transparent) 0%,
+    color-mix(in oklab, var(--primary) 6%, transparent) 45%,
+    transparent 72%
+  );
+}
+
+/* Fade both ends of a horizontally scrolling strip instead of cutting it off,
+   so the row reads as continuing past the gutter. Symmetric, so RTL-safe.
+   Override the inset with `--edge-fade-size` on the element if needed. */
+@utility edge-fade-x {
+  --edge-fade-size: 1.5rem;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--edge-fade-size),
+    #000 calc(100% - var(--edge-fade-size)),
+    transparent 100%
+  );
+}
+
+/* Bottom-pinned bars: clear the home indicator on iOS. Equivalent to writing
+   `pb-[env(safe-area-inset-bottom)]`, just easier to read in a class list. */
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Kill the tap flash on a specific element (the body rule already covers most
+   cases; this is for anything that re-enables it). */
+@utility no-tap-highlight {
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* --------------------------------------------------------------------------

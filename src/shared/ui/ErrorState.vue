@@ -17,11 +17,15 @@ defineProps({
 </script>
 
 <template>
-  <div class="container-page">
-    <div class="mx-auto max-w-lg text-center">
-      <component v-if="icon" :is="icon" class="mx-auto mb-3 size-12 text-muted-foreground" />
-      <h1 v-if="code" class="font-display text-6xl leading-tight">{{ toArabicNumerals(code) }}</h1>
-      <p class="text-xl font-light text-muted-foreground">{{ message }}</p>
-    </div>
+  <!-- Centres itself, so it reads the same whether it is the whole page (404)
+       or a block inside a card. -->
+  <div class="mx-auto flex max-w-lg flex-col items-center justify-center gap-4 px-4 py-8 text-center">
+    <span v-if="icon" class="grid size-14 place-items-center rounded-full bg-muted text-muted-foreground">
+      <component :is="icon" class="size-6" />
+    </span>
+
+    <h1 v-if="code" class="font-display text-5xl leading-none">{{ toArabicNumerals(code) }}</h1>
+
+    <p class="max-w-xs text-base leading-relaxed text-muted-foreground">{{ message }}</p>
   </div>
 </template>

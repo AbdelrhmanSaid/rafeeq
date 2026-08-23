@@ -16,13 +16,19 @@ const online = useOnline()
 </script>
 
 <template>
+  <!-- The fallback owns most of the viewport so it sits near the middle of the
+       phone screen instead of clinging to the top of an otherwise empty page. -->
   <Page v-if="pending">
-    <LoadingState :message="loadingMessage" />
+    <div class="grid min-h-[55vh] place-items-center">
+      <LoadingState :message="loadingMessage" />
+    </div>
   </Page>
 
   <Page v-else-if="error">
-    <OfflineState v-if="!online" />
-    <ErrorState v-else :code="500" :message="errorMessage" />
+    <div class="grid min-h-[55vh] place-items-center">
+      <OfflineState v-if="!online" />
+      <ErrorState v-else :code="500" :message="errorMessage" />
+    </div>
   </Page>
 
   <slot v-else />

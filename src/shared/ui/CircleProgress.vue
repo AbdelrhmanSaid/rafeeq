@@ -13,12 +13,12 @@ const boxSize = computed(() => `${props.size / 16}rem`)
 </script>
 
 <template>
-  <div class="relative" :style="{ width: boxSize, height: boxSize }">
+  <div class="relative shrink-0" :style="{ width: boxSize, height: boxSize }">
     <svg viewBox="0 0 36 36" class="size-full -rotate-90">
-      <circle class="fill-none stroke-primary/20" stroke-width="3" cx="18" cy="18" r="15.9155" />
+      <circle class="fill-none stroke-primary/15" stroke-width="3.5" cx="18" cy="18" r="15.9155" />
       <circle
-        class="fill-none stroke-primary transition-[stroke-dasharray] duration-300 ease-in-out"
-        stroke-width="3"
+        class="fill-none stroke-primary transition-[stroke-dasharray] duration-500 ease-out"
+        stroke-width="3.5"
         stroke-linecap="round"
         stroke-dashoffset="0"
         cx="18"
@@ -27,7 +27,7 @@ const boxSize = computed(() => `${props.size / 16}rem`)
         :stroke-dasharray="`${percentage} 100`"
       />
     </svg>
-    <span class="absolute inset-0 grid place-items-center text-xs font-semibold text-primary">
+    <span class="absolute inset-0 grid place-items-center text-xs font-medium text-primary tabular-nums">
       {{ toArabicNumerals(percentage) }}%
     </span>
   </div>

@@ -1,5 +1,6 @@
 <script setup>
 import { useId } from 'vue'
+import { IconSearch } from '@tabler/icons-vue'
 import { Input } from '@/shared/components/ui/input'
 import { Label } from '@/shared/components/ui/label'
 import { useSearch } from '@/shared/composables/useSearch'
@@ -23,9 +24,22 @@ const { search, filtered } = useSearch(() => props.items, props.searchKeys)
 </script>
 
 <template>
-  <div class="mb-4 grid gap-2">
-    <Label :for="searchId">{{ label }}</Label>
-    <Input :id="searchId" v-model="search" :type="searchType" :placeholder="placeholder" class="h-11" />
+  <div class="mb-5 flex flex-col gap-2">
+    <Label :for="searchId" class="px-1 font-normal text-muted-foreground">{{ label }}</Label>
+
+    <div class="relative">
+      <IconSearch class="pointer-events-none absolute inset-y-0 start-4 my-auto size-5 text-muted-foreground" />
+
+      <!-- The field floats on the page like the list below it; `dark:bg-card`
+           is only here to cancel the tinted fill the shadcn input ships with. -->
+      <Input
+        :id="searchId"
+        v-model="search"
+        :type="searchType"
+        :placeholder="placeholder"
+        class="h-12 rounded-full border-0 bg-card ps-12 pe-4 text-base shadow-sm dark:bg-card"
+      />
+    </div>
   </div>
 
   <FavoriteList

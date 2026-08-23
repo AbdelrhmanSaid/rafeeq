@@ -7,8 +7,11 @@ defineProps({
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center gap-4">
-    <IconWifiOff class="size-10 text-muted-foreground" />
-    <p class="text-xl font-light text-muted-foreground">{{ message }}</p>
+  <div class="flex flex-col items-center justify-center gap-4 px-4 py-8 text-center">
+    <span class="grid size-14 place-items-center rounded-full bg-muted text-muted-foreground">
+      <IconWifiOff class="size-6" />
+    </span>
+
+    <p class="max-w-xs text-base leading-relaxed text-muted-foreground">{{ message }}</p>
   </div>
 </template>
