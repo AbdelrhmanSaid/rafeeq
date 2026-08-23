@@ -88,7 +88,12 @@ describe('ZekrCard', () => {
     expect(resetBtn.exists()).toBe(true)
     expect(resetBtn.element.closest('.dropdown-menu')).toBeNull()
     expect(resetBtn.attributes('disabled')).toBeDefined()
-    expect(wrapper.findAll('.dropdown-item').map((item) => item.text()).join()).not.toContain('تصفير')
+    expect(
+      wrapper
+        .findAll('.dropdown-item')
+        .map((item) => item.text())
+        .join(),
+    ).not.toContain('تصفير')
   })
 
   it('marks the card as completed once the count reaches repeat', async () => {
