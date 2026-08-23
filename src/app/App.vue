@@ -85,7 +85,7 @@ const updateSW = registerSW({
         </div>
       </div>
       <!-- Desktop Navbar -->
-      <Navbar class="hidden md:block" v-if="!isEmbedRoute" />
+      <Navbar class="hidden md:flex" v-if="!isEmbedRoute" />
       <!-- Main Content -->
       <div
         class="main-content"

@@ -50,9 +50,9 @@ const menuItemClass = 'flex min-h-11 w-full cursor-pointer items-center gap-3 ro
 </script>
 <template>
   <nav
-    class="sticky top-0 z-30 min-h-[var(--navbar-height)] border-b border-border/70 bg-background/85 py-3 backdrop-blur-xl"
+    class="sticky top-0 z-30 flex min-h-[var(--navbar-height)] items-center border-b border-border/70 bg-background/85 py-3 backdrop-blur-xl"
   >
-    <div class="container-page flex flex-wrap items-center">
+    <div class="container-page flex w-full flex-wrap items-center">
       <RouterLink to="/" class="flex shrink-0 items-center dark:brightness-0 dark:invert">
         <Logo :size="36" />
       </RouterLink>
