@@ -10,6 +10,9 @@ const DEFAULT_TAFSEER = 'ar.muyassar'
 // Playback speed presets offered by the player, from slowest to fastest.
 export const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
 
+// Monotonic token for loadSurahAudio() so stale timing responses are ignored.
+let timingsRequestId = 0
+
 const findReciter = (id) => reciters.find((reciter) => reciter.id === Number(id))
 
 async function fetchTimings(reciter, surahNumber) {
@@ -46,6 +49,12 @@ export const useQuranStore = create(
       const reciter = findReciter(get().currentReciter)
       const paddedNumber = String(surahNumber).padStart(3, '0')
 
+      // Each load gets its own token. Timings for an older load (a slower
+      // request for the previous surah, or the previous reciter) are dropped
+      // when they arrive, so audio and highlighting never belong to a surah
+      // other than the one on screen.
+      const requestId = ++timingsRequestId
+
       set({
         currentSurahNumber: surahNumber,
         surahName: name,
@@ -56,11 +65,18 @@ export const useQuranStore = create(
 
       if (!reciter) return
 
+      let timings = []
       try {
-        set({ ayahTimings: await fetchTimings(reciter, surahNumber) })
+        timings = await fetchTimings(reciter, surahNumber)
       } catch {
-        set({ ayahTimings: [] })
+        timings = []
       }
+
+      const { currentSurahNumber, currentReciter } = get()
+      const isCurrent =
+        requestId === timingsRequestId && currentSurahNumber === surahNumber && Number(currentReciter) === reciter.id
+
+      if (isCurrent) set({ ayahTimings: Array.isArray(timings) ? timings : [] })
     },
 
     reloadSurahAudio() {

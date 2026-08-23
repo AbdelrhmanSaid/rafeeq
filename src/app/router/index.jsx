@@ -3,7 +3,10 @@ import { createBrowserRouter } from 'react-router-dom'
 import App from '@/app/App'
 import HomeView from '@/features/home/views/HomeView'
 import NotFoundView from '@/app/views/NotFoundView'
+import { NOT_FOUND_META } from '@/app/views/notFoundMeta'
+import RouteErrorView from '@/app/views/RouteErrorView'
 import { EMBED_PREFIX, ROUTES } from '@/app/router/routes'
+import { settingsLoader, surahLoader } from '@/app/router/loaders'
 
 // `lazy` keeps each view out of the initial bundle; React Router loads it the
 // first time its route is visited.
@@ -33,6 +36,7 @@ const pages = [
 
   {
     path: ROUTES.quranSurah(':surah'),
+    loader: surahLoader,
     lazy: lazyView(() => import('@/features/quran/views/QuranSurahView')),
   },
 
@@ -99,6 +103,7 @@ const pages = [
 
   {
     path: ROUTES.settingsTab(':tab?'),
+    loader: settingsLoader,
     lazy: lazyView(() => import('@/features/settings/views/SettingsView')),
     meta: {
       title: 'الإعدادات',
@@ -127,16 +132,15 @@ const pages = [
 const notFound = {
   path: '*',
   element: <NotFoundView />,
-  meta: {
-    title: '٤٠٤ - الصفحة غير موجودة',
-    description: 'عذراً، الصفحة التي تبحث عنها غير موجودة.',
-    keywords: ['٤٠٤', 'صفحة غير موجودة'],
-  },
+  meta: NOT_FOUND_META,
 }
 
 // Route meta travels on `handle` so the app shell can read it with useMatches().
+// Every page gets an errorElement inside the shell so a loader's 404 (or a
+// render error) keeps the app chrome around it.
 function toRoute({ meta, noEmbed, ...route }) {
-  return meta ? { ...route, handle: { meta } } : route
+  const base = { ...route, errorElement: <RouteErrorView /> }
+  return meta ? { ...base, handle: { meta } } : base
 }
 
 // Every page is also reachable under /embed, which renders it without the app

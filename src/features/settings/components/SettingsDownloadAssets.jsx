@@ -40,10 +40,11 @@ const COUNT_BY_TYPE = {
   azkar: ALL_ASSETS.filter((asset) => asset.type === 'azkar').length,
 }
 
-function statusOf(asset, downloadedKeys, currentItem, queue) {
+function statusOf(asset, downloadedKeys, currentItem, queue, failed) {
   if (downloadedKeys[asset.type].includes(asset.key)) return 'downloaded'
   if (currentItem?.id === asset.id) return 'downloading'
   if (queue.some((item) => item.id === asset.id)) return 'queued'
+  if (asset.id in failed) return 'failed'
 
   return 'not-downloaded'
 }
@@ -54,6 +55,7 @@ export default function SettingsDownloadAssets() {
   const downloadedKeys = useDownloadStore((state) => state.downloadedKeys)
   const queue = useDownloadStore((state) => state.queue)
   const currentItem = useDownloadStore((state) => state.currentItem)
+  const failed = useDownloadStore((state) => state.failed)
   const isDownloading = useDownloadStore((state) => state.isDownloading)
   const isPaused = useDownloadStore((state) => state.isPaused)
 
@@ -67,9 +69,9 @@ export default function SettingsDownloadAssets() {
     () =>
       ALL_ASSETS.filter((asset) => filterType === 'all' || asset.type === filterType).map((asset) => ({
         ...asset,
-        status: statusOf(asset, downloadedKeys, currentItem, queue),
+        status: statusOf(asset, downloadedKeys, currentItem, queue, failed),
       })),
-    [filterType, downloadedKeys, currentItem, queue],
+    [filterType, downloadedKeys, currentItem, queue, failed],
   )
 
   const handleRemoveAll = () => {
@@ -91,7 +93,7 @@ export default function SettingsDownloadAssets() {
 
     if (asset.status === 'downloaded') removeAsset(asset)
     else if (asset.status === 'queued') removeFromQueue(asset)
-    else if (asset.status === 'not-downloaded') queueAsset(asset)
+    else if (asset.status === 'not-downloaded' || asset.status === 'failed') queueAsset(asset)
   }
 
   return (

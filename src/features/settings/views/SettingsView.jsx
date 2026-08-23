@@ -25,46 +25,44 @@ import SettingsZekrProgress from '../components/SettingsZekrProgress'
 import SettingsZekrLeaveConfirmation from '../components/SettingsZekrLeaveConfirmation'
 import SettingsZekrVibration from '../components/SettingsZekrVibration'
 import { ROUTES } from '@/app/router/routes'
+import { SETTINGS_TAB_IDS } from '@/features/settings/tabs'
 import styles from './SettingsView.module.scss'
 
-const TABS = [
-  {
-    id: 'appearance',
+const TAB_BY_ID = {
+  appearance: {
     label: 'المظهر',
     icon: IconPalette,
     sections: [SettingsTheme, SettingsFontSize],
   },
-  {
-    id: 'prayer',
+  prayer: {
     label: 'مواقيت الصلاة',
     icon: IconClockHour4,
     sections: [SettingsPrayerTimes],
   },
-  {
-    id: 'quran',
+  quran: {
     label: 'القرآن',
     icon: IconBook2,
     sections: [SettingsReciter, SettingsTafseer],
   },
-  {
-    id: 'azkar',
+  azkar: {
     label: 'الأذكار',
     icon: IconSparkles,
     sections: [SettingsZekrMoveNext, SettingsZekrProgress, SettingsZekrLeaveConfirmation, SettingsZekrVibration],
   },
-  {
-    id: 'app',
+  app: {
     label: 'التطبيق',
     icon: IconDeviceMobile,
     sections: [SettingsAutoUpdate, SettingsNotifications, SettingsImportExport],
   },
-  {
-    id: 'downloads',
+  downloads: {
     label: 'التنزيلات',
     icon: IconCloudDownload,
     sections: [SettingsDownloadAssets],
   },
-]
+}
+
+// Ordered by SETTINGS_TAB_IDS, the same list the router validates against.
+const TABS = SETTINGS_TAB_IDS.map((id) => ({ id, ...TAB_BY_ID[id] }))
 
 export default function SettingsView() {
   const { tab } = useParams()

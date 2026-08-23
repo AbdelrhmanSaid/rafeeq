@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { useLocation, useMatches, useNavigation } from 'react-router-dom'
 import nProgress from 'nprogress'
 
@@ -19,7 +19,7 @@ export function useRouteEffects() {
 
   // Views that resolve their own meta (a surah, a zekr category, a station)
   // declare none here and call usePageMeta() instead.
-  const routeMeta = matches[matches.length - 1]?.handle?.meta
+  const routeMeta = matches[matches.length - 1]?.handle?.meta ?? null
 
   useEffect(() => {
     if (isEmbed) return
@@ -28,9 +28,14 @@ export function useRouteEffects() {
     else nProgress.done()
   }, [navigation.state, isEmbed])
 
-  useEffect(() => {
-    if (routeMeta) setMeta(routeMeta)
-  }, [routeMeta])
+  // Reset meta on every navigation — to the route's static meta, or to the
+  // defaults for routes that resolve their own — so a dynamic page can't keep
+  // the previous page's title/SEO tags while loading or after failing.
+  // Layout effect: it must run before any view's usePageMeta() passive effect,
+  // which would otherwise be clobbered by this reset.
+  useLayoutEffect(() => {
+    setMeta(routeMeta ?? {})
+  }, [routeMeta, pathname])
 
   useEffect(() => {
     const { applyQueryOverrides, clearQueryOverrides } = useThemeStore.getState()

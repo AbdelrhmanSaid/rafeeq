@@ -13,6 +13,7 @@ import { useReconnectExecute } from '@/shared/hooks/useReconnectExecute'
 import { formatTime, toArabicNumerals } from '@/shared/utils/arabic'
 import { formatClockTime } from '@/shared/utils/format'
 import { API } from '@/shared/constants/api'
+import { formatAladhanDate } from '@/features/prayers/lib/date'
 import styles from './PrayerTimes.module.scss'
 
 const TIMINGS = {
@@ -29,7 +30,7 @@ const TIMING_KEYS = Object.keys(TIMINGS)
 function buildEndpoint(latitude, longitude, calculationParams) {
   if (!latitude || !longitude) return null
 
-  const today = new Date().toISOString().split('T')[0].split('-').reverse().join('-')
+  const today = formatAladhanDate()
   const params = new URLSearchParams({ latitude, longitude, iso8601: 'true' })
 
   return `${API.aladhan}/timings/${today}?${params.toString()}${calculationParams ? `&${calculationParams}` : ''}`

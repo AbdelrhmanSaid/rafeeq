@@ -22,7 +22,11 @@ function createStore(namespace) {
     emit()
   }
 
-  const ready = idbKeys()
+  // Wrapped in a resolved promise: without IndexedDB (some privacy modes,
+  // test environments) idb-keyval throws synchronously, and that must degrade
+  // to "nothing downloaded" rather than crash whoever imports this module.
+  const ready = Promise.resolve()
+    .then(() => idbKeys())
     .then((stored) => {
       keys = stored
         .filter((key) => typeof key === 'string' && key.startsWith(prefix))
@@ -54,7 +58,7 @@ function createStore(namespace) {
       if (!keys.includes(id)) setKeys([...keys, id])
     },
 
-    get: (key) => get(`${prefix}${String(key)}`),
+    get: async (key) => get(`${prefix}${String(key)}`),
 
     async remove(key) {
       const id = String(key)

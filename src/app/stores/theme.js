@@ -1,8 +1,9 @@
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import { create } from 'zustand'
 import { persistFields } from '@/shared/lib/persist'
 import { useMediaQuery } from '@/shared/hooks/useMediaQuery'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
+import { isEmbedPath } from '@/app/router/routes'
 import {
   applyPrimaryColor,
   applyBgColor,
@@ -14,6 +15,27 @@ import {
 } from '@/shared/utils/css'
 
 const MODES = ['light', 'dark', 'system']
+
+const parseQueryOverrides = ({ mode, fg, bg } = {}) => {
+  const nextMode = mode === 'light' || mode === 'dark' ? mode : null
+  return nextMode || fg || bg ? { mode: nextMode, fg: fg || null, bg: bg || null } : null
+}
+
+// Read the embed overrides from the URL the app was opened with, so an embed
+// paints with its requested theme from the first frame instead of flashing
+// the stored theme until the router's effects catch up.
+function initialQueryOverrides() {
+  if (typeof window === 'undefined') return null
+
+  const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '')
+  const pathname = window.location.pathname.startsWith(base)
+    ? window.location.pathname.slice(base.length) || '/'
+    : window.location.pathname
+
+  if (!isEmbedPath(pathname)) return null
+
+  return parseQueryOverrides(Object.fromEntries(new URLSearchParams(window.location.search)))
+}
 
 export const useThemeStore = create(
   persistFields({
@@ -27,7 +49,7 @@ export const useThemeStore = create(
 
     // Embed query params (mode/fg/bg), which override the stored theme for as
     // long as an embed route is open.
-    queryOverrides: null,
+    queryOverrides: initialQueryOverrides(),
 
     setMode: (mode) => {
       if (MODES.includes(mode)) set({ mode })
@@ -36,12 +58,7 @@ export const useThemeStore = create(
     setFontScale: (scale) => set({ fontScale: clampFontScale(scale) }),
     resetFontScale: () => set({ fontScale: DEFAULT_FONT_SCALE }),
 
-    applyQueryOverrides: ({ mode, fg, bg } = {}) => {
-      const nextMode = mode === 'light' || mode === 'dark' ? mode : null
-      const overrides = nextMode || fg || bg ? { mode: nextMode, fg: fg || null, bg: bg || null } : null
-
-      set({ queryOverrides: overrides })
-    },
+    applyQueryOverrides: (query) => set({ queryOverrides: parseQueryOverrides(query) }),
     clearQueryOverrides: () => set({ queryOverrides: null }),
   })),
 )
@@ -69,7 +86,8 @@ export function useApplyTheme() {
   const fg = queryOverrides?.fg || primaryColor || null
   const bg = queryOverrides?.bg || null
 
-  useEffect(() => {
+  // Layout effect: the theme must be on the document before the first paint.
+  useLayoutEffect(() => {
     applyMode(resolvedMode)
     applyPrimaryColor(fg)
     applyBgColor(bg)
@@ -79,7 +97,7 @@ export function useApplyTheme() {
     return () => cancelAnimationFrame(frame)
   }, [resolvedMode, fg, bg])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     applyFontScale(fontScale)
   }, [fontScale])
 }

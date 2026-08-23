@@ -101,6 +101,16 @@
   color: var(--bs-secondary-color);
 }
 
+.itemAction.failed {
+  background: rgba(var(--bs-danger-rgb), 0.1);
+  color: var(--bs-danger);
+}
+
+.itemAction.failed:hover:not(:disabled) {
+  background: var(--bs-danger);
+  color: white;
+}
+
 .itemAction:disabled {
   opacity: 0.5;
   cursor: not-allowed;

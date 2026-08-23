@@ -17,11 +17,9 @@ import { useAsyncData } from '@/shared/hooks/useAsyncData'
 import { useOnline } from '@/shared/hooks/useOnline'
 import { usePageMeta } from '@/shared/hooks/usePageMeta'
 import { ROUTES } from '@/app/router/routes'
+import { FIRST_SURAH, LAST_SURAH } from '@/app/router/loaders'
 import { toArabicNumerals, removeBismillah, normalizeQuranicText } from '@/shared/utils/arabic'
 import styles from './QuranSurahView.module.scss'
-
-const FIRST_SURAH = 1
-const LAST_SURAH = 114
 
 export default function QuranSurahView() {
   const { surah: surahParam } = useParams()
@@ -34,17 +32,24 @@ export default function QuranSurahView() {
   const { isBookmarked, toggleBookmark } = useQuranBookmark()
   const currentAyah = useQuranStore(selectCurrentAyah)
 
-  const fetcher = useCallback(async () => {
-    const result = await fetchSurah(surahParam)
-
-    if (navigator.onLine && result) {
-      await useQuranStore.getState().loadSurahAudio(result.data.number, result.data.name)
-    }
-
-    return result
-  }, [surahParam])
-
+  const fetcher = useCallback(() => fetchSurah(surahParam), [surahParam])
   const { data: surah, error, pending: isFetching } = useAsyncData(fetcher, { deps: [surahParam] })
+
+  // Load the audio only once useAsyncData has settled on a surah. Doing it
+  // inside the fetcher would let a slow request for the previous surah swap
+  // the player's audio after the next surah was already on screen.
+  // Also re-runs when the device comes online, so a surah opened from the
+  // offline cache gets its audio once it can.
+  useEffect(() => {
+    if (!surah || !online) return
+
+    useQuranStore.getState().loadSurahAudio(surah.data.number, surah.data.name)
+  }, [surah, online])
+
+  // Mount the player only once the store holds this surah's audio, so it never
+  // briefly plays the previous surah's file between navigation and load.
+  const loadedSurahNumber = useQuranStore((state) => state.currentSurahNumber)
+  const showPlayer = online && surah != null && loadedSurahNumber === surah.data.number
 
   // The component is reused when only the :surah param changes (e.g. the
   // prev/next buttons), so scroll back to the top on each switch.
@@ -135,7 +140,7 @@ export default function QuranSurahView() {
             share
           />
 
-          {online && <QuranPlayer ref={playerRef} />}
+          {showPlayer && <QuranPlayer ref={playerRef} />}
 
           <div className={`${styles.ayat} font-quran mb-4`}>
             {surahNumber !== 9 && <span className={styles.basmallah}>بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>}
