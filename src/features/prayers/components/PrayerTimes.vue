@@ -191,7 +191,10 @@ const remainingTime = computed(() => {
           :aria-current="phases[key] === 'next' ? 'true' : undefined"
         >
           <div class="card-body d-flex flex-column align-items-center justify-content-center text-center gap-2 p-3">
-            <span class="icon-circle" :class="phases[key] === 'next' ? 'border-primary text-primary' : 'text-secondary'">
+            <span
+              class="icon-circle"
+              :class="phases[key] === 'next' ? 'border-primary text-primary' : 'text-secondary'"
+            >
               <PrayerIcon :name="timing.icon" />
             </span>
             <div>
