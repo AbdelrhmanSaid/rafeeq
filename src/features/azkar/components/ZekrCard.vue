@@ -1,7 +1,7 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { onLongPress } from '@vueuse/core'
-import { IconDownload, IconShare3, IconCopy, IconHeartShare, IconRestore } from '@tabler/icons-vue'
+import { IconCheck, IconCopy, IconDots, IconDownload, IconRestore, IconShare3 } from '@tabler/icons-vue'
 import { exportComponent } from '@/shared/utils/export'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals } from '@/shared/utils/arabic'
@@ -13,7 +13,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu'
 
@@ -42,6 +41,8 @@ const isMobile = useIsMobile()
 const { vibrateOnFinish } = useZekrVibration()
 const { scrollToNextZekr } = useZekrScroll(card)
 
+const done = computed(() => count.value >= props.repeat)
+
 const increment = () => {
   if (count.value >= props.repeat) return
 
@@ -69,12 +70,12 @@ const onCardClick = () => {
 }
 
 // Mobile long presses often emit no click, so count them here (ignoring the
-// counter / action menu). onCardClick swallows any trailing click; onMouseUp
-// clears the flag in case none arrives.
+// controls in the footer row). onCardClick swallows any trailing click;
+// onMouseUp clears the flag in case none arrives.
 onLongPress(
   card,
   (e) => {
-    if (!isMobile.value || e.target.closest('.btn-counter, .action-menu')) return
+    if (!isMobile.value || e.target.closest('.btn-counter, .action-menu, .btn-reset')) return
     longPressed = true
     increment()
   },
@@ -114,8 +115,8 @@ const copyZekr = () => {
 
 <template>
   <!-- `.zekr-card` is the selector useZekrScroll walks to find the next zekr,
-       and `.action-menu` / `.btn-counter` are what the long-press handler above
-       excludes — keep all three class names.
+       and `.btn-counter` / `.action-menu` / `.btn-reset` are what the long-press
+       handler above excludes — keep all four class names.
 
        The whole card is the tap target below `lg` (that is the viewport
        `useIsMobile` reports on), so the pointer/selection affordances are the
@@ -123,77 +124,84 @@ const copyZekr = () => {
        counts. -->
   <div
     ref="card"
-    class="zekr-card cursor-pointer rounded-2xl bg-card p-5 text-card-foreground shadow-sm select-none lg:cursor-auto lg:p-6 lg:select-auto"
+    class="zekr-card cursor-pointer overflow-hidden rounded-2xl bg-card text-card-foreground shadow-sm select-none lg:cursor-auto lg:select-auto"
+    :class="{ 'opacity-75': done }"
     @click="onCardClick"
   >
-    <!-- Rare actions sit at the top end of the card, clear of the thumb zone
-         and clear of the text; the negative margins pull the 2.75rem target
-         back into the card's corner so it costs almost no height. `w-fit`
-         keeps `.action-menu` the size of its button: it both swallows the click
-         and is excluded from the long-press, so a full-width strip here would
-         cut a dead band across the top of the tap-to-count card. -->
-    <div class="action-menu -mt-2 -me-2 ms-auto w-fit" @click.stop>
-      <DropdownMenu>
-        <DropdownMenuTrigger as-child>
-          <Button
-            variant="ghost"
-            size="icon"
-            type="button"
-            class="size-11 rounded-full text-muted-foreground active:scale-90"
-            aria-label="خيارات الذكر"
-          >
-            <IconHeartShare class="size-5" />
-          </Button>
-        </DropdownMenuTrigger>
+    <!-- The zekr itself carries the card: nothing competes with it above, and
+         every control lives in the footer row below. -->
+    <div class="px-5 pt-6 pb-5 text-center lg:px-6">
+      <p class="font-quran text-2xl leading-[2.15] text-pretty sm:text-[1.625rem]">{{ text }}</p>
 
-        <DropdownMenuContent align="end" class="min-w-44 rounded-2xl border-0 p-1.5 shadow-xl">
-          <DropdownMenuItem class="min-h-11 gap-3 rounded-xl px-3 text-sm" @click="exportAsImage">
-            <IconDownload class="size-5" />
-            <span>تنزيل</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem class="min-h-11 gap-3 rounded-xl px-3 text-sm" @click="shareZekr">
-            <IconShare3 class="size-5" />
-            <span>مشاركة</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem class="min-h-11 gap-3 rounded-xl px-3 text-sm" @click="copyZekr">
-            <IconCopy class="size-5" />
-            <span>نسخ</span>
-          </DropdownMenuItem>
-
-          <DropdownMenuSeparator />
-
-          <DropdownMenuItem class="min-h-11 gap-3 rounded-xl px-3 text-sm" :disabled="count === 0" @click="reset">
-            <IconRestore class="size-5" />
-            <span>تصفير</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <p class="mt-3 text-sm leading-relaxed text-muted-foreground" v-if="benefit || reference">
+        <span v-if="reference">{{ reference }}</span>
+        <span v-if="benefit && reference"> - </span>
+        <span v-if="benefit">{{ benefit }}</span>
+      </p>
     </div>
 
-    <!-- One zekr, one column on a phone: the text leads and the counter sits
-         under it, in reach of the thumb. From `lg` the row reverses so the
-         counter returns to the start edge beside the text. -->
-    <div class="flex flex-col items-center gap-5 lg:flex-row-reverse lg:items-center lg:gap-8">
-      <div class="w-full min-w-0 text-center lg:flex-1 lg:text-start">
-        <p class="font-quran text-2xl leading-[2.15] text-pretty sm:text-[1.625rem]">{{ text }}</p>
-
-        <p class="mt-3 text-sm leading-relaxed text-muted-foreground" v-if="benefit || reference">
-          <span v-if="reference">{{ reference }}</span>
-          <span v-if="benefit && reference"> - </span>
-          <span v-if="benefit">{{ benefit }}</span>
-        </p>
-      </div>
+    <!-- One controls row, so the card reads as content-then-controls instead of
+         hiding a counter action inside a share menu. The counter is the primary
+         target and sits in the middle; resetting and the content actions
+         (download / share / copy) flank it as quiet icon buttons. -->
+    <div class="flex items-center justify-between gap-3 border-t border-border/60 bg-muted/30 px-3 py-3">
+      <Button
+        class="btn-reset size-11 shrink-0 rounded-full text-muted-foreground active:scale-90"
+        variant="ghost"
+        size="icon"
+        type="button"
+        :disabled="count === 0"
+        aria-label="تصفير العداد"
+        title="تصفير العداد"
+        @click.stop="reset"
+      >
+        <IconRestore class="size-5" />
+      </Button>
 
       <!-- rem (not px) so the progress ring scales with the font and the
            counter text (e.g. "100/100") stays centered without overflowing. -->
       <button
-        class="btn-counter grid size-30 shrink-0 cursor-pointer place-items-center rounded-full text-xl font-medium text-primary tabular-nums transition outline-none select-none active:scale-95 focus-visible:ring-3 focus-visible:ring-ring/50"
+        class="btn-counter grid size-24 shrink-0 cursor-pointer place-items-center rounded-full text-lg font-medium text-primary tabular-nums transition outline-none select-none active:scale-95 focus-visible:ring-3 focus-visible:ring-ring/50"
+        :class="{ 'is-done': done }"
         type="button"
+        :aria-label="done ? 'اكتمل الذكر' : 'عد الذكر'"
         @click.stop="increment"
         :style="{ '--progress': count / repeat }"
       >
-        {{ toArabicNumerals(`${count}/${repeat}`) }}
+        <IconCheck v-if="done" class="size-7" />
+        <template v-else>{{ toArabicNumerals(`${count}/${repeat}`) }}</template>
       </button>
+
+      <div class="action-menu shrink-0" @click.stop>
+        <DropdownMenu>
+          <DropdownMenuTrigger as-child>
+            <Button
+              variant="ghost"
+              size="icon"
+              type="button"
+              class="size-11 rounded-full text-muted-foreground active:scale-90"
+              aria-label="خيارات الذكر"
+            >
+              <IconDots class="size-5" />
+            </Button>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent align="end" class="min-w-44 rounded-2xl border-0 p-1.5 shadow-xl">
+            <DropdownMenuItem class="min-h-11 gap-3 rounded-xl px-3 text-sm" @click="exportAsImage">
+              <IconDownload class="size-5" />
+              <span>تنزيل</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem class="min-h-11 gap-3 rounded-xl px-3 text-sm" @click="shareZekr">
+              <IconShare3 class="size-5" />
+              <span>مشاركة</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem class="min-h-11 gap-3 rounded-xl px-3 text-sm" @click="copyZekr">
+              <IconCopy class="size-5" />
+              <span>نسخ</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   </div>
 </template>
@@ -202,12 +210,21 @@ const copyZekr = () => {
 /* The counter's progress ring is a conic-gradient driven by the inline
    `--progress` custom property; no Tailwind utility expresses that, so it stays
    plain CSS. Every color reads the token layer, so the user's runtime accent
-   and background still apply — the disc punched out of the middle is `--card`
-   because the counter sits on a card, which leaves a floating ring around the
-   number. */
+   and background still apply.
+
+   The disc punched out of the middle is a faint accent tint rather than the
+   surface color: on a card the counter has to read as a button, and a
+   card-colored disc left the ring floating with nothing inside it. */
 .btn-counter {
   background:
-    radial-gradient(closest-side, var(--card) 80%, transparent 81% 100%),
+    radial-gradient(closest-side, color-mix(in oklab, var(--primary) 10%, var(--card)) 78%, transparent 79% 100%),
     conic-gradient(var(--primary) calc(var(--progress) * 100%), color-mix(in oklab, var(--primary) 15%, transparent) 0);
+}
+
+.btn-counter.is-done {
+  background:
+    radial-gradient(closest-side, var(--primary) 78%, transparent 79% 100%),
+    conic-gradient(var(--primary) 100%, var(--primary) 0);
+  color: var(--primary-foreground);
 }
 </style>
