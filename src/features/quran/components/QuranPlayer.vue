@@ -3,7 +3,7 @@ import { ref, computed, watch, onMounted, onUnmounted, provide } from 'vue'
 import { useQuranStore, PLAYBACK_RATES } from '@/features/quran/store'
 import { useRadioStore } from '@/features/radio/store'
 import { IconPlayerPlay, IconPlayerPause, IconMicrophone2, IconGauge } from '@tabler/icons-vue'
-import { toArabicNumerals, formatTime } from '@/shared/utils/arabic'
+import { toArabicNumerals, formatTime, removeSurahPrefix, normalizeQuranicText } from '@/shared/utils/arabic'
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
 import SettingsReciter from '@/features/settings/components/SettingsReciter.vue'
 
@@ -47,10 +47,16 @@ function cycleRate() {
   quranStore.playbackRate = PLAYBACK_RATES[(i + 1) % PLAYBACK_RATES.length]
 }
 
-const currentAyahDisplay = computed(() => {
+// Compact title: the heading above the player already says "سورة …", so the
+// prefix only eats the little width the name has next to the reciter chip.
+const playerTitle = computed(() =>
+  quranStore.surahName ? removeSurahPrefix(normalizeQuranicText(quranStore.surahName)) : 'اضغط على آية للاستماع',
+)
+
+const ayahLabel = computed(() => {
   const ayah = quranStore.currentAyah
-  if (!ayah || !quranStore.surahName) return null
-  return { surahName: quranStore.surahName, ayahNumber: ayah.ayah }
+  if (!ayah || !(ayah.ayah > 0) || !quranStore.surahName) return ''
+  return `آية ${toArabicNumerals(ayah.ayah)}`
 })
 
 async function tryPlay() {
@@ -135,17 +141,16 @@ defineExpose({ seekToAyah })
         <IconPlayerPause v-else />
       </button>
 
-      <!-- Single flex line: the name truncates and the ayah chip sits beside it,
-           so the ayah indicator appearing never wraps or grows the player. -->
-      <div class="flex-grow-1 min-w-0 d-flex align-items-center gap-2">
-        <template v-if="currentAyahDisplay">
-          <span class="fw-semibold text-primary text-truncate">{{ currentAyahDisplay.surahName }}</span>
-          <span v-if="currentAyahDisplay.ayahNumber > 0" class="text-secondary small text-nowrap flex-shrink-0"
-            >آية {{ toArabicNumerals(currentAyahDisplay.ayahNumber) }}</span
-          >
-        </template>
-        <span v-else-if="quranStore.surahName" class="text-muted text-truncate">{{ quranStore.surahName }}</span>
-        <span v-else class="text-muted text-truncate">اضغط على آية للاستماع</span>
+      <!-- Two fixed lines: the name truncates on top and the ayah line below
+           keeps its height even while empty, so playback never resizes the
+           player or squeezes the name. -->
+      <div class="flex-grow-1 min-w-0">
+        <div class="fw-semibold text-truncate" :class="ayahLabel ? 'text-primary' : 'text-muted'">
+          {{ playerTitle }}
+        </div>
+        <!-- nbsp keeps a real line box while idle so the indicator appearing
+             doesn't change the player's height. -->
+        <div class="small text-secondary">{{ ayahLabel || '\u00A0' }}</div>
       </div>
 
       <button
@@ -206,7 +211,6 @@ defineExpose({ seekToAyah })
   height: 40px;
   padding: 0.625rem;
 }
-
 /* Same soft primary-tint language as .chip, instead of the gray secondary pair. */
 .player-chip {
   color: var(--bs-primary);
