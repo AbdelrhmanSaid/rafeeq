@@ -140,9 +140,7 @@ defineExpose({ seekToAyah })
   >
     <!-- Same measure as the reading column above it. -->
     <div class="mx-auto w-full max-w-[43.75rem] px-3 pb-2 sm:px-4">
-      <div
-        class="pointer-events-auto rounded-3xl border border-border/70 bg-card/95 p-3 shadow-xl backdrop-blur-xl"
-      >
+      <div class="pointer-events-auto rounded-3xl border border-border/70 bg-card/95 p-3 shadow-xl backdrop-blur-xl">
         <div class="flex items-center gap-2.5">
           <span class="shrink-0 text-xs tabular-nums text-muted-foreground">{{ formatTime(currentTime) }}</span>
 
