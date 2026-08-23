@@ -17,10 +17,14 @@ export async function exportComponent(component, props = {}, filePrefix = 'expor
   const { canvas: canvasOptions = {}, format = 'png', quality = 0.92 } = options || {}
 
   try {
-    // Create temporary container
+    // Create temporary container. Must be absolute, not fixed: html2canvas
+    // crops at getBoundingClientRect() + page scroll offset, and a fixed
+    // element's rect doesn't move with scroll — so with the page scrolled the
+    // crop landed below the card and exported a blank white image. An absolute
+    // element at the document top keeps rect + scroll constant at (−9999, 0).
     const container = document.createElement('div')
-    container.style.position = 'fixed'
-    container.style.top = '-9999px'
+    container.style.position = 'absolute'
+    container.style.top = '0'
     container.style.left = '-9999px'
     document.body.appendChild(container)
 
@@ -28,8 +32,10 @@ export async function exportComponent(component, props = {}, filePrefix = 'expor
     const app = createApp(component, props)
     app.mount(container)
 
-    // Wait for component to render
+    // Wait for component to render, and for webfonts so the first export
+    // after page load doesn't rasterize with the fallback font
     await nextTick()
+    await document.fonts.ready
 
     const minimumWidth = 1080 // 1080px is the minimum width for the image
     const actualWidth = container.firstChild.clientWidth
@@ -41,6 +47,10 @@ export async function exportComponent(component, props = {}, filePrefix = 'expor
       useCORS: true,
       allowTaint: true,
       logging: false,
+      // Render the cloned document unscrolled: with the container anchored at
+      // the document top, page scroll must not shift the capture region
+      scrollX: 0,
+      scrollY: 0,
       ...canvasOptions,
     }
 
