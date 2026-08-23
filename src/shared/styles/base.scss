@@ -49,6 +49,15 @@
   --app-shadow-bar: 0 -8px 24px -12px rgba(0, 0, 0, 0.5);
 }
 
+/* Glass surfaces rely on backdrop-filter for legibility; where it's not
+   supported, fall back to an opaque bar so content can't bleed through. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root,
+  [data-bs-theme='dark'] {
+    --app-glass: var(--bs-body-bg);
+  }
+}
+
 body {
   background-color: color-mix(in srgb, var(--bs-body-bg) 96%, var(--bs-primary));
   /* Ambient glow: a soft primary halo at the top edge so pages feel lit

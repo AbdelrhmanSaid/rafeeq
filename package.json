@@ -23,7 +23,7 @@
     "baseline-browser-mapping": "^2.11.15",
     "bootstrap": "^5.3.8",
     "caniuse-lite": "^1.0.30001809",
-    "html2canvas": "^1.4.1",
+    "html2canvas-pro": "^2.3.9",
     "idb-keyval": "^6.3.0",
     "nprogress": "^0.2.0",
     "pinia": "^4.0.3",

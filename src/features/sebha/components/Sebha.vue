@@ -75,6 +75,17 @@ const sebha = ref(0)
   color: var(--bs-secondary-color);
 }
 
+/* The raw primary is too dark against the dark canvas; lighten it the same way
+   active nav items do so the counter stays readable. */
+[data-bs-theme='dark'] .sebha-btn {
+  color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
+}
+
+[data-bs-theme='dark'] .sebha-label,
+[data-bs-theme='dark'] .sebha-hint {
+  color: var(--bs-body-color);
+}
+
 .sebha-actions {
   display: grid;
   gap: 0.75rem;

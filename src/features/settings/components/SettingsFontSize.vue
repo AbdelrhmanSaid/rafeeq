@@ -33,10 +33,11 @@ function increase() {
         v-if="!isDefault"
         type="button"
         class="btn btn-sm btn-flat d-inline-flex align-items-center gap-1"
+        aria-label="إعادة تعيين حجم الخط"
         @click="theme.resetFontScale()"
       >
         <IconRotate :size="15" />
-        <span>إعادة تعيين</span>
+        <span class="d-none d-md-inline">إعادة تعيين</span>
       </button>
     </template>
 

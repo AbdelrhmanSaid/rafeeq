@@ -14,7 +14,7 @@
         "baseline-browser-mapping": "^2.11.15",
         "bootstrap": "^5.3.8",
         "caniuse-lite": "^1.0.30001809",
-        "html2canvas": "^1.4.1",
+        "html2canvas-pro": "^2.3.9",
         "idb-keyval": "^6.3.0",
         "nprogress": "^0.2.0",
         "pinia": "^4.0.3",
@@ -767,7 +767,7 @@
 
     "html-escaper": ["html-escaper@2.0.2", "", {}, "sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg=="],
 
-    "html2canvas": ["html2canvas@1.4.1", "", { "dependencies": { "css-line-break": "^2.1.0", "text-segmentation": "^1.0.3" } }, "sha512-fPU6BHNpsyIhr8yyMpTLLxAbkaK8ArIBcmZIRiBLiDhjeqvXolaEmDGmELFuX9I4xDcaKKcJl+TKZLqruBbmWA=="],
+    "html2canvas-pro": ["html2canvas-pro@2.3.9", "", { "dependencies": { "css-line-break": "^2.1.0", "text-segmentation": "^1.0.3" } }, "sha512-s5LCNV8QHkKm4DkOuoXDnC+CvIsXjftn9mEA5BOPFWGa9A2M+Tn7wwitRivS5cch2/Bby6KuFmLZac5jlM51Sw=="],
 
     "idb": ["idb@7.1.1", "", {}, "sha512-gchesWBzyvGHRO9W8tzUWFDycow5gwjvFKfyV9FF32Y7F50yZMp7mP+T2mJIWFx49zicqyC4uefHM17o6xKIVQ=="],
 

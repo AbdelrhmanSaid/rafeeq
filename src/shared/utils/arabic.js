@@ -42,6 +42,16 @@ export const removeBismillah = (text) => {
   return text
 }
 
+// Surah names from the API arrive prefixed ("سُورَةُ ٱلۡفَاتِحَةِ"); drop that
+// first word for compact labels where the context already implies it. The
+// prefix is matched with its diacritics stripped so any vocalization works.
+export const removeSurahPrefix = (name) => {
+  const text = String(name ?? '').trim()
+  const [first, ...rest] = text.split(/\s+/)
+  const bare = first.replace(/[\u064b-\u0652\u0670\u0640]/g, '')
+  return bare === 'سورة' && rest.length ? rest.join(' ') : text
+}
+
 export const toArabicNumerals = (value) => {
   return String(value).replace(/\d/g, (digit) => String.fromCharCode(0x660 + Number(digit)))
 }

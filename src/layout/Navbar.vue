@@ -112,8 +112,9 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
   min-height: var(--navbar-height);
   background: var(--app-glass);
   border-bottom: 1px solid var(--app-hairline);
+  /* No -webkit- duplicate (see TabBar.vue): Lightning CSS would keep only the
+     prefixed property and Chrome/Firefox would lose the blur. */
   backdrop-filter: blur(18px) saturate(1.4);
-  -webkit-backdrop-filter: blur(18px) saturate(1.4);
 }
 
 .navbar-brand {
