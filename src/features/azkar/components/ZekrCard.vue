@@ -66,7 +66,7 @@ const onCardClick = () => {
 onLongPress(
   card,
   (e) => {
-    if (!isMobile.value || e.target.closest('.btn-counter, .action-menu')) return
+    if (!isMobile.value || e.target.closest('.btn-counter, .card-actions')) return
     longPressed = true
     increment()
   },
@@ -105,40 +105,45 @@ const copyZekr = () => {
 </script>
 
 <template>
-  <div ref="card" class="card" @click="onCardClick">
+  <div ref="card" class="card" :class="{ completed: count >= repeat }" @click="onCardClick">
     <div class="card-body zekr-card">
-      <div class="action-menu dropdown" @click.stop>
-        <button class="btn p-0 bg-transparent" type="button" data-bs-toggle="dropdown">
-          <IconHeartShare size="18" />
+      <div class="card-actions" @click.stop>
+        <button
+          class="btn p-0 bg-transparent border-0"
+          type="button"
+          aria-label="تصفير"
+          :disabled="count === 0"
+          @click="reset"
+        >
+          <IconRestore size="18" />
         </button>
 
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li>
-            <button class="dropdown-item d-flex align-items-center gap-2" @click="exportAsImage">
-              <IconDownload size="18" />
-              <span>تنزيل</span>
-            </button>
-          </li>
-          <li>
-            <button class="dropdown-item d-flex align-items-center gap-2" @click="shareZekr">
-              <IconShare3 size="18" />
-              <span>مشاركة</span>
-            </button>
-          </li>
-          <li>
-            <button class="dropdown-item d-flex align-items-center gap-2" @click="copyZekr">
-              <IconCopy size="18" />
-              <span>نسخ</span>
-            </button>
-          </li>
-          <li><hr class="dropdown-divider" /></li>
-          <li>
-            <button class="dropdown-item d-flex align-items-center gap-2" :disabled="count === 0" @click="reset">
-              <IconRestore size="18" />
-              <span>تصفير</span>
-            </button>
-          </li>
-        </ul>
+        <div class="dropdown">
+          <button class="btn p-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-label="المزيد">
+            <IconHeartShare size="18" />
+          </button>
+
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <button class="dropdown-item d-flex align-items-center gap-2" @click="exportAsImage">
+                <IconDownload size="18" />
+                <span>تنزيل</span>
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item d-flex align-items-center gap-2" @click="shareZekr">
+                <IconShare3 size="18" />
+                <span>مشاركة</span>
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item d-flex align-items-center gap-2" @click="copyZekr">
+                <IconCopy size="18" />
+                <span>نسخ</span>
+              </button>
+            </li>
+          </ul>
+        </div>
       </div>
 
       <div class="row align-items-center g-4 text-center text-lg-start">
@@ -166,6 +171,10 @@ const copyZekr = () => {
 </template>
 
 <style lang="scss" scoped>
+.completed {
+  opacity: 0.8;
+}
+
 .zekr-card {
   position: relative;
 
@@ -198,17 +207,25 @@ const copyZekr = () => {
     line-height: 2;
   }
 
-  .action-menu {
+  .card-actions {
     position: absolute;
     inset-inline-end: 0.5rem;
     inset-block-end: 0.5rem;
+    display: flex;
+    align-items: center;
 
+    > button,
     [data-bs-toggle='dropdown'] {
       width: 30px;
       height: 30px;
       display: grid;
       place-items: center;
       color: var(--bs-secondary);
+
+      &:disabled {
+        opacity: 0.35;
+        background: transparent;
+      }
     }
   }
 }

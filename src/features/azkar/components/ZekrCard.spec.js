@@ -80,4 +80,43 @@ describe('ZekrCard', () => {
     expect(vibrateOnFinish).toHaveBeenCalledTimes(1)
     expect(scrollToNextZekr).toHaveBeenCalledTimes(1)
   })
+
+  it('keeps reset outside the actions dropdown and disabled at zero', () => {
+    const { wrapper } = mountCard(3)
+    const resetBtn = wrapper.find('[aria-label="تصفير"]')
+
+    expect(resetBtn.exists()).toBe(true)
+    expect(resetBtn.element.closest('.dropdown-menu')).toBeNull()
+    expect(resetBtn.attributes('disabled')).toBeDefined()
+    expect(wrapper.findAll('.dropdown-item').map((item) => item.text()).join()).not.toContain('تصفير')
+  })
+
+  it('marks the card as completed once the count reaches repeat', async () => {
+    const { wrapper } = mountCard(2)
+
+    expect(wrapper.classes()).not.toContain('completed')
+
+    await clickCounter(wrapper)
+    expect(wrapper.classes()).not.toContain('completed')
+
+    await clickCounter(wrapper)
+    expect(wrapper.classes()).toContain('completed')
+
+    await wrapper.find('[aria-label="تصفير"]').trigger('click')
+    expect(wrapper.classes()).not.toContain('completed')
+  })
+
+  it('resets the count from the standalone reset button', async () => {
+    const { wrapper, counts } = mountCard(3)
+
+    await clickCounter(wrapper)
+    await clickCounter(wrapper)
+    expect(counts[0]).toBe(2)
+
+    const resetBtn = wrapper.find('[aria-label="تصفير"]')
+    expect(resetBtn.attributes('disabled')).toBeUndefined()
+    await resetBtn.trigger('click')
+
+    expect(counts[0]).toBe(0)
+  })
 })
