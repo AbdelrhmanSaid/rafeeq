@@ -71,12 +71,6 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
             </a>
             <ul class="dropdown-menu">
               <li>
-                <RouterLink class="dropdown-item d-flex align-items-center gap-2" :to="{ name: 'qibla' }">
-                  <IconCompass size="1.25rem" aria-hidden="true" />
-                  <span>اتجاه القبلة</span>
-                </RouterLink>
-              </li>
-              <li>
                 <RouterLink class="dropdown-item d-flex align-items-center gap-2" :to="{ name: 'zakat' }">
                   <IconCoins size="1.25rem" aria-hidden="true" />
                   <span>حاسبة الزكاة</span>

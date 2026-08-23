@@ -107,6 +107,13 @@ const updateSW = registerSW({
 </template>
 
 <style lang="scss" scoped>
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
 .offline-banner {
   min-height: 50px;
   background-color: #dc3545;
@@ -122,23 +129,22 @@ const updateSW = registerSW({
 }
 
 .main-content {
-  min-height: calc(100vh - var(--navbar-height)); /* Adjust for navbar and footer on desktop */
+  flex-grow: 1;
   padding-bottom: var(--navbar-height);
 }
 
 /* Embed adjustments */
 .main-content-embed .main-content {
   min-height: 100vh;
+  min-height: 100dvh;
   padding-bottom: unset;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Desktop adjustments */
-@media (min-width: 992px) {
+@media (min-width: 768px) {
   .main-content {
-    min-height: calc(100vh - 400px);
     padding-bottom: 0;
   }
 }
