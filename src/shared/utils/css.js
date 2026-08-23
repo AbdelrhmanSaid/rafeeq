@@ -8,7 +8,13 @@ const PRIMARY_COLOR_VARS = [
   '--bs-primary-border-subtle',
 ]
 
-const BG_COLOR_VARS = ['--bs-body-bg', '--bs-body-bg-rgb', '--bs-secondary-bg', '--bs-tertiary-bg']
+const BG_COLOR_VARS = [
+  '--app-body-bg-base',
+  '--bs-body-bg',
+  '--bs-body-bg-rgb',
+  '--bs-secondary-bg',
+  '--bs-tertiary-bg',
+]
 
 // Global font scaling. The whole app sizes in `rem`, so changing the root
 // `<html>` font-size proportionally scales every text and rem-based spacing.
@@ -113,12 +119,16 @@ export function applyBgColor(color) {
   const bg = normalizeColor(color)
 
   if (bg) {
+    const tintedBg = `color-mix(in srgb, ${bg} 96%, var(--bs-primary))`
+
     const vars = {
-      '--bs-body-bg': bg,
+      '--app-body-bg-base': bg,
+      '--bs-body-bg': tintedBg,
       '--bs-secondary-bg': 'color-mix(in srgb, var(--bs-body-bg) 92%, #fff)',
       '--bs-tertiary-bg': 'color-mix(in srgb, var(--bs-body-bg) 84%, #fff)',
     }
-    const rgb = toRgbValue(bg)
+
+    const rgb = toRgbValue(tintedBg)
     if (rgb) vars['--bs-body-bg-rgb'] = rgb
     setVars(vars)
   } else {

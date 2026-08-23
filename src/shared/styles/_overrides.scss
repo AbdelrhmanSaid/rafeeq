@@ -14,6 +14,10 @@ html[dir='rtl'],
   --toast-button-margin-end: 0 !important;
 }
 
+.bg-body {
+  background-color: var(--bs-body-bg) !important;
+}
+
 /* Keep Bootstrap primary buttons in sync with runtime primary color overrides. */
 .btn-primary {
   --bs-btn-color: #fff;

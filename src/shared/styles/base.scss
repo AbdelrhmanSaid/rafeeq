@@ -7,10 +7,22 @@
 
 :root {
   --navbar-height: 70px;
+  --app-body-bg-base: #fff;
+  --bs-body-bg: color-mix(in srgb, var(--app-body-bg-base) 96%, var(--bs-primary));
 
   @media screen and (min-width: 768px) {
     --navbar-height: 85px;
   }
+}
+
+[data-bs-theme='light'] {
+  --app-body-bg-base: #fff;
+  --bs-body-bg: color-mix(in srgb, var(--app-body-bg-base) 96%, var(--bs-primary));
+}
+
+[data-bs-theme='dark'] {
+  --app-body-bg-base: #121212;
+  --bs-body-bg: color-mix(in srgb, var(--app-body-bg-base) 96%, var(--bs-primary));
 }
 
 /* Collapse animations and transitions to near-instant for users who ask for less motion. */
