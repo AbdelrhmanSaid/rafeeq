@@ -88,7 +88,7 @@ const hasBody = computed(() => {
   color: var(--bs-primary);
 }
 
-:global([data-bs-theme='dark']) .settings-section-icon {
+[data-bs-theme='dark'] .settings-section-icon {
   background: color-mix(in srgb, var(--bs-primary) 24%, transparent);
   color: color-mix(in srgb, var(--bs-primary) 28%, #fff);
 }

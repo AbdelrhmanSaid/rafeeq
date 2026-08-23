@@ -108,10 +108,10 @@ async function toggleAyahPlayback() {
     </div>
 
     <template v-else-if="ayah">
-      <div class="card-header d-flex align-items-center justify-content-between py-2">
-        <span class="fw-semibold">{{ normalizeQuranicText(ayah.surah.name) }}</span>
+      <div class="ayah-toolbar">
+        <span class="ayah-surah">{{ normalizeQuranicText(ayah.surah.name) }}</span>
 
-        <div class="d-flex align-items-center gap-1">
+        <div class="d-flex align-items-center">
           <button class="btn btn-flat btn-icon" @click="prevAyah" title="الآية السابقة" aria-label="الآية السابقة">
             <IconChevronRight size="18" />
           </button>
@@ -137,15 +137,15 @@ async function toggleAyahPlayback() {
         </div>
       </div>
 
-      <div class="card-body">
-        <p class="fs-2 text-center lh-lg font-quran" :class="tafsir ? 'mb-4' : 'mb-0'">
+      <div class="card-body pt-2">
+        <p class="ayah-text font-quran">
           {{ displayText }} <span class="ayah-number">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
         </p>
 
-        <template v-if="tafsir">
+        <div v-if="tafsir" class="ayah-tafsir">
           <span class="d-block small fw-semibold text-secondary mb-2">{{ tafsir.edition.name }}</span>
           <p class="small mb-0">{{ tafsir.text }}</p>
-        </template>
+        </div>
       </div>
     </template>
   </div>
@@ -153,4 +153,32 @@ async function toggleAyahPlayback() {
 
 <style lang="scss" scoped>
 @import '@/shared/styles/quran.css';
+
+.ayah-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem 0;
+}
+
+.ayah-surah {
+  min-width: 0;
+  font-family: 'Thmanyah Serif Text', 'Thmanyah Sans', serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.ayah-text {
+  margin: 0;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 2;
+  text-align: center;
+}
+
+.ayah-tafsir {
+  margin-top: 1.25rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid var(--bs-border-color);
+}
 </style>

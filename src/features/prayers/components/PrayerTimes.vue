@@ -11,6 +11,7 @@ import OfflineState from '@/shared/ui/OfflineState.vue'
 import { formatTime, toArabicNumerals } from '@/shared/utils/arabic'
 import { API } from '@/shared/constants/api'
 import { CALCULATION_FIELDS } from '@/features/prayers/constants/calculationOptions'
+import { getNextPrayerKey, getPrayerPhase } from '@/features/prayers/lib/prayerPhase'
 
 import PrayerIcon from '@/features/prayers/components/icons/PrayerIcon.vue'
 
@@ -89,25 +90,19 @@ const hijriDate = computed(() => {
 
 const hijriDay = computed(() => timings.value?.data?.date?.hijri?.weekday?.ar ?? '')
 
-// Determine the next prayer
-const nextPrayerKey = computed(() => {
-  if (!timings.value?.data?.timings) return null
+const nextPrayerKey = computed(() => getNextPrayerKey(now.value.getTime(), timings.value?.data?.timings))
 
-  const prayerTimes = timings.value.data.timings
-  const currentTime = now.value.getTime()
+const phases = computed(() => {
+  const result = {}
+  const next = nextPrayerKey.value
+  const prayerTimes = timings.value?.data?.timings
+  const nowMs = now.value.getTime()
 
-  const prayers = Object.entries(timingsMap).map(([name]) => ({
-    name,
-    time: new Date(prayerTimes[name]).getTime(),
-  }))
-
-  for (let i = 0; i < prayers.length - 1; i++) {
-    if (currentTime >= prayers[i].time && currentTime < prayers[i + 1].time) {
-      return prayers[i + 1].name
-    }
+  for (const key of Object.keys(timingsMap)) {
+    result[key] = getPrayerPhase(key, next, nowMs, prayerTimes)
   }
 
-  return currentTime >= prayers[prayers.length - 1].time || currentTime < prayers[0].time ? prayers[0].name : null
+  return result
 })
 
 // Calculate remaining time until next prayer
@@ -150,19 +145,21 @@ const remainingTime = computed(() => {
   </div>
 
   <div v-else-if="timings" class="d-flex flex-column gap-2">
-    <div class="prayer-header d-flex align-items-center justify-content-between p-3 rounded text-white">
-      <div>
-        <div class="d-flex align-items-center gap-2 small text-soft">
-          <span class="icon-circle icon-circle--header">
-            <PrayerIcon v-if="nextPrayerKey" :name="timingsMap[nextPrayerKey]?.icon" />
-          </span>
-          <span v-if="nextPrayerKey">الصلاة القادمة · {{ timingsMap[nextPrayerKey]?.label }}</span>
+    <div class="prayer-hero text-white">
+      <div class="prayer-hero__meta">
+        <div class="prayer-hero__date">
+          <span v-if="hijriDay">{{ hijriDay }}</span>
+          <span v-if="hijriDay && hijriDate" class="prayer-hero__dot" aria-hidden="true">·</span>
+          <span>{{ hijriDate }}</span>
         </div>
-        <div class="fs-4 fw-bold mt-1">{{ remainingTime }}</div>
+        <span class="icon-circle icon-circle--header">
+          <PrayerIcon v-if="nextPrayerKey" :name="timingsMap[nextPrayerKey]?.icon" />
+        </span>
       </div>
-      <div class="text-end">
-        <div class="mb-1 fw-semibold">{{ hijriDay }}</div>
-        <small class="text-soft">{{ hijriDate }}</small>
+
+      <div v-if="nextPrayerKey" class="prayer-hero__next">
+        <h3 class="prayer-hero__name font-display">{{ timingsMap[nextPrayerKey]?.label }}</h3>
+        <p class="prayer-hero__remain">باقي {{ remainingTime }}</p>
       </div>
     </div>
 
@@ -172,10 +169,11 @@ const remainingTime = computed(() => {
         v-for="(timing, key) in timingsMap"
         :key="key"
         class="prayer-row d-flex align-items-center justify-content-between px-3 py-2 rounded-2 small border"
-        :class="{ 'prayer-row--next': key === nextPrayerKey }"
+        :class="`prayer-row--${phases[key]}`"
+        :aria-current="phases[key] === 'next' ? 'true' : undefined"
       >
         <div class="d-flex align-items-center gap-2">
-          <span class="icon-container" :class="key === nextPrayerKey ? 'text-primary' : 'text-secondary'">
+          <span class="icon-container" :class="phases[key] === 'next' ? 'text-primary' : 'text-secondary'">
             <PrayerIcon :name="timing.icon" />
           </span>
           <span class="fw-semibold">{{ timing.label }}</span>
@@ -187,13 +185,17 @@ const remainingTime = computed(() => {
     <!-- Cards layout -->
     <div v-else class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2">
       <div v-for="(timing, key) in timingsMap" :key="key" class="col">
-        <div class="card h-100 prayer-card" :class="{ 'prayer-card--next': key === nextPrayerKey }">
+        <div
+          class="card h-100 prayer-card"
+          :class="`prayer-card--${phases[key]}`"
+          :aria-current="phases[key] === 'next' ? 'true' : undefined"
+        >
           <div class="card-body d-flex flex-column align-items-center justify-content-center text-center gap-2 p-3">
-            <span class="icon-circle" :class="key === nextPrayerKey ? 'border-primary text-primary' : 'text-secondary'">
+            <span class="icon-circle" :class="phases[key] === 'next' ? 'border-primary text-primary' : 'text-secondary'">
               <PrayerIcon :name="timing.icon" />
             </span>
             <div>
-              <div class="small fw-semibold mb-1" :class="{ 'text-body-secondary': key !== nextPrayerKey }">
+              <div class="small fw-semibold mb-1" :class="{ 'text-body-secondary': phases[key] !== 'next' }">
                 {{ timing.label }}
               </div>
               <div class="fs-5 fw-bold lh-1">{{ formatTiming(timings.data.timings[key]) }}</div>
@@ -206,23 +208,65 @@ const remainingTime = computed(() => {
 </template>
 
 <style lang="scss" scoped>
-.prayer-header {
-  background: linear-gradient(135deg, var(--bs-primary) 0%, color-mix(in srgb, var(--bs-primary) 85%, #000) 100%);
+.prayer-hero {
+  padding: 1.35rem 1.25rem 1.25rem;
+  background-color: var(--bs-primary);
+  border-radius: var(--bs-border-radius-lg);
 }
 
-/* Secondary text on the primary-colored header; plain white at reduced alpha
-   keeps contrast readable where a gray would wash out. */
-.prayer-header .text-soft {
+.prayer-hero__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.prayer-hero__date {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.85);
+}
+
+.prayer-hero__dot {
+  opacity: 0.7;
+}
+
+.prayer-hero__next {
+  margin-top: 1rem;
+}
+
+.prayer-hero__name,
+.prayer-hero__remain {
+  margin: 0;
+}
+
+.prayer-hero__name {
+  font-size: clamp(2rem, 4.5vw, 2.75rem);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.prayer-hero__remain {
+  margin-top: 0.25rem;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .prayer-row {
   background-color: var(--bs-body-bg);
 }
 
+.prayer-row--past {
+  color: var(--bs-secondary-color);
+}
+
 .prayer-row--next {
   border-color: var(--bs-primary) !important;
-  font-weight: 700;
+  background-color: color-mix(in srgb, var(--bs-primary) 10%, var(--bs-body-bg));
 }
 
 .prayer-card {
@@ -232,8 +276,13 @@ const remainingTime = computed(() => {
     color 0.15s ease;
 }
 
+.prayer-card--past {
+  color: var(--bs-secondary-color);
+}
+
 .prayer-card--next {
   border-color: var(--bs-primary);
+  background-color: color-mix(in srgb, var(--bs-primary) 10%, var(--bs-body-bg));
 }
 
 /* Reserve room for loading / detect / error states so the swap to loaded

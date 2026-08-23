@@ -62,11 +62,13 @@ const azkar = [
 .card {
   transition:
     background-color 0.2s ease,
+    border-color 0.2s ease,
     box-shadow 0.2s ease;
 
   &:hover,
   &:focus-within {
-    background-color: rgba(var(--bs-secondary-rgb), 0.1);
+    background-color: color-mix(in srgb, var(--bs-primary) 8%, var(--bs-body-bg));
+    border-color: color-mix(in srgb, var(--bs-primary) 28%, var(--bs-border-color));
   }
 
   /* The card itself carries the focus ring for the stretched link. */
