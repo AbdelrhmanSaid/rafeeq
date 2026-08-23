@@ -95,7 +95,11 @@ export const useDownloadStore = create((set, get) => ({
 
         const asset = get().queue[0]
         const outcome = await get().downloadAsset(asset)
-        set({ currentItem: null })
+
+        // Keep a just-downloaded item as currentItem across the short pause
+        // before the next one so the status bar doesn't blink between items;
+        // a failed or interrupted one must not linger as "downloading".
+        if (outcome !== 'downloaded') set({ currentItem: null })
 
         // A paused download stays at the head so resume picks it back up; a
         // downloaded or permanently failed one leaves the queue.
