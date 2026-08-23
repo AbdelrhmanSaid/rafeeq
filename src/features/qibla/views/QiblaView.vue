@@ -88,7 +88,11 @@ onMounted(requestLocation)
       </div>
 
       <!-- Location error -->
-      <div v-else-if="locationError" class="qibla-card card-body qibla-card--clickable text-center" @click="requestLocation">
+      <div
+        v-else-if="locationError"
+        class="qibla-card card-body qibla-card--clickable text-center"
+        @click="requestLocation"
+      >
         <IconLocationFilled size="3rem" class="text-danger mb-3" />
         <p class="mb-2">{{ locationError }}</p>
         <p class="text-muted small mb-0">إضغط للمحاولة مرة أخرى</p>
