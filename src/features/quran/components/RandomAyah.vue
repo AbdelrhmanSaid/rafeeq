@@ -13,6 +13,7 @@ import ErrorState from '@/shared/ui/ErrorState.vue'
 import OfflineState from '@/shared/ui/OfflineState.vue'
 import { Button } from '@/shared/components/ui/button'
 import { Card, CardContent } from '@/shared/components/ui/card'
+import { cn } from '@/shared/lib/utils'
 
 // Check if the user is online
 const online = useOnline()
@@ -96,60 +97,86 @@ async function toggleAyahPlayback() {
     toast.error('تعذر تشغيل التلاوة، برجاء المحاولة مرة أخرى')
   }
 }
+
+// The four controls share one round 2.75rem target sitting in a single row
+// under the verse — the text leads, the apparatus follows.
+const actionClass = 'size-11 rounded-full text-muted-foreground active:scale-90'
 </script>
 
 <template>
-  <Card class="gap-0 py-0">
-    <CardContent v-if="isFetching || isRecoveringOnReconnect" class="p-12">
+  <Card class="gap-0 overflow-hidden border-0 py-0 shadow-sm">
+    <CardContent v-if="isFetching || isRecoveringOnReconnect" class="p-6">
       <LoadingState message="جاري تحميل آية..." />
     </CardContent>
 
-    <CardContent v-else-if="error" class="p-12">
+    <CardContent v-else-if="error" class="p-6">
       <OfflineState v-if="!online" />
       <ErrorState :code="500" message="حدث خطأ أثناء تحميل الآية، برجاء المحاولة مرة أخرى." v-else />
     </CardContent>
 
     <template v-else-if="ayah">
-      <div class="flex items-center justify-between gap-2 border-b px-4 py-2">
-        <span class="font-semibold">{{ normalizeQuranicText(ayah.surah.name) }}</span>
+      <CardContent class="px-4 pt-6 pb-4 sm:px-6">
+        <p class="text-center text-[1.75rem] leading-[2.2] font-quran sm:text-[2rem]" :class="tafsir ? 'mb-5' : ''">
+          {{ displayText }} <span class="ayah-number">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
+        </p>
 
-        <div class="flex items-center gap-1">
-          <Button variant="ghost" size="icon" @click="prevAyah" title="الآية السابقة" aria-label="الآية السابقة">
-            <IconChevronRight size="18" />
-          </Button>
+        <template v-if="tafsir">
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ tafsir.edition.name }}</span>
+          <p class="text-sm leading-relaxed text-pretty text-muted-foreground">{{ tafsir.text }}</p>
+        </template>
+      </CardContent>
 
-          <Button variant="ghost" size="icon" @click="nextAyah" title="الآية التالية" aria-label="الآية التالية">
-            <IconChevronLeft size="18" />
+      <div class="flex items-center justify-between gap-2 border-t px-2 py-1.5">
+        <span class="min-w-0 truncate ps-2 text-sm font-medium">{{ normalizeQuranicText(ayah.surah.name) }}</span>
+
+        <div class="flex shrink-0 items-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            :class="actionClass"
+            @click="prevAyah"
+            title="الآية السابقة"
+            aria-label="الآية السابقة"
+          >
+            <IconChevronRight class="size-5" />
           </Button>
 
           <Button
             variant="ghost"
             size="icon"
+            :class="actionClass"
+            @click="nextAyah"
+            title="الآية التالية"
+            aria-label="الآية التالية"
+          >
+            <IconChevronLeft class="size-5" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            :class="cn(actionClass, 'text-primary')"
             @click="toggleAyahPlayback"
             :disabled="!recitation?.audio"
             :title="isPlaying ? 'إيقاف التلاوة' : 'تشغيل التلاوة'"
             :aria-label="isPlaying ? 'إيقاف التلاوة' : 'تشغيل التلاوة'"
           >
-            <IconPlayerPause v-if="isPlaying" size="18" />
-            <IconPlayerPlay v-else size="18" />
+            <IconPlayerPause v-if="isPlaying" class="size-5" />
+            <IconPlayerPlay v-else class="size-5" />
           </Button>
 
-          <Button variant="ghost" size="icon" @click="fetchRandomAyah" title="آية جديدة" aria-label="تحميل آية جديدة">
-            <IconRefresh size="18" />
+          <Button
+            variant="ghost"
+            size="icon"
+            :class="actionClass"
+            @click="fetchRandomAyah"
+            title="آية جديدة"
+            aria-label="تحميل آية جديدة"
+          >
+            <IconRefresh class="size-5" />
           </Button>
         </div>
       </div>
-
-      <CardContent class="p-4">
-        <p class="text-center text-[2rem] leading-loose font-quran" :class="tafsir ? 'mb-4' : ''">
-          {{ displayText }} <span class="ayah-number">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
-        </p>
-
-        <template v-if="tafsir">
-          <span class="mb-2 block text-sm font-semibold text-muted-foreground">{{ tafsir.edition.name }}</span>
-          <p class="text-sm">{{ tafsir.text }}</p>
-        </template>
-      </CardContent>
     </template>
   </Card>
 </template>

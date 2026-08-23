@@ -13,6 +13,9 @@ const { bookmark } = useQuranBookmark()
 // Each row positions itself so the surah link can stretch an overlay across the
 // whole row; the favourite button stays clickable above it (it is raised).
 const rowClass = () => 'relative'
+
+// Group labels above the two lists — quiet meta, so the surah names lead.
+const groupTitleClass = 'mb-2 px-1 text-sm font-medium text-muted-foreground'
 </script>
 
 <template>
@@ -23,18 +26,28 @@ const rowClass = () => 'relative'
       :share="true"
     />
 
+    <!-- The one hero of this screen: pick the reading back up. It carries the
+         accent wash so it reads as the shortcut, not another list row. -->
     <RouterLink
       v-if="bookmark"
       :to="{ name: 'quran-surah', params: { surah: bookmark.surahId }, query: { ayah: bookmark.ayahNumber } }"
-      class="mb-4 flex w-full items-center gap-3 rounded-md border bg-primary/5 p-4 transition-colors hover:border-primary/50 hover:bg-primary/10"
+      class="mb-6 flex w-full items-center gap-4 rounded-3xl p-4 shadow-sm transition duration-200 surface-hero active:scale-[0.99]"
     >
-      <IconBookmark class="shrink-0 text-primary" size="22" />
-      <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span class="text-sm text-muted-foreground">متابعة القراءة</span>
-        <span class="font-semibold">{{ bookmark.surahName }} - آية {{ toArabicNumerals(bookmark.ayahNumber) }}</span>
-        <span v-if="bookmark.text" class="truncate text-base font-quran">{{ bookmark.text }}</span>
+      <span class="grid size-12 shrink-0 place-items-center rounded-full bg-primary/12 text-primary">
+        <IconBookmark class="size-6" />
       </span>
-      <IconChevronLeft class="shrink-0 text-muted-foreground" size="20" />
+
+      <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span class="text-xs text-muted-foreground">متابعة القراءة</span>
+        <span class="truncate font-medium"
+          >{{ bookmark.surahName }} - آية {{ toArabicNumerals(bookmark.ayahNumber) }}</span
+        >
+        <span v-if="bookmark.text" class="truncate text-base text-muted-foreground font-quran">
+          {{ bookmark.text }}
+        </span>
+      </span>
+
+      <IconChevronLeft class="size-5 shrink-0 text-muted-foreground" />
     </RouterLink>
 
     <SearchableFavoritesList
@@ -46,21 +59,32 @@ const rowClass = () => 'relative'
       :item-class="rowClass"
     >
       <template #favorites-title>
-        <h5 class="mb-3 text-lg">السور المفضلة</h5>
+        <h2 :class="groupTitleClass">السور المفضلة</h2>
       </template>
 
       <template #all-title>
-        <h5 class="mb-3 text-lg">كل السور</h5>
+        <h2 :class="groupTitleClass">كل السور</h2>
       </template>
 
       <template #default="{ item }">
-        <RouterLink :to="{ name: 'quran-surah', params: { surah: item.id } }" class="after:absolute after:inset-0">
-          <p class="flex flex-col">
-            <span>{{ toArabicNumerals(item.id) }}. {{ item.name }}</span>
-            <small class="text-sm">
+        <!-- The link stretches an overlay across the whole row, so the numeral
+             chip and both text lines are one 2.75rem-tall target. -->
+        <RouterLink
+          :to="{ name: 'quran-surah', params: { surah: item.id } }"
+          class="flex min-w-0 flex-1 items-center gap-3 after:absolute after:inset-0"
+        >
+          <span
+            class="grid size-9 shrink-0 place-items-center rounded-full bg-muted text-sm tabular-nums text-muted-foreground"
+          >
+            {{ toArabicNumerals(item.id) }}
+          </span>
+
+          <span class="flex min-w-0 flex-col">
+            <span class="truncate font-medium">{{ item.name }}</span>
+            <span class="truncate text-xs text-muted-foreground">
               عدد الآيات: {{ toArabicNumerals(item.numberOfAyahs) }} - {{ item.isMeccan ? 'مكية' : 'مدنية' }}
-            </small>
-          </p>
+            </span>
+          </span>
         </RouterLink>
       </template>
     </SearchableFavoritesList>

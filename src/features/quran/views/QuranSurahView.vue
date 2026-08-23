@@ -1,6 +1,6 @@
 <script setup>
 import { computed, nextTick, ref, watch } from 'vue'
-import { IconArrowLeft, IconArrowRight } from '@tabler/icons-vue'
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-vue'
 import { useOnline } from '@vueuse/core'
 import { RouterLink, useRoute } from 'vue-router'
 import { useRouteParams } from '@vueuse/router'
@@ -111,10 +111,12 @@ const ayahHighlightClass = (verse) => {
     // The ring is inset (not outset) so the outline stays inside each line
     // fragment, and the padding is horizontal only — vertical padding grows the
     // fragment boxes and reintroduces overlap even at the taller line-height.
-    return 'box-decoration-clone rounded-sm bg-primary/10 px-1 inset-ring inset-ring-primary/35'
+    return 'bg-primary/10 px-1 inset-ring inset-ring-primary/30'
   }
 
-  return isCurrentVerse(verse) ? 'bg-secondary' : ''
+  // The playing wash carries no padding: it repaints every few seconds as the
+  // recitation advances, and padding would reflow the whole column each time.
+  return isCurrentVerse(verse) ? 'bg-primary/12' : ''
 }
 
 const handleBookmark = () => {
@@ -146,61 +148,68 @@ watch(
   },
   { immediate: true },
 )
+
+// Both surah steps share one shape; the disabled end of the range keeps its
+// place in the row instead of collapsing it.
+const stepButtonClass = 'h-11 flex-1 gap-1.5 rounded-full text-muted-foreground active:scale-[0.98]'
 </script>
 
 <template>
   <AsyncContent :pending="isFetching" :error="error" loading-message="جاري تحميل السورة...">
     <!-- Narrower than the shared page container so the ayat column stays
          readable; both max-widths are plain utilities, hence the `!`. -->
-    <Page class="flex max-w-[43.75rem]! flex-col gap-2.5" v-if="surah">
+    <Page class="flex max-w-[43.75rem]! flex-col" v-if="surah">
       <Heading
         :title="normalizeQuranicText(surah.data.name)"
         :subtitle="`عدد الآيات: ${toArabicNumerals(surah.data.numberOfAyahs)} آية - سورة ${revelationLabel}`"
         :share="true"
       />
 
-      <!-- Audio Player -->
-      <AudioPlayer v-if="online" ref="playerRef" />
-
-      <div
-        class="mb-4 rounded-lg border p-4 text-justify font-quran [text-align-last:center] [text-justify:inter-word]"
-      >
-        <span class="mb-4 block text-center text-[2rem] leading-[2.5]" v-if="surahId != 9"
-          >بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span
+      <!-- The reading surface. Borderless card + soft elevation, so the page is
+           made of the text rather than of a box drawn around it. -->
+      <article class="rounded-3xl bg-card px-4 py-6 text-card-foreground shadow-sm sm:px-7 sm:py-8">
+        <p
+          v-if="surahId != 9"
+          class="mb-6 text-center text-[1.5rem] leading-[2] text-primary font-quran sm:text-[1.75rem]"
         >
+          بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ
+        </p>
 
-        <template v-for="(ayah, index) in ayat" :key="ayah.number">
-          <!-- Kitab glyph boxes are taller than em*2, so line-height 2 lets
-               multi-line inline backgrounds (bookmark/current) overlap between
-               lines — 2.4 keeps them apart. -->
-          <span
-            :id="`ayah-${ayah.numberInSurah}`"
-            class="ayah mb-3 cursor-pointer text-[1.625rem] leading-[2.4]"
-            :class="ayahHighlightClass(ayah)"
-            @click="activeAyah = ayah"
-            :title="`خيارات الآية ${toArabicNumerals(ayah.numberInSurah)}`"
-            >{{ ayah.text }}</span
-          >
-          <span class="ayah-number mb-3" aria-hidden="true">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
-          <div
-            v-if="index < ayat.length - 1 && ayah.page !== ayat[index + 1].page"
-            class="page-separator my-8 flex w-full items-center"
-          >
-            <span class="rounded-full border px-3 py-0.5 font-sans text-sm whitespace-nowrap text-muted-foreground">{{
-              toArabicNumerals(ayah.page)
-            }}</span>
-          </div>
-        </template>
-      </div>
+        <div class="text-justify font-quran [text-align-last:center] [text-justify:inter-word]">
+          <template v-for="(ayah, index) in ayat" :key="ayah.number">
+            <!-- Kitab glyph boxes are taller than em*2, so line-height 2 lets
+                 multi-line inline backgrounds (bookmark/current) overlap between
+                 lines — 2.4 keeps them apart. -->
+            <span
+              :id="`ayah-${ayah.numberInSurah}`"
+              class="ayah box-decoration-clone cursor-pointer rounded-md text-[1.625rem] leading-[2.4] sm:text-[1.75rem]"
+              :class="ayahHighlightClass(ayah)"
+              @click="activeAyah = ayah"
+              :title="`خيارات الآية ${toArabicNumerals(ayah.numberInSurah)}`"
+              >{{ ayah.text }}</span
+            >
+            <span class="ayah-number" aria-hidden="true">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
+            <div
+              v-if="index < ayat.length - 1 && ayah.page !== ayat[index + 1].page"
+              class="page-separator my-8 flex w-full items-center"
+            >
+              <span class="rounded-full bg-muted px-3 py-1 font-sans text-xs whitespace-nowrap text-muted-foreground">{{
+                toArabicNumerals(ayah.page)
+              }}</span>
+            </div>
+          </template>
+        </div>
+      </article>
 
-      <div class="flex items-center justify-center gap-2">
+      <!-- Sits after the text and clears the docked player when it is mounted. -->
+      <nav class="mt-6 flex items-center gap-2" :class="{ 'mb-28': online }">
         <Button
           :as="RouterLink"
           :to="{ name: 'quran-surah', params: { surah: surahNumber - 1 } }"
           variant="ghost"
-          :class="{ 'pointer-events-none opacity-50': surahNumber === 1 }"
+          :class="[stepButtonClass, { 'pointer-events-none opacity-50': surahNumber === 1 }]"
         >
-          <IconArrowRight class="size-5" />
+          <IconChevronRight class="size-4" />
           <span>السابقة</span>
         </Button>
 
@@ -210,12 +219,15 @@ watch(
           :as="RouterLink"
           :to="{ name: 'quran-surah', params: { surah: surahNumber + 1 } }"
           variant="ghost"
-          :class="{ 'pointer-events-none opacity-50': surahNumber === 114 }"
+          :class="[stepButtonClass, { 'pointer-events-none opacity-50': surahNumber === 114 }]"
         >
           <span>التالية</span>
-          <IconArrowLeft class="size-5" />
+          <IconChevronLeft class="size-4" />
         </Button>
-      </div>
+      </nav>
+
+      <!-- Audio Player -->
+      <AudioPlayer v-if="online" ref="playerRef" />
 
       <AyahActionSheet
         :ayah="activeAyah"

@@ -44,21 +44,26 @@ watch([() => props.ayah, edition], ([ayah]) => {
   url.value = `${API.quranCloud}/ayah/${ayah.number}/editions/${edition.value}`
   if (online.value) execute()
 })
+
+// Both steps share one pill; the end of the surah keeps its place in the row.
+const stepButtonClass = 'h-11 flex-1 gap-1.5 rounded-full text-muted-foreground active:scale-[0.98]'
 </script>
 
 <template>
   <BottomSheet :show="!!ayah" title="تفسير الآية" @close="emit('close')">
-    <div class="p-4">
+    <div class="px-4 pb-4">
       <template v-if="displayAyah">
-        <p class="mb-4 text-center text-3xl leading-loose font-quran">
+        <!-- The verse leads the sheet on its own quiet panel; everything under
+             it is apparatus. -->
+        <p class="mb-4 rounded-2xl bg-muted/50 px-4 py-5 text-center text-[1.5rem] leading-[2.1] font-quran">
           {{ displayAyah.text }}
           <span class="ayah-number">{{ toArabicNumerals(displayAyah.numberInSurah) }}</span>
         </p>
 
         <div class="mb-4 grid gap-2">
-          <Label for="tafseerEdition">التفسير</Label>
+          <Label for="tafseerEdition" class="px-1 font-normal text-muted-foreground">التفسير</Label>
           <Select v-model="edition">
-            <SelectTrigger id="tafseerEdition" class="w-full">
+            <SelectTrigger id="tafseerEdition" class="w-full data-[size=default]:h-11">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -77,17 +82,17 @@ watch([() => props.ayah, edition], ([ayah]) => {
       <ErrorState v-else-if="error" :code="500" message="حدث خطأ أثناء تحميل التفسير، برجاء المحاولة مرة أخرى." />
 
       <template v-else-if="displayAyah && tafsir">
-        <p>{{ tafsir.text }}</p>
+        <p class="text-base leading-relaxed text-pretty">{{ tafsir.text }}</p>
 
-        <div class="mt-4 flex justify-between gap-2 border-t pt-3">
-          <Button variant="ghost" :disabled="!hasPrev" @click="emit('prev')">
-            <IconChevronRight size="18" />
+        <div class="mt-5 flex items-center gap-2 border-t pt-3">
+          <Button variant="ghost" :class="stepButtonClass" :disabled="!hasPrev" @click="emit('prev')">
+            <IconChevronRight class="size-4" />
             <span>الآية السابقة</span>
           </Button>
 
-          <Button variant="ghost" :disabled="!hasNext" @click="emit('next')">
+          <Button variant="ghost" :class="stepButtonClass" :disabled="!hasNext" @click="emit('next')">
             <span>الآية التالية</span>
-            <IconChevronLeft size="18" />
+            <IconChevronLeft class="size-4" />
           </Button>
         </div>
       </template>

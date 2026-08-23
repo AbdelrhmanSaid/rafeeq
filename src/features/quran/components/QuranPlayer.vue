@@ -7,7 +7,6 @@ import { toArabicNumerals, formatTime } from '@/shared/utils/arabic'
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
 import SettingsReciter from '@/features/settings/components/SettingsReciter.vue'
 import { Button } from '@/shared/components/ui/button'
-import { Card, CardContent } from '@/shared/components/ui/card'
 import { Progress } from '@/shared/components/ui/progress'
 
 // Render settings cards (the reciter picker) form-only inside the sheet — the
@@ -127,65 +126,83 @@ defineExpose({ seekToAyah })
 </script>
 
 <template>
-  <Card class="gap-0 py-0">
-    <CardContent class="flex items-center gap-3 p-4">
-      <Button
-        @click="togglePlayPause"
-        size="icon"
-        class="size-10 shrink-0 rounded-full"
-        :disabled="loading || !quranStore.surahAudioUrl"
-      >
-        <IconPlayerPlay v-if="!isPlaying" class="size-5" />
-        <IconPlayerPause v-else class="size-5" />
-      </Button>
+  <!-- The transport docks to the bottom of the screen instead of scrolling away
+       with the surah, so it stays under the thumb while reading. On the phone it
+       sits directly above the floating tab bar, whose footprint is the navbar
+       height plus the home-indicator inset; from `md` that bar is gone and the
+       player rests on the bottom edge. It stays under the tab bar's `z-40`. -->
+  <div
+    class="fixed inset-x-0 bottom-[calc(var(--navbar-height)_+_env(safe-area-inset-bottom,0px))] z-30 md:bottom-0 md:pb-4"
+  >
+    <!-- Same measure as the reading column above it. -->
+    <div class="mx-auto w-full max-w-[43.75rem] px-3 pb-2 sm:px-4">
+      <div class="rounded-3xl border border-border/70 bg-card/95 p-3 shadow-xl backdrop-blur-xl">
+        <div class="flex items-center gap-2.5">
+          <span class="shrink-0 text-xs tabular-nums text-muted-foreground">{{ formatTime(currentTime) }}</span>
 
-      <div class="min-w-0 flex-1">
-        <template v-if="currentAyahDisplay">
-          <span class="me-2 inline-block font-semibold text-primary">{{ currentAyahDisplay.surahName }}</span>
-          <span v-if="currentAyahDisplay.ayahNumber > 0" class="inline-block text-sm text-muted-foreground"
-            >آية {{ toArabicNumerals(currentAyahDisplay.ayahNumber) }}</span
+          <!-- The indicator is moved with translateX, and CSS transforms are
+               never mirrored for RTL, so the whole track is flipped to keep the
+               bar filling from the start edge. -->
+          <Progress :model-value="progress" class="h-1 min-w-0 flex-1 -scale-x-100" />
+
+          <span class="shrink-0 text-xs tabular-nums text-muted-foreground">{{ formatTime(duration) }}</span>
+        </div>
+
+        <div class="mt-3 flex items-center gap-2">
+          <Button
+            @click="togglePlayPause"
+            size="icon"
+            class="size-12 shrink-0 rounded-full shadow-sm active:scale-95"
+            :disabled="loading || !quranStore.surahAudioUrl"
           >
-        </template>
-        <span v-else-if="quranStore.surahName" class="text-muted-foreground">{{ quranStore.surahName }}</span>
-        <span v-else class="text-muted-foreground">اضغط على آية للاستماع</span>
-      </div>
+            <IconPlayerPlay v-if="!isPlaying" class="size-5" />
+            <IconPlayerPause v-else class="size-5" />
+          </Button>
 
-      <Button
-        @click="openReciterSheet"
-        variant="secondary"
-        size="sm"
-        class="shrink-0 text-muted-foreground hover:text-foreground"
-        :title="`القارئ: ${quranStore.reciter?.name}`"
-      >
-        <IconMicrophone2 size="18" />
-        <span class="max-w-30 truncate">{{ quranStore.reciter?.name }}</span>
-      </Button>
-    </CardContent>
+          <div class="min-w-0 flex-1 leading-tight">
+            <template v-if="currentAyahDisplay">
+              <span class="block truncate text-sm font-medium text-primary">{{ currentAyahDisplay.surahName }}</span>
+              <span v-if="currentAyahDisplay.ayahNumber > 0" class="block truncate text-xs text-muted-foreground"
+                >آية {{ toArabicNumerals(currentAyahDisplay.ayahNumber) }}</span
+              >
+            </template>
+            <span v-else-if="quranStore.surahName" class="block truncate text-sm text-muted-foreground">{{
+              quranStore.surahName
+            }}</span>
+            <span v-else class="line-clamp-2 text-xs text-muted-foreground">اضغط على آية للاستماع</span>
+          </div>
 
-    <BottomSheet :show="showReciterSheet" title="اختيار القارئ" @close="closeReciterSheet">
-      <div class="p-4">
-        <SettingsReciter />
-      </div>
-    </BottomSheet>
-
-    <div class="px-4 pb-4">
-      <!-- The indicator is moved with translateX, and CSS transforms are never
-           mirrored for RTL, so the whole track is flipped to keep the bar
-           filling from the start edge. -->
-      <Progress :model-value="progress" class="h-1 -scale-x-100" />
-      <div class="mt-1 flex items-center justify-between text-sm text-muted-foreground">
-        <span>{{ formatTime(currentTime) }}</span>
-
-        <div class="flex items-center gap-2">
-          <span>{{ formatTime(duration) }}</span>
-
-          <Button type="button" variant="ghost" size="sm" @click="cycleRate" :title="`سرعة التلاوة: ${rateLabel}`">
-            <IconGauge size="15" />
+          <Button
+            type="button"
+            variant="ghost"
+            @click="cycleRate"
+            :title="`سرعة التلاوة: ${rateLabel}`"
+            class="h-11 shrink-0 gap-1 rounded-full px-3 text-xs tabular-nums text-muted-foreground active:scale-95"
+          >
+            <IconGauge class="hidden size-4 sm:block" />
             <span>{{ rateLabel }}</span>
+          </Button>
+
+          <!-- The reciter's name only fits from `sm`; on the phone the button is
+               an icon target and the name lives in its tooltip. -->
+          <Button
+            @click="openReciterSheet"
+            variant="secondary"
+            class="h-11 min-w-11 shrink-0 gap-1.5 rounded-full px-3 text-muted-foreground active:scale-95"
+            :title="`القارئ: ${quranStore.reciter?.name}`"
+          >
+            <IconMicrophone2 class="size-5" />
+            <span class="hidden max-w-32 truncate text-xs sm:inline">{{ quranStore.reciter?.name }}</span>
           </Button>
         </div>
       </div>
     </div>
+
+    <BottomSheet :show="showReciterSheet" title="اختيار القارئ" @close="closeReciterSheet">
+      <div class="px-4 pb-4">
+        <SettingsReciter />
+      </div>
+    </BottomSheet>
 
     <audio
       ref="audio"
@@ -197,5 +214,5 @@ defineExpose({ seekToAyah })
       @loadedmetadata="duration = $event.target.duration"
       preload="metadata"
     ></audio>
-  </Card>
+  </div>
 </template>
