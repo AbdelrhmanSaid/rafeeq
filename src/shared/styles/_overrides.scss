@@ -50,6 +50,10 @@ html[dir='rtl'],
   --bs-btn-disabled-border-color: var(--bs-primary);
 }
 
+.dropdown-item {
+  border-radius: var(--bs-border-radius-sm);
+}
+
 /* On dropdown item hover, background color should be rgba from secondary color */
 .dropdown-item:hover,
 .dropdown-item:focus {
@@ -79,6 +83,8 @@ html[dir='rtl'],
 
 /* Keep dropdown active item in sync with runtime primary color. */
 .dropdown-menu {
+  --bs-dropdown-padding-x: 0.375rem;
+  --bs-dropdown-padding-y: 0.375rem;
   --bs-dropdown-link-active-bg: var(--bs-primary);
   --bs-dropdown-link-active-color: #fff;
 }
