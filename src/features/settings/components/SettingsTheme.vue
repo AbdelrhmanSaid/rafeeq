@@ -10,7 +10,7 @@ const theme = useThemeStore()
 // Mirrors the `--primary` default declared in `src/shared/styles/main.css`, so
 // the "الافتراضي" swatch keeps showing the shipped accent even while a custom
 // one is active (picking it clears the override instead of setting a color).
-const DEFAULT_PRIMARY = '#795547'
+const DEFAULT_PRIMARY = '#a25a3c'
 
 const colors = [
   { label: 'الافتراضي', value: '' },
@@ -20,53 +20,57 @@ const colors = [
   { label: 'كحلي', value: '#0D47A1' },
   { label: 'رملي', value: '#C2A878' },
 ]
+
+// A segmented control: one muted track with the chosen segment washed in the
+// app's selected-state fill, which reads the same way in both modes.
+const segmentClass =
+  'min-h-11 flex-1 rounded-full px-2 text-sm font-medium text-muted-foreground data-[state=on]:bg-primary/12 data-[state=on]:text-primary'
 </script>
 
 <template>
   <SettingsSection title="المظهر" description="اختر وضع العرض واللون الأساسي للتطبيق" :icon="IconPalette">
-    <div class="space-y-4">
+    <div class="space-y-5">
       <ToggleGroup
         type="single"
-        variant="outline"
         :spacing="1"
         :model-value="theme.mode"
-        class="w-full gap-2"
+        class="grid w-full grid-cols-3 gap-1 rounded-full bg-muted p-1"
         @update:model-value="theme.setMode"
       >
-        <ToggleGroupItem value="light" class="flex-1">
-          <IconSunFilled :size="16" />
+        <ToggleGroupItem value="light" :class="segmentClass">
+          <IconSunFilled class="size-4" />
           <span>فاتح</span>
         </ToggleGroupItem>
-        <ToggleGroupItem value="dark" class="flex-1">
-          <IconMoonStars :size="16" />
+        <ToggleGroupItem value="dark" :class="segmentClass">
+          <IconMoonStars class="size-4" />
           <span>داكن</span>
         </ToggleGroupItem>
-        <ToggleGroupItem value="system" class="flex-1">
-          <IconDeviceLaptop :size="16" />
+        <ToggleGroupItem value="system" :class="segmentClass">
+          <IconDeviceLaptop class="size-4" />
           <span>تلقائي</span>
         </ToggleGroupItem>
       </ToggleGroup>
 
       <div>
-        <span class="mb-2 block text-sm font-medium">اللون الأساسي</span>
-        <div class="grid grid-cols-[repeat(auto-fill,minmax(3.75rem,1fr))] gap-2">
+        <span class="mb-3 block text-sm font-medium">اللون الأساسي</span>
+        <div class="grid grid-cols-3 gap-2 sm:grid-cols-6">
           <button
             v-for="color in colors"
             :key="color.value"
             type="button"
             :class="
               cn(
-                'flex cursor-pointer flex-col items-center gap-1.5 rounded-md border border-transparent px-1 py-2 transition-colors hover:bg-secondary',
-                theme.primaryColor === color.value && 'border-border bg-secondary',
+                'flex min-h-11 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl px-1 py-2.5 transition duration-200 hover:bg-accent/60 active:scale-[0.98]',
+                theme.primaryColor === color.value && 'bg-accent',
               )
             "
             @click="theme.setPrimaryColor(color.value)"
           >
             <span
-              class="grid size-8 place-items-center rounded-full text-white"
+              class="grid size-9 place-items-center rounded-full text-white shadow-sm"
               :style="{ background: color.value || DEFAULT_PRIMARY }"
             >
-              <IconCheck v-if="theme.primaryColor === color.value" :size="14" />
+              <IconCheck v-if="theme.primaryColor === color.value" class="size-4" />
             </span>
             <span class="text-xs text-muted-foreground">{{ color.label }}</span>
           </button>

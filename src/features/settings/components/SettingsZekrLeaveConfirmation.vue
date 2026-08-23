@@ -12,7 +12,11 @@ const { zekrConfirmOnLeave } = storeToRefs(appStore)
 <template>
   <SettingsSection title="تأكيد المغادرة" description="يطلب تأكيداً قبل مغادرة الذكر إذا لم يكتمل" :icon="IconDoorExit">
     <template #actions>
-      <Switch v-model="zekrConfirmOnLeave" aria-label="تفعيل تأكيد المغادرة عند وجود أذكار غير مكتملة" />
+      <Switch
+        v-model="zekrConfirmOnLeave"
+        class="relative before:absolute before:-inset-3 before:content-['']"
+        aria-label="تفعيل تأكيد المغادرة عند وجود أذكار غير مكتملة"
+      />
     </template>
   </SettingsSection>
 </template>

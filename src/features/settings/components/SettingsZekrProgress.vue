@@ -16,7 +16,11 @@ const { zekrSaveProgress } = storeToRefs(appStore)
     :icon="IconDeviceFloppy"
   >
     <template #actions>
-      <Switch v-model="zekrSaveProgress" aria-label="تفعيل حفظ تقدم الأذكار" />
+      <Switch
+        v-model="zekrSaveProgress"
+        class="relative before:absolute before:-inset-3 before:content-['']"
+        aria-label="تفعيل حفظ تقدم الأذكار"
+      />
     </template>
   </SettingsSection>
 </template>

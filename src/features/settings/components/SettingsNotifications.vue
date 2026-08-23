@@ -11,13 +11,19 @@ const { enabled, loading, state, toggle } = usePushNotifications()
 <template>
   <SettingsSection title="إشعارات التطبيق" description="تفعيل أو إيقاف إشعارات المتصفح لهذا الجهاز." :icon="IconBell">
     <template #actions>
-      <Badge variant="outline">
+      <Badge variant="outline" class="border-0 bg-muted px-3 py-1 text-muted-foreground">
         {{ state }}
       </Badge>
     </template>
 
-    <Button type="button" size="sm" :variant="enabled ? 'destructive' : 'default'" :disabled="loading" @click="toggle">
-      <IconBell />
+    <Button
+      type="button"
+      :variant="enabled ? 'destructive' : 'default'"
+      class="h-11 w-full rounded-full active:scale-[0.98]"
+      :disabled="loading"
+      @click="toggle"
+    >
+      <IconBell class="size-4" />
       <span>{{ enabled ? 'إيقاف الإشعارات' : 'تفعيل الإشعارات' }}</span>
     </Button>
   </SettingsSection>

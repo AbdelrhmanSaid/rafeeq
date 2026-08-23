@@ -85,42 +85,20 @@ const repeatLabel = computed(() => {
     lang="ar"
     :style="{ '--primary': primaryColor, '--zekr-primary-rgb': primaryRgb }"
   >
-    <div class="frame-outer">
-      <div class="frame-inner">
-        <span class="corner corner-tl"><span class="corner-diamond"></span></span>
-        <span class="corner corner-tr"><span class="corner-diamond"></span></span>
-        <span class="corner corner-bl"><span class="corner-diamond"></span></span>
-        <span class="corner corner-br"><span class="corner-diamond"></span></span>
+    <!-- One soft card on warm paper: the repeat reads as a quiet header pill,
+         the zekr itself is the hero, and the attribution closes the card. -->
+    <div class="export-card">
+      <div class="repeat-pill">{{ repeatLabel }}</div>
 
-        <div class="ornament-row">
-          <span class="ornament-rule"></span>
-          <span class="star8">
-            <span class="star8-diamond"></span>
-            <span class="star8-dot"></span>
-          </span>
-          <span class="ornament-rule"></span>
-        </div>
-
-        <div class="text-zone">
-          <p class="font-quran zekr-text" :style="textStyle">{{ text }}</p>
-        </div>
-
-        <template v-if="reference || benefit">
-          <div class="divider-row">
-            <span class="divider-rule"></span>
-            <span class="divider-diamond"></span>
-            <span class="divider-rule"></span>
-          </div>
-          <p v-if="reference" class="zekr-reference">{{ reference }}</p>
-          <p v-if="benefit" class="zekr-benefit">{{ benefit }}</p>
-        </template>
-
-        <div class="repeat-pill">
-          <span class="pill-diamond"></span>
-          <span class="pill-label">{{ repeatLabel }}</span>
-          <span class="pill-diamond"></span>
-        </div>
+      <div class="text-zone">
+        <p class="font-quran zekr-text" :style="textStyle">{{ text }}</p>
       </div>
+
+      <template v-if="reference || benefit">
+        <span class="divider"></span>
+        <p v-if="reference" class="zekr-reference">{{ reference }}</p>
+        <p v-if="benefit" class="zekr-benefit">{{ benefit }}</p>
+      </template>
     </div>
 
     <div class="export-footer" :style="{ color: primaryColor }">
@@ -133,7 +111,8 @@ const repeatLabel = computed(() => {
 /*
  * Captured by html2canvas: stick to solid colors, simple linear-gradients,
  * borders and 2D transforms — no conic-gradient, color-mix, box-shadow
- * or flex gap. Ornaments are plain rotated divs for the same reason.
+ * or flex gap. Depth therefore comes from the card sitting a tone above the
+ * warm paper behind it plus a hairline accent border, never from a shadow.
  *
  * Colors come from the `theme-light` token layer (plain hex there, so
  * html2canvas can read them) and from the accent pinned inline on the root.
@@ -150,109 +129,27 @@ const repeatLabel = computed(() => {
   text-align: center;
 }
 
-.frame-outer {
-  flex: 1 1 auto;
-  display: flex;
-  border: 2px solid rgba(var(--zekr-primary-rgb), 0.5);
-  border-radius: 8px;
-  padding: 5px;
-}
-
-.frame-inner {
-  position: relative;
+.export-card {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 1px solid rgba(var(--zekr-primary-rgb), 0.3);
-  border-radius: 4px;
-  background: rgba(var(--zekr-primary-rgb), 0.03);
-  padding: 26px 30px 24px;
+  background: var(--card);
+  border: 1px solid rgba(var(--zekr-primary-rgb), 0.16);
+  border-radius: 28px;
+  padding: 30px 30px 34px;
 }
 
-/* Corner ornaments: square + rotated square = tiny eight-pointed star.
-   The physical offsets in this block (and in the star below) are genuinely
-   direction-independent — the four corners mirror each other and every diamond
-   sits symmetrically inside its own parent — and html2canvas reads the plain
-   physical box properties most reliably. */
-.corner {
-  position: absolute;
-  width: 7px;
-  height: 7px;
-  background: rgba(var(--zekr-primary-rgb), 0.4);
-}
-
-.corner-diamond {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 7px;
-  height: 7px;
-  background: rgba(var(--zekr-primary-rgb), 0.4);
-  transform: rotate(45deg);
-}
-
-.corner-tl {
-  top: 12px;
-  right: 12px;
-}
-
-.corner-tr {
-  top: 12px;
-  left: 12px;
-}
-
-.corner-bl {
-  bottom: 12px;
-  right: 12px;
-}
-
-.corner-br {
-  bottom: 12px;
-  left: 12px;
-}
-
-/* Header medallion: eight-pointed star flanked by fading rules */
-.ornament-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-}
-
-.ornament-rule {
-  width: 96px;
-  height: 2px;
-  background: linear-gradient(to right, transparent, rgba(var(--zekr-primary-rgb), 0.45), transparent);
-}
-
-.star8 {
-  position: relative;
-  width: 15px;
-  height: 15px;
-  margin: 0 14px;
-  background: rgba(var(--zekr-primary-rgb), 0.85);
-}
-
-.star8-diamond {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 15px;
-  height: 15px;
-  background: rgba(var(--zekr-primary-rgb), 0.85);
-  transform: rotate(45deg);
-}
-
-.star8-dot {
-  position: absolute;
-  top: 5px;
-  left: 5px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--background);
-  z-index: 1;
+.repeat-pill {
+  padding: 7px 18px;
+  margin-bottom: 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--zekr-primary-rgb), 0.2);
+  background: rgba(var(--zekr-primary-rgb), 0.08);
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 .text-zone {
@@ -270,72 +167,35 @@ const repeatLabel = computed(() => {
   max-width: 400px;
 }
 
-.divider-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 18px 0 14px;
-}
-
-.divider-rule {
-  width: 56px;
-  height: 1px;
-  background: linear-gradient(to right, transparent, rgba(var(--zekr-primary-rgb), 0.4), transparent);
-}
-
-.divider-diamond {
-  width: 6px;
-  height: 6px;
-  margin: 0 12px;
-  background: rgba(var(--zekr-primary-rgb), 0.55);
-  transform: rotate(45deg);
+.divider {
+  width: 48px;
+  height: 2px;
+  border-radius: 2px;
+  margin: 26px 0 16px;
+  background: rgba(var(--zekr-primary-rgb), 0.3);
 }
 
 .zekr-reference {
   color: var(--primary);
   font-size: 15px;
   font-weight: 600;
-  line-height: 1.8;
-  margin: 0 0 4px;
+  line-height: 1.7;
+  margin: 0 0 6px;
+  max-width: 380px;
 }
 
 .zekr-benefit {
   color: var(--muted-foreground);
   font-size: 13.5px;
-  line-height: 1.9;
+  line-height: 1.85;
   margin: 0;
   max-width: 380px;
-}
-
-.repeat-pill {
-  display: inline-flex;
-  align-items: center;
-  margin-top: 22px;
-  padding: 8px 20px;
-  border-radius: 50px;
-  background: rgba(var(--zekr-primary-rgb), 0.07);
-  border: 1px solid rgba(var(--zekr-primary-rgb), 0.22);
-}
-
-.pill-diamond {
-  width: 5px;
-  height: 5px;
-  margin: 0 10px;
-  background: rgba(var(--zekr-primary-rgb), 0.55);
-  transform: rotate(45deg);
-}
-
-.pill-label {
-  color: var(--primary);
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.4;
 }
 
 .export-footer {
   display: flex;
   justify-content: center;
-  padding-top: 14px;
+  padding-top: 16px;
   opacity: 0.9;
 }
 </style>

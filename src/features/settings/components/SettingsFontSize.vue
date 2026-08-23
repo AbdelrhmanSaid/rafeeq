@@ -34,23 +34,40 @@ function decrease() {
 function increase() {
   theme.setFontScale(fontScale.value + step)
 }
+
+// Round, thumb-sized steppers flanking the track.
+const stepperClass =
+  'size-11 shrink-0 rounded-full border-0 bg-muted text-foreground shadow-none hover:bg-accent active:scale-95 dark:bg-muted dark:hover:bg-accent'
 </script>
 
 <template>
   <SettingsSection title="حجم الخط" description="تحكم في حجم النصوص في جميع أنحاء التطبيق" :icon="IconTextSize">
     <template #actions>
-      <Button v-if="!isDefault" type="button" variant="ghost" size="sm" @click="theme.resetFontScale()">
-        <IconRotate />
+      <Button
+        v-if="!isDefault"
+        type="button"
+        variant="ghost"
+        class="h-11 rounded-full px-3 text-muted-foreground active:scale-[0.98]"
+        @click="theme.resetFontScale()"
+      >
+        <IconRotate class="size-4" />
         <span>إعادة تعيين</span>
       </Button>
     </template>
 
-    <div class="rounded-md border p-4">
-      <div class="flex items-center gap-3">
+    <div>
+      <!-- The current scale leads: it is the value being changed, and it is
+           rendered at the scale it sets. -->
+      <div class="text-center">
+        <span class="font-display text-3xl leading-none tabular-nums">{{ scaleLabel }}</span>
+      </div>
+
+      <div class="mt-5 flex items-center gap-3">
         <Button
           type="button"
           variant="outline"
           size="icon"
+          :class="stepperClass"
           :disabled="fontScale <= min"
           aria-label="تصغير الخط"
           @click="decrease"
@@ -60,7 +77,7 @@ function increase() {
 
         <Slider
           :model-value="sliderValue"
-          class="flex-1"
+          class="min-h-11 flex-1 [&_[data-slot=slider-thumb]]:size-5"
           :min="min"
           :max="max"
           :step="step"
@@ -72,6 +89,7 @@ function increase() {
           type="button"
           variant="outline"
           size="icon"
+          :class="stepperClass"
           :disabled="fontScale >= max"
           aria-label="تكبير الخط"
           @click="increase"
@@ -80,13 +98,15 @@ function increase() {
         </Button>
       </div>
 
-      <div class="mt-2 flex items-center justify-between">
-        <span class="text-xs text-muted-foreground">صغير</span>
-        <span class="text-xs font-medium">{{ scaleLabel }}</span>
-        <span class="text-xs text-muted-foreground">كبير</span>
+      <div class="mt-1 flex items-center justify-between px-14 text-xs text-muted-foreground">
+        <span>صغير</span>
+        <span>كبير</span>
       </div>
 
-      <p class="mt-4 border-t pt-3 text-center text-muted-foreground">إِنَّ مَعَ ٱلْعُسْرِ يُسْرًا</p>
+      <!-- A live sample of the chosen scale, in the interface font it applies to. -->
+      <p class="mt-5 rounded-2xl bg-muted px-4 py-3 text-center leading-relaxed text-muted-foreground">
+        إِنَّ مَعَ ٱلْعُسْرِ يُسْرًا
+      </p>
     </div>
   </SettingsSection>
 </template>

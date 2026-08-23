@@ -20,35 +20,51 @@ function onRewayaChange(value) {
   const first = fullReciters.find((r) => r.rewaya === value)
   if (first) quranStore.changeReciter(first.id)
 }
+
+// Fields read as filled pills rather than outlined boxes. The `data-[size=…]`
+// and `dark:` overrides repeat the prefix the vendored trigger uses, so
+// tailwind-merge replaces those classes instead of losing a specificity race.
+const fieldTriggerClass =
+  'h-11 w-full rounded-xl border-0 bg-muted text-base shadow-none data-[size=default]:h-11 dark:bg-muted dark:hover:bg-muted'
 </script>
 
 <template>
-  <SettingsSection title="القرآن الكريم" description="اختر الرواية والقارئ المفضل لديك" :icon="IconMicrophone2">
-    <div class="grid gap-2">
-      <Label for="currentRewaya">الرواية</Label>
+  <SettingsSection
+    title="القرآن الكريم"
+    description="اختر الرواية والقارئ المفضل لديك"
+    :icon="IconMicrophone2"
+    body-class="divide-y p-0"
+  >
+    <div class="px-4 py-3">
+      <Label for="currentRewaya" class="mb-2">الرواية</Label>
       <Select :model-value="currentRewaya" @update:model-value="onRewayaChange">
-        <SelectTrigger id="currentRewaya" class="w-full">
+        <SelectTrigger id="currentRewaya" :class="fieldTriggerClass">
           <SelectValue placeholder="الرواية" />
         </SelectTrigger>
-        <SelectContent>
-          <SelectItem v-for="rewaya in rewayat" :key="rewaya" :value="rewaya">
+        <SelectContent class="rounded-2xl border-0 shadow-xl">
+          <SelectItem v-for="rewaya in rewayat" :key="rewaya" :value="rewaya" class="min-h-11 rounded-xl text-base">
             {{ rewaya }}
           </SelectItem>
         </SelectContent>
       </Select>
     </div>
 
-    <div class="mt-4 grid gap-2">
-      <Label for="currentReciter">القارئ الحالي</Label>
+    <div class="px-4 py-3">
+      <Label for="currentReciter" class="mb-2">القارئ الحالي</Label>
       <Select
         :model-value="Number(quranStore.currentReciter)"
         @update:model-value="quranStore.changeReciter(Number($event))"
       >
-        <SelectTrigger id="currentReciter" class="w-full">
+        <SelectTrigger id="currentReciter" :class="fieldTriggerClass">
           <SelectValue placeholder="القارئ الحالي" />
         </SelectTrigger>
-        <SelectContent>
-          <SelectItem v-for="reciter in filteredReciters" :key="reciter.id" :value="reciter.id">
+        <SelectContent class="rounded-2xl border-0 shadow-xl">
+          <SelectItem
+            v-for="reciter in filteredReciters"
+            :key="reciter.id"
+            :value="reciter.id"
+            class="min-h-11 rounded-xl text-base"
+          >
             {{ reciter.name }}
           </SelectItem>
         </SelectContent>

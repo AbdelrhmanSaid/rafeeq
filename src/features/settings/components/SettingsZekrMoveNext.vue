@@ -16,7 +16,11 @@ const { zekrMoveNextOnComplete } = storeToRefs(appStore)
     :icon="IconArrowDownCircle"
   >
     <template #actions>
-      <Switch v-model="zekrMoveNextOnComplete" aria-label="تفعيل الانتقال التلقائي للذكر التالي" />
+      <Switch
+        v-model="zekrMoveNextOnComplete"
+        class="relative before:absolute before:-inset-3 before:content-['']"
+        aria-label="تفعيل الانتقال التلقائي للذكر التالي"
+      />
     </template>
   </SettingsSection>
 </template>

@@ -115,65 +115,82 @@ const copyZekr = () => {
 <template>
   <!-- `.zekr-card` is the selector useZekrScroll walks to find the next zekr,
        and `.action-menu` / `.btn-counter` are what the long-press handler above
-       excludes — keep all three class names. -->
+       excludes — keep all three class names.
+
+       The whole card is the tap target below `lg` (that is the viewport
+       `useIsMobile` reports on), so the pointer/selection affordances are the
+       phone default and get switched off from `lg` up, where only the counter
+       counts. -->
   <div
     ref="card"
-    class="zekr-card relative rounded-xl border p-4 max-lg:cursor-pointer max-lg:select-none"
+    class="zekr-card cursor-pointer rounded-2xl bg-card p-5 text-card-foreground shadow-sm select-none lg:cursor-auto lg:p-6 lg:select-auto"
     @click="onCardClick"
   >
-    <div class="action-menu absolute end-2 bottom-2" @click.stop>
+    <!-- Rare actions sit at the top end of the card, clear of the thumb zone
+         and clear of the text; the negative margins pull the 2.75rem target
+         back into the card's corner so it costs almost no height. -->
+    <div class="action-menu -mt-2 -me-2 flex justify-end" @click.stop>
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
-          <Button variant="ghost" size="icon-sm" type="button" class="text-muted-foreground" aria-label="خيارات الذكر">
-            <IconHeartShare class="size-[1.125rem]" />
+          <Button
+            variant="ghost"
+            size="icon"
+            type="button"
+            class="size-11 rounded-full text-muted-foreground active:scale-90"
+            aria-label="خيارات الذكر"
+          >
+            <IconHeartShare class="size-5" />
           </Button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem @click="exportAsImage">
-            <IconDownload />
+        <DropdownMenuContent align="end" class="min-w-44 rounded-2xl border-0 p-1.5 shadow-xl">
+          <DropdownMenuItem class="min-h-11 gap-3 rounded-xl px-3 text-sm" @click="exportAsImage">
+            <IconDownload class="size-5" />
             <span>تنزيل</span>
           </DropdownMenuItem>
-          <DropdownMenuItem @click="shareZekr">
-            <IconShare3 />
+          <DropdownMenuItem class="min-h-11 gap-3 rounded-xl px-3 text-sm" @click="shareZekr">
+            <IconShare3 class="size-5" />
             <span>مشاركة</span>
           </DropdownMenuItem>
-          <DropdownMenuItem @click="copyZekr">
-            <IconCopy />
+          <DropdownMenuItem class="min-h-11 gap-3 rounded-xl px-3 text-sm" @click="copyZekr">
+            <IconCopy class="size-5" />
             <span>نسخ</span>
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem :disabled="count === 0" @click="reset">
-            <IconRestore />
+          <DropdownMenuItem class="min-h-11 gap-3 rounded-xl px-3 text-sm" :disabled="count === 0" @click="reset">
+            <IconRestore class="size-5" />
             <span>تصفير</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
 
-    <div class="flex flex-col-reverse items-center gap-4 text-center lg:flex-row lg:text-start">
-      <!-- rem (not px) so the progress circle scales with the font and the
+    <!-- One zekr, one column on a phone: the text leads and the counter sits
+         under it, in reach of the thumb. From `lg` the row reverses so the
+         counter returns to the start edge beside the text. -->
+    <div class="flex flex-col items-center gap-5 lg:flex-row-reverse lg:items-center lg:gap-8">
+      <div class="w-full min-w-0 text-center lg:flex-1 lg:text-start">
+        <p class="font-quran text-2xl leading-[2.15] text-pretty sm:text-[1.625rem]">{{ text }}</p>
+
+        <p class="mt-3 text-sm leading-relaxed text-muted-foreground" v-if="benefit || reference">
+          <span v-if="reference">{{ reference }}</span>
+          <span v-if="benefit && reference"> - </span>
+          <span v-if="benefit">{{ benefit }}</span>
+        </p>
+      </div>
+
+      <!-- rem (not px) so the progress ring scales with the font and the
            counter text (e.g. "100/100") stays centered without overflowing. -->
       <button
-        class="btn-counter grid size-30 shrink-0 cursor-pointer place-items-center rounded-full text-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+        class="btn-counter grid size-30 shrink-0 cursor-pointer place-items-center rounded-full text-xl font-medium text-primary tabular-nums transition outline-none select-none active:scale-95 focus-visible:ring-3 focus-visible:ring-ring/50"
         type="button"
         @click.stop="increment"
         :style="{ '--progress': count / repeat }"
       >
         {{ toArabicNumerals(`${count}/${repeat}`) }}
       </button>
-
-      <div class="w-full min-w-0 lg:flex-1">
-        <p class="font-quran text-[1.625rem] leading-[2] text-justify">{{ text }}</p>
-
-        <p class="pe-2 text-sm text-muted-foreground" v-if="benefit || reference">
-          <span v-if="reference">{{ reference }}</span>
-          <span v-if="benefit && reference"> - </span>
-          <span v-if="benefit">{{ benefit }}</span>
-        </p>
-      </div>
     </div>
   </div>
 </template>
@@ -182,10 +199,15 @@ const copyZekr = () => {
 /* The counter's progress ring is a conic-gradient driven by the inline
    `--progress` custom property; no Tailwind utility expresses that, so it stays
    plain CSS. Every color reads the token layer, so the user's runtime accent
-   and background still apply. */
+   and background still apply — the disc punched out of the middle is `--card`
+   because the counter sits on a card, which leaves a floating ring around the
+   number. */
 .btn-counter {
   background:
-    radial-gradient(closest-side, var(--background) 79%, transparent 80% 100%),
-    conic-gradient(var(--primary) calc(var(--progress) * 100%), var(--secondary) 0);
+    radial-gradient(closest-side, var(--card) 80%, transparent 81% 100%),
+    conic-gradient(
+      var(--primary) calc(var(--progress) * 100%),
+      color-mix(in oklab, var(--primary) 15%, transparent) 0
+    );
 }
 </style>

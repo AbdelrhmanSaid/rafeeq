@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import {
   IconPalette,
@@ -73,35 +73,55 @@ const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab)
 // The pills are links, not tab state: the active section comes from
 // /settings/:tab, so deep links and the back button keep working.
 const tabPillClass =
-  'flex shrink-0 items-center gap-3 rounded-md border px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground md:w-full md:shrink md:border-transparent md:py-2.5'
+  'inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-medium text-muted-foreground transition duration-200 hover:bg-accent hover:text-accent-foreground active:scale-[0.98] md:w-full md:shrink md:rounded-2xl'
+const tabPillActiveClass = 'bg-primary/12 text-primary hover:bg-primary/12 hover:text-primary'
+
+// The strip scrolls sideways on the phone, so a deep link to a later tab would
+// otherwise land with its pill off-screen; nudge the active one into view.
+const strip = ref(null)
+
+async function revealActiveTab() {
+  await nextTick()
+  const pill = strip.value?.querySelector('[data-active="true"]')
+  if (typeof pill?.scrollIntoView === 'function') {
+    pill.scrollIntoView({ inline: 'center', block: 'nearest' })
+  }
+}
+
+onMounted(revealActiveTab)
+watch(() => activeTab.value.id, revealActiveTab)
 </script>
 
 <template>
   <Page>
-    <Heading class="mb-4" title="الإعدادات" subtitle="تعديل الإعدادات المختلفة للتطبيق" />
+    <Heading title="الإعدادات" subtitle="تعديل الإعدادات المختلفة للتطبيق" />
 
-    <div class="grid items-start gap-4 md:grid-cols-[15rem_1fr] md:gap-6">
-      <!-- Tabs navigation — a scrollable pill strip on mobile, a sticky sidebar from md up -->
+    <div class="grid items-start gap-4 md:grid-cols-[15rem_1fr] md:gap-8">
+      <!-- Tabs navigation — a scrolling pill strip that bleeds past the page
+           gutter on the phone (faded at both ends so it reads as continuing),
+           and a sticky sidebar of full-width rows from md up. -->
       <nav
-        class="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1.5 md:sticky md:top-[calc(var(--navbar-height)+1rem)] md:mx-0 md:flex-col md:gap-1 md:overflow-x-visible md:px-0 md:pb-0"
+        ref="strip"
+        class="-mx-4 flex gap-2 overflow-x-auto px-4 py-1 edge-fade-x no-scrollbar md:sticky md:top-[calc(var(--navbar-height)+1rem)] md:mx-0 md:flex-col md:gap-1 md:overflow-x-visible md:px-0 md:[mask-image:none]"
+        style="--edge-fade-size: 1rem"
         aria-label="أقسام الإعدادات"
       >
         <RouterLink
           v-for="tab in tabs"
           :key="tab.id"
           :to="{ name: 'settings', params: { tab: tab.id } }"
-          :class="cn(tabPillClass, activeTab.id === tab.id && 'border-transparent bg-primary/10 text-foreground')"
+          :data-active="activeTab.id === tab.id"
+          :class="cn(tabPillClass, activeTab.id === tab.id && tabPillActiveClass)"
         >
-          <component :is="tab.icon" :size="20" />
+          <component :is="tab.icon" class="size-5 shrink-0" />
           <span>{{ tab.label }}</span>
         </RouterLink>
       </nav>
 
-      <!-- Tab content -->
-      <div class="min-w-0">
-        <div class="flex flex-col gap-6">
-          <component v-for="(section, index) in activeTab.sections" :key="index" :is="section" />
-        </div>
+      <!-- Tab content: one card per setting, close together so the tab reads as
+           a single grouped list rather than a stack of unrelated panels. -->
+      <div class="min-w-0 space-y-3">
+        <component v-for="(section, index) in activeTab.sections" :key="index" :is="section" />
       </div>
     </div>
   </Page>

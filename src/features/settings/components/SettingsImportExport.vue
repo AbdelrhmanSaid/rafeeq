@@ -65,14 +65,20 @@ async function importSettings(event) {
     description="احتفظ بنسخة احتياطية من الإعدادات أو قم باستيراد الإعدادات المحفوظة على هذا الجهاز"
     :icon="IconRestore"
   >
-    <div class="flex flex-wrap gap-2">
-      <Button type="button" size="sm" @click="exportSettings">
-        <IconFileExport />
+    <div class="flex flex-col gap-2 sm:flex-row">
+      <Button type="button" class="h-11 flex-1 rounded-full active:scale-[0.98]" @click="exportSettings">
+        <IconFileExport class="size-4" />
         <span>تصدير الإعدادات</span>
       </Button>
 
-      <Button type="button" size="sm" variant="ghost" :disabled="isImporting" @click="fileInput?.click()">
-        <IconFileImport />
+      <Button
+        type="button"
+        variant="ghost"
+        class="h-11 flex-1 rounded-full bg-muted hover:bg-accent active:scale-[0.98] dark:hover:bg-accent"
+        :disabled="isImporting"
+        @click="fileInput?.click()"
+      >
+        <IconFileImport class="size-4" />
         <span>استيراد الإعدادات</span>
       </Button>
     </div>

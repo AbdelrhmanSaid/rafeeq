@@ -54,57 +54,73 @@ onBeforeRouteLeave(async () => {
   const { isCanceled } = await reveal()
   return !isCanceled
 })
+
+// The two rows of the leave sheet share the app's list-row shape; only the
+// destructive one changes color.
+const sheetRowClass =
+  'flex w-full min-h-14 items-center gap-3 rounded-2xl px-3 text-start transition-colors hover:bg-accent/60 active:bg-accent'
 </script>
 
 <template>
   <AsyncContent :pending="isFetching" :error="error" loading-message="جاري تحميل الأذكار...">
     <Page v-if="category">
-      <Heading class="mb-4" :title="category.meta.name" :subtitle="category.meta.description" :share="true" />
+      <Heading :title="category.meta.name" :subtitle="category.meta.description" :share="true" />
 
-      <ZekrCard
-        class="mb-3"
-        v-for="(zekr, index) in category.content"
-        :key="index"
-        v-model:count="counts[index]"
-        :text="zekr.text"
-        :repeat="zekr.repeat"
-        :reference="zekr.reference"
-        :benefit="zekr.benefit"
-      />
+      <!-- The cards stay direct siblings of one another: `useZekrScroll` walks
+           `nextElementSibling` to reach the next `.zekr-card`. -->
+      <div class="space-y-4">
+        <ZekrCard
+          v-for="(zekr, index) in category.content"
+          :key="index"
+          v-model:count="counts[index]"
+          :text="zekr.text"
+          :repeat="zekr.repeat"
+          :reference="zekr.reference"
+          :benefit="zekr.benefit"
+        />
+      </div>
 
-      <div class="flex justify-center gap-2">
-        <Button v-if="totalClicked > 0" variant="ghost" type="button" @click="resetProgress">
+      <!-- End-of-list actions, stacked full width so the last one sits under
+           the thumb on a phone and only spreads into a row from `sm`. -->
+      <div class="mt-8 flex flex-col gap-2 sm:flex-row sm:justify-center">
+        <Button
+          v-if="totalClicked > 0"
+          variant="ghost"
+          type="button"
+          class="h-11 gap-1.5 rounded-full px-5 text-muted-foreground active:scale-[0.98]"
+          @click="resetProgress"
+        >
           <IconRestore class="size-5" />
           <span>تصفير</span>
         </Button>
 
-        <BackButton :to="{ name: 'azkar' }" button-class="bg-primary text-primary-foreground hover:bg-primary/90" />
+        <BackButton
+          :to="{ name: 'azkar' }"
+          button-class="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+        />
       </div>
     </Page>
   </AsyncContent>
 
   <!-- Leave confirmation sheet -->
   <BottomSheet :show="isRevealed" title="لم تنتهِ بعد" @close="cancel">
-    <p class="mb-2 px-4 pt-3 leading-relaxed text-muted-foreground">لم تنتهِ من جميع الأذكار بعد، هل تريد المغادرة؟</p>
-    <ul class="py-2">
+    <p class="px-4 pb-4 leading-relaxed text-muted-foreground">لم تنتهِ من جميع الأذكار بعد، هل تريد المغادرة؟</p>
+
+    <ul class="space-y-1 px-2 pb-2">
       <li>
-        <button
-          type="button"
-          class="flex w-full items-center gap-3 px-5 py-3 text-start transition-colors hover:bg-secondary"
-          @click="cancel"
-        >
-          <IconArrowBackUp class="size-5" />
-          <span>البقاء ومتابعة الأذكار</span>
+        <button type="button" :class="sheetRowClass" @click="cancel">
+          <span class="grid size-11 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground">
+            <IconArrowBackUp class="size-5" />
+          </span>
+          <span class="min-w-0 flex-1 font-medium">البقاء ومتابعة الأذكار</span>
         </button>
       </li>
       <li>
-        <button
-          type="button"
-          class="flex w-full items-center gap-3 px-5 py-3 text-start text-destructive transition-colors hover:bg-secondary"
-          @click="confirm"
-        >
-          <IconDoorExit class="size-5" />
-          <span>مغادرة</span>
+        <button type="button" :class="[sheetRowClass, 'text-destructive']" @click="confirm">
+          <span class="grid size-11 shrink-0 place-items-center rounded-full bg-destructive/10 text-destructive">
+            <IconDoorExit class="size-5" />
+          </span>
+          <span class="min-w-0 flex-1 font-medium">مغادرة</span>
         </button>
       </li>
     </ul>
