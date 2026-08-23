@@ -165,6 +165,9 @@ const stepButtonClass = 'h-11 flex-1 gap-1.5 rounded-full text-muted-foreground 
         :share="true"
       />
 
+      <!-- Audio Player. In flow above the reading surface, not docked. -->
+      <AudioPlayer v-if="online" ref="playerRef" />
+
       <!-- The reading surface. Borderless card + soft elevation, so the page is
            made of the text rather than of a box drawn around it. -->
       <article class="rounded-3xl bg-card px-4 py-6 text-card-foreground shadow-sm sm:px-7 sm:py-8">
@@ -225,9 +228,6 @@ const stepButtonClass = 'h-11 flex-1 gap-1.5 rounded-full text-muted-foreground 
           <IconChevronLeft class="size-4" />
         </Button>
       </nav>
-
-      <!-- Audio Player -->
-      <AudioPlayer v-if="online" ref="playerRef" />
 
       <AyahActionSheet
         :ayah="activeAyah"

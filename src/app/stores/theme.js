@@ -71,9 +71,13 @@ export const useThemeStore = defineStore('theme', () => {
       Object.assign(theme, queryOverrides.value)
     }
 
-    if (theme.mode) applyMode(theme.mode)
-    if (theme.fg) applyPrimaryColor(theme.fg)
-    if (theme.bg) applyBgColor(theme.bg)
+    // Applied unconditionally, never guarded on truthiness: a null value is how
+    // "go back to the default" is expressed, and each apply* clears its own
+    // variables when it gets one. Skipping the call instead left the previously
+    // picked color inline on <html> until the next reload.
+    applyMode(theme.mode)
+    applyPrimaryColor(theme.fg)
+    applyBgColor(theme.bg)
 
     nextTick(syncMetaThemeColor)
   })

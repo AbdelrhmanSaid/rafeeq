@@ -54,8 +54,7 @@ const groupTitleClass = 'mb-2 px-1 text-sm font-medium text-muted-foreground'
       :items="surahs"
       item-key="id"
       :favorites-key="STORAGE_KEYS.quranFavorites"
-      placeholder="ابحث بالسورة"
-      label="تبحث عن سورة معينة؟"
+      placeholder="تبحث عن سورة معينة؟"
       :item-class="rowClass"
     >
       <template #favorites-title>

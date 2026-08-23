@@ -37,8 +37,7 @@ const radiosList = computed(() =>
       item-key="slug"
       :favorites-key="STORAGE_KEYS.radioFavorites"
       search-type="search"
-      placeholder="ابحث عن إذاعة"
-      label="تبحث عن إذاعة معينة؟"
+      placeholder="تبحث عن إذاعة معينة؟"
       :item-class="(item) => ({ active: store.station === item.url })"
     >
       <template #favorites-title>

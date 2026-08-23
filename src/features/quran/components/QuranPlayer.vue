@@ -126,78 +126,70 @@ defineExpose({ seekToAyah })
 </script>
 
 <template>
-  <!-- The transport docks to the bottom of the screen instead of scrolling away
-       with the surah, so it stays under the thumb while reading. On the phone it
-       sits directly above the floating tab bar, whose footprint is the navbar
-       height plus the home-indicator inset; from `md` that bar is gone and the
-       player rests on the bottom edge. It stays under the tab bar's `z-40`.
-       The strip spans the full width but the pill inside it is only as wide as
-       the reading column, so the strip itself is click-through — otherwise its
-       transparent flanks would swallow taps on whatever sits underneath (the
-       desktop footer links). Only the pill takes pointer events back. -->
-  <div class="pointer-events-none fixed inset-x-0 bottom-[var(--tabbar-offset)] z-30 md:bottom-0 md:pb-4">
-    <!-- Same measure as the reading column above it. -->
-    <div class="mx-auto w-full max-w-[43.75rem] px-3 pb-2 sm:px-4">
-      <div class="pointer-events-auto rounded-3xl border border-border/70 bg-card/95 p-3 shadow-xl backdrop-blur-xl">
-        <div class="flex items-center gap-2.5">
-          <span class="shrink-0 text-xs tabular-nums text-muted-foreground">{{ formatTime(currentTime) }}</span>
+  <!-- The transport sits in normal flow above the surah rather than docking to
+       the bottom of the screen: the reading column is the point of the page, and
+       a pinned bar both covers the last line and follows the reader down a very
+       long surah. -->
+  <div class="mb-4">
+    <div class="rounded-3xl border border-border/70 bg-card p-3 shadow-sm">
+      <div class="flex items-center gap-2.5">
+        <span class="shrink-0 text-xs tabular-nums text-muted-foreground">{{ formatTime(currentTime) }}</span>
 
-          <!-- The indicator is moved with translateX, and CSS transforms are
+        <!-- The indicator is moved with translateX, and CSS transforms are
                never mirrored for RTL, so the whole track is flipped to keep the
                bar filling from the start edge. -->
-          <Progress :model-value="progress" class="h-1 min-w-0 flex-1 -scale-x-100" />
+        <Progress :model-value="progress" class="h-1 min-w-0 flex-1 -scale-x-100" />
 
-          <span class="shrink-0 text-xs tabular-nums text-muted-foreground">{{ formatTime(duration) }}</span>
+        <span class="shrink-0 text-xs tabular-nums text-muted-foreground">{{ formatTime(duration) }}</span>
+      </div>
+
+      <div class="mt-3 flex items-center gap-2">
+        <Button
+          @click="togglePlayPause"
+          size="icon"
+          class="size-12 shrink-0 rounded-full shadow-sm active:scale-95"
+          :disabled="loading || !quranStore.surahAudioUrl"
+        >
+          <IconPlayerPlay v-if="!isPlaying" class="size-5" />
+          <IconPlayerPause v-else class="size-5" />
+        </Button>
+
+        <div class="min-w-0 flex-1 leading-tight">
+          <template v-if="currentAyahDisplay">
+            <span class="block truncate text-sm font-medium text-primary">{{ currentAyahDisplay.surahName }}</span>
+            <span v-if="currentAyahDisplay.ayahNumber > 0" class="block truncate text-xs text-muted-foreground"
+              >آية {{ toArabicNumerals(currentAyahDisplay.ayahNumber) }}</span
+            >
+          </template>
+          <span v-else-if="quranStore.surahName" class="block truncate text-sm text-muted-foreground">{{
+            quranStore.surahName
+          }}</span>
+          <span v-else class="line-clamp-2 text-xs text-muted-foreground">اضغط على آية للاستماع</span>
         </div>
 
-        <div class="mt-3 flex items-center gap-2">
-          <Button
-            @click="togglePlayPause"
-            size="icon"
-            class="size-12 shrink-0 rounded-full shadow-sm active:scale-95"
-            :disabled="loading || !quranStore.surahAudioUrl"
-          >
-            <IconPlayerPlay v-if="!isPlaying" class="size-5" />
-            <IconPlayerPause v-else class="size-5" />
-          </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          @click="cycleRate"
+          :title="`سرعة التلاوة: ${rateLabel}`"
+          class="h-11 shrink-0 gap-1 rounded-full px-3 text-xs tabular-nums text-muted-foreground active:scale-95"
+        >
+          <IconGauge class="hidden size-4 sm:block" />
+          <span>{{ rateLabel }}</span>
+        </Button>
 
-          <div class="min-w-0 flex-1 leading-tight">
-            <template v-if="currentAyahDisplay">
-              <span class="block truncate text-sm font-medium text-primary">{{ currentAyahDisplay.surahName }}</span>
-              <span v-if="currentAyahDisplay.ayahNumber > 0" class="block truncate text-xs text-muted-foreground"
-                >آية {{ toArabicNumerals(currentAyahDisplay.ayahNumber) }}</span
-              >
-            </template>
-            <span v-else-if="quranStore.surahName" class="block truncate text-sm text-muted-foreground">{{
-              quranStore.surahName
-            }}</span>
-            <span v-else class="line-clamp-2 text-xs text-muted-foreground">اضغط على آية للاستماع</span>
-          </div>
-
-          <Button
-            type="button"
-            variant="ghost"
-            @click="cycleRate"
-            :title="`سرعة التلاوة: ${rateLabel}`"
-            class="h-11 shrink-0 gap-1 rounded-full px-3 text-xs tabular-nums text-muted-foreground active:scale-95"
-          >
-            <IconGauge class="hidden size-4 sm:block" />
-            <span>{{ rateLabel }}</span>
-          </Button>
-
-          <!-- The reciter's name only fits from `sm`; on the phone the button is
+        <!-- The reciter's name only fits from `sm`; on the phone the button is
                an icon target and the name lives in its tooltip. -->
-          <Button
-            @click="openReciterSheet"
-            variant="secondary"
-            class="h-11 min-w-11 shrink-0 gap-1.5 rounded-full px-3 text-muted-foreground active:scale-95"
-            :title="`القارئ: ${quranStore.reciter?.name}`"
-            :aria-label="`القارئ: ${quranStore.reciter?.name}`"
-          >
-            <IconMicrophone2 class="size-5" />
-            <span class="hidden max-w-32 truncate text-xs sm:inline">{{ quranStore.reciter?.name }}</span>
-          </Button>
-        </div>
+        <Button
+          @click="openReciterSheet"
+          variant="secondary"
+          class="h-11 min-w-11 shrink-0 gap-1.5 rounded-full px-3 text-muted-foreground active:scale-95"
+          :title="`القارئ: ${quranStore.reciter?.name}`"
+          :aria-label="`القارئ: ${quranStore.reciter?.name}`"
+        >
+          <IconMicrophone2 class="size-5" />
+          <span class="hidden max-w-32 truncate text-xs sm:inline">{{ quranStore.reciter?.name }}</span>
+        </Button>
       </div>
     </div>
 

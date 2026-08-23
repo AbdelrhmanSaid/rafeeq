@@ -13,8 +13,9 @@
    own accent/background. Values stay in `rem` so the font-scale setting scales
    the whole interface.
 
-   The palette is a warm tinted neutral, not grey: light mode reads as warm
-   paper, dark mode as warm ink. `--card` sits a clear step above `--background`
+   Light mode reads as warm paper. Dark mode is a near-neutral dark with only a
+   trace of that warmth left in it — the surfaces are dark first, tinted second,
+   so the accent is the only strongly colored thing on the screen. `--card` sits a clear step above `--background`
    in BOTH modes because cards now carry elevation (shadow) instead of hairline
    borders — and because the runtime background override flattens `--card` onto
    `--background`, the shadow scale below has to carry that separation on its
@@ -70,6 +71,9 @@
   --shadow-color: 46 32 22;
   --shadow-strength: 0.07;
 
+  /* How strongly `surface-hero` pools the accent at its top edge. */
+  --hero-wash: 12%;
+
   --navbar-height: 70px;
 
   /* What the mobile tab bar actually occupies at the bottom of the screen: the
@@ -81,14 +85,14 @@
 }
 
 .dark {
-  --background: #15110d;
-  --foreground: #ece4d9;
+  --background: #121110;
+  --foreground: #e5e3e0;
 
-  --card: #211b16;
-  --card-foreground: #ece4d9;
+  --card: #1d1b1a;
+  --card-foreground: #e5e3e0;
 
-  --popover: #272019;
-  --popover-foreground: #ece4d9;
+  --popover: #22201e;
+  --popover-foreground: #e5e3e0;
 
   /* Lighter clay so the accent still reads on ink; its foreground flips to
      dark for contrast. A user-picked accent gets the same treatment at runtime
@@ -96,14 +100,14 @@
   --primary: #cd8562;
   --primary-foreground: #241a12;
 
-  --secondary: #2a221c;
-  --secondary-foreground: #ece4d9;
+  --secondary: #252321;
+  --secondary-foreground: #e5e3e0;
 
-  --muted: #2a221c;
-  --muted-foreground: #a89887;
+  --muted: #252321;
+  --muted-foreground: #a0988f;
 
-  --accent: #342a22;
-  --accent-foreground: #f2ebe1;
+  --accent: #2e2b28;
+  --accent-foreground: #eceae7;
 
   /* In dark mode every semantic fill is the light one and its foreground is
      warm ink — that keeps both `bg-destructive`/`bg-success` (filled control)
@@ -114,8 +118,8 @@
   --success: #37a873;
   --success-foreground: #0d1f16;
 
-  --border: #332a23;
-  --input: #3d332b;
+  --border: #2e2b28;
+  --input: #383430;
   --ring: var(--primary);
 
   /* Dark elevation comes mostly from `--card` being lighter than
@@ -123,6 +127,8 @@
      overlays still pool against the page. */
   --shadow-color: 0 0 0;
   --shadow-strength: 0.2;
+
+  --hero-wash: 8%;
 }
 
 @media screen and (min-width: 768px) {
@@ -293,10 +299,13 @@
    Uses `color-mix()`, so keep it out of `.theme-light` export subtrees. */
 @utility surface-hero {
   background-color: var(--card);
+  /* A hint of the accent pooling at the top edge, not a colored panel. The
+     strength is a variable so dark mode can pull it back further — a wash that
+     reads as subtle on paper reads as a tint on a near-neutral dark surface. */
   background-image: radial-gradient(
     125% 100% at 50% 0%,
-    color-mix(in oklab, var(--primary) 20%, transparent) 0%,
-    color-mix(in oklab, var(--primary) 6%, transparent) 45%,
+    color-mix(in oklab, var(--primary) var(--hero-wash, 12%), transparent) 0%,
+    color-mix(in oklab, var(--primary) calc(var(--hero-wash, 12%) / 3), transparent) 45%,
     transparent 72%
   );
 }

@@ -20,8 +20,7 @@ const groupTitleClass = 'mb-3 px-1 text-base font-medium'
       :items="items"
       item-key="slug"
       :favorites-key="STORAGE_KEYS.azkarFavorites"
-      placeholder="ابحث عن الباب"
-      label="تبحث عن باب معين؟"
+      placeholder="تبحث عن باب معين؟"
     >
       <template #favorites-title>
         <h5 :class="groupTitleClass">الأبواب المفضلة</h5>
