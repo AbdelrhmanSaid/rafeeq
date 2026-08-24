@@ -1,7 +1,6 @@
 <script setup>
 import Page from '@/layout/Page.vue'
 import HomeSection from '@/features/home/components/HomeSection.vue'
-import InstallBanner from '@/app/pwa/InstallBanner.vue'
 import PrayerTimes from '@/features/prayers/components/PrayerTimes.vue'
 import RandomAyah from '@/features/quran/components/RandomAyah.vue'
 import SunnahPrayers from '@/features/prayers/components/SunnahPrayers.vue'
@@ -14,8 +13,6 @@ const prayersStore = usePrayersStore()
 <template>
   <Page>
     <h1 class="visually-hidden">رفيق — الرئيسية</h1>
-
-    <InstallBanner />
 
     <HomeSection title="مواقيت الصلاة" subtitle="إن الصلاة كانت على المؤمنين كتابا موقوتا.">
       <PrayerTimes :vertical="prayersStore.vertical" />

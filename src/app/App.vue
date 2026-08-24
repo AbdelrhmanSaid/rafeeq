@@ -3,6 +3,7 @@ import { RouterView, useRoute } from 'vue-router'
 import Navbar from '@/layout/Navbar.vue'
 import Footer from '@/layout/Footer.vue'
 import TabBar from '@/layout/TabBar.vue'
+import InstallBanner from '@/app/pwa/InstallBanner.vue'
 import { IconWifiOff } from '@tabler/icons-vue'
 import { computed, ref, watch } from 'vue'
 import { useOnline } from '@vueuse/core'
@@ -90,6 +91,9 @@ const updateSW = registerSW({
 
     <!-- Mobile TabBar -->
     <TabBar class="d-block d-md-none" v-if="!isEmbedRoute" />
+
+    <!-- Floating PWA install prompt -->
+    <InstallBanner v-if="!isEmbedRoute" />
   </div>
 
   <!-- Toast -->

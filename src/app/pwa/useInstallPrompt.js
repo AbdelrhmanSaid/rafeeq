@@ -15,6 +15,7 @@ if (typeof window !== 'undefined') {
     event.preventDefault()
     deferredPrompt.value = event
   })
+
   window.addEventListener('appinstalled', () => {
     deferredPrompt.value = null
   })
