@@ -77,6 +77,9 @@ const options = {
 const { isFetching, data: timings, error, execute } = useFetch(endpoint, options).json().get()
 const { isRecoveringOnReconnect } = useReconnectExecute(online, execute)
 
+// Lets the home view's pull-to-refresh re-request today's timings.
+defineExpose({ refresh: execute })
+
 // Format time
 const formatTiming = (time) => {
   return toArabicNumerals(useDateFormat(time, 'hh:mm A').value.replace('AM', 'ص').replace('PM', 'م'))

@@ -70,7 +70,7 @@ const radiosList = computed(() =>
           type="button"
           class="btn btn-flat btn-icon"
           :aria-label="`تشغيل ${item.name}`"
-          @click.stop="store.play(item.url)"
+          @click.stop="store.play(item.url, item)"
         >
           <IconPlayerPlay size="1.25rem" />
         </button>

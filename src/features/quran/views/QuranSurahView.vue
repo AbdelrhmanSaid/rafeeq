@@ -2,7 +2,7 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import { IconArrowLeft, IconArrowRight } from '@tabler/icons-vue'
 import { useOnline } from '@vueuse/core'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useRouteParams } from '@vueuse/router'
 import { toast } from 'vue-sonner'
 
@@ -17,11 +17,14 @@ import { useQuranStore } from '@/features/quran/store'
 import { useQuranBookmark } from '@/features/quran/composables/useQuranBookmark'
 import { useAsyncData } from '@/shared/composables/useAsyncData'
 import { usePageMeta } from '@/shared/composables/usePageMeta'
+import { useScreenWakeLock } from '@/shared/composables/useScreenWakeLock'
+import { useSwipeNavigation } from '@/shared/composables/useSwipeNavigation'
 import { toArabicNumerals, removeBismillah, normalizeQuranicText } from '@/shared/utils/arabic'
 import { fetchSurah } from '@/features/quran/api'
 
 const online = useOnline()
 const route = useRoute()
+const router = useRouter()
 const surahId = useRouteParams('surah')
 const quranStore = useQuranStore()
 const { isBookmarked, toggleBookmark } = useQuranBookmark()
@@ -122,6 +125,8 @@ const scrollToAyah = (ayahNumber) => {
   el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
 
+const ayatRef = ref(null)
+
 // When arriving with ?ayah=N (e.g. from the bookmark card), bring that ayah
 // into view once the surah has rendered.
 watch(
@@ -132,6 +137,19 @@ watch(
   },
   { immediate: true },
 )
+
+// Swipe through surahs like flipping mushaf pages (see useSwipeNavigation for
+// the direction mapping).
+const goToSurah = (number) => {
+  if (number >= 1 && number <= 114) router.push({ name: 'quran-surah', params: { surah: number } })
+}
+
+useSwipeNavigation(ayatRef, {
+  onNext: () => goToSurah(surahNumber.value + 1),
+  onPrev: () => goToSurah(surahNumber.value - 1),
+})
+
+useScreenWakeLock()
 </script>
 
 <template>
@@ -148,7 +166,7 @@ watch(
 
       <p class="small text-secondary text-center m-0">اضغط على أي آية لعرض التفسير والاستماع والمزيد</p>
 
-      <div class="card my-3">
+      <div class="card my-3" ref="ayatRef">
         <div class="ayat card-body font-quran mb-4">
           <span class="basmallah" v-if="surahId != 9">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
 
@@ -231,13 +249,6 @@ watch(
     text-align: justify;
     text-align-last: center;
     text-justify: inter-word;
-
-    // Justified Arabic produces large word gaps on narrow lines — fall back
-    // to start alignment on phones.
-    @media (max-width: 575.98px) {
-      text-align: start;
-      text-align-last: auto;
-    }
 
     .basmallah {
       display: block;

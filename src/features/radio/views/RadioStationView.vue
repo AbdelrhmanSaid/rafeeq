@@ -72,7 +72,7 @@ const shareStation = async () => {
       :is-playing="isPlaying"
       :is-favorite="isFavorite(stationSlug)"
       :can-share="canShare"
-      @toggle="isPlaying ? store.stop() : store.play(station.url)"
+      @toggle="isPlaying ? store.stop() : store.play(station.url, station)"
       @favorite="toggleFavorite(stationSlug)"
       @share="shareStation"
     />

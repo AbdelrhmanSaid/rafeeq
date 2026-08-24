@@ -1,5 +1,7 @@
 <script setup>
-import { onBeforeUnmount, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { useScrollLock } from '@vueuse/core'
+import { vOnClickOutside } from '@vueuse/components'
 import { IconX } from '@tabler/icons-vue'
 
 const props = defineProps({
@@ -7,30 +9,106 @@ const props = defineProps({
   title: { type: String, default: '' },
 })
 
-defineEmits(['close'])
+const emit = defineEmits(['close'])
 
 // Lock the background page scroll while the sheet is open so the backdrop
 // stays put instead of scrolling behind the panel.
-const setScroll = (locked) => (document.body.style.overflow = locked ? 'hidden' : '')
+const bodyLock = useScrollLock(typeof document !== 'undefined' ? document.body : null)
+watch(() => props.show, (open) => (bodyLock.value = open), { immediate: true })
+onBeforeUnmount(() => (bodyLock.value = false))
 
-watch(() => props.show, setScroll, { immediate: true })
-onBeforeUnmount(() => setScroll(false))
+// --- Drag-to-dismiss -------------------------------------------------------
+// Dragging is anchored to the grip/header only: dragging from the body would
+// fight with the sheet's own scrolling. The panel follows the finger, then
+// either springs back or dismisses based on distance and release velocity.
+const dragY = ref(0)
+const dragging = ref(false)
+let dragStartY = 0
+let dragStartTime = 0
+let releasedY = 0 // where a dismissing drag let go, so the leave slide continues from there
+
+function onDragStart(event) {
+  // ≥ lg the sheet is a centered dialog (see the media query below) — dragging
+  // it downward would just look broken.
+  if (window.matchMedia('(min-width: 992px)').matches) return
+
+  dragging.value = true
+  dragY.value = 0
+  dragStartY = event.clientY
+  dragStartTime = performance.now()
+  window.addEventListener('pointermove', onDragMove)
+  window.addEventListener('pointerup', onDragEnd)
+  window.addEventListener('pointercancel', onDragEnd)
+}
+
+function onDragMove(event) {
+  dragY.value = Math.max(0, event.clientY - dragStartY)
+}
+
+function onDragEnd() {
+  window.removeEventListener('pointermove', onDragMove)
+  window.removeEventListener('pointerup', onDragEnd)
+  window.removeEventListener('pointercancel', onDragEnd)
+
+  const elapsed = Math.max(1, performance.now() - dragStartTime)
+  const velocity = dragY.value / elapsed // px per ms
+  const shouldDismiss = dragY.value > 90 || (velocity > 0.5 && dragY.value > 30)
+
+  releasedY = shouldDismiss ? dragY.value : 0
+  dragging.value = false
+  dragY.value = 0
+  if (shouldDismiss) emit('close')
+}
+
+// Without this the panel snaps back to the top of the drag before the leave
+// transition slides it down. Seed the leave with the release position, then
+// clear it a frame later so the CSS transition takes over from there.
+function onLeave(el) {
+  if (!releasedY) return
+  const panel = el.querySelector('.bottom-sheet')
+  el.style.opacity = String(backdropOpacity(releasedY))
+  panel.style.transform = `translateY(${releasedY}px)`
+  releasedY = 0
+  requestAnimationFrame(() => {
+    el.style.opacity = ''
+    panel.style.transform = ''
+  })
+}
+
+// Backdrop opacity for a given drag distance — dims as the panel travels so
+// the dismissal reads as one continuous motion.
+const backdropOpacity = (y) => Math.max(0.35, 1 - y / 400)
+
+const panelStyle = computed(() =>
+  dragging.value && dragY.value > 0 ? { transform: `translateY(${dragY.value}px)`, transition: 'none' } : undefined,
+)
+
+const overlayStyle = computed(() =>
+  dragging.value && dragY.value > 0 ? { opacity: String(backdropOpacity(dragY.value)), transition: 'none' } : undefined,
+)
+
+const close = () => emit('close')
 </script>
 
 <template>
   <Teleport to="body">
-    <Transition name="sheet">
+    <Transition name="sheet" @leave="onLeave">
       <div
         v-if="show"
         class="position-fixed top-0 start-0 end-0 bottom-0 d-flex align-items-end bottom-sheet-overlay"
-        @click="$emit('close')"
+        :style="overlayStyle"
       >
-        <div class="bg-body rounded-top-3 bottom-sheet" @click.stop>
-          <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
-            <h5 class="mb-0">{{ title }}</h5>
-            <button class="btn btn-sm" @click="$emit('close')" aria-label="إغلاق">
-              <IconX size="1.25rem" />
-            </button>
+        <div class="bg-body rounded-top-3 bottom-sheet" :style="panelStyle" v-on-click-outside="close">
+          <!-- No .prevent here: canceling pointerdown would also suppress the
+               compatibility click on touch, breaking the close button. -->
+          <div class="bottom-sheet-handle" @pointerdown="onDragStart">
+            <span class="bottom-sheet-grip d-lg-none" aria-hidden="true"></span>
+            <div class="d-flex justify-content-between align-items-center px-3 pb-3 pt-2 border-bottom">
+              <h5 class="mb-0">{{ title }}</h5>
+              <button class="btn btn-sm" @click="close" aria-label="إغلاق">
+                <IconX size="1.25rem" />
+              </button>
+            </div>
           </div>
 
           <div class="bottom-sheet-body">
@@ -58,6 +136,28 @@ onBeforeUnmount(() => setScroll(false))
   max-height: 85dvh;
   padding-bottom: env(safe-area-inset-bottom);
   overflow: hidden;
+}
+
+.bottom-sheet-handle {
+  /* The handle owns the vertical drag — without this the browser claims the
+     gesture for scrolling and pointermove never fires. */
+  touch-action: none;
+  /* Drags across the title must not start a text selection. */
+  user-select: none;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.bottom-sheet-grip {
+  display: block;
+  width: 2.5rem;
+  height: 0.3rem;
+  margin: 0.6rem auto 0.4rem;
+  border-radius: 999px;
+  background: rgba(var(--bs-secondary-rgb), 0.3);
 }
 
 .bottom-sheet-body {
@@ -99,6 +199,15 @@ onBeforeUnmount(() => setScroll(false))
   .bottom-sheet {
     max-width: 500px;
     border-radius: var(--bs-border-radius-xl) !important;
+  }
+
+  .bottom-sheet-handle {
+    touch-action: auto;
+    cursor: auto;
+
+    &:active {
+      cursor: auto;
+    }
   }
 
   .sheet-leave-active {

@@ -3,6 +3,7 @@ import { RouterLink } from 'vue-router'
 import { ref } from 'vue'
 import { useRadioStore } from '@/features/radio/store'
 import { useActiveNav } from '@/layout/useActiveNav'
+import BottomSheet from '@/shared/ui/BottomSheet.vue'
 
 import {
   IconHome,
@@ -15,78 +16,44 @@ import {
   IconCoins,
   IconAbacus,
   IconSettings,
-  IconX,
 } from '@tabler/icons-vue'
 
 const radio = useRadioStore()
 const showMoreMenu = ref(false)
-const isClosing = ref(false)
 
 const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
-
-const toggleMoreMenu = () => {
-  if (showMoreMenu.value) {
-    closeMoreMenu()
-  } else {
-    showMoreMenu.value = true
-    isClosing.value = false
-  }
-}
-
-const closeMoreMenu = () => {
-  isClosing.value = true
-  setTimeout(() => {
-    showMoreMenu.value = false
-    isClosing.value = false
-  }, 300) // Match animation duration
-}
 </script>
 
 <template>
   <div>
-    <!-- More Menu Overlay -->
-    <div
-      v-if="showMoreMenu"
-      class="position-fixed top-0 start-0 end-0 bottom-0 d-flex align-items-end more-menu-overlay"
-      :class="{ closing: isClosing }"
-      @click="closeMoreMenu"
-    >
-      <div class="bg-body w-100 more-menu" :class="{ closing: isClosing }" @click.stop>
-        <span class="more-menu__grip" aria-hidden="true"></span>
-        <div class="d-flex justify-content-between align-items-center px-4 pt-2 pb-3">
-          <h5 class="mb-0">المزيد</h5>
-          <button class="btn btn-icon btn-flat rounded-circle" @click="closeMoreMenu" aria-label="إغلاق">
-            <IconX size="1.25rem" />
-          </button>
-        </div>
+    <!-- More Menu -->
+    <BottomSheet :show="showMoreMenu" title="المزيد" @close="showMoreMenu = false">
+      <div class="px-3 py-3">
+        <RouterLink :to="{ name: 'qibla' }" class="more-menu-item" @click="showMoreMenu = false">
+          <span class="icon-tile"><IconCompass size="1.25rem" aria-hidden="true" /></span>
+          <span>اتجاه القبلة</span>
+        </RouterLink>
+        <RouterLink :to="{ name: 'zakat' }" class="more-menu-item" @click="showMoreMenu = false">
+          <span class="icon-tile"><IconCoins size="1.25rem" aria-hidden="true" /></span>
+          <span>حاسبة الزكاة</span>
+        </RouterLink>
+        <RouterLink :to="{ name: 'sebha' }" class="more-menu-item" @click="showMoreMenu = false">
+          <span class="icon-tile"><IconAbacus size="1.25rem" aria-hidden="true" /></span>
+          <span>السبحة الإلكترونية</span>
+        </RouterLink>
+        <RouterLink :to="{ name: 'settings' }" class="more-menu-item" @click="showMoreMenu = false">
+          <span class="icon-tile"><IconSettings size="1.25rem" aria-hidden="true" /></span>
+          <span>الإعدادات</span>
+        </RouterLink>
 
-        <div class="px-3 pb-3">
-          <RouterLink :to="{ name: 'qibla' }" class="more-menu-item" @click="closeMoreMenu">
-            <span class="icon-tile"><IconCompass size="1.25rem" aria-hidden="true" /></span>
-            <span>اتجاه القبلة</span>
-          </RouterLink>
-          <RouterLink :to="{ name: 'zakat' }" class="more-menu-item" @click="closeMoreMenu">
-            <span class="icon-tile"><IconCoins size="1.25rem" aria-hidden="true" /></span>
-            <span>حاسبة الزكاة</span>
-          </RouterLink>
-          <RouterLink :to="{ name: 'sebha' }" class="more-menu-item" @click="closeMoreMenu">
-            <span class="icon-tile"><IconAbacus size="1.25rem" aria-hidden="true" /></span>
-            <span>السبحة الإلكترونية</span>
-          </RouterLink>
-          <RouterLink :to="{ name: 'settings' }" class="more-menu-item" @click="closeMoreMenu">
-            <span class="icon-tile"><IconSettings size="1.25rem" aria-hidden="true" /></span>
-            <span>الإعدادات</span>
-          </RouterLink>
+        <hr class="my-2 opacity-25" />
 
-          <hr class="my-2 opacity-25" />
-
-          <a href="https://t.me/rafeeqme" target="_blank" class="more-menu-item" @click="closeMoreMenu">
-            <span class="icon-tile"><IconBrandTelegram size="1.25rem" /></span>
-            <span>قناة التليجرام</span>
-          </a>
-        </div>
+        <a href="https://t.me/rafeeqme" target="_blank" class="more-menu-item" @click="showMoreMenu = false">
+          <span class="icon-tile"><IconBrandTelegram size="1.25rem" /></span>
+          <span>قناة التليجرام</span>
+        </a>
       </div>
-    </div>
+    </BottomSheet>
 
     <!-- Tab Bar -->
     <nav
@@ -120,7 +87,7 @@ const closeMoreMenu = () => {
         type="button"
         class="tab-item bg-transparent border-0"
         :aria-expanded="showMoreMenu"
-        @click="toggleMoreMenu"
+        @click="showMoreMenu = !showMoreMenu"
       >
         <span class="tab-item__icon"><IconDotsCircleHorizontal size="1.4rem" /></span>
         <span class="tab-item__label">المزيد</span>
@@ -229,52 +196,6 @@ const closeMoreMenu = () => {
   }
 }
 
-.more-menu-overlay {
-  background-color: rgba(0, 0, 0, 0.45);
-  z-index: 1030;
-  backdrop-filter: blur(4px);
-  opacity: 1;
-  transition: opacity 0.3s ease-out;
-
-  &.closing {
-    opacity: 0;
-  }
-}
-
-.more-menu {
-  border-radius: var(--bs-border-radius-xl) var(--bs-border-radius-xl) 0 0;
-  padding-bottom: env(safe-area-inset-bottom);
-  /* dvh (not vh) so the cap tracks the *visible* viewport with the URL bar
-     open; scroll inside the panel if large font scales overflow it. */
-  max-height: 70vh;
-  max-height: 70dvh;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  animation: slideUp 0.35s var(--app-ease);
-  /* Keep the panel on its own compositing layer for the whole lifetime so the
-     text isn't re-rasterized (and nudged sub-pixel) when the slide ends. */
-  will-change: transform;
-  backface-visibility: hidden;
-
-  &.closing {
-    animation: none;
-    transform: translateY(100%);
-    opacity: 0;
-    transition:
-      transform 0.3s ease-out,
-      opacity 0.3s ease-out;
-  }
-
-  &__grip {
-    display: block;
-    width: 2.5rem;
-    height: 0.3rem;
-    margin: 0.6rem auto 0.4rem;
-    border-radius: 999px;
-    background: rgba(var(--bs-secondary-rgb), 0.3);
-  }
-}
-
 .more-menu-item {
   display: flex;
   align-items: center;
@@ -313,17 +234,6 @@ const closeMoreMenu = () => {
 
   &.router-link-active {
     color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    transform: translate3d(0, 100%, 0);
-    opacity: 0;
-  }
-  to {
-    transform: translate3d(0, 0, 0);
-    opacity: 1;
   }
 }
 </style>

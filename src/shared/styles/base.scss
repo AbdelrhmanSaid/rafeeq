@@ -92,6 +92,9 @@ body {
   background-image: var(--app-page-bg-image);
   background-repeat: no-repeat;
   background-attachment: fixed;
+  /* The app owns the top-edge pull gesture (usePullToRefresh) — keep the
+     browser's native pull-to-reload and scroll glow out of the way. */
+  overscroll-behavior-y: contain;
 }
 
 ::selection {

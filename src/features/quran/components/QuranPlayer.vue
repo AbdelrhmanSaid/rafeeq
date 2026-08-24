@@ -6,6 +6,13 @@ import { IconPlayerPlay, IconPlayerPause, IconMicrophone2, IconGauge } from '@ta
 import { toArabicNumerals, formatTime, removeSurahPrefix, normalizeQuranicText } from '@/shared/utils/arabic'
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
 import SettingsReciter from '@/features/settings/components/SettingsReciter.vue'
+import {
+  setMediaMetadata,
+  setMediaHandlers,
+  setMediaPlaybackState,
+  setMediaPositionState,
+  clearMediaSession,
+} from '@/shared/utils/mediaSession'
 
 // Render settings cards (the reciter picker) form-only inside the sheet — the
 // sheet provides its own title, so the card chrome would be redundant.
@@ -59,6 +66,44 @@ const ayahLabel = computed(() => {
   return `آية ${toArabicNumerals(ayah.ayah)}`
 })
 
+// Lockscreen / notification player. Position state feeds the OS seekbar, so
+// refresh it whenever time, duration, or rate changes.
+function updateMediaSession() {
+  setMediaMetadata({
+    title: quranStore.surahName ? normalizeQuranicText(quranStore.surahName) : 'تلاوة القرآن الكريم',
+    artist: quranStore.reciter?.name || '',
+  })
+
+  setMediaHandlers({
+    play: tryPlay,
+    pause,
+    stop,
+    seekbackward: () => seekBy(-10),
+    seekforward: () => seekBy(10),
+    seekto: (details) => seekTo(details.seekTime),
+  })
+}
+
+function updateMediaPosition() {
+  setMediaPositionState({
+    duration: duration.value,
+    position: currentTime.value,
+    playbackRate: Number(quranStore.playbackRate),
+  })
+}
+
+function seekBy(delta) {
+  if (audio.value) seekTo(audio.value.currentTime + delta)
+}
+
+function seekTo(time) {
+  if (!audio.value || !Number.isFinite(time)) return
+  audio.value.currentTime = Math.max(0, Math.min(time, duration.value || 0))
+  currentTime.value = audio.value.currentTime
+  quranStore.updateCurrentAyahFromTime(currentTime.value * 1000)
+  updateMediaPosition()
+}
+
 async function tryPlay() {
   if (!audio.value) return
   if (radioStore.isPlaying) radioStore.stop()
@@ -67,9 +112,19 @@ async function tryPlay() {
   try {
     await audio.value.play()
     isPlaying.value = true
+    updateMediaSession()
+    setMediaPlaybackState('playing')
+    updateMediaPosition()
   } catch {
     isPlaying.value = false
   }
+}
+
+function pause() {
+  if (!audio.value) return
+  audio.value.pause()
+  isPlaying.value = false
+  setMediaPlaybackState('paused')
 }
 
 function stop() {
@@ -80,13 +135,13 @@ function stop() {
   isPlaying.value = false
   currentTime.value = 0
   quranStore.resetAyahTracking()
+  setMediaPlaybackState('paused')
 }
 
 async function togglePlayPause() {
   if (!audio.value) return
   if (isPlaying.value) {
-    audio.value.pause()
-    isPlaying.value = false
+    pause()
   } else {
     await tryPlay()
   }
@@ -111,6 +166,7 @@ function onTimeUpdate() {
   currentTime.value = audio.value.currentTime
   if (isPlaying.value) {
     quranStore.updateCurrentAyahFromTime(currentTime.value * 1000)
+    updateMediaPosition()
   }
 }
 
@@ -124,7 +180,12 @@ function loadSource(url) {
 
 watch(() => quranStore.surahAudioUrl, loadSource)
 onMounted(() => loadSource(quranStore.surahAudioUrl))
-onUnmounted(() => audio.value?.pause())
+onUnmounted(() => {
+  audio.value?.pause()
+
+  // Leave the lockscreen player only if the radio hasn't taken it over.
+  if (!radioStore.isPlaying) clearMediaSession()
+})
 
 defineExpose({ seekToAyah })
 </script>
