@@ -92,8 +92,9 @@ body {
   background-image: var(--app-page-bg-image);
   background-repeat: no-repeat;
   background-attachment: fixed;
-  /* The app owns the top-edge pull gesture (usePullToRefresh) — keep the
-     browser's native pull-to-reload and scroll glow out of the way. */
+  /* Deliberately suppress the browser's native pull-to-reload and top-edge
+     scroll glow so the standalone PWA feels like a native app. This also
+     removes pull-to-refresh in regular browser tabs. */
   overscroll-behavior-y: contain;
 }
 

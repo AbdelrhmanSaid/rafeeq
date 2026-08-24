@@ -24,8 +24,9 @@ const props = defineProps({
 
 const hasPropsCoords = computed(() => props.lat != null && props.long != null)
 
-// Reactive state for current time
-const now = useNow()
+// Reactive state for current time. The countdown only displays seconds, so a
+// 1s tick is enough — the default rAF interval would recompute phases ~60fps.
+const now = useNow({ interval: 1000 })
 
 // Check if the user is online
 const online = useOnline()
@@ -76,9 +77,6 @@ const options = {
 // Fetch prayer timings
 const { isFetching, data: timings, error, execute } = useFetch(endpoint, options).json().get()
 const { isRecoveringOnReconnect } = useReconnectExecute(online, execute)
-
-// Lets the home view's pull-to-refresh re-request today's timings.
-defineExpose({ refresh: execute })
 
 // Format time
 const formatTiming = (time) => {
