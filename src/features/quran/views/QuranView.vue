@@ -55,7 +55,7 @@ const { bookmark } = useQuranBookmark()
           :to="{ name: 'quran-surah', params: { surah: item.id } }"
           class="stretched-link text-decoration-none text-reset d-flex align-items-center gap-3 min-w-0 flex-grow-1"
         >
-          <span class="surah-index">{{ toArabicNumerals(item.id) }}</span>
+          <span class="list-index">{{ toArabicNumerals(item.id) }}</span>
           <span class="d-flex flex-column min-w-0">
             <span class="fw-medium text-truncate">{{ item.name }}</span>
             <small class="text-body-secondary text-truncate">
@@ -69,20 +69,6 @@ const { bookmark } = useQuranBookmark()
 </template>
 
 <style lang="scss" scoped>
-/* Surah number in a muted circle badge, same language as the sunnah rows. */
-.surah-index {
-  display: grid;
-  place-items: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: rgba(var(--bs-secondary-rgb), 0.12);
-  font-size: 0.875rem;
-  font-variant-numeric: tabular-nums;
-  color: var(--bs-secondary-color);
-}
-
 .bookmark-card {
   display: flex;
   align-items: center;

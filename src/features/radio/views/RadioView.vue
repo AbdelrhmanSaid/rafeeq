@@ -49,9 +49,12 @@ const radiosList = computed(() =>
       </template>
 
       <template #default="{ item, index }">
-        <RouterLink :to="{ name: 'radio-station', params: { slug: item.slug } }" class="flex-grow-1 radio-link">
-          <span class="row-index me-2">{{ toArabicNumerals(index + 1) }}.</span>
-          <span>{{ item.name }}</span>
+        <RouterLink
+          :to="{ name: 'radio-station', params: { slug: item.slug } }"
+          class="flex-grow-1 radio-link d-flex align-items-center gap-3 min-w-0"
+        >
+          <span class="list-index">{{ toArabicNumerals(index + 1) }}</span>
+          <span class="fw-medium text-truncate">{{ item.name }}</span>
         </RouterLink>
       </template>
 
@@ -84,16 +87,6 @@ const radiosList = computed(() =>
 .radio-link {
   color: inherit;
   text-decoration: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Quiet inline station number, matching the azkar/quran list indexes. */
-.row-index {
-  font-size: 0.875rem;
-  font-variant-numeric: tabular-nums;
-  color: var(--bs-secondary-color);
 }
 
 :deep(.list-group-item) {
