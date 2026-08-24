@@ -117,4 +117,11 @@ onBeforeRouteLeave(async () => {
   content-visibility: auto;
   contain-intrinsic-size: auto 300px;
 }
+
+/* content-visibility implies paint containment, which clips the card's action
+   dropdown at the card edge (and traps its z-index under the next card). Lift
+   it only while a dropdown is open so the lazy rendering stays for the rest. */
+.zekr-card-lazy:has(.dropdown-menu.show) {
+  content-visibility: visible;
+}
 </style>
