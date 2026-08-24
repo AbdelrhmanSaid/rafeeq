@@ -77,7 +77,9 @@ const exportAsImage = () => {
   toast.promise(
     async () => {
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      return exportComponent(ZekrImage, props, 'zekr')
+      // expectedWidth matches ZekrImage's inline width so an unstyled or
+      // half-mounted card errors instead of exporting a distorted image
+      return exportComponent(ZekrImage, props, 'zekr', { expectedWidth: 512 })
     },
     {
       loading: 'جاري التصدير...',

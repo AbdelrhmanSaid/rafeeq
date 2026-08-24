@@ -9,9 +9,12 @@ import html2canvas from 'html2canvas-pro'
 const MAX_CANVAS_AREA = 16000000
 
 /**
- * The export card always contains dark text on a light background, so an
- * (almost) all-white capture means rasterization failed, not a valid image.
- * Downsample into a small probe canvas to keep the pixel scan cheap.
+ * A real export is mostly ink: the card fills the frame with an off-white
+ * (#fffdf9) ground plus dark text, so nearly every pixel sits below pure
+ * white. A failed rasterization is the inverse — a white canvas with at most
+ * a stray ornament — so require a meaningful share of non-white pixels
+ * rather than hunting for a single dark one (a lone surviving logo used to
+ * sneak past that). Downsample into a probe canvas to keep the scan cheap.
  */
 function isCanvasBlank(canvas) {
   if (!canvas || !canvas.width || !canvas.height) return true
@@ -26,10 +29,11 @@ function isCanvasBlank(canvas) {
     ctx.drawImage(canvas, 0, 0, 64, 64)
 
     const data = ctx.getImageData(0, 0, 64, 64).data
+    let content = 0
     for (let i = 0; i < data.length; i += 4) {
-      if (data[i] < 245 || data[i + 1] < 245 || data[i + 2] < 245) return false
+      if (data[i] < 250 || data[i + 1] < 250 || data[i + 2] < 250) content++
     }
-    return true
+    return content / (data.length / 4) < 0.005
   } catch {
     // Reading pixels can throw (e.g. tainted canvas) — let toDataURL be the
     // one to surface that error instead of misreporting a blank export.
@@ -46,9 +50,10 @@ function isCanvasBlank(canvas) {
  * @param {Object} options.canvas - html2canvas options
  * @param {string} options.format - Image format ('png' | 'jpeg' | 'webp', default: 'png')
  * @param {number} options.quality - Image quality for jpeg/webp (0-1, default: 0.92)
+ * @param {number} options.expectedWidth - Sanity width (px) the mounted component must reach before capture
  */
 export async function exportComponent(component, props = {}, filePrefix = 'export', options = {}) {
-  const { canvas: canvasOptions = {}, format = 'png', quality = 0.92 } = options || {}
+  const { canvas: canvasOptions = {}, format = 'png', quality = 0.92, expectedWidth } = options || {}
 
   // Create temporary container. Keep it position: fixed — fixed boxes never
   // contribute to scrollable overflow, while an absolute box hanging off the
@@ -71,6 +76,21 @@ export async function exportComponent(component, props = {}, filePrefix = 'expor
     await document.fonts.ready
 
     const element = container.firstChild
+
+    // A component that hasn't reached its designed width rendered without its
+    // styles (e.g. a stale service-worker update left the app with CSS whose
+    // scoped hashes no longer match) — capturing it would export garbage, so
+    // give late styles a moment to apply, then fail into the error toast.
+    if (expectedWidth) {
+      const deadline = Date.now() + 3000
+      while (Math.abs(element.clientWidth - expectedWidth) > 1) {
+        if (Date.now() > deadline) {
+          throw new Error(`Export component rendered at ${element.clientWidth}px instead of ${expectedWidth}px`)
+        }
+        await new Promise((resolve) => setTimeout(resolve, 100))
+      }
+    }
+
     const minimumWidth = 1080 // 1080px is the minimum width for the image
     const actualWidth = element.clientWidth || 512
     const actualHeight = element.clientHeight || actualWidth
