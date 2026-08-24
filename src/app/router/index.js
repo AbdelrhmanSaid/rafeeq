@@ -19,6 +19,9 @@ const router = createRouter({
   // the page to the top (also switches the browser to manual restoration).
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) return savedPosition
+    // Param-only switches inside a tabbed view (e.g. zakat's :tab) are
+    // in-page state changes — leave the scroll position alone.
+    if (to.name === from.name && to.meta.paramTabs) return
     return { top: 0, behavior: 'smooth' }
   },
   routes: withEmbedAliases([
@@ -110,10 +113,11 @@ const router = createRouter({
     },
 
     {
-      path: '/zakat',
+      path: '/zakat/:tab(money|gold|silver|livestock|crops|business)?',
       name: 'zakat',
       component: () => import('@/features/zakat/views/ZakatView.vue'),
       meta: {
+        paramTabs: true,
         title: 'حساب الزكاة',
         description: 'احسب زكاة مالك، الذهب، والفضة بسهولة ودقة وفقاً للضوابط الشرعية.',
         keywords: ['زكاة', 'حساب الزكاة', 'صدقة', 'نصاب'],

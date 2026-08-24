@@ -2,7 +2,7 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import { IconArrowLeft, IconArrowRight } from '@tabler/icons-vue'
 import { useOnline } from '@vueuse/core'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useRouteParams } from '@vueuse/router'
 import { toast } from 'vue-sonner'
 
@@ -17,11 +17,14 @@ import { useQuranStore } from '@/features/quran/store'
 import { useQuranBookmark } from '@/features/quran/composables/useQuranBookmark'
 import { useAsyncData } from '@/shared/composables/useAsyncData'
 import { usePageMeta } from '@/shared/composables/usePageMeta'
+import { useScreenWakeLock } from '@/shared/composables/useScreenWakeLock'
+import { useSwipeNavigation } from '@/shared/composables/useSwipeNavigation'
 import { toArabicNumerals, removeBismillah, normalizeQuranicText } from '@/shared/utils/arabic'
 import { fetchSurah } from '@/features/quran/api'
 
 const online = useOnline()
 const route = useRoute()
+const router = useRouter()
 const surahId = useRouteParams('surah')
 const quranStore = useQuranStore()
 const { isBookmarked, toggleBookmark } = useQuranBookmark()
@@ -122,6 +125,8 @@ const scrollToAyah = (ayahNumber) => {
   el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
 
+const ayatRef = ref(null)
+
 // When arriving with ?ayah=N (e.g. from the bookmark card), bring that ayah
 // into view once the surah has rendered.
 watch(
@@ -132,6 +137,19 @@ watch(
   },
   { immediate: true },
 )
+
+// Swipe through surahs like flipping mushaf pages (see useSwipeNavigation for
+// the direction mapping).
+const goToSurah = (number) => {
+  if (number >= 1 && number <= 114) router.push({ name: 'quran-surah', params: { surah: number } })
+}
+
+useSwipeNavigation(ayatRef, {
+  onNext: () => goToSurah(surahNumber.value + 1),
+  onPrev: () => goToSurah(surahNumber.value - 1),
+})
+
+useScreenWakeLock()
 </script>
 
 <template>
@@ -146,23 +164,31 @@ watch(
       <!-- Audio Player -->
       <AudioPlayer v-if="online" ref="playerRef" />
 
-      <div class="ayat font-quran mb-4">
-        <span class="basmallah" v-if="surahId != 9">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
+      <p class="small text-secondary text-center m-0">اضغط على أي آية لعرض التفسير والاستماع والمزيد</p>
 
-        <template v-for="(ayah, index) in ayat" :key="ayah.number">
-          <span
-            :id="`ayah-${ayah.numberInSurah}`"
-            class="ayah clickable-ayah"
-            :class="{ 'current-ayah': isCurrentVerse(ayah), 'bookmarked-ayah': isBookmarkedVerse(ayah) }"
-            @click="activeAyah = ayah"
-            :title="`خيارات الآية ${toArabicNumerals(ayah.numberInSurah)}`"
-            >{{ ayah.text }}</span
-          >
-          <span class="ayah-number" aria-hidden="true">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
-          <div v-if="index < ayat.length - 1 && ayah.page !== ayat[index + 1].page" class="page-separator">
-            <span class="page-number">{{ toArabicNumerals(ayah.page) }}</span>
-          </div>
-        </template>
+      <div class="card my-3" ref="ayatRef">
+        <div class="ayat card-body font-quran mb-4">
+          <span class="basmallah" v-if="surahId != 9">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
+
+          <template v-for="(ayah, index) in ayat" :key="ayah.number">
+            <span
+              :id="`ayah-${ayah.numberInSurah}`"
+              class="ayah clickable-ayah"
+              :class="{
+                'current-ayah': isCurrentVerse(ayah),
+                'bookmarked-ayah': isBookmarkedVerse(ayah),
+                'selected-ayah': activeAyah?.number === ayah.number,
+              }"
+              @click="activeAyah = ayah"
+              :title="`خيارات الآية ${toArabicNumerals(ayah.numberInSurah)}`"
+              >{{ ayah.text }}</span
+            >
+            <span class="ayah-number" aria-hidden="true">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
+            <div v-if="index < ayat.length - 1 && ayah.page !== ayat[index + 1].page" class="page-separator">
+              <span class="page-number">{{ toArabicNumerals(ayah.page) }}</span>
+            </div>
+          </template>
+        </div>
       </div>
 
       <div class="d-flex justify-content-center align-items-center gap-2">
@@ -220,9 +246,6 @@ watch(
   max-width: 700px;
 
   .ayat {
-    padding: 1rem;
-    border-radius: var(--bs-border-radius-lg);
-    border: 1px solid var(--bs-border-color);
     text-align: justify;
     text-align-last: center;
     text-justify: inter-word;
@@ -273,22 +296,44 @@ watch(
 
     .clickable-ayah {
       cursor: pointer;
+      /* Quick repeated taps on an ayah must not trigger double-tap zoom. */
+      touch-action: manipulation;
+    }
+
+    // Always on (invisible without a background): toggling clone with the
+    // highlight classes nudges the fragment layout by a subpixel.
+    .clickable-ayah {
+      border-radius: var(--bs-border-radius-sm);
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
     }
 
     .current-ayah {
       background-color: var(--bs-secondary-bg);
+      // Fake the horizontal padding with offset shadow copies: real padding
+      // widens the fragments and reflows the whole justified page every time
+      // the highlight moves to the next ayah.
+      box-shadow:
+        0.25rem 0 0 var(--bs-secondary-bg),
+        -0.25rem 0 0 var(--bs-secondary-bg);
+    }
+
+    // Ayah picked for the action sheet — clear "this is what I tapped" state.
+    .selected-ayah {
+      background-color: var(--app-tint-strong);
+      box-shadow:
+        0.25rem 0 0 var(--app-tint-strong),
+        -0.25rem 0 0 var(--app-tint-strong);
     }
 
     .bookmarked-ayah {
       background-color: rgba(var(--bs-primary-rgb), 0.12);
       // Inset (not outset) so the outline stays inside each line fragment.
       box-shadow: inset 0 0 0 1px rgba(var(--bs-primary-rgb), 0.35);
-      border-radius: var(--bs-border-radius-sm);
       // Horizontal padding only — vertical padding grows fragment boxes and
-      // reintroduces overlap even with the taller line-height above.
+      // reintroduces overlap even with the taller line-height above. Bookmarks
+      // only toggle on user action, so their one-off reflow is fine.
       padding: 0 0.25rem;
-      box-decoration-break: clone;
-      -webkit-box-decoration-break: clone;
     }
   }
 }

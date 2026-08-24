@@ -3,6 +3,7 @@ import { RouterView, useRoute } from 'vue-router'
 import Navbar from '@/layout/Navbar.vue'
 import Footer from '@/layout/Footer.vue'
 import TabBar from '@/layout/TabBar.vue'
+import InstallBanner from '@/app/pwa/InstallBanner.vue'
 import { IconWifiOff } from '@tabler/icons-vue'
 import { computed, ref, watch } from 'vue'
 import { useOnline } from '@vueuse/core'
@@ -90,6 +91,9 @@ const updateSW = registerSW({
 
     <!-- Mobile TabBar -->
     <TabBar class="d-block d-md-none" v-if="!isEmbedRoute" />
+
+    <!-- Floating PWA install prompt -->
+    <InstallBanner v-if="!isEmbedRoute" />
   </div>
 
   <!-- Toast -->
@@ -97,6 +101,7 @@ const updateSW = registerSW({
     :theme="themeStore.mode"
     position="bottom-left"
     offset="20px"
+    :mobile-offset="{ bottom: 'calc(var(--navbar-height) + env(safe-area-inset-bottom, 0px) + 12px)' }"
     :toast-options="{
       style: {
         gap: '20px',
@@ -107,9 +112,23 @@ const updateSW = registerSW({
 </template>
 
 <style lang="scss" scoped>
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  /* viewport-fit=cover lets content reach the notch in landscape — inset the
+     shell by the physical side cutouts. Physical (not logical) on purpose;
+     the rtlcss build must not flip them. */
+  /*! rtl:begin:ignore */
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  /*! rtl:end:ignore */
+}
+
 .offline-banner {
   min-height: 50px;
-  background-color: #dc3545;
+  background: linear-gradient(90deg, #c62828, #dc3545);
   padding: 0.75rem 0;
   position: sticky;
   top: 0;
@@ -122,23 +141,24 @@ const updateSW = registerSW({
 }
 
 .main-content {
-  min-height: calc(100vh - var(--navbar-height)); /* Adjust for navbar and footer on desktop */
-  padding-bottom: var(--navbar-height);
+  flex-grow: 1;
+  /* Reserve the tab bar height *plus* the iPhone home-indicator inset — the
+     bar grows by the safe area, so a fixed 70px lets content hide behind it. */
+  padding-bottom: calc(var(--navbar-height) + env(safe-area-inset-bottom));
 }
 
 /* Embed adjustments */
 .main-content-embed .main-content {
   min-height: 100vh;
+  min-height: 100dvh;
   padding-bottom: unset;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Desktop adjustments */
-@media (min-width: 992px) {
+@media (min-width: 768px) {
   .main-content {
-    min-height: calc(100vh - 400px);
     padding-bottom: 0;
   }
 }

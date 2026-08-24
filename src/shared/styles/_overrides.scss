@@ -14,6 +14,10 @@ html[dir='rtl'],
   --toast-button-margin-end: 0 !important;
 }
 
+.bg-body {
+  background-color: var(--bs-body-bg) !important;
+}
+
 /* Keep Bootstrap primary buttons in sync with runtime primary color overrides. */
 .btn-primary {
   --bs-btn-color: #fff;
@@ -46,11 +50,82 @@ html[dir='rtl'],
   --bs-btn-disabled-border-color: var(--bs-primary);
 }
 
-/* On dropdown item hover, background color should be rgba from secondary color */
-.dropdown-item:hover,
-.dropdown-item:focus {
-  background-color: rgba(var(--bs-secondary-rgb), 0.1);
-  color: var(--bs-body-color);
+/* Dropdowns — same surface language as cards: raised, hairline, soft rows. */
+.dropdown-menu {
+  --bs-dropdown-bg: var(--app-surface);
+  --bs-dropdown-border-color: var(--app-hairline);
+  --bs-dropdown-border-radius: var(--bs-border-radius-lg);
+  --bs-dropdown-padding-x: 0.5rem;
+  --bs-dropdown-padding-y: 0.5rem;
+  --bs-dropdown-item-padding-x: 0.75rem;
+  --bs-dropdown-item-padding-y: 0.55rem;
+  --bs-dropdown-link-color: var(--bs-body-color);
+  --bs-dropdown-link-hover-color: var(--bs-body-color);
+  --bs-dropdown-link-hover-bg: var(--app-surface-hover);
+  --bs-dropdown-link-active-color: var(--bs-primary);
+  --bs-dropdown-link-active-bg: var(--app-tint);
+  --bs-dropdown-divider-bg: var(--app-hairline);
+  --bs-dropdown-divider-margin-y: 0.4rem;
+  min-width: 12.5rem;
+  box-shadow: var(--app-shadow-card-hover);
+  /* Popper positions the menu with an inline `transform`, and any scale /
+     transform animation re-rasterizes the text (visible sub-pixel jitter), so
+     the entrance only fades. */
+  animation: dropdown-in 0.16s ease-out;
+}
+
+[data-bs-theme='dark'] .dropdown-menu {
+  --bs-dropdown-link-active-color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  border-radius: var(--bs-border-radius);
+  font-weight: 500;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+
+  svg {
+    flex-shrink: 0;
+    color: var(--bs-secondary-color);
+    transition: color 0.15s ease;
+  }
+
+  &:hover svg,
+  &:focus svg,
+  &.active svg,
+  &:active svg {
+    color: var(--bs-primary);
+  }
+}
+
+[data-bs-theme='dark'] .dropdown-item {
+  &:hover svg,
+  &:focus svg,
+  &.active svg,
+  &:active svg {
+    color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
+  }
+}
+
+/* Quieter caret on toggles. */
+.dropdown-toggle::after {
+  margin-inline-start: 0.4em;
+  vertical-align: 0.15em;
+  opacity: 0.6;
+}
+
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* Keep progress bar in sync with runtime primary color. */
@@ -58,6 +133,40 @@ html[dir='rtl'],
 .progress-stacked {
   --bs-progress-bar-bg: var(--bs-primary);
   --bs-progress-bar-color: #fff;
+}
+
+/* Keep range slider thumbs in sync with runtime primary color — Bootstrap bakes
+   the compile-time $primary into the thumb, so overrides never reached it. */
+.form-range {
+  &::-webkit-slider-thumb {
+    background-color: var(--bs-primary);
+
+    &:active {
+      background-color: color-mix(in srgb, var(--bs-primary) 30%, #fff);
+    }
+  }
+
+  &::-moz-range-thumb {
+    background-color: var(--bs-primary);
+
+    &:active {
+      background-color: color-mix(in srgb, var(--bs-primary) 30%, #fff);
+    }
+  }
+
+  &:focus {
+    &::-webkit-slider-thumb {
+      box-shadow:
+        0 0 0 1px var(--bs-body-bg),
+        0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+    }
+
+    &::-moz-range-thumb {
+      box-shadow:
+        0 0 0 1px var(--bs-body-bg),
+        0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+    }
+  }
 }
 
 /* Keep checkbox/radio checked + focus outline in sync with runtime primary color. */
@@ -73,11 +182,16 @@ html[dir='rtl'],
   box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
 }
 
-/* Keep dropdown active item in sync with runtime primary color. */
-.dropdown-menu {
-  --bs-dropdown-link-active-bg: var(--bs-primary);
-  --bs-dropdown-link-active-color: #fff;
+/* Browsers force numeric inputs LTR; keep their text and placeholder on the
+   reading side. The build runs rtlcss, so the values below must not be
+   flipped. */
+/*! rtl:begin:ignore */
+html[dir='rtl'] input[type='number'],
+html[dir='rtl'] input[type='number']::placeholder {
+  direction: rtl;
+  text-align: right;
 }
+/*! rtl:end:ignore */
 
 /* Keep card border color in sync with runtime border color. */
 .card {

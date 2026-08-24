@@ -45,15 +45,15 @@ export const useThemeStore = defineStore('theme', () => {
   }
 
   function applyQueryOverrides({ mode: modeParam, fg, bg } = {}) {
-    const nextMode = modeParam === 'light' || modeParam === 'dark' ? modeParam : null
-    const nextFg = fg || null
-    const nextBg = bg || null
+    // Keep only the keys actually present in the query — storing null for the
+    // absent ones would overwrite (and so clear) the user's saved colors when
+    // the watchEffect merges the overrides in.
+    const overrides = {}
+    if (modeParam === 'light' || modeParam === 'dark') overrides.mode = modeParam
+    if (fg) overrides.fg = fg
+    if (bg) overrides.bg = bg
 
-    if (nextMode || nextFg || nextBg) {
-      queryOverrides.value = { mode: nextMode, fg: nextFg, bg: nextBg }
-    } else {
-      queryOverrides.value = null
-    }
+    queryOverrides.value = Object.keys(overrides).length ? overrides : null
   }
 
   function clearQueryOverrides() {
@@ -72,8 +72,8 @@ export const useThemeStore = defineStore('theme', () => {
     }
 
     if (theme.mode) applyMode(theme.mode)
-    if (theme.fg) applyPrimaryColor(theme.fg)
-    if (theme.bg) applyBgColor(theme.bg)
+    applyPrimaryColor(theme.fg)
+    applyBgColor(theme.bg)
 
     nextTick(syncMetaThemeColor)
   })

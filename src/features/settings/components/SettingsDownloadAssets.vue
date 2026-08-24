@@ -103,12 +103,12 @@ const handleAssetAction = (asset) => {
 </script>
 
 <template>
-  <div class="download-manager">
+  <div class="download-manager card">
     <!-- Header -->
     <div class="dm-header">
       <div class="dm-header-content">
         <div class="dm-title">
-          <span class="dm-title-icon">
+          <span class="icon-tile dm-title-icon">
             <IconCloudDownload :size="20" />
           </span>
           <div>
@@ -148,38 +148,52 @@ const handleAssetAction = (asset) => {
 
     <!-- Toolbar -->
     <div class="dm-toolbar">
-      <div class="dm-filters">
-        <button class="dm-filter-btn" :class="{ active: filterType === 'all' }" @click="filterType = 'all'">
-          الكل
-          <span class="dm-filter-count">{{ toArabicNumerals(totalAssets) }}</span>
+      <div class="tab-pills dm-filters">
+        <button class="tab-pill dm-filter-btn" :class="{ active: filterType === 'all' }" @click="filterType = 'all'">
+          <span>الكل</span>
+          <span class="chip chip-muted dm-filter-count">{{ toArabicNumerals(totalAssets) }}</span>
         </button>
-        <button class="dm-filter-btn" :class="{ active: filterType === 'surah' }" @click="filterType = 'surah'">
-          <IconBook2 :size="14" />
-          السور
-          <span class="dm-filter-count">{{ toArabicNumerals(surahCount) }}</span>
+        <button
+          class="tab-pill dm-filter-btn"
+          :class="{ active: filterType === 'surah' }"
+          @click="filterType = 'surah'"
+        >
+          <IconBook2 :size="16" />
+          <span>السور</span>
+          <span class="chip chip-muted dm-filter-count">{{ toArabicNumerals(surahCount) }}</span>
         </button>
-        <button class="dm-filter-btn" :class="{ active: filterType === 'azkar' }" @click="filterType = 'azkar'">
-          <IconSparkles :size="14" />
-          الأذكار
-          <span class="dm-filter-count">{{ toArabicNumerals(azkarCount) }}</span>
+        <button
+          class="tab-pill dm-filter-btn"
+          :class="{ active: filterType === 'azkar' }"
+          @click="filterType = 'azkar'"
+        >
+          <IconSparkles :size="16" />
+          <span>الأذكار</span>
+          <span class="chip chip-muted dm-filter-count">{{ toArabicNumerals(azkarCount) }}</span>
         </button>
       </div>
 
       <div class="dm-actions">
         <button
           v-if="isDownloading || isPaused"
-          class="dm-action-btn"
+          class="btn btn-soft btn-icon dm-action-btn"
           @click="isPaused ? resumeDownloads() : pauseDownloads()"
+          :title="isPaused ? 'استئناف' : 'إيقاف مؤقت'"
         >
           <component :is="isPaused ? IconPlayerPlay : IconPlayerPause" :size="16" />
         </button>
 
-        <button v-if="pendingCount > 0" class="dm-action-btn" @click="cancelAllDownloads" title="إلغاء">
+        <button
+          v-if="pendingCount > 0"
+          class="btn btn-soft btn-icon dm-action-btn"
+          @click="cancelAllDownloads"
+          title="إلغاء"
+        >
           <IconX :size="16" />
         </button>
 
         <button
-          class="dm-action-btn danger"
+          class="btn btn-soft btn-icon dm-action-btn dm-action-btn--danger"
           @click="handleRemoveAll"
           :disabled="isDownloading || downloadedCount === 0"
           title="حذف الكل"
@@ -188,7 +202,7 @@ const handleAssetAction = (asset) => {
         </button>
 
         <button
-          class="dm-action-btn primary"
+          class="btn btn-primary d-inline-flex align-items-center gap-2 dm-action-btn"
           @click="queueAllAssets"
           :disabled="isDownloading || !online || isCompleted"
         >
@@ -219,17 +233,14 @@ const handleAssetAction = (asset) => {
 
 <style scoped>
 .download-manager {
-  background: var(--bs-card-bg, var(--bs-body-bg));
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
   overflow: hidden;
   contain: layout style;
 }
 
 /* Header */
 .dm-header {
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--bs-border-color);
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--app-hairline);
 }
 
 .dm-header-content {
@@ -246,15 +257,11 @@ const handleAssetAction = (asset) => {
 }
 
 .dm-title-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  flex-shrink: 0;
-  border-radius: var(--bs-border-radius);
-  background: color-mix(in srgb, var(--bs-primary) 12%, transparent);
   color: var(--bs-primary);
+}
+
+[data-bs-theme='dark'] .dm-title-icon {
+  color: color-mix(in srgb, var(--bs-primary) 28%, #fff);
 }
 
 .dm-title h3 {
@@ -284,6 +291,7 @@ const handleAssetAction = (asset) => {
 .dm-stats-count {
   font-size: 1.25rem;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .dm-stats-label {
@@ -297,10 +305,10 @@ const handleAssetAction = (asset) => {
   align-items: center;
   gap: 0.5rem;
   margin-top: 1rem;
-  padding: 0.5rem 0.75rem;
-  background: color-mix(in srgb, var(--bs-primary) 10%, transparent);
+  padding: 0.55rem 0.85rem;
+  background: var(--app-tint);
   color: var(--bs-body-color);
-  border-radius: var(--bs-border-radius-sm);
+  border-radius: var(--bs-border-radius);
   font-size: 0.85rem;
   overflow: hidden;
   min-width: 0;
@@ -324,50 +332,32 @@ const handleAssetAction = (asset) => {
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--bs-border-color);
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--app-hairline);
   flex-wrap: wrap;
 }
 
 .dm-filters {
-  display: flex;
-  gap: 0.25rem;
+  padding-bottom: 0;
+  margin-inline: 0;
+  padding-inline: 0;
 }
 
 .dm-filter-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
   padding: 0.4rem 0.75rem;
-  border: none;
-  background: transparent;
-  color: var(--bs-secondary-color);
+  border-radius: 999px;
   font-size: 0.85rem;
-  border-radius: var(--bs-border-radius-sm);
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-
-.dm-filter-btn:hover {
-  background: rgba(var(--bs-secondary-rgb), 0.1);
-}
-
-.dm-filter-btn.active {
-  background: var(--bs-primary);
-  color: white;
 }
 
 .dm-filter-count {
-  font-size: 0.75rem;
-  padding: 0.1rem 0.4rem;
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: var(--bs-border-radius-pill);
+  padding-block: 0.05rem;
+  font-size: 0.72rem;
 }
 
 .dm-filter-btn.active .dm-filter-count {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--app-tint-strong);
+  color: inherit;
 }
 
 .dm-actions {
@@ -376,51 +366,25 @@ const handleAssetAction = (asset) => {
 }
 
 .dm-action-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.4rem 0.6rem;
-  border: 1px solid var(--bs-border-color);
-  background: var(--bs-body-bg);
-  color: var(--bs-body-color);
-  font-size: 0.85rem;
-  border-radius: var(--bs-border-radius-sm);
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s,
-    border-color 0.15s;
+  border-radius: 999px;
 }
 
-.dm-action-btn:hover:not(:disabled) {
-  background: rgba(var(--bs-secondary-rgb), 0.1);
+.dm-action-btn.btn-icon {
+  width: 2.5rem;
+  height: 2.5rem;
 }
 
-.dm-action-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.dm-action-btn.primary {
-  background: var(--bs-primary);
-  border-color: var(--bs-primary);
-  color: white;
-}
-
-.dm-action-btn.primary:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--bs-primary) 85%, #000);
-}
-
-.dm-action-btn.danger:hover:not(:disabled) {
-  background: var(--bs-danger);
-  border-color: var(--bs-danger);
-  color: white;
+.dm-action-btn--danger:hover:not(:disabled) {
+  --bs-btn-hover-bg: var(--bs-danger);
+  --bs-btn-hover-color: #fff;
 }
 
 /* List */
 .dm-list {
   max-height: 300px;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--app-hairline-strong) transparent;
 }
 
 /* Completed Banner */
@@ -430,8 +394,8 @@ const handleAssetAction = (asset) => {
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem;
-  background: var(--bs-success);
-  color: white;
+  background: color-mix(in srgb, var(--bs-success) 14%, transparent);
+  color: var(--bs-success-text-emphasis);
   font-size: 0.85rem;
   font-weight: 500;
 }
@@ -448,23 +412,5 @@ const handleAssetAction = (asset) => {
   to {
     transform: rotate(360deg);
   }
-}
-
-/* Scrollbar */
-.dm-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.dm-list::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.dm-list::-webkit-scrollbar-thumb {
-  background: var(--bs-border-color);
-  border-radius: 3px;
-}
-
-.dm-list::-webkit-scrollbar-thumb:hover {
-  background: var(--bs-secondary-color);
 }
 </style>

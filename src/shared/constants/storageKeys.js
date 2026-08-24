@@ -25,6 +25,8 @@ export const STORAGE_KEYS = {
   currentTafseer: 'currentTafseer',
   playbackRate: 'quran-playback-rate',
 
+  installPromptDismissed: 'install-prompt-dismissed',
+
   azkarProgress: 'azkar-progress',
   azkarFavorites: 'azkarFavorites',
   quranFavorites: 'quranFavorites',

@@ -55,10 +55,10 @@ const formatRakaa = (value) => {
         <div
           v-for="(prayer, index) in prayers"
           :key="index"
-          class="d-flex align-items-center justify-content-between px-3 py-2 rounded-2 small border"
+          class="d-flex align-items-center justify-content-between px-3 py-2 small sunnah-row"
         >
           <div class="d-flex align-items-center gap-2">
-            <span class="icon-container text-secondary">
+            <span class="icon-container text-primary">
               <PrayerIcon :name="prayer.icon" />
             </span>
             <span class="fw-semibold">{{ prayer.name }}</span>
@@ -78,10 +78,10 @@ const formatRakaa = (value) => {
     <!-- Cards layout (lg and up) -->
     <div class="d-none d-lg-flex row row-cols-lg-5 g-2">
       <div v-for="(prayer, index) in prayers" :key="index" class="col">
-        <div class="card h-100">
+        <div class="card h-100 sunnah-card">
           <div class="card-body p-3">
             <div class="d-flex align-items-center gap-2 mb-3">
-              <span class="icon-circle text-secondary">
+              <span class="icon-circle text-primary">
                 <PrayerIcon :name="prayer.icon" />
               </span>
               <h3 class="card-title mb-0 fs-6 fw-semibold">{{ prayer.name }}</h3>
@@ -109,6 +109,24 @@ const formatRakaa = (value) => {
 </template>
 
 <style lang="scss" scoped>
+.sunnah-row {
+  border: 1px solid var(--app-hairline);
+  border-radius: var(--bs-border-radius);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-card);
+}
+
+.sunnah-card {
+  transition:
+    transform 0.25s var(--app-ease),
+    box-shadow 0.25s var(--app-ease);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--app-shadow-card-hover);
+  }
+}
+
 .rakaa-col {
   width: 4.5rem;
   text-align: center;

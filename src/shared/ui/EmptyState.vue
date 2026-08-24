@@ -8,7 +8,9 @@ defineProps({
 
 <template>
   <div class="py-5 text-center">
-    <IconMoodEmpty size="2.5rem" />
-    <p class="mt-2">{{ message }}</p>
+    <span class="icon-circle icon-circle--lg text-secondary mx-auto mb-3">
+      <IconMoodEmpty />
+    </span>
+    <p class="mb-0 text-body-secondary">{{ message }}</p>
   </div>
 </template>

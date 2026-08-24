@@ -49,6 +49,8 @@ const sebha = ref(0)
   justify-content: center;
   gap: 0.4rem;
   box-shadow: 0 12px 24px rgba(16, 24, 40, 0.08);
+  /* Rapid tasbeeh tapping must not select the counter text. */
+  user-select: none;
   transition:
     transform 160ms ease,
     box-shadow 160ms ease,
@@ -73,6 +75,17 @@ const sebha = ref(0)
 .sebha-label {
   font-size: 0.95rem;
   color: var(--bs-secondary-color);
+}
+
+/* The raw primary is too dark against the dark canvas; lighten it the same way
+   active nav items do so the counter stays readable. */
+[data-bs-theme='dark'] .sebha-btn {
+  color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
+}
+
+[data-bs-theme='dark'] .sebha-label,
+[data-bs-theme='dark'] .sebha-hint {
+  color: var(--bs-body-color);
 }
 
 .sebha-actions {

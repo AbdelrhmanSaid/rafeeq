@@ -7,10 +7,221 @@
 
 :root {
   --navbar-height: 70px;
+  --app-body-bg-base: #fff;
+  --bs-body-bg: color-mix(in srgb, var(--app-body-bg-base) 96%, var(--bs-primary));
+  /* Bootstrap's default secondary text (75% opacity) reads too quiet on the
+     tinted background — lift it slightly for contrast. */
+  --bs-secondary-color: rgba(33, 37, 41, 0.85);
+
+  /* Surface system — every elevated block (cards, list rows, bars) reads from
+     these so light/dark and runtime primary colors stay coherent. Surfaces sit
+     one step *lighter* than the (tinted) page so they read as raised. */
+  --app-surface: var(--app-body-bg-base);
+  --app-surface-hover: color-mix(in srgb, var(--bs-primary) 6%, var(--app-surface));
+  --app-surface-active: color-mix(in srgb, var(--bs-primary) 11%, var(--app-surface));
+  --app-hairline: color-mix(in srgb, var(--bs-primary) 8%, var(--bs-border-color));
+  --app-hairline-strong: color-mix(in srgb, var(--bs-primary) 30%, var(--bs-border-color));
+  --app-tint: color-mix(in srgb, var(--bs-primary) 10%, transparent);
+  --app-tint-strong: color-mix(in srgb, var(--bs-primary) 18%, transparent);
+  --app-glass: color-mix(in srgb, var(--bs-body-bg) 78%, transparent);
+  --app-shadow-card: 0 1px 2px rgba(18, 18, 18, 0.04), 0 6px 20px -8px rgba(18, 18, 18, 0.08);
+  --app-shadow-card-hover: 0 2px 4px rgba(18, 18, 18, 0.05), 0 16px 32px -12px rgba(18, 18, 18, 0.16);
+  --app-shadow-bar: 0 -8px 24px -12px rgba(18, 18, 18, 0.12);
+  --app-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 
   @media screen and (min-width: 768px) {
     --navbar-height: 85px;
   }
+}
+
+/* Custom properties resolve where they are *declared*, so every token derived
+   from --app-surface / --bs-body-bg must be re-declared here or it would keep
+   the light-mode value computed on :root. */
+[data-bs-theme='dark'] {
+  /* Tint the dark canvas with the active primary, mirroring the light theme,
+     instead of Bootstrap's flat neutral #121212. */
+  --bs-body-bg: color-mix(in srgb, #121212 95%, var(--bs-primary));
+  --bs-secondary-color: rgba(222, 226, 230, 0.85);
+  --app-surface: color-mix(in srgb, var(--bs-body-bg) 96%, #fff);
+  --app-surface-hover: color-mix(in srgb, var(--bs-primary) 8%, var(--app-surface));
+  --app-surface-active: color-mix(in srgb, var(--bs-primary) 14%, var(--app-surface));
+  --app-hairline: color-mix(in srgb, var(--bs-primary) 10%, var(--bs-border-color));
+  --app-hairline-strong: color-mix(in srgb, var(--bs-primary) 40%, var(--bs-border-color));
+  --app-glass: color-mix(in srgb, var(--bs-body-bg) 72%, transparent);
+  --app-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.25), 0 8px 24px -10px rgba(0, 0, 0, 0.45);
+  --app-shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.3), 0 18px 36px -14px rgba(0, 0, 0, 0.6);
+  --app-shadow-bar: 0 -8px 24px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* Glass surfaces rely on backdrop-filter for legibility; where it's not
+   supported, fall back to an opaque bar so content can't bleed through. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root,
+  [data-bs-theme='dark'] {
+    --app-glass: var(--bs-body-bg);
+  }
+}
+
+html {
+  /* Stop iOS Safari from inflating text on orientation change. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Rapid-tap surfaces (zekr counter, sebha) must never trigger double-tap zoom,
+   and custom :active states replace the gray tap flash. */
+a,
+button,
+[role='button'],
+input,
+select,
+textarea,
+label {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  /* Shared with sticky overlays so they can paint the same fixed canvas. */
+  --app-page-bg-color: color-mix(in srgb, var(--bs-body-bg) 96%, var(--bs-primary));
+  --app-page-bg-image:
+    radial-gradient(60rem 22rem at 50% -8rem, color-mix(in srgb, var(--bs-primary) 14%, transparent), transparent 70%),
+    radial-gradient(40rem 18rem at 100% 0, color-mix(in srgb, var(--bs-primary) 6%, transparent), transparent 70%);
+
+  background-color: var(--app-page-bg-color);
+  background-image: var(--app-page-bg-image);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  /* Deliberately suppress the browser's native pull-to-reload and top-edge
+     scroll glow so the standalone PWA feels like a native app. This also
+     removes pull-to-refresh in regular browser tabs. */
+  overscroll-behavior-y: contain;
+}
+
+::selection {
+  background: var(--app-tint-strong);
+}
+
+/* Elevated surfaces ------------------------------------------------------- */
+.card {
+  --bs-card-bg: var(--app-surface);
+  --bs-card-border-color: var(--app-hairline);
+  box-shadow: var(--app-shadow-card);
+}
+
+/* Interactive card: soft lift + primary tint on hover / focus-within. */
+.card-interactive {
+  transition:
+    transform 0.25s var(--app-ease),
+    box-shadow 0.25s var(--app-ease),
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+
+  &:hover,
+  &:focus-within {
+    transform: translateY(-2px);
+    border-color: var(--app-hairline-strong);
+    background-color: var(--app-surface-hover);
+    box-shadow: var(--app-shadow-card-hover);
+  }
+
+  &:focus-within {
+    box-shadow:
+      var(--app-shadow-card-hover),
+      0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+  }
+
+  .stretched-link:focus {
+    outline: none;
+  }
+}
+
+.list-group {
+  --bs-list-group-bg: var(--app-surface);
+  --bs-list-group-border-color: var(--app-hairline);
+  --bs-list-group-action-hover-bg: var(--app-surface-hover);
+  --bs-list-group-action-active-bg: var(--app-surface-active);
+  box-shadow: var(--app-shadow-card);
+  border-radius: var(--bs-list-group-border-radius);
+}
+
+.list-group-item-action {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.form-control,
+.form-select {
+  background-color: var(--app-surface);
+  border-color: var(--app-hairline);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+/* iOS auto-zooms into any input whose font-size computes below 16px — possible
+   here because the font-scale setting goes down to 80%. Pin the floor on
+   phone-sized screens so focusing a field never zooms the page. */
+@media (max-width: 767.98px) {
+  .form-control,
+  .form-select {
+    font-size: max(1rem, 16px);
+  }
+}
+
+.form-floating > .form-control:not(:placeholder-shown) ~ label::after,
+.form-floating > .form-control:focus ~ label::after {
+  background-color: transparent;
+}
+
+/* Soft pill badge — counts, labels, small metadata chips. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: var(--app-tint);
+  color: var(--bs-primary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+[data-bs-theme='dark'] .chip {
+  background: var(--app-tint-strong);
+  color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
+}
+
+.chip-muted {
+  background: rgba(var(--bs-secondary-rgb), 0.1);
+  color: var(--bs-secondary-color);
+}
+
+/* Soft, tinted variants of the primary button for secondary actions. */
+.btn-soft {
+  --bs-btn-color: var(--bs-primary);
+  --bs-btn-bg: var(--app-tint);
+  --bs-btn-border-color: transparent;
+  --bs-btn-hover-color: var(--bs-primary);
+  --bs-btn-hover-bg: var(--app-tint-strong);
+  --bs-btn-hover-border-color: transparent;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--bs-primary);
+  --bs-btn-active-border-color: var(--bs-primary);
+  --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
+}
+
+[data-bs-theme='dark'] .btn-soft {
+  --bs-btn-color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
+  --bs-btn-hover-color: #fff;
+}
+
+.spinner-border {
+  color: var(--bs-primary);
 }
 
 /* Collapse animations and transitions to near-instant for users who ask for less motion. */
@@ -39,20 +250,52 @@
   cursor: pointer;
 }
 
-/* Circled icon holder shared by feature cards (prayer times, sunnah, azkar). */
+.tabler-icon {
+  stroke-width: 1.5;
+}
+
+/* Circled icon holder shared by feature cards (prayer times, sunnah, azkar).
+   Tint follows `currentColor`, so `.text-primary` / `.text-secondary` (or any
+   inline color) gives a matching soft background and hairline for free. */
 .icon-circle {
   display: grid;
   place-items: center;
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 2.5rem;
+  height: 2.5rem;
   flex-shrink: 0;
-  border: 1px solid var(--bs-border-color);
+  border: 1px solid color-mix(in srgb, currentColor 16%, transparent);
   border-radius: 50%;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .icon-circle svg {
-  width: 1.15rem;
-  height: 1.15rem;
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.icon-circle--lg {
+  width: 3.25rem;
+  height: 3.25rem;
+}
+
+.icon-circle--lg svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+/* Rounded-square variant for section / settings headers. */
+.icon-tile {
+  display: inline-grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border-radius: var(--bs-border-radius);
+  background: color-mix(in srgb, currentColor 11%, transparent);
 }
 
 /* Square icon-only button with a touch-friendly hit area. */
@@ -79,6 +322,9 @@
 
 .full-height {
   min-height: calc(100vh - var(--navbar-height));
+  /* Mobile browsers overshoot 100vh while the URL bar is visible — prefer the
+     dynamic viewport, minus the home-indicator inset the layout reserves. */
+  min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-bottom, 0px));
 }
 
 .tab-pills {
@@ -121,8 +367,13 @@
 }
 
 .tab-pill.active {
-  background: color-mix(in srgb, var(--bs-primary) 12%, transparent);
+  background: var(--app-tint);
   border-color: transparent;
+  color: var(--bs-primary);
+}
+
+[data-bs-theme='dark'] .tab-pill.active {
+  color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
 }
 
 .tab-pill svg {
@@ -176,5 +427,19 @@
     background: var(--bs-primary);
     border-color: var(--bs-primary);
     color: #fff;
+    box-shadow: 0 6px 16px -6px rgba(var(--bs-primary-rgb), 0.55);
+  }
+}
+
+/* Page entrance (see layout/Page.vue) — a short fade + rise on every route. */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

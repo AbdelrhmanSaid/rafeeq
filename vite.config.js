@@ -62,6 +62,29 @@ export default defineConfig({
         start_url: '/',
         scope: '/',
         icons: manifestIcons,
+        // Long-press (Android) / right-click (desktop) jump list on the app icon.
+        shortcuts: [
+          {
+            name: 'القرآن الكريم',
+            url: '/quran',
+            icons: [{ src: 'icons/android/android-launchericon-96-96.png', sizes: '96x96' }],
+          },
+          {
+            name: 'الأذكار',
+            url: '/azkar',
+            icons: [{ src: 'icons/android/android-launchericon-96-96.png', sizes: '96x96' }],
+          },
+          {
+            name: 'الإذاعة',
+            url: '/radio',
+            icons: [{ src: 'icons/android/android-launchericon-96-96.png', sizes: '96x96' }],
+          },
+          {
+            name: 'اتجاه القبلة',
+            url: '/qibla',
+            icons: [{ src: 'icons/android/android-launchericon-96-96.png', sizes: '96x96' }],
+          },
+        ],
       },
     }),
   ],

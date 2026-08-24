@@ -46,11 +46,11 @@ const sharePage = async () => {
 
 <template>
   <div>
-    <component :is="`h${size}`">
+    <component :is="`h${size}`" class="d-flex align-items-end justify-content-between">
       {{ title }}
       <button
         v-if="share"
-        class="btn btn-flat p-0 bg-transparent"
+        class="btn btn-soft btn-icon heading-share"
         type="button"
         title="مشاركة الصفحة"
         aria-label="مشاركة الصفحة"
@@ -63,3 +63,17 @@ const sharePage = async () => {
     <p class="lead" v-if="subtitle">{{ subtitle }}</p>
   </div>
 </template>
+
+<style scoped>
+.heading-share {
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.lead {
+  color: var(--bs-secondary-color);
+  font-size: 1.05rem;
+}
+</style>

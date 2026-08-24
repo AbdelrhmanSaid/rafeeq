@@ -17,6 +17,7 @@ import ZekrCard from '@/features/azkar/components/ZekrCard.vue'
 import { useAsyncData } from '@/shared/composables/useAsyncData'
 import { usePageMeta } from '@/shared/composables/usePageMeta'
 import { useAzkarProgress } from '@/features/azkar/composables/useAzkarProgress'
+import { useScreenWakeLock } from '@/shared/composables/useScreenWakeLock'
 import { fetchCategory } from '@/features/azkar/api'
 
 const { zekrSaveProgress, zekrConfirmOnLeave } = storeToRefs(useAppStore())
@@ -44,6 +45,8 @@ const progress = computed(() => (totalRepeats.value > 0 ? (totalClicked.value / 
 
 const hasUnfinishedProgress = () => progress.value > 0 && progress.value < 100
 
+useScreenWakeLock()
+
 // Confirm dialog before leaving
 const { isRevealed, reveal, confirm, cancel } = useConfirmDialog()
 
@@ -61,7 +64,7 @@ onBeforeRouteLeave(async () => {
       <Heading class="mb-4" :title="category.meta.name" :subtitle="category.meta.description" :share="true" />
 
       <ZekrCard
-        class="mb-3"
+        class="mb-3 zekr-card-lazy"
         v-for="(zekr, index) in category.content"
         :key="index"
         v-model:count="counts[index]"
@@ -106,3 +109,12 @@ onBeforeRouteLeave(async () => {
     </ul>
   </BottomSheet>
 </template>
+
+<style scoped>
+/* Long categories (morning/evening azkar) render dozens of heavy Arabic-text
+   cards — let the browser skip layout and paint for the off-screen ones. */
+.zekr-card-lazy {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 300px;
+}
+</style>

@@ -8,7 +8,13 @@ const PRIMARY_COLOR_VARS = [
   '--bs-primary-border-subtle',
 ]
 
-const BG_COLOR_VARS = ['--bs-body-bg', '--bs-body-bg-rgb', '--bs-secondary-bg', '--bs-tertiary-bg']
+const BG_COLOR_VARS = [
+  '--app-body-bg-base',
+  '--bs-body-bg',
+  '--bs-body-bg-rgb',
+  '--bs-secondary-bg',
+  '--bs-tertiary-bg',
+]
 
 // Global font scaling. The whole app sizes in `rem`, so changing the root
 // `<html>` font-size proportionally scales every text and rem-based spacing.
@@ -55,7 +61,18 @@ function toRgbValue(color) {
   const rgb = getComputedStyle(probe).color
   probe.remove()
 
-  return rgb.match(/\d+/g)?.slice(0, 3).join(', ') ?? null
+  // A resolved color-mix() serializes as `color(srgb 0.976 …)` (0–1 floats)
+  // in modern engines, and even rgb() can carry decimals — an integer-only
+  // regex would emit garbage like "0, 976, 0".
+  const channels = rgb.match(/-?\d*\.?\d+/g)?.map(Number)
+  if (!channels || channels.length < 3) return null
+
+  const scale = rgb.startsWith('color(') ? 255 : 1
+
+  return channels
+    .slice(0, 3)
+    .map((n) => Math.round(Math.min(255, Math.max(0, n * scale))))
+    .join(', ')
 }
 
 function setVars(vars) {
@@ -113,12 +130,16 @@ export function applyBgColor(color) {
   const bg = normalizeColor(color)
 
   if (bg) {
+    const tintedBg = `color-mix(in srgb, ${bg} 96%, var(--bs-primary))`
+
     const vars = {
-      '--bs-body-bg': bg,
+      '--app-body-bg-base': bg,
+      '--bs-body-bg': tintedBg,
       '--bs-secondary-bg': 'color-mix(in srgb, var(--bs-body-bg) 92%, #fff)',
       '--bs-tertiary-bg': 'color-mix(in srgb, var(--bs-body-bg) 84%, #fff)',
     }
-    const rgb = toRgbValue(bg)
+
+    const rgb = toRgbValue(tintedBg)
     if (rgb) vars['--bs-body-bg-rgb'] = rgb
     setVars(vars)
   } else {

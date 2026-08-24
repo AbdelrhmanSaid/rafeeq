@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { normalize, removeBismillah, toArabicNumerals, formatTime, BISMILLAH_VARIANTS } from './arabic'
+import {
+  normalize,
+  removeBismillah,
+  removeSurahPrefix,
+  toArabicNumerals,
+  formatTime,
+  BISMILLAH_VARIANTS,
+} from './arabic'
 
 describe('normalize', () => {
   it('strips tashkeel (diacritics)', () => {
@@ -26,6 +33,22 @@ describe('normalize', () => {
   it('converts Arabic-Indic digits to ASCII and lowercases latin', () => {
     expect(normalize('٠١٢٣')).toBe('0123')
     expect(normalize('Hello World 123')).toBe('hello world 123')
+  })
+})
+
+describe('removeSurahPrefix', () => {
+  it('drops the vocalized سورة prefix from API surah names', () => {
+    expect(removeSurahPrefix('سُورَةُ آلِ عِمۡرَانَ')).toBe('آلِ عِمۡرَانَ')
+    expect(removeSurahPrefix('سُورَةُ ٱلۡفَاتِحَةِ')).toBe('ٱلۡفَاتِحَةِ')
+  })
+
+  it('leaves names without the prefix untouched', () => {
+    expect(removeSurahPrefix('الفاتحة')).toBe('الفاتحة')
+  })
+
+  it('keeps a lone سورة word and handles empty input', () => {
+    expect(removeSurahPrefix('سورة')).toBe('سورة')
+    expect(removeSurahPrefix(null)).toBe('')
   })
 })
 

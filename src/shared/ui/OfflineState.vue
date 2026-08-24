@@ -7,8 +7,10 @@ defineProps({
 </script>
 
 <template>
-  <div class="d-flex flex-column align-items-center justify-content-center gap-4">
-    <IconWifiOff size="2.5rem" class="text-muted" />
-    <p class="lead">{{ message }}</p>
+  <div class="d-flex flex-column align-items-center justify-content-center gap-3">
+    <span class="icon-circle icon-circle--lg text-secondary">
+      <IconWifiOff />
+    </span>
+    <p class="mb-0 text-body-secondary">{{ message }}</p>
   </div>
 </template>

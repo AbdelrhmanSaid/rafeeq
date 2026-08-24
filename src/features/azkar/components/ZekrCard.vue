@@ -54,10 +54,25 @@ const reset = () => {
 }
 
 let longPressed = false
+let touchMoved = false
+let touchStartY = null
+
+// Ignore taps that are really scroll gestures: a click that follows meaningful
+// vertical finger movement must not count the zekr.
+const onTouchStart = (e) => {
+  touchStartY = e.touches?.[0]?.clientY ?? null
+}
+
+const onTouchEnd = (e) => {
+  const endY = e.changedTouches?.[0]?.clientY
+  touchMoved = touchStartY != null && endY != null && Math.abs(endY - touchStartY) > 12
+  touchStartY = null
+}
 
 const onCardClick = () => {
-  if (isMobile.value && !longPressed) increment()
+  if (isMobile.value && !longPressed && !touchMoved) increment()
   longPressed = false
+  touchMoved = false
 }
 
 // Mobile long presses often emit no click, so count them here (ignoring the
@@ -66,18 +81,20 @@ const onCardClick = () => {
 onLongPress(
   card,
   (e) => {
-    if (!isMobile.value || e.target.closest('.btn-counter, .action-menu')) return
+    if (!isMobile.value || e.target.closest('.btn-counter, .card-actions')) return
     longPressed = true
     increment()
   },
-  { onMouseUp: () => setTimeout(() => (longPressed = false), 100) },
+  { distanceThreshold: 10, onMouseUp: () => setTimeout(() => (longPressed = false), 100) },
 )
 
 const exportAsImage = () => {
   toast.promise(
     async () => {
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      return exportComponent(ZekrImage, props, 'zekr')
+      // expectedWidth matches ZekrImage's inline width so an unstyled or
+      // half-mounted card errors instead of exporting a distorted image
+      return exportComponent(ZekrImage, props, 'zekr', { expectedWidth: 512 })
     },
     {
       loading: 'جاري التصدير...',
@@ -105,65 +122,97 @@ const copyZekr = () => {
 </script>
 
 <template>
-  <div ref="card" class="zekr-card border rounded p-4" @click="onCardClick">
-    <div class="action-menu dropdown" @click.stop>
-      <button class="btn p-0 bg-transparent" type="button" data-bs-toggle="dropdown">
-        <IconHeartShare size="18" />
-      </button>
-
-      <ul class="dropdown-menu dropdown-menu-end">
-        <li>
-          <button class="dropdown-item d-flex align-items-center gap-2" @click="exportAsImage">
-            <IconDownload size="18" />
-            <span>تنزيل</span>
-          </button>
-        </li>
-        <li>
-          <button class="dropdown-item d-flex align-items-center gap-2" @click="shareZekr">
-            <IconShare3 size="18" />
-            <span>مشاركة</span>
-          </button>
-        </li>
-        <li>
-          <button class="dropdown-item d-flex align-items-center gap-2" @click="copyZekr">
-            <IconCopy size="18" />
-            <span>نسخ</span>
-          </button>
-        </li>
-        <li><hr class="dropdown-divider" /></li>
-        <li>
-          <button class="dropdown-item d-flex align-items-center gap-2" :disabled="count === 0" @click="reset">
-            <IconRestore size="18" />
-            <span>تصفير</span>
-          </button>
-        </li>
-      </ul>
-    </div>
-
-    <div class="row align-items-center g-4 text-center text-lg-start">
-      <div class="col-12 col-lg-auto">
+  <div
+    ref="card"
+    class="card zekr-card-root"
+    :class="{ completed: count >= repeat }"
+    @click="onCardClick"
+    @touchstart.passive="onTouchStart"
+    @touchend.passive="onTouchEnd"
+  >
+    <div class="card-body zekr-card">
+      <div class="card-actions" @click.stop>
         <button
-          class="btn btn-counter border-flat"
-          @click.stop="increment"
-          :style="{ '--progress': count / repeat }"
-          :data-content="toArabicNumerals(`${count}/${repeat}`)"
-        ></button>
+          class="btn p-0 bg-transparent border-0"
+          type="button"
+          aria-label="تصفير"
+          :disabled="count === 0"
+          @click="reset"
+        >
+          <IconRestore size="18" />
+        </button>
+
+        <div class="dropdown">
+          <button class="btn p-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-label="خيارات الذكر">
+            <IconHeartShare size="18" />
+          </button>
+
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <button class="dropdown-item d-flex align-items-center gap-2" @click="exportAsImage">
+                <IconDownload size="18" />
+                <span>تنزيل</span>
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item d-flex align-items-center gap-2" @click="shareZekr">
+                <IconShare3 size="18" />
+                <span>مشاركة</span>
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item d-flex align-items-center gap-2" @click="copyZekr">
+                <IconCopy size="18" />
+                <span>نسخ</span>
+              </button>
+            </li>
+          </ul>
+        </div>
       </div>
 
-      <div class="col-12 col-lg">
-        <p class="zekr-text font-quran m-0">{{ text }}</p>
+      <div class="row align-items-center g-4 text-center text-lg-start">
+        <div class="col-12 col-lg-auto">
+          <button
+            class="btn btn-counter border-flat"
+            type="button"
+            aria-label="تسجيل تكرار الذكر"
+            @click.stop="increment"
+            :style="{ '--progress': count / repeat }"
+            :data-content="toArabicNumerals(`${count}/${repeat}`)"
+          ></button>
+          <span class="visually-hidden" role="status"
+            >{{ toArabicNumerals(count) }} من {{ toArabicNumerals(repeat) }}</span
+          >
+        </div>
 
-        <p class="text-muted m-0 pe-2" v-if="benefit || reference">
-          <small v-if="reference">{{ reference }}</small>
-          <small v-if="benefit && reference"> - </small>
-          <small v-if="benefit">{{ benefit }}</small>
-        </p>
+        <div class="col-12 col-lg">
+          <p class="zekr-text font-quran m-0">{{ text }}</p>
+
+          <p class="text-muted m-0 pe-2" v-if="benefit || reference">
+            <small v-if="reference">{{ reference }}</small>
+            <small v-if="benefit && reference"> - </small>
+            <small v-if="benefit">{{ benefit }}</small>
+          </p>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
+/* Dim the content, not the card: opacity on the card would create a stacking
+   context and let the next card paint over this one's action dropdown. */
+.completed {
+  border-color: var(--app-hairline-strong);
+  background-color: color-mix(in srgb, var(--bs-primary) 4%, var(--app-surface));
+
+  .zekr-text,
+  .text-muted,
+  .btn-counter {
+    opacity: 0.7;
+  }
+}
+
 .zekr-card {
   position: relative;
 
@@ -177,9 +226,17 @@ const copyZekr = () => {
     font-size: 1.25rem;
     border: none;
 
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--bs-body-color);
     background:
-      radial-gradient(closest-side, var(--bs-body-bg) 79%, transparent 80% 100%),
-      conic-gradient(var(--bs-primary) calc(var(--progress) * 100%), rgba(var(--bs-secondary-rgb), 0.1) 0);
+      radial-gradient(closest-side, var(--app-surface) 79%, transparent 80% 100%),
+      conic-gradient(var(--bs-primary) calc(var(--progress) * 100%), var(--app-tint) 0);
+    transition: transform 0.15s var(--app-ease);
+
+    &:active {
+      transform: scale(0.96);
+    }
 
     &::before {
       content: attr(data-content);
@@ -196,17 +253,35 @@ const copyZekr = () => {
     line-height: 2;
   }
 
-  .action-menu {
+  .card-actions {
     position: absolute;
-    inset-inline-end: 0.5rem;
-    inset-block-end: 0.5rem;
+    inset-inline-end: 0.25rem;
+    inset-block-end: 0.25rem;
+    display: flex;
+    align-items: center;
 
+    > button,
     [data-bs-toggle='dropdown'] {
-      width: 30px;
-      height: 30px;
+      /* 44px minimum touch target. */
+      width: 2.75rem;
+      height: 2.75rem;
       display: grid;
       place-items: center;
-      color: var(--bs-secondary);
+      border-radius: 50%;
+      color: var(--bs-secondary-color);
+      transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+
+      &:hover:not(:disabled) {
+        background-color: var(--app-tint);
+        color: var(--bs-primary);
+      }
+
+      &:disabled {
+        opacity: 0.35;
+        background: transparent;
+      }
     }
   }
 }
@@ -215,6 +290,8 @@ const copyZekr = () => {
   .zekr-card {
     cursor: pointer;
     user-select: none;
+    /* Rapid counting taps must not trigger double-tap zoom. */
+    touch-action: manipulation;
 
     > .row {
       flex-direction: column-reverse;
