@@ -77,8 +77,11 @@ function prevAyah() {
 async function toggleAyahPlayback() {
   if (!recitation.value?.audio) return
 
-  if (isPlaying.value) {
-    isPlaying.value = false
+  // Branch on the element, not the `playing` ref: a buffering stall fires
+  // 'waiting', which flips the ref false while the element is still not
+  // paused — a tap during the stall must pause, not call play() again.
+  if (!audio.paused) {
+    audio.pause()
     return
   }
 

@@ -26,7 +26,11 @@ const audio = ref(null)
 // loadstart → canplay window; useMediaControls' `waiting` also flips during
 // mid-play buffering, which would disable the button, so this stays manual.
 const loading = ref(false)
-const { playing: isPlaying, currentTime, duration } = useMediaControls(audio)
+// Manual for the same reason: useMediaControls' `playing` also flips false on
+// 'waiting'/'loadstart', which would break pausing mid-buffer. Only explicit
+// play/pause/stop/loadSource change it.
+const isPlaying = ref(false)
+const { currentTime, duration } = useMediaControls(audio)
 
 const showReciterSheet = ref(false)
 let reciterOnOpen = null
@@ -110,8 +114,8 @@ async function tryPlay() {
   if (radioStore.isPlaying) radioStore.stop()
   // The browser resets playbackRate on every source load, so set it before play.
   audio.value.playbackRate = Number(quranStore.playbackRate)
-  // Call play() directly (not via the `playing` ref) so autoplay rejection
-  // lands in this catch; the media events keep the ref in sync either way.
+  // Call play() directly so autoplay rejection lands in this catch; isPlaying
+  // is set manually below rather than from media events.
   try {
     await audio.value.play()
     isPlaying.value = true
