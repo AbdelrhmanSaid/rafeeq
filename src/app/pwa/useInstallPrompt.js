@@ -11,8 +11,7 @@ const deferredPrompt = ref(null)
 const isDisplayModeStandalone = useMediaQuery('(display-mode: standalone)')
 
 const isStandalone = () =>
-  isDisplayModeStandalone.value ||
-  (typeof window !== 'undefined' && window.navigator.standalone === true)
+  isDisplayModeStandalone.value || (typeof window !== 'undefined' && window.navigator.standalone === true)
 
 if (typeof window !== 'undefined') {
   window.addEventListener('beforeinstallprompt', (event) => {
