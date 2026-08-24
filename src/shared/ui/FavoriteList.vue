@@ -49,7 +49,7 @@ const favorites = filterFavorites(
         <div class="d-flex justify-content-between align-items-center">
           <slot :item="item" :index="index" />
 
-          <div class="d-flex gap-2">
+          <div class="d-flex gap-2 fav-actions">
             <button
               class="btn btn-flat btn-icon fav-btn is-active position-relative z-1"
               @click.stop="toggleFavorite(getKey(item))"
@@ -76,7 +76,7 @@ const favorites = filterFavorites(
       <div class="d-flex justify-content-between align-items-center">
         <slot :item="item" :index="index" />
 
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 fav-actions">
           <button
             class="btn btn-flat btn-icon fav-btn position-relative z-1"
             :class="{ 'is-active': isFavorite(getKey(item)) }"
@@ -101,6 +101,12 @@ const favorites = filterFavorites(
 <style lang="scss" scoped>
 .fav-row {
   padding-block: 0.9rem;
+}
+
+/* Offset the icon button's internal padding so the glyph aligns optically
+   with the row's inline-end content edge, matching the text on the other side. */
+.fav-actions {
+  margin-inline-end: -0.75rem;
 }
 
 .fav-btn {
