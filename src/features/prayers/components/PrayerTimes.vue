@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { usePrayersStore } from '@/features/prayers/store'
 import { usePrayerLocation } from '@/features/prayers/composables/usePrayerLocation'
-import { useFetch, useDateFormat, useOnline, useNow } from '@vueuse/core'
+import { useFetch, formatDate, useOnline, useNow } from '@vueuse/core'
 import { useReconnectExecute } from '@/shared/composables/useReconnectExecute'
 
 import LoadingState from '@/shared/ui/LoadingState.vue'
@@ -80,7 +80,7 @@ const { isRecoveringOnReconnect } = useReconnectExecute(online, execute)
 
 // Format time
 const formatTiming = (time) => {
-  return toArabicNumerals(useDateFormat(time, 'hh:mm A').value.replace('AM', 'ص').replace('PM', 'م'))
+  return toArabicNumerals(formatDate(new Date(time), 'hh:mm A').replace('AM', 'ص').replace('PM', 'م'))
 }
 
 // Hijri date from API response

@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, watch, onUnmounted } from 'vue'
-import { useFetch, useOnline } from '@vueuse/core'
+import { useFetch, useMediaControls, useOnline } from '@vueuse/core'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals, removeBismillah, normalizeQuranicText } from '@/shared/utils/arabic'
 import { API } from '@/shared/constants/api'
@@ -36,31 +36,18 @@ const recitation = computed(() => data.value?.data?.[2])
 const { isRecoveringOnReconnect } = useReconnectExecute(online, execute)
 
 const audio = new Audio()
-const isPlaying = ref(false)
+const { playing: isPlaying, currentTime } = useMediaControls(audio, {
+  src: () => recitation.value?.audio,
+})
 
 watch(current, () => {
-  audio.pause()
-  audio.currentTime = 0
   isPlaying.value = false
-})
-
-watch(recitation, (value) => {
-  if (value?.audio) audio.src = value.audio
-})
-
-audio.addEventListener('play', () => {
-  isPlaying.value = true
-})
-
-audio.addEventListener('pause', () => {
-  isPlaying.value = false
-})
-
-audio.addEventListener('ended', () => {
-  isPlaying.value = false
+  currentTime.value = 0
 })
 
 onUnmounted(() => {
+  // The component's effect scope is already stopped here, so act on the
+  // element directly instead of the useMediaControls refs.
   audio.pause()
   audio.currentTime = 0
 })
@@ -91,7 +78,7 @@ async function toggleAyahPlayback() {
   if (!recitation.value?.audio) return
 
   if (isPlaying.value) {
-    audio.pause()
+    isPlaying.value = false
     return
   }
 

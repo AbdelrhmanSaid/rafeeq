@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
-import { useScrollLock } from '@vueuse/core'
+import { useEventListener, useMediaQuery, useScrollLock } from '@vueuse/core'
 import { vOnClickOutside } from '@vueuse/components'
 import { IconX } from '@tabler/icons-vue'
 
@@ -31,28 +31,26 @@ let dragStartY = 0
 let dragStartTime = 0
 let releasedY = 0 // where a dismissing drag let go, so the leave slide continues from there
 
+// ≥ lg the sheet is a centered dialog (see the media query below) — dragging
+// it downward would just look broken.
+const isDesktop = useMediaQuery('(min-width: 992px)')
+
 function onDragStart(event) {
-  // ≥ lg the sheet is a centered dialog (see the media query below) — dragging
-  // it downward would just look broken.
-  if (window.matchMedia('(min-width: 992px)').matches) return
+  if (isDesktop.value) return
 
   dragging.value = true
   dragY.value = 0
   dragStartY = event.clientY
   dragStartTime = performance.now()
-  window.addEventListener('pointermove', onDragMove)
-  window.addEventListener('pointerup', onDragEnd)
-  window.addEventListener('pointercancel', onDragEnd)
 }
 
 function onDragMove(event) {
+  if (!dragging.value) return
   dragY.value = Math.max(0, event.clientY - dragStartY)
 }
 
 function onDragEnd() {
-  window.removeEventListener('pointermove', onDragMove)
-  window.removeEventListener('pointerup', onDragEnd)
-  window.removeEventListener('pointercancel', onDragEnd)
+  if (!dragging.value) return
 
   const elapsed = Math.max(1, performance.now() - dragStartTime)
   const velocity = dragY.value / elapsed // px per ms
@@ -63,6 +61,12 @@ function onDragEnd() {
   dragY.value = 0
   if (shouldDismiss) emit('close')
 }
+
+// Registered once for the component's lifetime — the `dragging` guards above
+// make them no-ops outside a drag, and unmounting mid-drag cleans up for free.
+useEventListener(window, 'pointermove', onDragMove)
+useEventListener(window, 'pointerup', onDragEnd)
+useEventListener(window, 'pointercancel', onDragEnd)
 
 // Without this the panel snaps back to the top of the drag before the leave
 // transition slides it down. Seed the leave with the release position, then

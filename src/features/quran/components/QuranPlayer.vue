@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, provide } from 'vue'
+import { useMediaControls } from '@vueuse/core'
 import { useQuranStore, PLAYBACK_RATES } from '@/features/quran/store'
 import { useRadioStore } from '@/features/radio/store'
 import { IconPlayerPlay, IconPlayerPause, IconMicrophone2, IconGauge } from '@tabler/icons-vue'
@@ -22,10 +23,10 @@ const quranStore = useQuranStore()
 const radioStore = useRadioStore()
 
 const audio = ref(null)
-const isPlaying = ref(false)
+// loadstart → canplay window; useMediaControls' `waiting` also flips during
+// mid-play buffering, which would disable the button, so this stays manual.
 const loading = ref(false)
-const currentTime = ref(0)
-const duration = ref(0)
+const { playing: isPlaying, currentTime, duration } = useMediaControls(audio)
 
 const showReciterSheet = ref(false)
 let reciterOnOpen = null
@@ -93,13 +94,13 @@ function updateMediaPosition() {
 }
 
 function seekBy(delta) {
-  if (audio.value) seekTo(audio.value.currentTime + delta)
+  if (audio.value) seekTo(currentTime.value + delta)
 }
 
 function seekTo(time) {
   if (!audio.value || !Number.isFinite(time)) return
-  audio.value.currentTime = Math.max(0, Math.min(time, duration.value || 0))
-  currentTime.value = audio.value.currentTime
+  // Writing the ref seeks the element via useMediaControls.
+  currentTime.value = Math.max(0, Math.min(time, duration.value || 0))
   quranStore.updateCurrentAyahFromTime(currentTime.value * 1000)
   updateMediaPosition()
 }
@@ -109,6 +110,8 @@ async function tryPlay() {
   if (radioStore.isPlaying) radioStore.stop()
   // The browser resets playbackRate on every source load, so set it before play.
   audio.value.playbackRate = Number(quranStore.playbackRate)
+  // Call play() directly (not via the `playing` ref) so autoplay rejection
+  // lands in this catch; the media events keep the ref in sync either way.
   try {
     await audio.value.play()
     isPlaying.value = true
@@ -128,11 +131,10 @@ function pause() {
 }
 
 function stop() {
-  if (audio.value) {
-    audio.value.pause()
-    audio.value.currentTime = 0
-  }
+  audio.value?.pause()
   isPlaying.value = false
+  // Setting the ref after isPlaying is false also rewinds the element without
+  // re-triggering the ayah sync below.
   currentTime.value = 0
   quranStore.resetAyahTracking()
   setMediaPlaybackState('paused')
@@ -156,19 +158,18 @@ async function seekToAyah(ayahNumber) {
   const startTime = quranStore.getAyahStartTime(ayahNumber)
   if (startTime === null || !audio.value) return
 
-  audio.value.currentTime = startTime
+  currentTime.value = startTime
   quranStore.updateCurrentAyahFromTime(startTime * 1000)
   await tryPlay()
 }
 
-function onTimeUpdate() {
-  if (!audio.value) return
-  currentTime.value = audio.value.currentTime
-  if (isPlaying.value) {
-    quranStore.updateCurrentAyahFromTime(currentTime.value * 1000)
-    updateMediaPosition()
-  }
-}
+// useMediaControls keeps currentTime synced from the element's timeupdate;
+// mirror it into the ayah highlight and the OS seekbar while playing.
+watch(currentTime, (time) => {
+  if (!isPlaying.value) return
+  quranStore.updateCurrentAyahFromTime(time * 1000)
+  updateMediaPosition()
+})
 
 function loadSource(url) {
   if (!audio.value || !url) return
@@ -263,9 +264,7 @@ defineExpose({ seekToAyah })
       .playbackRate="Number(quranStore.playbackRate)"
       @loadstart="loading = true"
       @canplay="loading = false"
-      @timeupdate="onTimeUpdate"
       @ended="stop"
-      @loadedmetadata="duration = $event.target.duration"
       preload="metadata"
     ></audio>
   </div>
