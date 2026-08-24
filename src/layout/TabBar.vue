@@ -282,6 +282,18 @@ const closeMoreMenu = () => {
   }
 }
 
+/* Primary stays a dark accent (brown/green/navy); mix it toward white so
+   menu icons and the active row remain readable on the dark sheet. */
+[data-bs-theme='dark'] .more-menu-item {
+  .icon-tile {
+    color: color-mix(in srgb, var(--bs-primary) 28%, #fff);
+  }
+
+  &.router-link-active {
+    color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
+  }
+}
+
 @keyframes slideUp {
   from {
     transform: translate3d(0, 100%, 0);
