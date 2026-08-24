@@ -9,6 +9,9 @@
   --navbar-height: 70px;
   --app-body-bg-base: #fff;
   --bs-body-bg: color-mix(in srgb, var(--app-body-bg-base) 96%, var(--bs-primary));
+  /* Bootstrap's default secondary text (75% opacity) reads too quiet on the
+     tinted background — lift it slightly for contrast. */
+  --bs-secondary-color: rgba(33, 37, 41, 0.85);
 
   /* Surface system — every elevated block (cards, list rows, bars) reads from
      these so light/dark and runtime primary colors stay coherent. Surfaces sit
@@ -38,6 +41,7 @@
   /* Tint the dark canvas with the active primary, mirroring the light theme,
      instead of Bootstrap's flat neutral #121212. */
   --bs-body-bg: color-mix(in srgb, #121212 95%, var(--bs-primary));
+  --bs-secondary-color: rgba(222, 226, 230, 0.85);
   --app-surface: color-mix(in srgb, var(--bs-body-bg) 96%, #fff);
   --app-surface-hover: color-mix(in srgb, var(--bs-primary) 8%, var(--app-surface));
   --app-surface-active: color-mix(in srgb, var(--bs-primary) 14%, var(--app-surface));
@@ -58,13 +62,34 @@
   }
 }
 
+html {
+  /* Stop iOS Safari from inflating text on orientation change. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Rapid-tap surfaces (zekr counter, sebha) must never trigger double-tap zoom,
+   and custom :active states replace the gray tap flash. */
+a,
+button,
+[role='button'],
+input,
+select,
+textarea,
+label {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
-  background-color: color-mix(in srgb, var(--bs-body-bg) 96%, var(--bs-primary));
-  /* Ambient glow: a soft primary halo at the top edge so pages feel lit
-     rather than printed. */
-  background-image:
+  /* Shared with sticky overlays so they can paint the same fixed canvas. */
+  --app-page-bg-color: color-mix(in srgb, var(--bs-body-bg) 96%, var(--bs-primary));
+  --app-page-bg-image:
     radial-gradient(60rem 22rem at 50% -8rem, color-mix(in srgb, var(--bs-primary) 14%, transparent), transparent 70%),
     radial-gradient(40rem 18rem at 100% 0, color-mix(in srgb, var(--bs-primary) 6%, transparent), transparent 70%);
+
+  background-color: var(--app-page-bg-color);
+  background-image: var(--app-page-bg-image);
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
@@ -130,6 +155,16 @@ body {
     border-color 0.2s ease,
     box-shadow 0.2s ease,
     background-color 0.2s ease;
+}
+
+/* iOS auto-zooms into any input whose font-size computes below 16px — possible
+   here because the font-scale setting goes down to 80%. Pin the floor on
+   phone-sized screens so focusing a field never zooms the page. */
+@media (max-width: 767.98px) {
+  .form-control,
+  .form-select {
+    font-size: max(1rem, 16px);
+  }
 }
 
 .form-floating > .form-control:not(:placeholder-shown) ~ label::after,
@@ -283,6 +318,9 @@ body {
 
 .full-height {
   min-height: calc(100vh - var(--navbar-height));
+  /* Mobile browsers overshoot 100vh while the URL bar is visible — prefer the
+     dynamic viewport, minus the home-indicator inset the layout reserves. */
+  min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-bottom, 0px));
 }
 
 .tab-pills {

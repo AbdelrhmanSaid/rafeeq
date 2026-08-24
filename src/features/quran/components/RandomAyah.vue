@@ -132,6 +132,10 @@ async function toggleAyahPlayback() {
             <IconChevronLeft size="18" />
           </button>
 
+          <button class="btn btn-flat btn-icon" @click="fetchRandomAyah" title="آية جديدة" aria-label="تحميل آية جديدة">
+            <IconRefresh size="18" />
+          </button>
+
           <button
             class="btn btn-flat btn-icon ayah-play"
             :class="{ 'is-playing': isPlaying }"
@@ -142,10 +146,6 @@ async function toggleAyahPlayback() {
           >
             <IconPlayerPause v-if="isPlaying" size="18" />
             <IconPlayerPlay v-else size="18" />
-          </button>
-
-          <button class="btn btn-flat btn-icon" @click="fetchRandomAyah" title="آية جديدة" aria-label="تحميل آية جديدة">
-            <IconRefresh size="18" />
           </button>
         </div>
       </div>
@@ -197,8 +197,9 @@ async function toggleAyahPlayback() {
   gap: 0.1rem;
 
   .btn {
-    width: 2.4rem;
-    height: 2.4rem;
+    /* 44px minimum touch target. */
+    width: 2.75rem;
+    height: 2.75rem;
     border-radius: 50%;
     color: var(--bs-secondary-color);
     transition:
@@ -210,6 +211,13 @@ async function toggleAyahPlayback() {
       color: var(--bs-primary);
     }
   }
+}
+
+/* Play is the toolbar's primary action — give it a standing tint so it
+   doesn't read as one of four equal icons. */
+.ayah-play:not(:disabled) {
+  background-color: var(--app-tint);
+  color: var(--bs-primary);
 }
 
 .ayah-play.is-playing {

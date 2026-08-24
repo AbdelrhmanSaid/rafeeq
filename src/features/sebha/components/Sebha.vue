@@ -49,6 +49,8 @@ const sebha = ref(0)
   justify-content: center;
   gap: 0.4rem;
   box-shadow: 0 12px 24px rgba(16, 24, 40, 0.08);
+  /* Rapid tasbeeh tapping must not select the counter text. */
+  user-select: none;
   transition:
     transform 160ms ease,
     box-shadow 160ms ease,

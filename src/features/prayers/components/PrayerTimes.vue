@@ -418,7 +418,13 @@ const nextPrayerTime = computed(() => {
 .prayer-state {
   display: grid;
   place-items: center;
-  min-height: 13rem;
+  /* Keep the pre-location state compact on phones so real content fits the
+     first screen; the taller reserve only matters on desktop. */
+  min-height: 10rem;
+
+  @media (min-width: 768px) {
+    min-height: 13rem;
+  }
   border: 1px solid var(--app-hairline);
   border-radius: var(--bs-border-radius-xl);
   background: var(--app-surface);

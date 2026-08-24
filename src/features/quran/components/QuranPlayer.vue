@@ -133,9 +133,11 @@ defineExpose({ seekToAyah })
   <div class="card">
     <div class="card-body d-flex align-items-center gap-3">
       <button
+        type="button"
         @click="togglePlayPause"
         class="btn-play btn btn-primary rounded-circle d-flex align-items-center justify-content-center"
         :disabled="loading || !quranStore.surahAudioUrl"
+        :aria-label="isPlaying ? 'إيقاف تلاوة السورة' : 'تشغيل تلاوة السورة'"
       >
         <IconPlayerPlay v-if="!isPlaying" />
         <IconPlayerPause v-else />
@@ -154,9 +156,11 @@ defineExpose({ seekToAyah })
       </div>
 
       <button
+        type="button"
         @click="openReciterSheet"
         class="btn btn-sm d-flex align-items-center gap-1 flex-shrink-0 player-chip"
         :title="`القارئ: ${quranStore.reciter?.name}`"
+        :aria-label="`اختيار القارئ - الحالي: ${quranStore.reciter?.name}`"
       >
         <IconMicrophone2 size="18" />
         <span class="small text-truncate">{{ quranStore.reciter?.name }}</span>
@@ -184,6 +188,7 @@ defineExpose({ seekToAyah })
             class="btn btn-flat btn-sm d-flex align-items-center gap-1"
             @click="cycleRate"
             :title="`سرعة التلاوة: ${rateLabel}`"
+            :aria-label="`تغيير سرعة التلاوة - الحالية: ${rateLabel}`"
           >
             <IconGauge size="15" />
             <span>{{ rateLabel }}</span>
@@ -207,9 +212,11 @@ defineExpose({ seekToAyah })
 
 <style lang="scss" scoped>
 .btn-play {
-  width: 40px;
-  height: 40px;
+  /* 44px minimum touch target. */
+  width: 2.75rem;
+  height: 2.75rem;
   padding: 0.625rem;
+  flex-shrink: 0;
 }
 /* Same soft primary-tint language as .chip, instead of the gray secondary pair. */
 .player-chip {

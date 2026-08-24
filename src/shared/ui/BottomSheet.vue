@@ -53,7 +53,9 @@ onBeforeUnmount(() => setScroll(false))
   display: flex;
   flex-direction: column;
   width: 100%;
+  /* dvh (not vh) so the cap tracks the visible viewport with the URL bar open. */
   max-height: 85vh;
+  max-height: 85dvh;
   padding-bottom: env(safe-area-inset-bottom);
   overflow: hidden;
 }
@@ -61,6 +63,8 @@ onBeforeUnmount(() => setScroll(false))
 .bottom-sheet-body {
   min-height: 0;
   overflow-y: auto;
+  /* Don't chain the sheet's scroll into the locked page behind it. */
+  overscroll-behavior: contain;
 }
 
 /* <Transition name="sheet"> — overlay fades, panel slides up from the bottom. */

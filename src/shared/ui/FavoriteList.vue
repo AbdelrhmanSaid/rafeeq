@@ -54,6 +54,7 @@ const favorites = filterFavorites(
               class="btn btn-flat btn-icon fav-btn is-active position-relative z-1"
               @click.stop="toggleFavorite(getKey(item))"
               title="إزالة من المفضلة"
+              aria-label="إزالة من المفضلة"
             >
               <IconHeartFilled size="1.25rem" class="text-danger" />
             </button>
@@ -82,6 +83,7 @@ const favorites = filterFavorites(
             :class="{ 'is-active': isFavorite(getKey(item)) }"
             @click.stop="toggleFavorite(getKey(item))"
             :title="isFavorite(getKey(item)) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"
+            :aria-label="isFavorite(getKey(item)) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"
           >
             <IconHeartFilled v-if="isFavorite(getKey(item))" size="1.25rem" class="text-danger" />
             <IconHeart v-else size="1.25rem" />

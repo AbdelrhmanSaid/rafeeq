@@ -54,10 +54,25 @@ const reset = () => {
 }
 
 let longPressed = false
+let touchMoved = false
+let touchStartY = null
+
+// Ignore taps that are really scroll gestures: a click that follows meaningful
+// vertical finger movement must not count the zekr.
+const onTouchStart = (e) => {
+  touchStartY = e.touches?.[0]?.clientY ?? null
+}
+
+const onTouchEnd = (e) => {
+  const endY = e.changedTouches?.[0]?.clientY
+  touchMoved = touchStartY != null && endY != null && Math.abs(endY - touchStartY) > 12
+  touchStartY = null
+}
 
 const onCardClick = () => {
-  if (isMobile.value && !longPressed) increment()
+  if (isMobile.value && !longPressed && !touchMoved) increment()
   longPressed = false
+  touchMoved = false
 }
 
 // Mobile long presses often emit no click, so count them here (ignoring the
@@ -70,7 +85,7 @@ onLongPress(
     longPressed = true
     increment()
   },
-  { onMouseUp: () => setTimeout(() => (longPressed = false), 100) },
+  { distanceThreshold: 10, onMouseUp: () => setTimeout(() => (longPressed = false), 100) },
 )
 
 const exportAsImage = () => {
@@ -107,7 +122,14 @@ const copyZekr = () => {
 </script>
 
 <template>
-  <div ref="card" class="card" :class="{ completed: count >= repeat }" @click="onCardClick">
+  <div
+    ref="card"
+    class="card zekr-card-root"
+    :class="{ completed: count >= repeat }"
+    @click="onCardClick"
+    @touchstart.passive="onTouchStart"
+    @touchend.passive="onTouchEnd"
+  >
     <div class="card-body zekr-card">
       <div class="card-actions" @click.stop>
         <button
@@ -121,7 +143,7 @@ const copyZekr = () => {
         </button>
 
         <div class="dropdown">
-          <button class="btn p-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-label="المزيد">
+          <button class="btn p-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-label="خيارات الذكر">
             <IconHeartShare size="18" />
           </button>
 
@@ -152,10 +174,15 @@ const copyZekr = () => {
         <div class="col-12 col-lg-auto">
           <button
             class="btn btn-counter border-flat"
+            type="button"
+            aria-label="تسجيل تكرار الذكر"
             @click.stop="increment"
             :style="{ '--progress': count / repeat }"
             :data-content="toArabicNumerals(`${count}/${repeat}`)"
           ></button>
+          <span class="visually-hidden" role="status"
+            >{{ toArabicNumerals(count) }} من {{ toArabicNumerals(repeat) }}</span
+          >
         </div>
 
         <div class="col-12 col-lg">
@@ -228,15 +255,16 @@ const copyZekr = () => {
 
   .card-actions {
     position: absolute;
-    inset-inline-end: 0.5rem;
-    inset-block-end: 0.5rem;
+    inset-inline-end: 0.25rem;
+    inset-block-end: 0.25rem;
     display: flex;
     align-items: center;
 
     > button,
     [data-bs-toggle='dropdown'] {
-      width: 32px;
-      height: 32px;
+      /* 44px minimum touch target. */
+      width: 2.75rem;
+      height: 2.75rem;
       display: grid;
       place-items: center;
       border-radius: 50%;
@@ -262,6 +290,8 @@ const copyZekr = () => {
   .zekr-card {
     cursor: pointer;
     user-select: none;
+    /* Rapid counting taps must not trigger double-tap zoom. */
+    touch-action: manipulation;
 
     > .row {
       flex-direction: column-reverse;

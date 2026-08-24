@@ -55,7 +55,13 @@ defineEmits(['toggle', 'favorite', 'share'])
       <!-- Controls -->
       <div class="d-flex flex-column align-items-center gap-4 mb-4 w-100">
         <!-- Main Play Button -->
-        <button class="play-btn" :class="isPlaying ? 'bg-danger' : 'bg-primary'" type="button" @click="$emit('toggle')">
+        <button
+          class="play-btn"
+          :class="isPlaying ? 'bg-danger' : 'bg-primary'"
+          type="button"
+          :aria-label="isPlaying ? `إيقاف ${station.name}` : `تشغيل ${station.name}`"
+          @click="$emit('toggle')"
+        >
           <IconPlayerPause v-if="isPlaying" size="2.5rem" />
           <IconPlayerPlay v-else size="2.5rem" />
         </button>

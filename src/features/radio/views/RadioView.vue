@@ -55,11 +55,23 @@ const radiosList = computed(() =>
       </template>
 
       <template #actions="{ item }">
-        <button class="btn btn-flat" @click.stop="store.stop()" v-if="store.station === item.url">
+        <button
+          v-if="store.station === item.url"
+          type="button"
+          class="btn btn-flat btn-icon"
+          :aria-label="`إيقاف ${item.name}`"
+          @click.stop="store.stop()"
+        >
           <IconPlayerPause size="1.25rem" />
         </button>
 
-        <button class="btn btn-flat" @click.stop="store.play(item.url)" v-else>
+        <button
+          v-else
+          type="button"
+          class="btn btn-flat btn-icon"
+          :aria-label="`تشغيل ${item.name}`"
+          @click.stop="store.play(item.url)"
+        >
           <IconPlayerPlay size="1.25rem" />
         </button>
       </template>

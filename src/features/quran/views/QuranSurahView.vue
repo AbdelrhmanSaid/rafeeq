@@ -146,7 +146,9 @@ watch(
       <!-- Audio Player -->
       <AudioPlayer v-if="online" ref="playerRef" />
 
-      <div class="card">
+      <p class="small text-secondary text-center m-0">اضغط على أي آية لعرض التفسير والاستماع والمزيد</p>
+
+      <div class="card my-3">
         <div class="ayat card-body font-quran mb-4">
           <span class="basmallah" v-if="surahId != 9">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
 
@@ -154,7 +156,11 @@ watch(
             <span
               :id="`ayah-${ayah.numberInSurah}`"
               class="ayah clickable-ayah"
-              :class="{ 'current-ayah': isCurrentVerse(ayah), 'bookmarked-ayah': isBookmarkedVerse(ayah) }"
+              :class="{
+                'current-ayah': isCurrentVerse(ayah),
+                'bookmarked-ayah': isBookmarkedVerse(ayah),
+                'selected-ayah': activeAyah?.number === ayah.number,
+              }"
               @click="activeAyah = ayah"
               :title="`خيارات الآية ${toArabicNumerals(ayah.numberInSurah)}`"
               >{{ ayah.text }}</span
@@ -226,6 +232,13 @@ watch(
     text-align-last: center;
     text-justify: inter-word;
 
+    // Justified Arabic produces large word gaps on narrow lines — fall back
+    // to start alignment on phones.
+    @media (max-width: 575.98px) {
+      text-align: start;
+      text-align-last: auto;
+    }
+
     .basmallah {
       display: block;
       font-size: 2rem;
@@ -272,6 +285,8 @@ watch(
 
     .clickable-ayah {
       cursor: pointer;
+      /* Quick repeated taps on an ayah must not trigger double-tap zoom. */
+      touch-action: manipulation;
     }
 
     // Always on (invisible without a background): toggling clone with the
@@ -290,6 +305,14 @@ watch(
       box-shadow:
         0.25rem 0 0 var(--bs-secondary-bg),
         -0.25rem 0 0 var(--bs-secondary-bg);
+    }
+
+    // Ayah picked for the action sheet — clear "this is what I tapped" state.
+    .selected-ayah {
+      background-color: var(--app-tint-strong);
+      box-shadow:
+        0.25rem 0 0 var(--app-tint-strong),
+        -0.25rem 0 0 var(--app-tint-strong);
     }
 
     .bookmarked-ayah {

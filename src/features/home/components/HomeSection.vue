@@ -27,7 +27,13 @@ defineProps({
 
 <style lang="scss" scoped>
 .home-section + .home-section {
-  margin-top: 3.25rem;
+  margin-top: 2.5rem;
+}
+
+@media (min-width: 768px) {
+  .home-section + .home-section {
+    margin-top: 3.25rem;
+  }
 }
 
 .home-section__header {

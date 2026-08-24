@@ -97,6 +97,7 @@ const updateSW = registerSW({
     :theme="themeStore.mode"
     position="bottom-left"
     offset="20px"
+    :mobile-offset="{ bottom: 'calc(var(--navbar-height) + env(safe-area-inset-bottom, 0px) + 12px)' }"
     :toast-options="{
       style: {
         gap: '20px',
@@ -112,6 +113,13 @@ const updateSW = registerSW({
   flex-direction: column;
   min-height: 100vh;
   min-height: 100dvh;
+  /* viewport-fit=cover lets content reach the notch in landscape — inset the
+     shell by the physical side cutouts. Physical (not logical) on purpose;
+     the rtlcss build must not flip them. */
+  /*! rtl:begin:ignore */
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  /*! rtl:end:ignore */
 }
 
 .offline-banner {
@@ -130,7 +138,9 @@ const updateSW = registerSW({
 
 .main-content {
   flex-grow: 1;
-  padding-bottom: var(--navbar-height);
+  /* Reserve the tab bar height *plus* the iPhone home-indicator inset — the
+     bar grows by the safe area, so a fixed 70px lets content hide behind it. */
+  padding-bottom: calc(var(--navbar-height) + env(safe-area-inset-bottom));
 }
 
 /* Embed adjustments */

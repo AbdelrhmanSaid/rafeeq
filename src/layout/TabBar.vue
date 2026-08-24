@@ -51,7 +51,7 @@ const closeMoreMenu = () => {
       :class="{ closing: isClosing }"
       @click="closeMoreMenu"
     >
-      <div class="bg-body w-100 more-menu" :class="{ closing: isClosing }" @click.stop style="max-height: 70vh">
+      <div class="bg-body w-100 more-menu" :class="{ closing: isClosing }" @click.stop>
         <span class="more-menu__grip" aria-hidden="true"></span>
         <div class="d-flex justify-content-between align-items-center px-4 pt-2 pb-3">
           <h5 class="mb-0">المزيد</h5>
@@ -89,7 +89,10 @@ const closeMoreMenu = () => {
     </div>
 
     <!-- Tab Bar -->
-    <nav class="position-fixed bottom-0 start-0 end-0 d-flex justify-content-around py-2 tab-bar">
+    <nav
+      class="position-fixed bottom-0 start-0 end-0 d-flex justify-content-around py-2 tab-bar"
+      aria-label="التنقل الرئيسي"
+    >
       <RouterLink :to="{ name: 'home' }" class="tab-item">
         <span class="tab-item__icon"><IconHome size="1.4rem" /></span>
         <span class="tab-item__label">الرئيسية</span>
@@ -113,7 +116,12 @@ const closeMoreMenu = () => {
         <span class="tab-item__label">الإذاعة</span>
       </RouterLink>
 
-      <button class="tab-item bg-transparent border-0" @click="toggleMoreMenu">
+      <button
+        type="button"
+        class="tab-item bg-transparent border-0"
+        :aria-expanded="showMoreMenu"
+        @click="toggleMoreMenu"
+      >
         <span class="tab-item__icon"><IconDotsCircleHorizontal size="1.4rem" /></span>
         <span class="tab-item__label">المزيد</span>
       </button>
@@ -127,6 +135,12 @@ const closeMoreMenu = () => {
   min-height: var(--navbar-height);
   align-items: center;
   padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+  /* Keep tabs clear of the notch / curved corners in landscape. Physical
+     properties on purpose; the rtlcss build must not flip them. */
+  /*! rtl:begin:ignore */
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  /*! rtl:end:ignore */
   z-index: 1020;
   background: var(--app-glass);
   border-top: 1px solid var(--app-hairline);
@@ -160,7 +174,8 @@ const closeMoreMenu = () => {
   }
 
   &__label {
-    font-size: 0.7rem;
+    /* ~12.5px — 11px labels were too small to read comfortably. */
+    font-size: 0.78rem;
     font-weight: 500;
   }
 
@@ -229,6 +244,12 @@ const closeMoreMenu = () => {
 .more-menu {
   border-radius: var(--bs-border-radius-xl) var(--bs-border-radius-xl) 0 0;
   padding-bottom: env(safe-area-inset-bottom);
+  /* dvh (not vh) so the cap tracks the *visible* viewport with the URL bar
+     open; scroll inside the panel if large font scales overflow it. */
+  max-height: 70vh;
+  max-height: 70dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   animation: slideUp 0.35s var(--app-ease);
   /* Keep the panel on its own compositing layer for the whole lifetime so the
      text isn't re-rasterized (and nudged sub-pixel) when the slide ends. */
@@ -258,7 +279,8 @@ const closeMoreMenu = () => {
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  padding: 0.55rem 0.75rem;
+  /* Comfortable touch rows (>=44px tall). */
+  padding: 0.7rem 0.75rem;
   border-radius: var(--bs-border-radius);
   color: var(--bs-body-color);
   font-weight: 500;
