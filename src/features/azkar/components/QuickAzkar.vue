@@ -93,4 +93,17 @@ const azkar = [
 [dir='ltr'] .quick-row__chevron {
   transform: scaleX(-1);
 }
+
+@media screen and (min-width: 768px) {
+  .list-group {
+    flex-direction: row;
+    gap: 0.75rem;
+    box-shadow: none;
+
+    .list-group-item {
+      border: 1px solid var(--app-hairline);
+      border-radius: var(--bs-list-group-border-radius);
+    }
+  }
+}
 </style>
