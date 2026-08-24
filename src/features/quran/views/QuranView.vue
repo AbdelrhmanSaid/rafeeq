@@ -53,14 +53,15 @@ const { bookmark } = useQuranBookmark()
       <template #default="{ item }">
         <RouterLink
           :to="{ name: 'quran-surah', params: { surah: item.id } }"
-          class="stretched-link text-decoration-none text-reset"
+          class="stretched-link text-decoration-none text-reset d-flex align-items-center gap-3 min-w-0 flex-grow-1"
         >
-          <p class="d-flex flex-column m-0">
-            <span>{{ toArabicNumerals(item.id) }}. {{ item.name }}</span>
-            <small>
+          <span class="list-index">{{ toArabicNumerals(item.id) }}</span>
+          <span class="d-flex flex-column min-w-0">
+            <span class="fw-medium text-truncate">{{ item.name }}</span>
+            <small class="text-body-secondary text-truncate">
               عدد الآيات: {{ toArabicNumerals(item.numberOfAyahs) }} - {{ item.isMeccan ? 'مكية' : 'مدنية' }}
             </small>
-          </p>
+          </span>
         </RouterLink>
       </template>
     </SearchableFavoritesList>

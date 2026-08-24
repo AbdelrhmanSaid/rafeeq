@@ -36,13 +36,16 @@ $input-btn-padding-y: 0.5rem;
 $input-btn-padding-x: 1rem;
 $btn-font-weight: 500;
 
-// Surfaces
-$card-border-radius: var(--bs-border-radius-lg);
-$card-spacer-y: 1.25rem;
-$card-spacer-x: 1.25rem;
+// Surfaces — cards and modals carry the xl radius with matching generous
+// padding; grouped lists sit one step down (lg radius, tighter rows) so
+// divided rows read as content, not hero surfaces.
+$card-border-radius: var(--bs-border-radius-xl);
+$card-spacer-y: 1.5rem;
+$card-spacer-x: 1.5rem;
 $modal-content-border-radius: var(--bs-border-radius-xl);
 $list-group-border-radius: var(--bs-border-radius-lg);
-$list-group-item-padding-x: 1.25rem;
+$list-group-item-padding-x: 1rem;
+$list-group-item-padding-y: 0.75rem;
 $input-border-radius: var(--bs-border-radius);
 $input-border-radius-lg: var(--bs-border-radius-lg);
 $dropdown-border-radius: var(--bs-border-radius);

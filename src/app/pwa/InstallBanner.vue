@@ -38,8 +38,9 @@ const { canInstall, install, dismiss } = useInstallPrompt()
 <style lang="scss" scoped>
 .install-banner {
   position: fixed;
-  /* Clear the mobile tab bar (and the iPhone home indicator it grows by). */
-  bottom: calc(var(--navbar-height) + env(safe-area-inset-bottom, 0px) + 0.75rem);
+  /* Clear the floating tab-bar pill (and the iPhone home indicator it grows
+     by) with enough air that the two rounded surfaces don't crowd. */
+  bottom: calc(var(--navbar-height) + env(safe-area-inset-bottom, 0px) + 1.25rem);
   inset-inline: 0.75rem;
   z-index: 1030;
   display: flex;

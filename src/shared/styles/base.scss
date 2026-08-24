@@ -287,6 +287,20 @@ body {
   height: 1.5rem;
 }
 
+/* Muted circle index badge for numbered list rows (quran, azkar, radio). */
+.list-index {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(var(--bs-secondary-rgb), 0.12);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--bs-secondary-color);
+}
+
 /* Rounded-square variant for section / settings headers. */
 .icon-tile {
   display: inline-grid;
