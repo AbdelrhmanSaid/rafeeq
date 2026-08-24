@@ -106,7 +106,13 @@ const close = () => emit('close')
         class="position-fixed top-0 start-0 end-0 bottom-0 d-flex align-items-end bottom-sheet-overlay"
         :style="overlayStyle"
       >
-        <div class="bg-body rounded-top-3 bottom-sheet" :style="panelStyle" v-on-click-outside="close">
+        <!-- Toasts render above the backdrop (vue-sonner's z-index), so a tap
+             dismissing a toast must not also dismiss the sheet. -->
+        <div
+          class="bg-body rounded-top-3 bottom-sheet"
+          :style="panelStyle"
+          v-on-click-outside="[close, { ignore: ['[data-sonner-toaster]'] }]"
+        >
           <!-- No .prevent here: canceling pointerdown would also suppress the
                compatibility click on touch, breaking the close button. -->
           <div class="bottom-sheet-handle" @pointerdown="onDragStart">

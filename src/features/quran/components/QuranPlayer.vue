@@ -124,6 +124,10 @@ async function tryPlay() {
     updateMediaPosition()
   } catch {
     isPlaying.value = false
+    // The radio's session was already cleared above — leave a valid paused
+    // Quran session rather than no lockscreen player at all.
+    updateMediaSession()
+    setMediaPlaybackState('paused')
   }
 }
 
@@ -181,6 +185,11 @@ function loadSource(url) {
   audio.value.load()
   isPlaying.value = false
   currentTime.value = 0
+  // Until the new metadata arrives the previous surah's duration would clamp
+  // lockscreen seeks and feed the OS seekbar — zero it alongside the position.
+  duration.value = 0
+  setMediaPlaybackState('paused')
+  updateMediaPosition()
 }
 
 watch(() => quranStore.surahAudioUrl, loadSource)
@@ -210,15 +219,13 @@ defineExpose({ seekToAyah })
       </button>
 
       <!-- Two fixed lines: the name truncates on top and the ayah line below
-           keeps its height even while empty, so playback never resizes the
+           always has text ('تلاوة' while idle), so playback never resizes the
            player or squeezes the name. -->
       <div class="flex-grow-1 min-w-0">
-        <div class="fw-semibold text-truncate" :class="ayahLabel ? 'text-primary' : 'text-muted'">
+        <div class="fw-semibold text-truncate text-primary">
           {{ playerTitle }}
         </div>
-        <!-- nbsp keeps a real line box while idle so the indicator appearing
-             doesn't change the player's height. -->
-        <div class="small text-secondary">{{ ayahLabel || '\u00A0' }}</div>
+        <div class="small text-secondary">{{ ayahLabel }}</div>
       </div>
 
       <button

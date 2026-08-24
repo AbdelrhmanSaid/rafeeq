@@ -125,10 +125,13 @@ const conditions = {
     <div class="zakat-layout">
       <!-- Tabs Navigation -->
       <nav class="zakat-nav tab-pills" aria-label="أنواع الزكاة">
+        <!-- replace: tabs are deep-linkable but must not stack history entries,
+             or Back walks through every tab the user viewed. -->
         <RouterLink
           v-for="tab in tabs"
           :key="tab.id"
           :to="{ name: 'zakat', params: { tab: tab.id } }"
+          replace
           class="zakat-nav-item tab-pill"
           :class="{ active: activeTab === tab.id }"
         >

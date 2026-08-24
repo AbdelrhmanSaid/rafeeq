@@ -32,6 +32,14 @@ export const useRadioStore = defineStore('radio', () => {
     if (station.value) setMediaPlaybackState(playing ? 'playing' : 'paused')
   })
 
+  // A dead stream (retries exhausted) tears down inside useAudioPlayer without
+  // going through stop() — and it nulls the src before the isPlaying watch
+  // fires, so the guard above skips too. Clear the lockscreen player here or
+  // it keeps showing the station as "playing".
+  watch(status, (value) => {
+    if (value === 'failed') clearMediaSession()
+  })
+
   return {
     station,
     isPlaying,

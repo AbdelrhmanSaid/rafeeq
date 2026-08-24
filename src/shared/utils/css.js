@@ -61,7 +61,18 @@ function toRgbValue(color) {
   const rgb = getComputedStyle(probe).color
   probe.remove()
 
-  return rgb.match(/\d+/g)?.slice(0, 3).join(', ') ?? null
+  // A resolved color-mix() serializes as `color(srgb 0.976 …)` (0–1 floats)
+  // in modern engines, and even rgb() can carry decimals — an integer-only
+  // regex would emit garbage like "0, 976, 0".
+  const channels = rgb.match(/-?\d*\.?\d+/g)?.map(Number)
+  if (!channels || channels.length < 3) return null
+
+  const scale = rgb.startsWith('color(') ? 255 : 1
+
+  return channels
+    .slice(0, 3)
+    .map((n) => Math.round(Math.min(255, Math.max(0, n * scale))))
+    .join(', ')
 }
 
 function setVars(vars) {
