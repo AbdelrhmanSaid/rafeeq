@@ -105,7 +105,16 @@ async function toggleAyahPlayback() {
     </div>
 
     <template v-else-if="ayah">
-      <div class="card-body">
+      <div class="ayah-toolbar">
+        <span class="chip ayah-surah">
+          <IconBookmark size="14" aria-hidden="true" />
+          <span>{{ normalizeQuranicText(ayah.surah.name) }}</span>
+          <span class="ayah-surah__sep" aria-hidden="true">·</span>
+          <span>آية {{ toArabicNumerals(ayah.numberInSurah) }}</span>
+        </span>
+      </div>
+
+      <div class="card-body pt-3">
         <p class="ayah-text font-quran">
           {{ displayText }} <span class="ayah-number">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
         </p>
@@ -117,13 +126,6 @@ async function toggleAyahPlayback() {
       </div>
 
       <div class="ayah-footer">
-        <span class="chip ayah-surah">
-          <IconBookmark size="14" aria-hidden="true" />
-          <span>{{ normalizeQuranicText(ayah.surah.name) }}</span>
-          <span class="ayah-surah__sep" aria-hidden="true">·</span>
-          <span>آية {{ toArabicNumerals(ayah.numberInSurah) }}</span>
-        </span>
-
         <div class="ayah-actions">
           <button class="btn btn-flat btn-icon" @click="prevAyah" title="الآية السابقة" aria-label="الآية السابقة">
             <IconChevronRight size="18" />
@@ -163,14 +165,17 @@ async function toggleAyahPlayback() {
   background: radial-gradient(30rem 12rem at 50% -4rem, var(--app-tint), transparent 70%), var(--app-surface);
 }
 
+.ayah-toolbar {
+  display: flex;
+  align-items: center;
+  padding: 0.85rem 1rem 0;
+}
+
 /* Controls dock in a quiet footer strip under the ayah, like the reader. */
 .ayah-footer {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding-block: 0.5rem;
-  padding-inline: 1rem 0.5rem;
+  justify-content: center;
+  padding: 0.4rem 1rem;
   border-top: 1px solid var(--app-hairline);
 }
 
@@ -193,7 +198,9 @@ async function toggleAyahPlayback() {
 .ayah-actions {
   display: flex;
   align-items: center;
-  gap: 0.1rem;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 18rem;
 
   .btn {
     /* 44px minimum touch target. */
