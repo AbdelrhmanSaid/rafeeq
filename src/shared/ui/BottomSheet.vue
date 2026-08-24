@@ -70,17 +70,27 @@ useEventListener(window, 'pointercancel', onDragEnd)
 
 // Without this the panel snaps back to the top of the drag before the leave
 // transition slides it down. Seed the leave with the release position, then
-// clear it a frame later so the CSS transition takes over from there.
+// hand off to the CSS transition. Two constraints on the handoff:
+// - Vue applies .sheet-leave-to on its own double rAF, so ours must be a
+//   double rAF too — a single frame clears the seed before the target class
+//   exists and flashes the fully-open sheet.
+// - The unmounting element never gets its final :style patch, so the drag's
+//   inline `transition: none` is still on both nodes and must be cleared or
+//   the dismissal jumps instead of sliding.
 function onLeave(el) {
   if (!releasedY) return
   const panel = el.querySelector('.bottom-sheet')
   el.style.opacity = String(backdropOpacity(releasedY))
   panel.style.transform = `translateY(${releasedY}px)`
   releasedY = 0
-  requestAnimationFrame(() => {
-    el.style.opacity = ''
-    panel.style.transform = ''
-  })
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => {
+      el.style.opacity = ''
+      el.style.transition = ''
+      panel.style.transform = ''
+      panel.style.transition = ''
+    }),
+  )
 }
 
 // Backdrop opacity for a given drag distance — dims as the panel travels so
