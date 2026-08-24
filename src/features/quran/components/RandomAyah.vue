@@ -105,7 +105,18 @@ async function toggleAyahPlayback() {
     </div>
 
     <template v-else-if="ayah">
-      <div class="ayah-toolbar">
+      <div class="card-body">
+        <p class="ayah-text font-quran">
+          {{ displayText }} <span class="ayah-number">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
+        </p>
+
+        <div v-if="tafsir" class="ayah-tafsir">
+          <span class="ayah-tafsir__label">{{ tafsir.edition.name }}</span>
+          <p class="mb-0">{{ tafsir.text }}</p>
+        </div>
+      </div>
+
+      <div class="ayah-footer">
         <span class="chip ayah-surah">
           <IconBookmark size="14" aria-hidden="true" />
           <span>{{ normalizeQuranicText(ayah.surah.name) }}</span>
@@ -122,10 +133,6 @@ async function toggleAyahPlayback() {
             <IconChevronLeft size="18" />
           </button>
 
-          <button class="btn btn-flat btn-icon" @click="fetchRandomAyah" title="آية جديدة" aria-label="تحميل آية جديدة">
-            <IconRefresh size="18" />
-          </button>
-
           <button
             class="btn btn-flat btn-icon ayah-play"
             :class="{ 'is-playing': isPlaying }"
@@ -137,17 +144,10 @@ async function toggleAyahPlayback() {
             <IconPlayerPause v-if="isPlaying" size="18" />
             <IconPlayerPlay v-else size="18" />
           </button>
-        </div>
-      </div>
 
-      <div class="card-body pt-3">
-        <p class="ayah-text font-quran">
-          {{ displayText }} <span class="ayah-number">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
-        </p>
-
-        <div v-if="tafsir" class="ayah-tafsir">
-          <span class="ayah-tafsir__label">{{ tafsir.edition.name }}</span>
-          <p class="mb-0">{{ tafsir.text }}</p>
+          <button class="btn btn-flat btn-icon" @click="fetchRandomAyah" title="آية جديدة" aria-label="تحميل آية جديدة">
+            <IconRefresh size="18" />
+          </button>
         </div>
       </div>
     </template>
@@ -163,12 +163,15 @@ async function toggleAyahPlayback() {
   background: radial-gradient(30rem 12rem at 50% -4rem, var(--app-tint), transparent 70%), var(--app-surface);
 }
 
-.ayah-toolbar {
+/* Controls dock in a quiet footer strip under the ayah, like the reader. */
+.ayah-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0.85rem 1rem 0;
+  padding-block: 0.5rem;
+  padding-inline: 1rem 0.5rem;
+  border-top: 1px solid var(--app-hairline);
 }
 
 .ayah-surah {
