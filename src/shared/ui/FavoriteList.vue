@@ -49,7 +49,7 @@ const favorites = filterFavorites(
         <div class="d-flex justify-content-between align-items-center">
           <slot :item="item" :index="index" />
 
-          <div class="d-flex gap-2 fav-actions">
+          <div class="d-flex gap-1 fav-actions">
             <button
               class="btn btn-flat btn-icon fav-btn is-active position-relative z-1"
               @click.stop="toggleFavorite(getKey(item))"
@@ -76,7 +76,7 @@ const favorites = filterFavorites(
       <div class="d-flex justify-content-between align-items-center">
         <slot :item="item" :index="index" />
 
-        <div class="d-flex gap-2 fav-actions">
+        <div class="d-flex gap-1 fav-actions">
           <button
             class="btn btn-flat btn-icon fav-btn position-relative z-1"
             :class="{ 'is-active': isFavorite(getKey(item)) }"
