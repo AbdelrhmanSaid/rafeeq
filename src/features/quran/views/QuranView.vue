@@ -5,7 +5,7 @@ import Heading from '@/shared/ui/Heading.vue'
 import SearchableFavoritesList from '@/shared/ui/SearchableFavoritesList.vue'
 import surahs from '@/features/quran/data/surahs.js'
 import { useQuranBookmark } from '@/features/quran/composables/useQuranBookmark'
-import { toArabicNumerals } from '@/shared/utils/arabic'
+import { toArabicNumerals, normalizeQuranicText } from '@/shared/utils/arabic'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 
 const { bookmark } = useQuranBookmark()
@@ -28,7 +28,7 @@ const { bookmark } = useQuranBookmark()
       <span class="bookmark-card__body">
         <span class="bookmark-card__label">متابعة القراءة</span>
         <span class="bookmark-card__title"
-          >{{ bookmark.surahName }} - آية {{ toArabicNumerals(bookmark.ayahNumber) }}</span
+          >{{ normalizeQuranicText(bookmark.surahName) }} - آية {{ toArabicNumerals(bookmark.ayahNumber) }}</span
         >
         <span v-if="bookmark.text" class="bookmark-card__text font-quran">{{ bookmark.text }}</span>
       </span>
@@ -57,7 +57,7 @@ const { bookmark } = useQuranBookmark()
         >
           <span class="list-index">{{ toArabicNumerals(item.id) }}</span>
           <span class="d-flex flex-column min-w-0">
-            <span class="fw-medium text-truncate">{{ item.name }}</span>
+            <span class="fw-medium text-truncate">{{ normalizeQuranicText(item.name) }}</span>
             <small class="text-body-secondary text-truncate">
               عدد الآيات: {{ toArabicNumerals(item.numberOfAyahs) }} - {{ item.isMeccan ? 'مكية' : 'مدنية' }}
             </small>

@@ -176,8 +176,14 @@ async function toggleAyahPlayback() {
 
 .ayah-surah {
   min-width: 0;
-  font-family: 'Thmanyah Serif Text', 'Thmanyah Sans', serif;
+  /* Kitab (the bundled Quran face) backstops the Thmanyah faces here: the
+     vocalized surah name is the one UI string dense with tashkeel, and a
+     device that won't shape it with the primary faces should land on a
+     bundled font with known metrics — not a system Naskh that paints
+     visibly larger at the same size. */
+  font-family: 'Thmanyah Serif Text', 'Thmanyah Sans', 'Kitab', serif;
   font-size: 0.85rem;
+  line-height: 1.4;
 }
 
 .ayah-surah__sep {

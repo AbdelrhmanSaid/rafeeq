@@ -215,7 +215,7 @@ useScreenWakeLock()
 
       <AyahActionSheet
         :ayah="activeAyah"
-        :surah-name="surah.data.name"
+        :surah-name="normalizeQuranicText(surah.data.name)"
         :online="online"
         :bookmarked="!!activeAyah && isBookmarkedVerse(activeAyah)"
         @recite="reciteAyah"
