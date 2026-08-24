@@ -47,23 +47,23 @@ const formatRakaa = (value) => {
   <div>
     <!-- List layout (below lg) -->
     <div class="d-lg-none">
-      <div class="d-flex justify-content-end px-3 pb-1 small text-body-secondary">
+      <div class="d-flex justify-content-end px-3 pb-2 small text-body-secondary">
         <span class="rakaa-col">قبل</span>
         <span class="rakaa-col">بعد</span>
       </div>
-      <div class="d-flex flex-column gap-1">
+      <div class="list-group">
         <div
           v-for="(prayer, index) in prayers"
           :key="index"
-          class="d-flex align-items-center justify-content-between px-3 py-2 small sunnah-row"
+          class="list-group-item d-flex align-items-center justify-content-between sunnah-row"
         >
-          <div class="d-flex align-items-center gap-2">
-            <span class="icon-container text-primary">
+          <div class="d-flex align-items-center gap-2 min-w-0">
+            <span class="sunnah-row__icon">
               <PrayerIcon :name="prayer.icon" />
             </span>
-            <span class="fw-semibold">{{ prayer.name }}</span>
+            <span class="fw-semibold text-truncate">{{ prayer.name }}</span>
           </div>
-          <div class="d-flex">
+          <div class="d-flex small">
             <span class="rakaa-col fw-semibold" :class="{ 'text-body-secondary': prayer.before === 0 }">
               {{ formatRakaa(prayer.before) }}
             </span>
@@ -110,10 +110,23 @@ const formatRakaa = (value) => {
 
 <style lang="scss" scoped>
 .sunnah-row {
-  border: 1px solid var(--app-hairline);
-  border-radius: var(--bs-border-radius);
-  background: var(--app-surface);
-  box-shadow: var(--app-shadow-card);
+  min-height: 3.5rem;
+}
+
+.sunnah-row__icon {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(var(--bs-secondary-rgb), 0.12);
+  color: var(--bs-secondary-color);
+
+  :deep(svg) {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
 }
 
 .sunnah-card {
@@ -131,19 +144,5 @@ const formatRakaa = (value) => {
   width: 4.5rem;
   text-align: center;
   flex-shrink: 0;
-}
-
-/* Match the icon sizing of the prayer times list rows. */
-.icon-container {
-  display: grid;
-  place-items: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  flex-shrink: 0;
-
-  :deep(svg) {
-    width: 1.15rem;
-    height: 1.15rem;
-  }
 }
 </style>
