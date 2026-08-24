@@ -31,11 +31,23 @@ const items = categories.map((category, index) => ({ ...category, id: index + 1 
       <template #default="{ item }">
         <RouterLink
           :to="{ name: 'azkar-category', params: { category: item.slug } }"
-          class="stretched-link text-decoration-none text-reset"
+          class="stretched-link text-decoration-none text-reset d-flex align-items-center gap-2 min-w-0 flex-grow-1"
         >
-          {{ toArabicNumerals(item.id) }}. {{ item.name }}
+          <span class="row-index">{{ toArabicNumerals(item.id) }}.</span>
+          <span class="text-truncate">{{ item.name }}</span>
         </RouterLink>
       </template>
     </SearchableFavoritesList>
   </Page>
 </template>
+
+<style lang="scss" scoped>
+/* Quiet fixed-width index column so category names align vertically. */
+.row-index {
+  width: 2.25rem;
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--bs-secondary-color);
+}
+</style>
