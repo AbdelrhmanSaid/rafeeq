@@ -36,13 +36,15 @@ $input-btn-padding-y: 0.5rem;
 $input-btn-padding-x: 1rem;
 $btn-font-weight: 500;
 
-// Surfaces
-$card-border-radius: var(--bs-border-radius-lg);
-$card-spacer-y: 1.25rem;
-$card-spacer-x: 1.25rem;
+// Surfaces — top-level surfaces (cards, list groups, modals) share the xl
+// radius with matching generous padding, so nested elements on the base
+// radius nest concentrically inside them.
+$card-border-radius: var(--bs-border-radius-xl);
+$card-spacer-y: 1.5rem;
+$card-spacer-x: 1.5rem;
 $modal-content-border-radius: var(--bs-border-radius-xl);
-$list-group-border-radius: var(--bs-border-radius-lg);
-$list-group-item-padding-x: 1.25rem;
+$list-group-border-radius: var(--bs-border-radius-xl);
+$list-group-item-padding-x: 1.5rem;
 $input-border-radius: var(--bs-border-radius);
 $input-border-radius-lg: var(--bs-border-radius-lg);
 $dropdown-border-radius: var(--bs-border-radius);
