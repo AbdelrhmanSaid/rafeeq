@@ -35,7 +35,7 @@ defineProps({
       </div>
     </div>
 
-    <div class="zakat-conditions">
+    <div class="zakat-conditions card-footer">
       <h4 class="zakat-conditions__title">{{ conditionsTitle }}</h4>
       <ul class="zakat-conditions__list">
         <li v-for="(condition, index) in conditions" :key="index">
@@ -167,8 +167,6 @@ defineProps({
 
 .zakat-conditions {
   padding: 1.1rem 1.25rem 1.25rem;
-  border-top: 1px solid var(--app-hairline);
-  background: color-mix(in srgb, var(--bs-primary) 4%, var(--app-surface));
 }
 
 .zakat-conditions__title {

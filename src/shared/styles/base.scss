@@ -109,6 +109,15 @@ body {
   box-shadow: var(--app-shadow-card);
 }
 
+/* Footer strip — same glass as the bars so it docks instead of reading as a
+   second opaque surface. Scoped to .card-footer so headers stay untouched. */
+.card-footer {
+  background: var(--app-glass);
+  /* No -webkit- duplicate (see TabBar.vue): Lightning CSS would keep only the
+     prefixed property and Chrome/Firefox would lose the blur. */
+  backdrop-filter: blur(18px) saturate(1.4);
+}
+
 /* Interactive card: soft lift + primary tint on hover / focus-within. */
 .card-interactive {
   transition:

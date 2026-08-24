@@ -125,7 +125,7 @@ async function toggleAyahPlayback() {
         </div>
       </div>
 
-      <div class="ayah-footer">
+      <div class="ayah-footer card-footer">
         <div class="ayah-actions">
           <button class="btn btn-flat btn-icon" @click="prevAyah" title="الآية السابقة" aria-label="الآية السابقة">
             <IconChevronRight size="18" />
@@ -214,25 +214,7 @@ async function toggleAyahPlayback() {
 
     &:hover:not(:disabled) {
       background-color: var(--app-tint);
-      color: var(--bs-primary);
     }
-  }
-}
-
-/* Play is the toolbar's primary action — give it a standing tint so it
-   doesn't read as one of four equal icons. */
-.ayah-play:not(:disabled) {
-  background-color: var(--app-tint);
-  color: var(--bs-primary);
-}
-
-.ayah-play.is-playing {
-  background-color: var(--bs-primary);
-  color: #fff;
-
-  &:hover {
-    background-color: var(--bs-primary) !important;
-    color: #fff !important;
   }
 }
 
