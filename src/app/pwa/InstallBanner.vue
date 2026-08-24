@@ -17,7 +17,12 @@ const { canInstall, install, dismiss } = useInstallPrompt()
 
       <button type="button" class="btn btn-primary btn-sm flex-shrink-0" @click="install">تثبيت</button>
 
-      <button type="button" class="btn btn-icon btn-flat rounded-circle flex-shrink-0" aria-label="إخفاء" @click="dismiss">
+      <button
+        type="button"
+        class="btn btn-icon btn-flat rounded-circle flex-shrink-0"
+        aria-label="إخفاء"
+        @click="dismiss"
+      >
         <IconX size="1.1rem" />
       </button>
     </div>

@@ -14,7 +14,11 @@ const emit = defineEmits(['close'])
 // Lock the background page scroll while the sheet is open so the backdrop
 // stays put instead of scrolling behind the panel.
 const bodyLock = useScrollLock(typeof document !== 'undefined' ? document.body : null)
-watch(() => props.show, (open) => (bodyLock.value = open), { immediate: true })
+watch(
+  () => props.show,
+  (open) => (bodyLock.value = open),
+  { immediate: true },
+)
 onBeforeUnmount(() => (bodyLock.value = false))
 
 // --- Drag-to-dismiss -------------------------------------------------------
