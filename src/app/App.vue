@@ -99,7 +99,7 @@ const updateSW = registerSW({
   <!-- Toast -->
   <Toaster
     :theme="themeStore.mode"
-    position="bottom-left"
+    position="bottom-right"
     offset="20px"
     :mobile-offset="{ bottom: 'calc(var(--navbar-height) + env(safe-area-inset-bottom, 0px) + 12px)' }"
     :toast-options="{

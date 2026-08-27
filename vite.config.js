@@ -7,6 +7,25 @@ import rtlcss from 'rtlcss'
 
 import { manifestIcons } from './src/app/pwa/manifest-icons.js'
 
+// Files matching any of these patterns are skipped by rtlcss (already RTL-safe).
+const rtlcssExcludePatterns = [/vue-sonner/]
+
+// Allow to exclude files from rtlcss processing
+function rtlcssWithExclude(options) {
+  return {
+    postcssPlugin: 'rtlcss-with-exclude',
+    prepare(result) {
+      const file = result.opts.from ?? ''
+      if (rtlcssExcludePatterns.some((pattern) => pattern.test(file))) return {}
+
+      return rtlcss(options)
+    },
+  }
+}
+
+// Append postcss: true to the rtlcss plugin
+rtlcssWithExclude.postcss = true
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -91,7 +110,7 @@ export default defineConfig({
 
   css: {
     postcss: {
-      plugins: [rtlcss()],
+      plugins: [rtlcssWithExclude()],
     },
   },
 
