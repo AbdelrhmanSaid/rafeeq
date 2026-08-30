@@ -15,12 +15,29 @@ import {
   clearMediaSession,
 } from '@/shared/utils/mediaSession'
 
+const props = defineProps({
+  surahNumber: { type: Number, required: true },
+  surahName: { type: String, required: true },
+})
+
 // Render settings cards (the reciter picker) form-only inside the sheet — the
 // sheet provides its own title, so the card chrome would be redundant.
 provide('settings-bare', true)
 
 const quranStore = useQuranStore()
 const radioStore = useRadioStore()
+
+// Timings (and the derived audio URL) stay off the page loader. Recite waits
+// on this so a tap before timings arrive still seeks once they do.
+let audioReady = Promise.resolve()
+
+const trackAudioLoad = (promise) => (audioReady = promise ?? Promise.resolve())
+
+watch(
+  () => [props.surahNumber, props.surahName],
+  ([surahNumber, surahName]) => trackAudioLoad(quranStore.loadSurahAudio(surahNumber, surahName)),
+  { immediate: true },
+)
 
 const audio = ref(null)
 // loadstart → canplay window; useMediaControls' `waiting` also flips during
@@ -45,7 +62,7 @@ function openReciterSheet() {
 function closeReciterSheet() {
   showReciterSheet.value = false
   if (Number(quranStore.currentReciter) !== reciterOnOpen) {
-    quranStore.reloadSurahAudio()
+    trackAudioLoad(quranStore.reloadSurahAudio())
   }
 }
 
@@ -162,6 +179,10 @@ async function seekToAyah(ayahNumber) {
     stop()
     return
   }
+
+  const pendingAudio = audioReady
+  await pendingAudio
+  if (pendingAudio !== audioReady) return
 
   const startTime = quranStore.getAyahStartTime(ayahNumber)
   if (startTime === null || !audio.value) return

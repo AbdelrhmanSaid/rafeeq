@@ -30,18 +30,7 @@ const quranStore = useQuranStore()
 const { isBookmarked, toggleBookmark } = useQuranBookmark()
 const playerRef = ref(null)
 
-const {
-  data: surah,
-  error,
-  pending: isFetching,
-  execute: reloadSurah,
-} = useAsyncData(async () => {
-  const result = await fetchSurah(surahId.value)
-  if (online.value && result) {
-    await quranStore.loadSurahAudio(result.data.number, result.data.name)
-  }
-  return result
-})
+const { data: surah, error, pending: isFetching, execute: reloadSurah } = useAsyncData(() => fetchSurah(surahId.value))
 
 // Vue Router reuses this component when only the :surah param changes (e.g. the
 // prev/next buttons), so re-fetch and scroll back to the top on each switch.
@@ -162,7 +151,7 @@ useScreenWakeLock()
       />
 
       <!-- Audio Player -->
-      <AudioPlayer v-if="online" ref="playerRef" />
+      <AudioPlayer v-if="online" ref="playerRef" :surah-number="surah.data.number" :surah-name="surah.data.name" />
 
       <p class="small text-secondary text-center m-0">اضغط على أي آية لعرض التفسير والاستماع والمزيد</p>
 

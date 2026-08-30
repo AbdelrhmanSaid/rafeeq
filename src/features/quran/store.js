@@ -21,6 +21,7 @@ export const useQuranStore = defineStore('quran', () => {
   const currentSurahNumber = ref(null)
   const ayahTimings = ref([])
   const currentAyahIndex = ref(-1)
+  let audioLoadId = 0
 
   const reciter = computed(() => {
     const id = Number(currentReciter.value)
@@ -57,17 +58,16 @@ export const useQuranStore = defineStore('quran', () => {
   }
 
   async function loadSurahAudio(surahNumber, name) {
+    const loadId = ++audioLoadId
     currentSurahNumber.value = surahNumber
     surahName.value = name
     surahAudioUrl.value = getSurahAudioUrl(surahNumber)
     currentAyahIndex.value = -1
+    ayahTimings.value = []
 
-    try {
-      const timings = await fetchTimings(surahNumber)
-      ayahTimings.value = timings
-    } catch {
-      ayahTimings.value = []
-    }
+    const timings = await fetchTimings(surahNumber).catch(() => [])
+    // A later load (including an A → B → A switch) always wins.
+    if (loadId === audioLoadId) ayahTimings.value = timings
   }
 
   function updateCurrentAyahFromTime(timeMs) {
