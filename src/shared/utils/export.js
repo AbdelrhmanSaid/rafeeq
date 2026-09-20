@@ -1,7 +1,4 @@
 import { createApp, nextTick } from 'vue'
-// html2canvas-pro, not html2canvas: the original can't parse the color() /
-// color-mix() values the theme now computes to, and dies before capturing.
-import html2canvas from 'html2canvas-pro'
 
 // iOS Safari silently produces an all-blank canvas (no error) once a canvas
 // exceeds ~16.7M pixels — the classic "exported a white image" failure.
@@ -54,6 +51,11 @@ function isCanvasBlank(canvas) {
  */
 export async function exportComponent(component, props = {}, filePrefix = 'export', options = {}) {
   const { canvas: canvasOptions = {}, format = 'png', quality = 0.92, expectedWidth } = options || {}
+
+  // Load the renderer only when an export is requested. html2canvas-pro, not
+  // html2canvas: the original can't parse the color() / color-mix() values the
+  // theme now computes to, and dies before capturing.
+  const { default: html2canvas } = await import('html2canvas-pro')
 
   // Create temporary container. Keep it position: fixed — fixed boxes never
   // contribute to scrollable overflow, while an absolute box hanging off the
