@@ -20,15 +20,12 @@ const props = defineProps({
   surahName: { type: String, required: true },
 })
 
-// Render settings cards (the reciter picker) form-only inside the sheet — the
-// sheet provides its own title, so the card chrome would be redundant.
 provide('settings-bare', true)
 
 const quranStore = useQuranStore()
 const radioStore = useRadioStore()
 
-// Timings (and the derived audio URL) stay off the page loader. Recite waits
-// on this so a tap before timings arrive still seeks once they do.
+// A recite tap waits for timings that load independently of the page.
 let audioReady = Promise.resolve()
 
 const trackAudioLoad = (promise) => (audioReady = promise ?? Promise.resolve())
@@ -40,12 +37,9 @@ watch(
 )
 
 const audio = ref(null)
-// loadstart → canplay window; useMediaControls' `waiting` also flips during
-// mid-play buffering, which would disable the button, so this stays manual.
+// Keep initial loading separate from mid-play buffering.
 const loading = ref(false)
-// Manual for the same reason: useMediaControls' `playing` also flips false on
-// 'waiting'/'loadstart', which would break pausing mid-buffer. Only explicit
-// play/pause/stop/loadSource change it.
+// Media events report buffering as paused, so explicit controls own this state.
 const isPlaying = ref(false)
 const { currentTime, duration } = useMediaControls(audio)
 
@@ -57,8 +51,7 @@ function openReciterSheet() {
   showReciterSheet.value = true
 }
 
-// Only download the new reciter's audio once the sheet closes, and only if the
-// selection actually changed — avoids a request per pick while browsing.
+// Reload once after reciter selection settles.
 function closeReciterSheet() {
   showReciterSheet.value = false
   if (Number(quranStore.currentReciter) !== reciterOnOpen) {
@@ -70,14 +63,11 @@ const progress = computed(() => (duration.value ? (currentTime.value / duration.
 
 const rateLabel = computed(() => `${toArabicNumerals(quranStore.playbackRate).replace('.', '٫')}×`)
 
-// Advance to the next speed preset, wrapping back to the slowest at the end.
 function cycleRate() {
   const i = PLAYBACK_RATES.indexOf(Number(quranStore.playbackRate))
   quranStore.playbackRate = PLAYBACK_RATES[(i + 1) % PLAYBACK_RATES.length]
 }
 
-// Compact title: the heading above the player already says "سورة …", so the
-// prefix only eats the little width the name has next to the reciter chip.
 const playerTitle = computed(() =>
   quranStore.surahName ? removeSurahPrefix(normalizeQuranicText(quranStore.surahName)) : 'اضغط على آية للاستماع',
 )
@@ -88,8 +78,6 @@ const ayahLabel = computed(() => {
   return `آية ${toArabicNumerals(ayah.ayah)}`
 })
 
-// Lockscreen / notification player. Position state feeds the OS seekbar, so
-// refresh it whenever time, duration, or rate changes.
 function updateMediaSession() {
   setMediaMetadata({
     title: quranStore.surahName ? normalizeQuranicText(quranStore.surahName) : 'تلاوة القرآن الكريم',
@@ -120,7 +108,6 @@ function seekBy(delta) {
 
 function seekTo(time) {
   if (!audio.value || !Number.isFinite(time)) return
-  // Writing the ref seeks the element via useMediaControls.
   currentTime.value = Math.max(0, Math.min(time, duration.value || 0))
   quranStore.updateCurrentAyahFromTime(currentTime.value * 1000)
   updateMediaPosition()
@@ -129,10 +116,8 @@ function seekTo(time) {
 async function tryPlay() {
   if (!audio.value) return
   if (radioStore.isPlaying) radioStore.stop()
-  // The browser resets playbackRate on every source load, so set it before play.
   audio.value.playbackRate = Number(quranStore.playbackRate)
-  // Call play() directly so autoplay rejection lands in this catch; isPlaying
-  // is set manually below rather than from media events.
+  // Call play() directly so autoplay rejection reaches this catch.
   try {
     await audio.value.play()
     isPlaying.value = true
@@ -141,8 +126,6 @@ async function tryPlay() {
     updateMediaPosition()
   } catch {
     isPlaying.value = false
-    // The radio's session was already cleared above — leave a valid paused
-    // Quran session rather than no lockscreen player at all.
     updateMediaSession()
     setMediaPlaybackState('paused')
   }
@@ -158,8 +141,6 @@ function pause() {
 function stop() {
   audio.value?.pause()
   isPlaying.value = false
-  // Setting the ref after isPlaying is false also rewinds the element without
-  // re-triggering the ayah sync below.
   currentTime.value = 0
   quranStore.resetAyahTracking()
   setMediaPlaybackState('paused')
@@ -192,8 +173,6 @@ async function seekToAyah(ayahNumber) {
   await tryPlay()
 }
 
-// useMediaControls keeps currentTime synced from the element's timeupdate;
-// mirror it into the ayah highlight and the OS seekbar while playing.
 watch(currentTime, (time) => {
   if (!isPlaying.value) return
   quranStore.updateCurrentAyahFromTime(time * 1000)
@@ -206,8 +185,7 @@ function loadSource(url) {
   audio.value.load()
   isPlaying.value = false
   currentTime.value = 0
-  // Until the new metadata arrives the previous surah's duration would clamp
-  // lockscreen seeks and feed the OS seekbar — zero it alongside the position.
+  // Discard the previous surah's duration before new metadata arrives.
   duration.value = 0
   setMediaPlaybackState('paused')
   updateMediaPosition()
@@ -218,7 +196,6 @@ onMounted(() => loadSource(quranStore.surahAudioUrl))
 onUnmounted(() => {
   audio.value?.pause()
 
-  // Leave the lockscreen player only if the radio hasn't taken it over.
   if (!radioStore.isPlaying) clearMediaSession()
 })
 
@@ -239,9 +216,6 @@ defineExpose({ seekToAyah })
         <IconPlayerPause v-else />
       </button>
 
-      <!-- Two fixed lines: the name truncates on top and the ayah line below
-           always has text ('تلاوة' while idle), so playback never resizes the
-           player or squeezes the name. -->
       <div class="flex-grow-1 min-w-0">
         <div class="fw-semibold text-truncate text-primary">
           {{ playerTitle }}
@@ -304,13 +278,11 @@ defineExpose({ seekToAyah })
 
 <style lang="scss" scoped>
 .btn-play {
-  /* 44px minimum touch target. */
   width: 2.75rem;
   height: 2.75rem;
   padding: 0.625rem;
   flex-shrink: 0;
 }
-/* Same soft primary-tint language as .chip, instead of the gray secondary pair. */
 .player-chip {
   color: var(--bs-primary);
   background-color: var(--app-tint);

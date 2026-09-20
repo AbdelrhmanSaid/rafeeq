@@ -19,7 +19,6 @@ import LoadingState from '@/shared/ui/LoadingState.vue'
 import ErrorState from '@/shared/ui/ErrorState.vue'
 import OfflineState from '@/shared/ui/OfflineState.vue'
 
-// Check if the user is online
 const online = useOnline()
 
 const quranStore = useQuranStore()
@@ -46,8 +45,7 @@ watch(current, () => {
 })
 
 onUnmounted(() => {
-  // The component's effect scope is already stopped here, so act on the
-  // element directly instead of the useMediaControls refs.
+  // Composable refs are already stopped during unmount.
   audio.pause()
   audio.currentTime = 0
 })
@@ -77,9 +75,7 @@ function prevAyah() {
 async function toggleAyahPlayback() {
   if (!recitation.value?.audio) return
 
-  // Branch on the element, not the `playing` ref: a buffering stall fires
-  // 'waiting', which flips the ref false while the element is still not
-  // paused — a tap during the stall must pause, not call play() again.
+  // `playing` becomes false while buffering even though the element is not paused.
   if (!audio.paused) {
     audio.pause()
     return
@@ -171,7 +167,6 @@ async function toggleAyahPlayback() {
   padding: 0.85rem 1rem 0;
 }
 
-/* Controls dock in a quiet footer strip under the ayah, like the reader. */
 .ayah-footer {
   display: flex;
   justify-content: center;
@@ -181,11 +176,7 @@ async function toggleAyahPlayback() {
 
 .ayah-surah {
   min-width: 0;
-  /* Kitab (the bundled Quran face) backstops the Thmanyah faces here: the
-     vocalized surah name is the one UI string dense with tashkeel, and a
-     device that won't shape it with the primary faces should land on a
-     bundled font with known metrics — not a system Naskh that paints
-     visibly larger at the same size. */
+  /* Kitab keeps dense tashkeel from falling back to mismatched system metrics. */
   font-family: 'Thmanyah Serif Text', 'Thmanyah Sans', 'Kitab', serif;
   font-size: 0.85rem;
   line-height: 1.4;
@@ -203,7 +194,6 @@ async function toggleAyahPlayback() {
   max-width: 18rem;
 
   .btn {
-    /* 44px minimum touch target. */
     width: 2.75rem;
     height: 2.75rem;
     border-radius: 50%;

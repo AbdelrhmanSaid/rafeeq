@@ -12,7 +12,6 @@ import { sleep } from '@/shared/utils/async'
 export const useDownloadStore = defineStore('download', () => {
   const online = useOnline()
 
-  // One entry per downloadable asset type — adding a type is data, not new branches.
   const assetTypes = {
     surah: {
       offline: useOfflineData('quran'),

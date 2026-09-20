@@ -107,13 +107,11 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
 
 <style lang="scss" scoped>
 .navbar {
-  /* min-height (not height) so taller content at large font scales grows the
-     bar instead of clipping. */
+  /* Allow large font scales to grow the bar. */
   min-height: var(--navbar-height);
   background: var(--app-glass);
   border-bottom: 1px solid var(--app-hairline);
-  /* No -webkit- duplicate (see TabBar.vue): Lightning CSS would keep only the
-     prefixed property and Chrome/Firefox would lose the blur. */
+  /* Lightning CSS mishandles a paired -webkit-backdrop-filter declaration. */
   backdrop-filter: blur(18px) saturate(1.4);
 }
 

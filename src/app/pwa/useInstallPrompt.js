@@ -2,12 +2,10 @@ import { computed, ref } from 'vue'
 import { useLocalStorage, useMediaQuery } from '@vueuse/core'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 
-// beforeinstallprompt fires once, early — capture it at module scope so the
-// prompt is still available when the home view (or any consumer) mounts later.
+// Capture the one-shot event before consumers mount.
 const deferredPrompt = ref(null)
 
-// useMediaQuery is SSR-safe by default; the navigator.standalone check covers
-// iOS Safari, which does not report the standalone display-mode.
+// iOS Safari exposes standalone mode only through navigator.standalone.
 const isDisplayModeStandalone = useMediaQuery('(display-mode: standalone)')
 
 const isStandalone = () =>
@@ -34,7 +32,6 @@ export function useInstallPrompt() {
     if (!prompt) return
     prompt.prompt()
     const { outcome } = await prompt.userChoice
-    // The captured event is single-use either way.
     deferredPrompt.value = null
     if (outcome === 'dismissed') dismissed.value = true
   }

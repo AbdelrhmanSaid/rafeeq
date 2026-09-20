@@ -20,16 +20,13 @@ const props = defineProps({
   },
 })
 
-// Resolve the theme color from the root element (where applyPrimaryColor sets
-// it inline) instead of relying on CSS custom properties inside the export:
-// html2canvas rasterizes the card without full stylesheet context, and the
-// data-bs-theme="light" attribute would re-declare the vars anyway.
+// Exports lack the full stylesheet context, so resolve the root theme color now.
 const rootStyles = getComputedStyle(document.documentElement)
 const primaryColor = rootStyles.getPropertyValue('--bs-primary').trim() || '#795547'
 const primaryRgb = rootStyles.getPropertyValue('--bs-primary-rgb').trim() || '121, 85, 71'
 const primary = (alpha) => `rgba(${primaryRgb}, ${alpha})`
 
-// Sizes are px (not rem) so the user's font-scale setting can't distort exports
+// Keep exports independent of the user's font scale.
 const textSize = computed(() => {
   const len = props.text.length
   if (len <= 60) return { fontSize: '30px', lineHeight: 2.1 }
@@ -47,18 +44,7 @@ const repeatLabel = computed(() => {
   return 'يُردَّد مرة واحدة'
 })
 
-/*
- * Every style below is INLINE on purpose — do not move them to a <style>
- * block. The card is mounted off-screen and rasterized by html2canvas, and a
- * stale service-worker update can leave the app running with CSS whose scoped
- * data-v hashes no longer match this component: the card then mounts unstyled
- * and exports as a huge white strip. Inline styles ship inside this JS chunk,
- * so they are always exactly as deployed with the component.
- *
- * Also captured by html2canvas: stick to solid colors, simple
- * linear-gradients, borders and 2D transforms — no conic-gradient,
- * color-mix, box-shadow or flex gap. Ornaments are plain rotated divs.
- */
+// Inline styles avoid stale scoped-CSS hashes. Use only html2canvas-safe CSS here.
 const st = {
   root: {
     'width': '512px',
@@ -93,7 +79,6 @@ const st = {
     padding: '26px 30px 24px',
     boxSizing: 'border-box',
   },
-  // Corner ornaments: square + rotated square = tiny eight-pointed star
   corner: {
     position: 'absolute',
     width: '7px',
@@ -113,7 +98,6 @@ const st = {
   cornerTr: { top: '12px', left: '12px' },
   cornerBl: { bottom: '12px', right: '12px' },
   cornerBr: { bottom: '12px', left: '12px' },
-  // Header medallion: eight-pointed star flanked by fading rules
   ornamentRow: {
     display: 'flex',
     alignItems: 'center',

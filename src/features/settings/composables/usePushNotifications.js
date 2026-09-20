@@ -2,7 +2,6 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { toast } from 'vue-sonner'
 import { useOneSignal } from '@onesignal/onesignal-vue3'
 
-// Wraps the OneSignal push-subscription lifecycle for this device.
 export function usePushNotifications() {
   const instance = useOneSignal()
 
@@ -34,15 +33,8 @@ export function usePushNotifications() {
   }
 
   onMounted(() => {
-    // The OneSignal SDK loads and initializes asynchronously. During init the
-    // User.PushSubscription namespace is reconstructed (and the subscription is
-    // re-established via auto-resubscribe) AFTER the first OneSignalDeferred
-    // callback runs. So an early one-shot read returns optedIn:false, and a change
-    // listener attached then is bound to a throwaway object that never emits.
-    //
-    // Instead, poll the live singleton (window.OneSignal.User.PushSubscription
-    // always points at the current object) until init settles, then bind the
-    // change listener to that settled object for ongoing updates.
+    // OneSignal replaces PushSubscription during initialization, so poll the live
+    // singleton before binding; the initial deferred object never emits changes.
     window.OneSignalDeferred = window.OneSignalDeferred || []
     window.OneSignalDeferred.push((OneSignal) => {
       let tries = 0
@@ -51,7 +43,6 @@ export function usePushNotifications() {
         enabled.value = sub.optedIn === true
         loading.value = false
 
-        // Stop once the subscription/user is established or after ~5s.
         const settled = !!sub.id || !!OneSignal.User.onesignalId
         if (settled || ++tries >= 10) {
           clearInterval(poll)

@@ -13,7 +13,6 @@ import { useAppStore } from '@/app/stores/app'
 import { useRadioNotifications } from '@/features/radio/composables/useRadioNotifications'
 import { registerSW } from 'virtual:pwa-register'
 
-// Network status detection
 const online = useOnline()
 const themeStore = useThemeStore()
 const appStore = useAppStore()
@@ -23,20 +22,15 @@ useRadioNotifications()
 const route = useRoute()
 const isEmbedRoute = computed(() => route.path.startsWith('/embed'))
 
-// Offline banner visibility
 const showOfflineBanner = ref(true)
 
-// Reset banner when connection is restored
 watch(online, (isOnline) => {
   if (isOnline) {
     showOfflineBanner.value = true
   }
 })
 
-// Guard against reload loops: a service worker update may only ever trigger a
-// single automatic reload per page load. Without this, a churning/competing
-// service worker registration can re-fire onNeedRefresh and reload the app
-// on every visit a second or two after it opens.
+// A service-worker update may reload only once per page load.
 let hasReloadedForUpdate = false
 
 const updateSW = registerSW({
@@ -61,7 +55,6 @@ const updateSW = registerSW({
 
 <template>
   <div :class="['app-shell', { 'main-content-embed': isEmbedRoute }]">
-    <!-- Offline indicator -->
     <div v-if="!online && showOfflineBanner" class="offline-banner">
       <div class="container">
         <div class="d-flex align-items-center text-white">
@@ -78,25 +71,19 @@ const updateSW = registerSW({
       </div>
     </div>
 
-    <!-- Desktop Navbar -->
     <Navbar class="d-none d-md-block" v-if="!isEmbedRoute" />
 
-    <!-- Main Content -->
     <div class="main-content">
       <RouterView />
     </div>
 
-    <!-- Desktop Footer -->
     <Footer class="d-none d-md-block" v-if="!isEmbedRoute" />
 
-    <!-- Mobile TabBar -->
     <TabBar class="d-block d-md-none" v-if="!isEmbedRoute" />
 
-    <!-- Floating PWA install prompt -->
     <InstallBanner v-if="!isEmbedRoute" />
   </div>
 
-  <!-- Toast -->
   <Toaster
     :theme="themeStore.mode"
     position="bottom-right"
@@ -117,9 +104,7 @@ const updateSW = registerSW({
   flex-direction: column;
   min-height: 100vh;
   min-height: 100dvh;
-  /* viewport-fit=cover lets content reach the notch in landscape — inset the
-     shell by the physical side cutouts. Physical (not logical) on purpose;
-     the rtlcss build must not flip them. */
+  /* Physical safe-area sides must not be flipped by rtlcss. */
   /*! rtl:begin:ignore */
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);
@@ -137,17 +122,15 @@ const updateSW = registerSW({
 }
 
 .offline-banner + .navbar {
-  top: 50px; /* Adjust navbar position when offline banner is visible */
+  top: 50px;
 }
 
 .main-content {
   flex-grow: 1;
-  /* Reserve the tab bar height *plus* the iPhone home-indicator inset — the
-     bar grows by the safe area, so a fixed 70px lets content hide behind it. */
+  /* Include the tab bar's iPhone home-indicator inset. */
   padding-bottom: calc(var(--navbar-height) + env(safe-area-inset-bottom));
 }
 
-/* Embed adjustments */
 .main-content-embed .main-content {
   min-height: 100vh;
   min-height: 100dvh;

@@ -36,7 +36,6 @@ usePageMeta(
     },
 )
 
-// Track progress across all azkar, derived from the persisted per-zekr counts.
 const totalRepeats = computed(() => category.value?.content?.reduce((sum, z) => sum + (z.repeat || 1), 0) || 0)
 const totalClicked = computed(
   () => category.value?.content?.reduce((sum, _, index) => sum + (counts.value[index] || 0), 0) || 0,
@@ -47,7 +46,6 @@ const hasUnfinishedProgress = () => progress.value > 0 && progress.value < 100
 
 useScreenWakeLock()
 
-// Confirm dialog before leaving
 const { isRevealed, reveal, confirm, cancel } = useConfirmDialog()
 
 onBeforeRouteLeave(async () => {
@@ -90,7 +88,6 @@ onBeforeRouteLeave(async () => {
     </Page>
   </AsyncContent>
 
-  <!-- Leave confirmation sheet -->
   <BottomSheet :show="isRevealed" title="لم تنتهِ بعد" @close="cancel">
     <p class="px-4 pt-3 mb-2 lh-lg text-secondary">لم تنتهِ من جميع الأذكار بعد، هل تريد المغادرة؟</p>
     <ul class="list-unstyled m-0 py-2">
@@ -111,16 +108,13 @@ onBeforeRouteLeave(async () => {
 </template>
 
 <style scoped>
-/* Long categories (morning/evening azkar) render dozens of heavy Arabic-text
-   cards — let the browser skip layout and paint for the off-screen ones. */
+/* Skip rendering off-screen cards in long categories. */
 .zekr-card-lazy {
   content-visibility: auto;
   contain-intrinsic-size: auto 300px;
 }
 
-/* content-visibility implies paint containment, which clips the card's action
-   dropdown at the card edge (and traps its z-index under the next card). Lift
-   it only while a dropdown is open so the lazy rendering stays for the rest. */
+/* Lift open menus out of content-visibility's paint containment. */
 .zekr-card-lazy:has(.dropdown-menu.show) {
   content-visibility: visible;
 }

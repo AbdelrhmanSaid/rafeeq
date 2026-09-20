@@ -14,7 +14,6 @@ defineEmits(['toggle', 'favorite', 'share'])
 
 <template>
   <div class="position-relative w-100 mx-auto" style="max-width: 500px">
-    <!-- Navigation Header -->
     <div class="d-flex justify-content-between mb-4 position-relative z-1 embed-hidden">
       <BackButton :to="{ name: 'radio' }" />
 
@@ -24,9 +23,7 @@ defineEmits(['toggle', 'favorite', 'share'])
       </button>
     </div>
 
-    <!-- Player Content -->
     <div class="d-flex flex-column align-items-center text-center position-relative z-1">
-      <!-- Vinyl/Disc Animation -->
       <div class="disc-container mb-5 position-relative d-flex align-items-center justify-content-center">
         <div class="disc" :class="{ spinning: isPlaying }">
           <div class="disc-inner">
@@ -37,13 +34,11 @@ defineEmits(['toggle', 'favorite', 'share'])
           <div class="disc-grooves"></div>
         </div>
 
-        <!-- Sound Waves -->
         <div class="sound-waves" :class="{ active: isPlaying }">
           <span v-for="i in 3" :key="i" class="wave" :style="{ '--i': i }"></span>
         </div>
       </div>
 
-      <!-- Station Info -->
       <div class="mb-5">
         <h1 class="h2 fw-bold mb-2">{{ station.name }}</h1>
         <p class="d-inline-flex align-items-center gap-2 small text-secondary m-0">
@@ -52,9 +47,7 @@ defineEmits(['toggle', 'favorite', 'share'])
         </p>
       </div>
 
-      <!-- Controls -->
       <div class="d-flex flex-column align-items-center gap-4 mb-4 w-100">
-        <!-- Main Play Button -->
         <button
           class="play-btn"
           :class="isPlaying ? 'bg-danger' : 'bg-primary'"
@@ -66,7 +59,6 @@ defineEmits(['toggle', 'favorite', 'share'])
           <IconPlayerPlay v-else size="2.5rem" />
         </button>
 
-        <!-- Favorite Button -->
         <button
           class="btn btn-flat embed-hidden"
           :class="isFavorite ? 'text-danger' : 'text-body'"
@@ -79,7 +71,6 @@ defineEmits(['toggle', 'favorite', 'share'])
         </button>
       </div>
 
-      <!-- Footer Note -->
       <p class="small text-secondary opacity-75">يتم تشغيل البث المباشر من مصدره الرسمي بجودة عالية</p>
     </div>
   </div>

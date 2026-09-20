@@ -1,6 +1,5 @@
 @import 'variables';
 
-// Bootstrap configuration
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/variables-dark';
@@ -8,7 +7,6 @@
 @import 'bootstrap/scss/mixins';
 @import 'bootstrap/scss/utilities';
 
-// Bootstrap foundation, layout, and components used by Rafeeq
 @import 'bootstrap/scss/root';
 @import 'bootstrap/scss/reboot';
 @import 'bootstrap/scss/type';
@@ -27,14 +25,12 @@
 @import 'bootstrap/scss/close';
 @import 'bootstrap/scss/spinners';
 
-// Bootstrap helpers used directly in templates
 @import 'bootstrap/scss/helpers/color-bg';
 @import 'bootstrap/scss/helpers/position';
 @import 'bootstrap/scss/helpers/stretched-link';
 @import 'bootstrap/scss/helpers/text-truncation';
 @import 'bootstrap/scss/helpers/visually-hidden';
 
-// Generate Bootstrap utility classes after their maps and dependencies
 @import 'bootstrap/scss/utilities/api';
 
 @import 'fonts';
@@ -46,13 +42,8 @@
   --navbar-height: 70px;
   --app-body-bg-base: #fff;
   --bs-body-bg: color-mix(in srgb, var(--app-body-bg-base) 96%, var(--bs-primary));
-  /* Bootstrap's default secondary text (75% opacity) reads too quiet on the
-     tinted background — lift it slightly for contrast. */
   --bs-secondary-color: rgba(33, 37, 41, 0.85);
 
-  /* Surface system — every elevated block (cards, list rows, bars) reads from
-     these so light/dark and runtime primary colors stay coherent. Surfaces sit
-     one step *lighter* than the (tinted) page so they read as raised. */
   --app-surface: var(--app-body-bg-base);
   --app-surface-hover: color-mix(in srgb, var(--bs-primary) 6%, var(--app-surface));
   --app-surface-active: color-mix(in srgb, var(--bs-primary) 11%, var(--app-surface));
@@ -71,12 +62,8 @@
   }
 }
 
-/* Custom properties resolve where they are *declared*, so every token derived
-   from --app-surface / --bs-body-bg must be re-declared here or it would keep
-   the light-mode value computed on :root. */
+/* Derived custom properties must be redeclared to resolve against dark values. */
 [data-bs-theme='dark'] {
-  /* Tint the dark canvas with the active primary, mirroring the light theme,
-     instead of Bootstrap's flat neutral #121212. */
   --bs-body-bg: color-mix(in srgb, #121212 95%, var(--bs-primary));
   --bs-secondary-color: rgba(222, 226, 230, 0.85);
   --app-surface: color-mix(in srgb, var(--bs-body-bg) 96%, #fff);
@@ -90,8 +77,7 @@
   --app-shadow-bar: 0 -8px 24px -12px rgba(0, 0, 0, 0.5);
 }
 
-/* Glass surfaces rely on backdrop-filter for legibility; where it's not
-   supported, fall back to an opaque bar so content can't bleed through. */
+/* Keep glass surfaces opaque when backdrop filtering is unavailable. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   :root,
   [data-bs-theme='dark'] {
@@ -100,13 +86,10 @@
 }
 
 html {
-  /* Stop iOS Safari from inflating text on orientation change. */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 
-/* Rapid-tap surfaces (zekr counter, sebha) must never trigger double-tap zoom,
-   and custom :active states replace the gray tap flash. */
 a,
 button,
 [role='button'],
@@ -119,7 +102,6 @@ label {
 }
 
 body {
-  /* Shared with sticky overlays so they can paint the same fixed canvas. */
   --app-page-bg-color: color-mix(in srgb, var(--bs-body-bg) 96%, var(--bs-primary));
   --app-page-bg-image:
     radial-gradient(60rem 22rem at 50% -8rem, color-mix(in srgb, var(--bs-primary) 14%, transparent), transparent 70%),
@@ -129,9 +111,7 @@ body {
   background-image: var(--app-page-bg-image);
   background-repeat: no-repeat;
   background-attachment: fixed;
-  /* Deliberately suppress the browser's native pull-to-reload and top-edge
-     scroll glow so the standalone PWA feels like a native app. This also
-     removes pull-to-refresh in regular browser tabs. */
+  /* Disable native pull-to-refresh and top-edge scroll glow. */
   overscroll-behavior-y: contain;
 }
 
@@ -139,23 +119,18 @@ body {
   background: var(--app-tint-strong);
 }
 
-/* Elevated surfaces ------------------------------------------------------- */
 .card {
   --bs-card-bg: var(--app-surface);
   --bs-card-border-color: var(--app-hairline);
   box-shadow: var(--app-shadow-card);
 }
 
-/* Footer strip — same glass as the bars so it docks instead of reading as a
-   second opaque surface. Scoped to .card-footer so headers stay untouched. */
 .card-footer {
   background: var(--app-glass);
-  /* No -webkit- duplicate (see TabBar.vue): Lightning CSS would keep only the
-     prefixed property and Chrome/Firefox would lose the blur. */
+  /* Lightning CSS mishandles a paired -webkit-backdrop-filter declaration. */
   backdrop-filter: blur(18px) saturate(1.4);
 }
 
-/* Interactive card: soft lift + primary tint on hover / focus-within. */
 .card-interactive {
   transition:
     transform 0.25s var(--app-ease),
@@ -207,9 +182,7 @@ body {
     background-color 0.2s ease;
 }
 
-/* iOS auto-zooms into any input whose font-size computes below 16px — possible
-   here because the font-scale setting goes down to 80%. Pin the floor on
-   phone-sized screens so focusing a field never zooms the page. */
+/* Prevent iOS input zoom when the app font scale drops below 100%. */
 @media (max-width: 767.98px) {
   .form-control,
   .form-select {
@@ -222,7 +195,6 @@ body {
   background-color: transparent;
 }
 
-/* Soft pill badge — counts, labels, small metadata chips. */
 .chip {
   display: inline-flex;
   align-items: center;
@@ -247,7 +219,6 @@ body {
   color: var(--bs-secondary-color);
 }
 
-/* Soft, tinted variants of the primary button for secondary actions. */
 .btn-soft {
   --bs-btn-color: var(--bs-primary);
   --bs-btn-bg: var(--app-tint);
@@ -270,7 +241,6 @@ body {
   color: var(--bs-primary);
 }
 
-/* Collapse animations and transitions to near-instant for users who ask for less motion. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -287,7 +257,6 @@ body {
   border: none;
 }
 
-/* Allow a flex child to shrink below its content size so siblings can truncate. */
 .min-w-0 {
   min-width: 0;
 }
@@ -300,9 +269,6 @@ body {
   stroke-width: 1.5;
 }
 
-/* Circled icon holder shared by feature cards (prayer times, sunnah, azkar).
-   Tint follows `currentColor`, so `.text-primary` / `.text-secondary` (or any
-   inline color) gives a matching soft background and hairline for free. */
 .icon-circle {
   display: grid;
   place-items: center;
@@ -333,7 +299,6 @@ body {
   height: 1.5rem;
 }
 
-/* Muted circle index badge for numbered list rows (quran, azkar, radio). */
 .list-index {
   display: grid;
   place-items: center;
@@ -347,7 +312,6 @@ body {
   color: var(--bs-secondary-color);
 }
 
-/* Rounded-square variant for section / settings headers. */
 .icon-tile {
   display: inline-grid;
   place-items: center;
@@ -358,7 +322,6 @@ body {
   background: color-mix(in srgb, currentColor 11%, transparent);
 }
 
-/* Square icon-only button with a touch-friendly hit area. */
 .btn-icon {
   display: inline-flex;
   align-items: center;
@@ -382,8 +345,7 @@ body {
 
 .full-height {
   min-height: calc(100vh - var(--navbar-height));
-  /* Mobile browsers overshoot 100vh while the URL bar is visible — prefer the
-     dynamic viewport, minus the home-indicator inset the layout reserves. */
+  /* Use the visible mobile viewport and reserved home-indicator inset. */
   min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-bottom, 0px));
 }
 
@@ -440,7 +402,6 @@ body {
   flex-shrink: 0;
 }
 
-/* Action row inside a <BottomSheet>; shared so any sheet menu can reuse it. */
 .bottom-sheet-item {
   display: flex;
   align-items: center;
@@ -491,7 +452,6 @@ body {
   }
 }
 
-/* Page entrance (see layout/Page.vue) — a short fade + rise on every route. */
 @keyframes page-enter {
   from {
     opacity: 0;

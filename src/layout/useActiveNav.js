@@ -1,8 +1,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
-// Route names grouped by the primary nav section they belong to, so a detail
-// route (e.g. quran-surah) keeps its parent tab highlighted.
+// Keep detail routes grouped under their parent nav item.
 export const NAV_GROUPS = {
   quran: ['quran', 'quran-surah'],
   azkar: ['azkar', 'azkar-category'],

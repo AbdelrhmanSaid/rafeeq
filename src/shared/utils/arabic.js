@@ -1,31 +1,25 @@
 export const normalize = (text) => {
-  // Get only Arabic characters, English characters, and numbers
   text = String(text).replace(/([^\u0621-\u063A\u0641-\u064A\u0660-\u0669a-zA-Z 0-9])/g, '')
 
-  // Normalize Arabic characters
   text = text.replace(/(آ|إ|أ)/g, 'ا')
   text = text.replace(/(ة)/g, 'ه')
   text = text.replace(/(ئ|ؤ)/g, 'ء')
   text = text.replace(/(ى)/g, 'ي')
 
   for (let i = 0; i < 10; i++) {
-    // Replace Arabic numbers with English numbers
     text = text.replaceAll(String.fromCharCode(0x660 + i), String.fromCharCode(48 + i))
   }
 
   return text.toLowerCase()
 }
 
-// UI fonts do not include every Quranic annotation character. Convert the
-// equivalent Quranic forms to standard Arabic before rendering metadata such
-// as surah names, while leaving Quran text untouched.
+// Normalize unsupported Quranic glyphs in UI metadata, not Quran text.
 export const normalizeQuranicText = (text) =>
   String(text ?? '')
     .replace(/\u06e1/gu, '\u0652')
     .replace(/\u0671/gu, '\u0627')
     .normalize('NFC')
 
-// Known Unicode renderings of the basmala that may prefix a verse or azkar text.
 export const BISMILLAH_VARIANTS = [
   'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
   'بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ',
@@ -42,9 +36,7 @@ export const removeBismillah = (text) => {
   return text
 }
 
-// Surah names from the API arrive prefixed ("سُورَةُ ٱلۡفَاتِحَةِ"); drop that
-// first word for compact labels where the context already implies it. The
-// prefix is matched with its diacritics stripped so any vocalization works.
+// Match the API's vocalized surah prefix after stripping diacritics.
 export const removeSurahPrefix = (name) => {
   const text = String(name ?? '').trim()
   const [first, ...rest] = text.split(/\s+/)

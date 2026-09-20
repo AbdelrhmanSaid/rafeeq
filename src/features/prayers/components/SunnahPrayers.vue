@@ -43,9 +43,7 @@ const formatRakaa = (value) => {
 </script>
 
 <template>
-  <!-- Single root so class/attrs from parents (e.g. mb-5 in HomeView) still fall through -->
   <div>
-    <!-- List layout (below lg) -->
     <div class="d-lg-none">
       <div class="d-flex justify-content-end px-3 pb-2 small text-body-secondary">
         <span class="rakaa-col">قبل</span>
@@ -75,7 +73,6 @@ const formatRakaa = (value) => {
       </div>
     </div>
 
-    <!-- Cards layout (lg and up) -->
     <div class="d-none d-lg-flex row row-cols-lg-5 g-2">
       <div v-for="(prayer, index) in prayers" :key="index" class="col">
         <div class="card h-100 sunnah-card">

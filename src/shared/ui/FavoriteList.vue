@@ -105,8 +105,6 @@ const favorites = filterFavorites(
   padding-block: 0.9rem;
 }
 
-/* Offset the icon button's internal padding so the glyph aligns optically
-   with the row's inline-end content edge, matching the text on the other side. */
 .fav-actions {
   margin-inline-end: -0.75rem;
 }

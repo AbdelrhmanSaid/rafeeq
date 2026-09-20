@@ -1,8 +1,7 @@
-// Minimum thresholds (nisab) at which each kind of wealth becomes zakatable.
 export const NISAB = {
-  money: 2156.25, // ~85g of gold in EGP (fallback when no live gold price)
-  gold: 85, // grams
-  silver: 595, // grams
+  money: 2156.25, // EGP fallback
+  gold: 85, // g
+  silver: 595, // g
   cows: 30,
   sheep: 40,
   camels: 5,
@@ -10,13 +9,12 @@ export const NISAB = {
   business: 2156.25,
 }
 
-export const ZAKAT_RATE = 0.025 // 2.5% on money, gold, silver, business
-export const CROPS_RATE = 0.05 // 5% baseline for crops (10% rain-fed)
+export const ZAKAT_RATE = 0.025
+export const CROPS_RATE = 0.05 // Rain-fed crops use 10%.
 
 const toNumber = (value) => parseFloat(value) || 0
 const toInt = (value) => parseInt(value) || 0
 
-// Nisab derived from a live gold price, falling back to a fixed value.
 export function goldPriceNisab(goldPrice, fallback) {
   const price = parseFloat(goldPrice)
   return price && price > 0 ? price * NISAB.gold : fallback
@@ -47,7 +45,6 @@ export function businessZakat(amount, nisab) {
   return value < nisab ? 0 : value * ZAKAT_RATE
 }
 
-// Livestock zakat is paid in heads, per the graduated shariah thresholds.
 export function livestockZakat({ cows, sheep, camels }) {
   const c = toInt(cows)
   const s = toInt(sheep)

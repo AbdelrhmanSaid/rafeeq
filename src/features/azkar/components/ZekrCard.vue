@@ -37,9 +37,7 @@ const { scrollToNextZekr } = useZekrScroll(card)
 const increment = () => {
   if (count.value >= props.repeat) return
 
-  // Compute the next value locally instead of re-reading the v-model: reading
-  // `count.value` right after writing it can return a stale value, so the
-  // completion branch (vibration + scroll to next) never ran.
+  // A model read immediately after writing can still be stale.
   const next = count.value + 1
   count.value = next
 
@@ -57,8 +55,6 @@ let longPressed = false
 let touchMoved = false
 let touchStartY = null
 
-// Ignore taps that are really scroll gestures: a click that follows meaningful
-// vertical finger movement must not count the zekr.
 const onTouchStart = (e) => {
   touchStartY = e.touches?.[0]?.clientY ?? null
 }
@@ -75,9 +71,7 @@ const onCardClick = () => {
   touchMoved = false
 }
 
-// Mobile long presses often emit no click, so count them here (ignoring the
-// counter / action menu). onCardClick swallows any trailing click; onMouseUp
-// clears the flag in case none arrives.
+// Mobile long presses may not emit a click, so count them separately.
 onLongPress(
   card,
   (e) => {
@@ -92,8 +86,6 @@ const exportAsImage = () => {
   toast.promise(
     async () => {
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      // expectedWidth matches ZekrImage's inline width so an unstyled or
-      // half-mounted card errors instead of exporting a distorted image
       return exportComponent(ZekrImage, props, 'zekr', { expectedWidth: 512 })
     },
     {
@@ -200,8 +192,7 @@ const copyZekr = () => {
 </template>
 
 <style lang="scss" scoped>
-/* Dim the content, not the card: opacity on the card would create a stacking
-   context and let the next card paint over this one's action dropdown. */
+/* Card opacity would trap its dropdown in a lower stacking context. */
 .completed {
   border-color: var(--app-hairline-strong);
   background-color: color-mix(in srgb, var(--bs-primary) 4%, var(--app-surface));
@@ -219,8 +210,7 @@ const copyZekr = () => {
   .btn-counter {
     position: relative;
     border-radius: 50%;
-    /* rem (not px) so the progress circle scales with the font and the
-       counter text (e.g. "100/100") stays centered without overflowing. */
+    /* Scale the circle with the user's font setting. */
     width: 7.5rem;
     height: 7.5rem;
     font-size: 1.25rem;
@@ -262,7 +252,6 @@ const copyZekr = () => {
 
     > button,
     [data-bs-toggle='dropdown'] {
-      /* 44px minimum touch target. */
       width: 2.75rem;
       height: 2.75rem;
       display: grid;
@@ -290,7 +279,6 @@ const copyZekr = () => {
   .zekr-card {
     cursor: pointer;
     user-select: none;
-    /* Rapid counting taps must not trigger double-tap zoom. */
     touch-action: manipulation;
 
     > .row {

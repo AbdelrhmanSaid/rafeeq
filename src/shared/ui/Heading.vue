@@ -30,9 +30,7 @@ const sharePage = async () => {
   if (navigator.share) {
     try {
       await navigator.share(data)
-    } catch {
-      // User cancelled
-    }
+    } catch {}
   } else {
     try {
       await navigator.clipboard.writeText(data.url)

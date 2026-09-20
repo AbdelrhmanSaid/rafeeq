@@ -8,7 +8,6 @@ const GEO_ERROR_MESSAGES = {
 }
 const GEO_ERROR_FALLBACK = 'حدث خطأ أثناء تحديد الموقع. يمكنك المحاولة مرة أخرى.'
 
-// Triggers location detection and surfaces the result to the user.
 export function usePrayerLocation() {
   const store = usePrayersStore()
 

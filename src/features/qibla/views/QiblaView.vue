@@ -17,7 +17,6 @@ import { API } from '@/shared/constants/api'
 const online = useOnline()
 const isMobile = useIsMobile()
 
-// Location state (fresh from navigator, not stored)
 const latitude = ref(null)
 const longitude = ref(null)
 const locationLoading = ref(true)
@@ -70,24 +69,20 @@ onMounted(requestLocation)
     <Heading class="mb-4" title="اتجاه القبلة" subtitle="حدد اتجاه القبلة بسهولة باستخدام البوصلة الإلكترونية." />
 
     <div class="card">
-      <!-- Desktop not supported -->
       <div v-if="!isMobile" class="qibla-card card-body qibla-card--static text-center">
         <IconDeviceMobile size="3rem" class="text-muted mb-3" />
         <p class="h5 mb-2">هذه الميزة متاحة فقط على الهاتف</p>
         <p class="text-muted mb-0">افتح التطبيق من هاتفك لاستخدام البوصلة</p>
       </div>
 
-      <!-- Offline state -->
       <div v-else-if="!online" class="qibla-card card-body qibla-card--static">
         <OfflineState />
       </div>
 
-      <!-- Location loading -->
       <div v-else-if="locationLoading" class="qibla-card card-body qibla-card--static">
         <LoadingState message="جاري تحديد موقعك..." />
       </div>
 
-      <!-- Location error -->
       <div
         v-else-if="locationError"
         class="qibla-card card-body qibla-card--clickable text-center"
@@ -98,17 +93,14 @@ onMounted(requestLocation)
         <p class="text-muted small mb-0">إضغط للمحاولة مرة أخرى</p>
       </div>
 
-      <!-- Qibla API loading -->
       <div v-else-if="isFetching" class="qibla-card card-body qibla-card--static">
         <LoadingState message="جاري تحديد اتجاه القبلة..." />
       </div>
 
-      <!-- Qibla API error -->
       <div v-else-if="error" class="qibla-card card-body qibla-card--static">
         <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
       </div>
 
-      <!-- Qibla compass -->
       <QiblaCompass
         v-else-if="qiblaDirection !== null"
         :qibla-direction="qiblaDirection"

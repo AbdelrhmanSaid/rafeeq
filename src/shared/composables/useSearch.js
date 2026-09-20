@@ -9,7 +9,6 @@ export const useSearch = (items, keys = []) => {
 
     if (!search.value) return itemsValue
 
-    // Normalize the search value
     const normalizedSearch = normalize(search.value)
 
     return itemsValue.filter((item) => {

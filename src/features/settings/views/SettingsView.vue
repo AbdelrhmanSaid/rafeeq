@@ -75,7 +75,6 @@ const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab)
     <Heading class="mb-4" title="الإعدادات" subtitle="تعديل الإعدادات المختلفة للتطبيق" />
 
     <div class="settings-layout">
-      <!-- Tabs navigation -->
       <nav class="settings-nav tab-pills" aria-label="أقسام الإعدادات">
         <RouterLink
           v-for="tab in tabs"
@@ -89,7 +88,6 @@ const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab)
         </RouterLink>
       </nav>
 
-      <!-- Tab content -->
       <div class="settings-content">
         <div class="settings-stack">
           <component v-for="(section, index) in activeTab.sections" :key="index" :is="section" />
@@ -107,7 +105,6 @@ const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab)
   align-items: start;
 }
 
-/* Navigation — sidebar on desktop */
 .settings-nav {
   flex-direction: column;
   gap: 0.25rem;
@@ -136,7 +133,6 @@ const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab)
   gap: 1.5rem;
 }
 
-/* Mobile — horizontal scrollable pills */
 @media (max-width: 767.98px) {
   .settings-layout {
     grid-template-columns: 1fr;

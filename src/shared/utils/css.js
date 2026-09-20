@@ -16,9 +16,7 @@ const BG_COLOR_VARS = [
   '--bs-tertiary-bg',
 ]
 
-// Global font scaling. The whole app sizes in `rem`, so changing the root
-// `<html>` font-size proportionally scales every text and rem-based spacing.
-// 100 = browser default (≈16px). Bounds keep layouts usable at the extremes.
+// The rem-based UI scales from the root font size; 100 is the browser default.
 export const MIN_FONT_SCALE = 80
 export const MAX_FONT_SCALE = 130
 export const DEFAULT_FONT_SCALE = 100
@@ -61,9 +59,7 @@ function toRgbValue(color) {
   const rgb = getComputedStyle(probe).color
   probe.remove()
 
-  // A resolved color-mix() serializes as `color(srgb 0.976 …)` (0–1 floats)
-  // in modern engines, and even rgb() can carry decimals — an integer-only
-  // regex would emit garbage like "0, 976, 0".
+  // color(srgb) and rgb() may both contain fractional channels.
   const channels = rgb.match(/-?\d*\.?\d+/g)?.map(Number)
   if (!channels || channels.length < 3) return null
 

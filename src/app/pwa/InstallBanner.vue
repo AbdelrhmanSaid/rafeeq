@@ -38,8 +38,7 @@ const { canInstall, install, dismiss } = useInstallPrompt()
 <style lang="scss" scoped>
 .install-banner {
   position: fixed;
-  /* Clear the floating tab-bar pill (and the iPhone home indicator it grows
-     by) with enough air that the two rounded surfaces don't crowd. */
+  /* Clear the tab bar and its home-indicator inset. */
   bottom: calc(var(--navbar-height) + env(safe-area-inset-bottom, 0px) + 1.25rem);
   inset-inline: 0.75rem;
   z-index: 1030;
@@ -60,7 +59,6 @@ const { canInstall, install, dismiss } = useInstallPrompt()
     color: var(--bs-primary);
   }
 
-  /* One line each, always — the layout makes room instead of wrapping text. */
   &__title,
   &__subtitle {
     white-space: nowrap;
@@ -72,8 +70,6 @@ const { canInstall, install, dismiss } = useInstallPrompt()
     font-size: 0.95rem;
   }
 
-  /* Mobile: the install button leaves the text row and takes a full row of
-     its own (after the close button), so the text never gets squeezed. */
   &__install {
     order: 5;
     width: 100%;
@@ -81,7 +77,6 @@ const { canInstall, install, dismiss } = useInstallPrompt()
   }
 }
 
-/* No tab bar on desktop — dock the card into the corner, back to one row. */
 @media (min-width: 768px) {
   .install-banner {
     bottom: 1.25rem;

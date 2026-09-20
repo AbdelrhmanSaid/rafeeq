@@ -25,7 +25,6 @@ describe('smoothAngle', () => {
   })
 
   it('takes the short way across the 0/360 seam', () => {
-    // from 350 toward 10 is +20; 10% of that is +2 -> 352
     expect(smoothAngle(350, 10, 0.1)).toBeCloseTo(352)
   })
 })

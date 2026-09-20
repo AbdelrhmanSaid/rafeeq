@@ -3,8 +3,6 @@ import { toast } from 'vue-sonner'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import { useRadioStore } from '@/features/radio/store'
 
-// Surfaces radio reconnect feedback. Mounted once at the app shell so toasts
-// fire regardless of the current route.
 export function useRadioNotifications() {
   const radio = useRadioStore()
 

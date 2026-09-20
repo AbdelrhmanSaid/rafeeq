@@ -18,7 +18,6 @@ export const useThemeStore = defineStore('theme', () => {
   const fontScale = useLocalStorage(STORAGE_KEYS.fontScale, DEFAULT_FONT_SCALE)
   const prefersDark = usePreferredDark()
 
-  // Embed query params (mode/fg/bg) that must survive watchEffect re-runs.
   const queryOverrides = ref(null)
 
   const resolvedMode = computed(() => {
@@ -45,9 +44,7 @@ export const useThemeStore = defineStore('theme', () => {
   }
 
   function applyQueryOverrides({ mode: modeParam, fg, bg } = {}) {
-    // Keep only the keys actually present in the query — storing null for the
-    // absent ones would overwrite (and so clear) the user's saved colors when
-    // the watchEffect merges the overrides in.
+    // Omitted query keys must not clear saved colors when overrides are merged.
     const overrides = {}
     if (modeParam === 'light' || modeParam === 'dark') overrides.mode = modeParam
     if (fg) overrides.fg = fg

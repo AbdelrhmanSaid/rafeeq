@@ -32,8 +32,7 @@ const playerRef = ref(null)
 
 const { data: surah, error, pending: isFetching, execute: reloadSurah } = useAsyncData(() => fetchSurah(surahId.value))
 
-// Vue Router reuses this component when only the :surah param changes (e.g. the
-// prev/next buttons), so re-fetch and scroll back to the top on each switch.
+// Router reuses this view for param changes.
 watch(surahId, () => {
   reloadSurah()
   window.scrollTo({ top: 0 })
@@ -75,7 +74,6 @@ const ayat = computed(() => {
 const activeAyah = ref(null)
 const tafseerAyah = ref(null)
 
-// Navigate the tafseer sheet through the surah's ayat without leaving the sheet.
 const tafseerIndex = computed(() => ayat.value.findIndex((a) => a.number === tafseerAyah.value?.number))
 
 const stepTafseer = (delta) => {
@@ -116,8 +114,6 @@ const scrollToAyah = (ayahNumber) => {
 
 const ayatRef = ref(null)
 
-// When arriving with ?ayah=N (e.g. from the bookmark card), bring that ayah
-// into view once the surah has rendered.
 watch(
   [surah, () => route.query.ayah],
   ([loadedSurah, ayahQuery]) => {
@@ -127,8 +123,6 @@ watch(
   { immediate: true },
 )
 
-// Swipe through surahs like flipping mushaf pages (see useSwipeNavigation for
-// the direction mapping).
 const goToSurah = (number) => {
   if (number >= 1 && number <= 114) router.push({ name: 'quran-surah', params: { surah: number } })
 }
@@ -150,7 +144,6 @@ useScreenWakeLock()
         :share="true"
       />
 
-      <!-- Audio Player -->
       <AudioPlayer v-if="online" ref="playerRef" :surah-number="surah.data.number" :surah-name="surah.data.name" />
 
       <p class="small text-secondary text-center m-0">اضغط على أي آية لعرض التفسير والاستماع والمزيد</p>
@@ -248,8 +241,7 @@ useScreenWakeLock()
     }
 
     .ayah {
-      // Kitab glyph boxes are taller than em*2, so line-height 2 lets
-      // multi-line inline backgrounds (bookmark/current) overlap between lines.
+      // Keep highlight fragments from overlapping between lines.
       line-height: 2.4;
       font-size: 1.625rem;
     }
@@ -285,12 +277,10 @@ useScreenWakeLock()
 
     .clickable-ayah {
       cursor: pointer;
-      /* Quick repeated taps on an ayah must not trigger double-tap zoom. */
       touch-action: manipulation;
     }
 
-    // Always on (invisible without a background): toggling clone with the
-    // highlight classes nudges the fragment layout by a subpixel.
+    // Keeping clone enabled avoids subpixel shifts when highlights change.
     .clickable-ayah {
       border-radius: var(--bs-border-radius-sm);
       box-decoration-break: clone;
@@ -299,15 +289,12 @@ useScreenWakeLock()
 
     .current-ayah {
       background-color: var(--bs-secondary-bg);
-      // Fake the horizontal padding with offset shadow copies: real padding
-      // widens the fragments and reflows the whole justified page every time
-      // the highlight moves to the next ayah.
+      // Shadow copies add width without reflowing the justified text.
       box-shadow:
         0.25rem 0 0 var(--bs-secondary-bg),
         -0.25rem 0 0 var(--bs-secondary-bg);
     }
 
-    // Ayah picked for the action sheet — clear "this is what I tapped" state.
     .selected-ayah {
       background-color: var(--app-tint-strong);
       box-shadow:
@@ -317,11 +304,7 @@ useScreenWakeLock()
 
     .bookmarked-ayah {
       background-color: rgba(var(--bs-primary-rgb), 0.12);
-      // Inset (not outset) so the outline stays inside each line fragment.
       box-shadow: inset 0 0 0 1px rgba(var(--bs-primary-rgb), 0.35);
-      // Horizontal padding only — vertical padding grows fragment boxes and
-      // reintroduces overlap even with the taller line-height above. Bookmarks
-      // only toggle on user action, so their one-off reflow is fine.
       padding: 0 0.25rem;
     }
   }

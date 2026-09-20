@@ -35,8 +35,7 @@ const sebha = ref(0)
 }
 
 .sebha-btn {
-  /* rem (not px) so the circle grows with the font scale and the counter
-     never overflows; still capped by viewport width on small screens. */
+  /* Scale with the user's font setting without exceeding the viewport. */
   width: min(13.75rem, 70vw);
   height: min(13.75rem, 70vw);
   border-radius: 50%;
@@ -49,7 +48,6 @@ const sebha = ref(0)
   justify-content: center;
   gap: 0.4rem;
   box-shadow: 0 12px 24px rgba(16, 24, 40, 0.08);
-  /* Rapid tasbeeh tapping must not select the counter text. */
   user-select: none;
   transition:
     transform 160ms ease,
@@ -77,8 +75,6 @@ const sebha = ref(0)
   color: var(--bs-secondary-color);
 }
 
-/* The raw primary is too dark against the dark canvas; lighten it the same way
-   active nav items do so the counter stays readable. */
 [data-bs-theme='dark'] .sebha-btn {
   color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
 }

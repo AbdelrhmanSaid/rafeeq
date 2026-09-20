@@ -23,12 +23,10 @@ const emit = defineEmits(['close', 'prev', 'next'])
 const online = useOnline()
 const quranStore = useQuranStore()
 
-// Keep the last opened ayah so the content stays rendered while the sheet
-// animates closed (props.ayah becomes null the moment closing starts).
+// Retain content until the close animation finishes.
 const displayAyah = ref(props.ayah)
 
-// Seeds from the saved default, but lets the user switch edition just for this
-// sheet — picking here never writes back to the stored default.
+// Edition changes here are temporary and do not replace the saved default.
 const edition = ref(quranStore.currentTafseer)
 
 const url = ref('')

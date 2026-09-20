@@ -1,5 +1,4 @@
-// Single source of truth for every localStorage key. The string values must
-// stay stable — changing one discards that setting for existing users.
+// Changing a value discards the corresponding setting for existing users.
 export const STORAGE_KEYS = {
   autoUpdateServiceWorker: 'auto-update-service-worker',
   zekrVibrationEnabled: 'zekr-vibration-enabled',

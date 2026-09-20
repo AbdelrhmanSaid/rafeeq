@@ -15,7 +15,6 @@ const loadTracker = () => {
   }
 
   trackerPromise = new Promise((resolve) => {
-    // Initialize dataLayer
     window.dataLayer = window.dataLayer || []
     window.gtag = function () {
       window.dataLayer.push(arguments)
@@ -23,7 +22,6 @@ const loadTracker = () => {
     window.gtag('js', new Date())
     window.gtag('config', measurementId)
 
-    // Load the gtag.js script
     const script = document.createElement('script')
     script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`
     script.async = true

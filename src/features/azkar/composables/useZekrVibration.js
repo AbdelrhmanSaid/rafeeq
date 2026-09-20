@@ -2,7 +2,6 @@ import { storeToRefs } from 'pinia'
 import { useAppStore } from '@/app/stores/app'
 import { useVibration } from '@/shared/composables/useVibration'
 
-// Haptic feedback for zekr counting, gated by the user's app settings.
 export function useZekrVibration() {
   const { zekrVibrationEnabled, zekrVibrationIntensity } = storeToRefs(useAppStore())
   const { vibrate } = useVibration()

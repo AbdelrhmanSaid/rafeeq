@@ -8,7 +8,6 @@ import { API } from '@/shared/constants/api'
 const DEFAULT_RECITER_ID = 51
 const DEFAULT_TAFSEER = 'ar.muyassar'
 
-// Playback speed presets offered by the player, from slowest to fastest.
 export const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
 
 export const useQuranStore = defineStore('quran', () => {
@@ -66,7 +65,6 @@ export const useQuranStore = defineStore('quran', () => {
     ayahTimings.value = []
 
     const timings = await fetchTimings(surahNumber).catch(() => [])
-    // A later load (including an A → B → A switch) always wins.
     if (loadId === audioLoadId) ayahTimings.value = timings
   }
 
@@ -94,9 +92,7 @@ export const useQuranStore = defineStore('quran', () => {
     currentAyahIndex.value = -1
   }
 
-  // Persist the selection only. Reloading the (potentially large) audio file is
-  // deferred to reloadSurahAudio() so rapid reciter switches don't each trigger
-  // a download — the caller reloads once when it's done changing.
+  // The caller reloads once after reciter selection settles.
   function changeReciter(reciterId) {
     currentReciter.value = reciterId
   }

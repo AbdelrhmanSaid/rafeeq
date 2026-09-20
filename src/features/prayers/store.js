@@ -10,7 +10,6 @@ export const usePrayersStore = defineStore('prayers', function () {
   const longitude = useLocalStorage(STORAGE_KEYS.longitude, 0)
   const latitude = useLocalStorage(STORAGE_KEYS.latitude, 0)
 
-  // Display layout: 'cards' | 'list' | 'auto'
   const layout = useLocalStorage(STORAGE_KEYS.prayerTimesLayout, 'auto')
 
   const calcMethod = useLocalStorage(STORAGE_KEYS.prayerCalcMethod, AUTO)
@@ -21,7 +20,6 @@ export const usePrayersStore = defineStore('prayers', function () {
 
   const isCompactViewport = useIsMobile()
 
-  // Effective orientation consumed by <PrayerTimes>
   const vertical = computed(() => {
     if (layout.value === 'list') return true
     if (layout.value === 'cards') return false

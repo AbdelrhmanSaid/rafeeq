@@ -104,7 +104,6 @@ const handleAssetAction = (asset) => {
 
 <template>
   <div class="download-manager card">
-    <!-- Header -->
     <div class="dm-header">
       <div class="dm-header-content">
         <div class="dm-title">
@@ -128,7 +127,6 @@ const handleAssetAction = (asset) => {
         </div>
       </div>
 
-      <!-- Status Bar -->
       <div v-if="isDownloading || isPaused || !online" class="dm-status-bar">
         <template v-if="!online">
           <IconWifiOff :size="16" />
@@ -146,7 +144,6 @@ const handleAssetAction = (asset) => {
       </div>
     </div>
 
-    <!-- Toolbar -->
     <div class="dm-toolbar">
       <div class="tab-pills dm-filters">
         <button class="tab-pill dm-filter-btn" :class="{ active: filterType === 'all' }" @click="filterType = 'all'">
@@ -212,7 +209,6 @@ const handleAssetAction = (asset) => {
       </div>
     </div>
 
-    <!-- List -->
     <div class="dm-list">
       <DownloadAssetItem
         v-for="asset in filteredAssets"
@@ -223,7 +219,6 @@ const handleAssetAction = (asset) => {
       />
     </div>
 
-    <!-- Completed Banner -->
     <div v-if="isCompleted" class="dm-completed">
       <IconCheck :size="20" />
       <span>تم تحميل جميع الملفات بنجاح!</span>
@@ -237,7 +232,6 @@ const handleAssetAction = (asset) => {
   contain: layout style;
 }
 
-/* Header */
 .dm-header {
   padding: 1.25rem;
   border-bottom: 1px solid var(--app-hairline);
@@ -299,7 +293,6 @@ const handleAssetAction = (asset) => {
   color: var(--bs-secondary-color);
 }
 
-/* Status Bar */
 .dm-status-bar {
   display: flex;
   align-items: center;
@@ -326,7 +319,6 @@ const handleAssetAction = (asset) => {
   opacity: 0.7;
 }
 
-/* Toolbar */
 .dm-toolbar {
   display: flex;
   justify-content: space-between;
@@ -379,7 +371,6 @@ const handleAssetAction = (asset) => {
   --bs-btn-hover-color: #fff;
 }
 
-/* List */
 .dm-list {
   max-height: 300px;
   overflow-y: auto;
@@ -387,7 +378,6 @@ const handleAssetAction = (asset) => {
   scrollbar-color: var(--app-hairline-strong) transparent;
 }
 
-/* Completed Banner */
 .dm-completed {
   display: flex;
   align-items: center;
@@ -400,7 +390,6 @@ const handleAssetAction = (asset) => {
   font-weight: 500;
 }
 
-/* Animations */
 .spin {
   animation: spin 1s linear infinite;
 }

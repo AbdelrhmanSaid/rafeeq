@@ -1,15 +1,11 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { normalizeAngle, smoothAngle } from '@/features/qibla/lib/qibla'
 
-// Exponential-moving-average factor — balances responsiveness vs. jitter.
 const SMOOTHING = 0.15
 
-// Whether the platform requires an explicit DeviceOrientation permission prompt (iOS 13+).
 const needsPermissionPrompt = () =>
   typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function'
 
-// Tracks the device's compass heading from DeviceOrientation events, handling
-// iOS permission, Android absolute orientation, and listener cleanup.
 export function useDeviceCompass() {
   const heading = ref(0)
   const hasSupport = ref(false)

@@ -15,12 +15,10 @@ function withEmbedAliases(routes) {
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  // Owns scrolling so a cancelled leave-guard on browser back no longer yanks
-  // the page to the top (also switches the browser to manual restoration).
+  // Custom behavior also puts browser history scrolling in manual mode.
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) return savedPosition
-    // Param-only switches inside a tabbed view (e.g. zakat's :tab) are
-    // in-page state changes — leave the scroll position alone.
+    // Param tabs are in-page state changes, so preserve their scroll position.
     if (to.name === from.name && to.meta.paramTabs) return
     return { top: 0, behavior: 'smooth' }
   },
@@ -167,7 +165,6 @@ const router = createRouter({
 })
 
 router.beforeEach((to) => {
-  // If the page is not an embed page, show the progress bar
   if (!to.path.startsWith('/embed')) {
     nProgress.start()
   }
@@ -181,16 +178,12 @@ router.afterEach((to) => {
     themeStore.clearQueryOverrides()
   }
 
-  // Close the mobile menu after clicking on a link
   document.querySelector('.navbar-collapse')?.classList?.remove('show')
 
-  // Stop the progress bar
   nProgress.done()
 
-  // Update the meta tags
   useMeta(to.meta)
 
-  // Send a pageview to analytics without blocking navigation
   trackPageview(to.fullPath)
 })
 

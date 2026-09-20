@@ -1,10 +1,5 @@
 import { ref, computed, onScopeDispose } from 'vue'
 
-// Owns a single HTMLAudioElement and a reconnect state machine for streamed
-// audio. Exposes reactive state instead of triggering UI directly, so callers
-// (e.g. toasts) react to `status` / `retryCount` without coupling to playback.
-//
-// status: 'idle' | 'playing' | 'retrying' | 'failed'
 export function useAudioPlayer({ maxRetries = 3, retryDelay = 3000 } = {}) {
   const audio = new Audio()
 

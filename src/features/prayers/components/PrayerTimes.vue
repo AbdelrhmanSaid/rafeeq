@@ -24,14 +24,11 @@ const props = defineProps({
 
 const hasPropsCoords = computed(() => props.lat != null && props.long != null)
 
-// Reactive state for current time. The countdown only displays seconds, so a
-// 1s tick is enough — the default rAF interval would recompute phases ~60fps.
+// Match the countdown's one-second precision instead of updating every frame.
 const now = useNow({ interval: 1000 })
 
-// Check if the user is online
 const online = useOnline()
 
-// Prayer timings map
 const timingsMap = {
   Fajr: { label: 'الفجر', icon: 'fajr' },
   Sunrise: { label: 'الشروق', icon: 'sunrise' },
@@ -47,7 +44,6 @@ const { detect } = usePrayerLocation()
 const latitude = computed(() => (hasPropsCoords.value ? props.lat : store.latitude))
 const longitude = computed(() => (hasPropsCoords.value ? props.long : store.longitude))
 
-// API endpoint
 const endpoint = computed(() => {
   if (!latitude.value || !longitude.value) return null
   const today = new Date().toISOString().split('T')[0].split('-').reverse().join('-')
@@ -66,7 +62,6 @@ const endpoint = computed(() => {
   return `${API.aladhan}/timings/${today}?${params.toString()}`
 })
 
-// Fetch options
 const options = {
   refetch: true,
   beforeFetch: ({ url, cancel }) => {
@@ -74,16 +69,13 @@ const options = {
   },
 }
 
-// Fetch prayer timings
 const { isFetching, data: timings, error, execute } = useFetch(endpoint, options).json().get()
 const { isRecoveringOnReconnect } = useReconnectExecute(online, execute)
 
-// Format time
 const formatTiming = (time) => {
   return toArabicNumerals(formatDate(new Date(time), 'hh:mm A').replace('AM', 'ص').replace('PM', 'م'))
 }
 
-// Hijri date from API response
 const hijriDate = computed(() => {
   let date = timings.value?.data?.date?.hijri
   if (!date) return ''
@@ -107,14 +99,12 @@ const phases = computed(() => {
   return result
 })
 
-// Calculate remaining time until next prayer
 const remainingTime = computed(() => {
   if (!timings.value?.data?.timings || !nextPrayerKey.value) return null
 
   let nextPrayerTime = new Date(timings.value.data.timings[nextPrayerKey.value])
   const currentTime = now.value
 
-  // If next prayer time is before current time, add 1 day (24 hours)
   if (nextPrayerTime < currentTime) {
     nextPrayerTime.setDate(nextPrayerTime.getDate() + 1)
   }
@@ -122,8 +112,6 @@ const remainingTime = computed(() => {
   return formatTime((nextPrayerTime - currentTime) / 1000)
 })
 
-// Fraction of the window between the previous prayer and the next one that
-// has already elapsed — drives the hero progress bar.
 const progress = computed(() => {
   const prayerTimes = timings.value?.data?.timings
   const next = nextPrayerKey.value
@@ -216,7 +204,6 @@ const nextPrayerTime = computed(() => {
       </div>
     </div>
 
-    <!-- Vertical / list layout -->
     <div v-if="vertical" class="d-flex flex-column gap-1">
       <div
         v-for="(timing, key) in timingsMap"
@@ -235,7 +222,6 @@ const nextPrayerTime = computed(() => {
       </div>
     </div>
 
-    <!-- Cards layout -->
     <div v-else class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2">
       <div v-for="(timing, key) in timingsMap" :key="key" class="col">
         <div
@@ -270,7 +256,6 @@ const nextPrayerTime = computed(() => {
     radial-gradient(28rem 14rem at 100% 0, rgba(255, 255, 255, 0.18), transparent 70%),
     linear-gradient(135deg, var(--bs-primary), color-mix(in srgb, var(--bs-primary) 72%, #000));
 
-  /* Geometric lattice — a faint 8-point-star tile, the classic Islamic motif. */
   &::before {
     content: '';
     position: absolute;
@@ -414,13 +399,10 @@ const nextPrayerTime = computed(() => {
   box-shadow: none;
 }
 
-/* Reserve room for loading / detect / error states so the swap to loaded
-   content doesn't shift the page. */
+/* Prevent layout shift while state content changes. */
 .prayer-state {
   display: grid;
   place-items: center;
-  /* Keep the pre-location state compact on phones so real content fits the
-     first screen; the taller reserve only matters on desktop. */
   min-height: 10rem;
 
   @media (min-width: 768px) {

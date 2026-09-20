@@ -7,7 +7,6 @@ import {
   isFacingQibla as computeIsFacingQibla,
 } from '@/features/qibla/lib/qibla'
 
-// 15° tolerance allows natural hand movement while staying precise for prayer.
 const FACING_TOLERANCE = 15
 
 const props = defineProps({
@@ -29,22 +28,18 @@ const isFacingQibla = computed(
 <template>
   <div class="qibla-shell">
     <div class="compass-container" :class="{ 'facing-qibla': isFacingQibla }">
-      <!-- Qibla needle - points to Qibla direction -->
       <div class="needle" :style="{ transform: `rotate(${needleRotation}deg)` }">
         <div class="needle-pointer"></div>
         <div class="kaaba-icon">🕋</div>
       </div>
 
-      <!-- Center dot -->
       <div class="center-dot"></div>
 
-      <!-- "You" indicator at bottom -->
       <div class="you-indicator">
         <span>أنت</span>
       </div>
     </div>
 
-    <!-- Info section -->
     <div class="qibla-info">
       <div class="qibla-degree">
         <IconCompass size="1.25rem" class="me-2" />
@@ -61,7 +56,6 @@ const isFacingQibla = computed(
       </p>
     </div>
 
-    <!-- Enable compass button for iOS -->
     <button v-if="canRequestPermission" class="btn btn-primary" @click="$emit('request-permission')">
       <IconCompass class="me-2" size="1.25rem" />
       تفعيل البوصلة

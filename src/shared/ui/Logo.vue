@@ -35,7 +35,6 @@ svg {
   color: var(--bs-primary);
 }
 
-/* The wordmark stays light on dark surfaces regardless of the accent color. */
 [data-bs-theme='dark'] svg {
   color: var(--bs-body-color);
 }

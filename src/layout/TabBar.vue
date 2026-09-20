@@ -26,7 +26,6 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
 
 <template>
   <div>
-    <!-- More Menu -->
     <BottomSheet :show="showMoreMenu" title="المزيد" @close="showMoreMenu = false">
       <div class="px-3 py-3">
         <RouterLink :to="{ name: 'qibla' }" class="more-menu-item" @click="showMoreMenu = false">
@@ -55,7 +54,6 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
       </div>
     </BottomSheet>
 
-    <!-- Tab Bar -->
     <nav class="position-fixed bottom-0 start-0 end-0 d-flex tab-bar" aria-label="التنقل الرئيسي">
       <div class="tab-bar__pill">
         <RouterLink :to="{ name: 'home' }" class="tab-item">
@@ -96,14 +94,9 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
 </template>
 
 <style lang="scss" scoped>
-/* Floating pill bar — the fixed strip is an invisible, click-through gutter;
-   the pill inside carries the surface, inset from the screen edges. Its total
-   footprint stays exactly `--navbar-height` + the safe-area inset, so the
-   main-content bottom padding and every offset derived from it keep holding. */
 .tab-bar {
   padding: 0.5rem 0.75rem calc(0.5rem + env(safe-area-inset-bottom));
-  /* Keep tabs clear of the notch / curved corners in landscape. Physical
-     properties on purpose; the rtlcss build must not flip them. */
+  /* Keep physical safe-area sides from being flipped by rtlcss. */
   /*! rtl:begin:ignore */
   padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
   padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
@@ -120,17 +113,14 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
   flex: 1;
   max-width: 28rem;
   margin-inline: auto;
-  /* min-height (bar height minus the strip's vertical padding) so labels and
-     icons at large font scales grow the pill, not clip. */
+  /* Allow large font scales to grow the pill. */
   min-height: calc(var(--navbar-height) - 1rem);
   padding: 0.3rem;
   border: 1px solid var(--app-hairline);
   border-radius: var(--bs-border-radius-xl);
   background: var(--app-glass);
   box-shadow: var(--app-shadow-card-hover);
-  /* No -webkit- duplicate here: Lightning CSS merges the pair and emits only
-     the prefixed property, which Chrome/Firefox ignore (no blur in prod
-     builds). The prefix is auto-generated at build time from cssTarget. */
+  /* Lightning CSS mishandles a paired -webkit-backdrop-filter declaration. */
   backdrop-filter: blur(18px) saturate(1.4);
 }
 
@@ -158,7 +148,6 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
   }
 
   &__label {
-    /* ~12.5px — 11px labels were too small to read comfortably. */
     font-size: 0.78rem;
     font-weight: 500;
     white-space: nowrap;
@@ -179,8 +168,6 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
   }
 }
 
-/* Secondary-color is too dim on the dark glass bar; use the light body color
-   (same as the more/settings menu items) and keep the active tint on top. */
 [data-bs-theme='dark'] .tab-item {
   color: var(--bs-body-color);
 
@@ -215,7 +202,6 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  /* Comfortable touch rows (>=44px tall). */
   padding: 0.7rem 0.75rem;
   border-radius: var(--bs-border-radius-lg);
   color: var(--bs-body-color);
@@ -240,8 +226,6 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
   }
 }
 
-/* Primary stays a dark accent (brown/green/navy); mix it toward white so
-   menu icons and the active row remain readable on the dark sheet. */
 [data-bs-theme='dark'] .more-menu-item {
   .icon-tile {
     color: color-mix(in srgb, var(--bs-primary) 28%, #fff);

@@ -15,9 +15,7 @@ export default defineConfig({
     globals: true,
     include: ['src/**/*.spec.js'],
     restoreMocks: true,
-    // Node 22+ ships experimental webstorage globals; without
-    // --localstorage-file its localStorage is a getter returning
-    // undefined, and it shadows jsdom's working implementation.
+    // Prevent Node's experimental globals from shadowing jsdom's localStorage.
     execArgv: ['--no-experimental-webstorage'],
   },
 })

@@ -1,5 +1,3 @@
-// Arabic tafsir editions available on api.alquran.cloud (type=tafsir).
-// `identifier` is the edition slug used in the /ayah/{n}/editions/{id} endpoint.
 export default [
   { identifier: 'ar.muyassar', name: 'التفسير الميسر' },
   { identifier: 'ar.jalalayn', name: 'تفسير الجلالين' },

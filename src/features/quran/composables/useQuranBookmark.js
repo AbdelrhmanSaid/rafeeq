@@ -2,8 +2,7 @@ import { useLocalStorage } from '@vueuse/core'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 import { normalizeQuranicText } from '@/shared/utils/arabic'
 
-// useLocalStorage's default serializer can't round-trip `null`, so store the
-// bookmark object (or null) as JSON ourselves.
+// VueUse's default serializer cannot round-trip null.
 const jsonSerializer = {
   read: (value) => {
     try {
@@ -15,9 +14,7 @@ const jsonSerializer = {
   write: (value) => JSON.stringify(value),
 }
 
-// A single, app-wide Quran bookmark. Setting a new one replaces any previous
-// bookmark, so only one ayah is ever bookmarked at a time. Shared at module
-// scope so every view/component reads and writes the same reactive value.
+// Module scope keeps the single bookmark shared across all consumers.
 const bookmark = useLocalStorage(STORAGE_KEYS.quranBookmark, null, { serializer: jsonSerializer })
 
 export const useQuranBookmark = () => {

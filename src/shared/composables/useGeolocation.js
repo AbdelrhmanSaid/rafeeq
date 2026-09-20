@@ -1,5 +1,3 @@
-// Promisified one-shot geolocation lookup. Resolves with a GeolocationPosition,
-// rejects with the native GeolocationPositionError (which carries `.code`).
 export function getCurrentPosition(options = {}) {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {

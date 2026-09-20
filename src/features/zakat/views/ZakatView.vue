@@ -123,10 +123,8 @@ const conditions = {
     />
 
     <div class="zakat-layout">
-      <!-- Tabs Navigation -->
       <nav class="zakat-nav tab-pills" aria-label="أنواع الزكاة">
-        <!-- replace: tabs are deep-linkable but must not stack history entries,
-             or Back walks through every tab the user viewed. -->
+        <!-- Avoid stacking tab changes in browser history. -->
         <RouterLink
           v-for="tab in tabs"
           :key="tab.id"
@@ -141,7 +139,6 @@ const conditions = {
       </nav>
 
       <div class="zakat-content">
-        <!-- Money/Savings -->
         <ZakatCalculatorCard
           v-if="activeTab === 'money'"
           :icon="IconCoins"
@@ -176,7 +173,6 @@ const conditions = {
           </div>
         </ZakatCalculatorCard>
 
-        <!-- Gold -->
         <ZakatCalculatorCard
           v-if="activeTab === 'gold'"
           :icon="IconGift"
@@ -190,7 +186,6 @@ const conditions = {
           <div class="form-text">النصاب: {{ toArabicNumerals(NISAB.gold) }} جرام</div>
         </ZakatCalculatorCard>
 
-        <!-- Silver -->
         <ZakatCalculatorCard
           v-if="activeTab === 'silver'"
           :icon="IconDiamond"
@@ -211,7 +206,6 @@ const conditions = {
           <div class="form-text">النصاب: {{ toArabicNumerals(NISAB.silver) }} جرام</div>
         </ZakatCalculatorCard>
 
-        <!-- Livestock -->
         <ZakatCalculatorCard
           v-if="activeTab === 'livestock'"
           :icon="IconUsersGroup"
@@ -241,7 +235,6 @@ const conditions = {
           </div>
         </ZakatCalculatorCard>
 
-        <!-- Crops -->
         <ZakatCalculatorCard
           v-if="activeTab === 'crops'"
           :icon="IconPlant2"
@@ -265,7 +258,6 @@ const conditions = {
           <div class="form-text">النصاب: {{ toArabicNumerals(NISAB.crops) }} كيلوجرام</div>
         </ZakatCalculatorCard>
 
-        <!-- Business -->
         <ZakatCalculatorCard
           v-if="activeTab === 'business'"
           :icon="IconBuildingStore"
@@ -300,7 +292,6 @@ const conditions = {
           </div>
         </ZakatCalculatorCard>
 
-        <!-- General Information -->
         <div class="row g-3">
           <div class="col-md-6">
             <div class="card h-100 zakat-info">

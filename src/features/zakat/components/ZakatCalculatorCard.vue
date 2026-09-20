@@ -5,7 +5,7 @@ defineProps({
   icon: { type: [Object, Function], required: true },
   title: { type: String, required: true },
   description: { type: String, default: '' },
-  result: { type: Object, required: true }, // { value, hint }
+  result: { type: Object, required: true },
   conditionsTitle: { type: String, required: true },
   conditions: { type: Array, required: true },
 })
@@ -119,7 +119,6 @@ defineProps({
   color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
 }
 
-/* Result panel — a quiet tinted surface; the number carries the weight. */
 .zakat-result {
   display: flex;
   flex-direction: column;

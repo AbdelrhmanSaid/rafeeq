@@ -7,10 +7,9 @@ import rtlcss from 'rtlcss'
 
 import { manifestIcons } from './src/app/pwa/manifest-icons.js'
 
-// Files matching any of these patterns are skipped by rtlcss (already RTL-safe).
+// These packages are already RTL-safe.
 const rtlcssExcludePatterns = [/vue-sonner/]
 
-// Allow to exclude files from rtlcss processing
 function rtlcssWithExclude(options) {
   return {
     postcssPlugin: 'rtlcss-with-exclude',
@@ -23,10 +22,8 @@ function rtlcssWithExclude(options) {
   }
 }
 
-// Append postcss: true to the rtlcss plugin
 rtlcssWithExclude.postcss = true
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
@@ -40,7 +37,6 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,woff,woff2}'],
         globIgnores: ['push/onesignal/**/*'],
         runtimeCaching: [
-          // Cache Prayer Times API responses
           {
             urlPattern: /^https:\/\/api\.aladhan\.com\/v1\/.*/,
             handler: 'NetworkFirst',
@@ -48,12 +44,11 @@ export default defineConfig({
               cacheName: 'prayer-times-cache',
               expiration: {
                 maxEntries: 30,
-                maxAgeSeconds: 60 * 60 * 12, // 12 hours
+                maxAgeSeconds: 60 * 60 * 12,
               },
               networkTimeoutSeconds: 5,
             },
           },
-          // Cache fonts
           {
             urlPattern: /^.*\.(ttf|woff|woff2)$/,
             handler: 'CacheFirst',
@@ -61,7 +56,6 @@ export default defineConfig({
               cacheName: 'fonts-cache',
             },
           },
-          // Cache images
           {
             urlPattern: /^.*\.(png|jpg|jpeg|svg|gif|webp)$/,
             handler: 'CacheFirst',
@@ -81,7 +75,6 @@ export default defineConfig({
         start_url: '/',
         scope: '/',
         icons: manifestIcons,
-        // Long-press (Android) / right-click (desktop) jump list on the app icon.
         shortcuts: [
           {
             name: 'القرآن الكريم',

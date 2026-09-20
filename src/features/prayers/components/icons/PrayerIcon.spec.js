@@ -8,7 +8,6 @@ describe('PrayerIcon', () => {
     const isha = mount(PrayerIcon, { props: { name: 'isha' } })
 
     expect(fajr.find('svg').exists()).toBe(true)
-    // Distinct names render distinct icons — proves the lookup is name-driven.
     expect(fajr.html()).not.toBe(isha.html())
   })
 

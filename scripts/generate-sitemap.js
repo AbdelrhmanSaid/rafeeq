@@ -21,17 +21,14 @@ const staticRoutes = [
 
 const sitemap = []
 
-// Add static routes
 staticRoutes.forEach(route => {
   sitemap.push(`${BASE_URL}${route}`)
 })
 
-// Add Quran surahs
 for (let i = 1; i <= 114; i++) {
   sitemap.push(`${BASE_URL}/quran/${i}`)
 }
 
-// Add Azkar categories
 const azkarDir = path.join(__dirname, '../public/data/azkar')
 const azkarFiles = fs.readdirSync(azkarDir).filter(file => file.endsWith('.json'))
 azkarFiles.forEach(file => {
@@ -39,7 +36,6 @@ azkarFiles.forEach(file => {
   sitemap.push(`${BASE_URL}/azkar/${category}`)
 })
 
-// Add Radios
 Object.keys(Radios).forEach(slug => {
   sitemap.push(`${BASE_URL}/radio/${slug}`)
 })

@@ -9,13 +9,9 @@ defineProps({
 
 const slots = useSlots()
 
-// When rendered inside a "bare" context (e.g. a bottom sheet that supplies its
-// own title/chrome) drop the card + header and render only the form body. Any
-// SettingsSection-based card opts in automatically — no per-card changes.
+// Bottom sheets provide their own card chrome.
 const bare = inject('settings-bare', false)
 
-// Whether the default slot renders anything meaningful (so we can drop the
-// body wrapper entirely for header-only cards instead of leaving a gap).
 const hasBody = computed(() => {
   const nodes = slots.default?.() ?? []
   return nodes.some((node) => {

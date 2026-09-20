@@ -46,9 +46,7 @@ const shareStation = async () => {
 
   try {
     await navigator.share(data)
-  } catch {
-    // User canceled or share failed
-  }
+  } catch {}
 }
 </script>
 
@@ -58,14 +56,12 @@ const shareStation = async () => {
   </Page>
 
   <Page v-else class="full-height d-flex align-items-center justify-content-center">
-    <!-- Not Found State -->
     <div v-if="!station" class="text-center py-5 px-3">
       <div class="display-1 mb-4 opacity-50">📻</div>
       <Heading title="لم يتم العثور على الإذاعة" subtitle="يمكنك العودة لقائمة الإذاعات المتاحة." />
       <BackButton :to="{ name: 'radio' }" label="العودة إلى الإذاعات" button-class="btn-primary" />
     </div>
 
-    <!-- Main Player -->
     <RadioPlayer
       v-else
       :station="station"

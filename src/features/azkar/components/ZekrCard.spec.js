@@ -4,7 +4,6 @@ import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import ZekrCard from '@/features/azkar/components/ZekrCard.vue'
 
-// Counting happens via the counter button on desktop viewports.
 vi.mock('@/shared/composables/useIsMobile', () => ({ useIsMobile: () => ({ value: false }) }))
 
 const vibrateOnFinish = vi.fn()
@@ -17,8 +16,6 @@ vi.mock('@/features/azkar/composables/useZekrScroll', () => ({
   useZekrScroll: () => ({ scrollToNextZekr }),
 }))
 
-// Mirror how AzkarCategoryView binds the count via `v-model:count="counts[index]"`
-// against a reactive object so the test exercises the real model write-back path.
 const mountCard = (repeat) => {
   const counts = reactive({})
   const wrapper = mount(ZekrCard, {

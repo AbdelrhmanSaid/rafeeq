@@ -48,7 +48,6 @@ defineProps({
   position: relative;
   padding-inline-start: 0.9rem;
 
-  /* Accent mark: a short primary bar that anchors every section title. */
   &::before {
     content: '';
     position: absolute;

@@ -1,18 +1,9 @@
 import { createApp, nextTick } from 'vue'
 
-// iOS Safari silently produces an all-blank canvas (no error) once a canvas
-// exceeds ~16.7M pixels — the classic "exported a white image" failure.
-// Keep a safety margin below that.
+// iOS Safari can return a blank canvas above ~16.7M pixels.
 const MAX_CANVAS_AREA = 16000000
 
-/**
- * A real export is mostly ink: the card fills the frame with an off-white
- * (#fffdf9) ground plus dark text, so nearly every pixel sits below pure
- * white. A failed rasterization is the inverse — a white canvas with at most
- * a stray ornament — so require a meaningful share of non-white pixels
- * rather than hunting for a single dark one (a lone surviving logo used to
- * sneak past that). Downsample into a probe canvas to keep the scan cheap.
- */
+// Downsample and require enough non-white pixels to reject failed rasterizations.
 function isCanvasBlank(canvas) {
   if (!canvas || !canvas.width || !canvas.height) return true
 
@@ -32,57 +23,34 @@ function isCanvasBlank(canvas) {
     }
     return content / (data.length / 4) < 0.005
   } catch {
-    // Reading pixels can throw (e.g. tainted canvas) — let toDataURL be the
-    // one to surface that error instead of misreporting a blank export.
+    // Let toDataURL report tainted canvases instead of calling them blank.
     return false
   }
 }
 
-/**
- * Export a Vue component as an image
- * @param {Object} component - Vue component to render
- * @param {Object} props - Props to pass to the component
- * @param {string} filePrefix - Optional prefix for the downloaded file (default: 'export')
- * @param {Object} options - Optional configuration
- * @param {Object} options.canvas - html2canvas options
- * @param {string} options.format - Image format ('png' | 'jpeg' | 'webp', default: 'png')
- * @param {number} options.quality - Image quality for jpeg/webp (0-1, default: 0.92)
- * @param {number} options.expectedWidth - Sanity width (px) the mounted component must reach before capture
- */
 export async function exportComponent(component, props = {}, filePrefix = 'export', options = {}) {
   const { canvas: canvasOptions = {}, format = 'png', quality = 0.92, expectedWidth } = options || {}
 
-  // Load the renderer only when an export is requested. html2canvas-pro, not
-  // html2canvas: the original can't parse the color() / color-mix() values the
-  // theme now computes to, and dies before capturing.
+  // html2canvas-pro supports the theme's color() and color-mix() values.
   const { default: html2canvas } = await import('html2canvas-pro')
 
-  // Create temporary container. Keep it position: fixed — fixed boxes never
-  // contribute to scrollable overflow, while an absolute box hanging off the
-  // left edge expands the scroll area in this RTL document and flashes a
-  // horizontal scrollbar during every export.
+  // Fixed positioning avoids expanding the RTL document's scroll area.
   const container = document.createElement('div')
   container.style.position = 'fixed'
   container.style.top = '0'
   container.style.left = '-9999px'
   document.body.appendChild(container)
 
-  // Create and mount Vue app
   const app = createApp(component, props)
   app.mount(container)
 
   try {
-    // Wait for the component to render, and for webfonts so a capture right
-    // after page load doesn't rasterize with the fallback font
     await nextTick()
     await document.fonts.ready
 
     const element = container.firstChild
 
-    // A component that hasn't reached its designed width rendered without its
-    // styles (e.g. a stale service-worker update left the app with CSS whose
-    // scoped hashes no longer match) — capturing it would export garbage, so
-    // give late styles a moment to apply, then fail into the error toast.
+    // Stale service-worker CSS can delay the component reaching its expected width.
     if (expectedWidth) {
       const deadline = Date.now() + 3000
       while (Math.abs(element.clientWidth - expectedWidth) > 1) {
@@ -93,42 +61,35 @@ export async function exportComponent(component, props = {}, filePrefix = 'expor
       }
     }
 
-    const minimumWidth = 1080 // 1080px is the minimum width for the image
+    const minimumWidth = 1080
     const actualWidth = element.clientWidth || 512
     const actualHeight = element.clientHeight || actualWidth
 
-    // Upscale to the minimum width, but never past the canvas-area ceiling —
-    // very long azkar would otherwise cross it and export blank on iOS
+    // Long azkar must stay below the iOS canvas-area ceiling.
     const scale = Math.min(
       Math.max(minimumWidth / actualWidth, 1),
       Math.sqrt(MAX_CANVAS_AREA / (actualWidth * actualHeight)),
     )
 
-    // Default html2canvas options
     const defaultCanvasOptions = {
       backgroundColor: '#ffffff',
       scale,
       useCORS: true,
       allowTaint: true,
       logging: false,
-      // Capture as if the page were unscrolled: the card is position: fixed so
-      // its geometry can't change, and this turns the clone iframe's
-      // scroll-restore (a known WebKit race that yields blank captures when
-      // the page is scrolled) into a no-op.
+      // Avoid WebKit's clone-iframe scroll restoration race.
       scrollX: 0,
       scrollY: 0,
       ...canvasOptions,
     }
 
-    // Capture the component; a blank first pass is a rasterization failure
-    // (fonts/clone timing), so give it one more paint cycle and try again
+    // Retry once when font or clone timing produces a blank rasterization.
     let canvas = await html2canvas(element, defaultCanvasOptions)
     if (isCanvasBlank(canvas)) {
       await new Promise((resolve) => setTimeout(resolve, 300))
       canvas = await html2canvas(element, defaultCanvasOptions)
     }
 
-    // Fail loudly instead of downloading a white image
     if (isCanvasBlank(canvas)) throw new Error('Export produced a blank image')
 
     const mimesMap = {
@@ -137,7 +98,6 @@ export async function exportComponent(component, props = {}, filePrefix = 'expor
       webp: 'image/webp',
     }
 
-    // Generate download
     const mimeType = mimesMap[format] || mimesMap.png
     const dataUrl = canvas.toDataURL(mimeType, quality)
 
