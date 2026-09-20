@@ -5,44 +5,30 @@ import { useRadioStore } from '@/features/radio/store'
 import { useActiveNav } from '@/layout/useActiveNav'
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
 
-import {
-  IconHome,
-  IconBook,
-  IconSparkles,
-  IconRadio,
-  IconDotsCircleHorizontal,
-  IconBrandTelegram,
-  IconCompass,
-  IconCoins,
-  IconAbacus,
-  IconSettings,
-} from '@tabler/icons-vue'
+import { IconDotsCircleHorizontal, IconBrandTelegram } from '@tabler/icons-vue'
+import { navigation } from '@/layout/navigation'
 
 const radio = useRadioStore()
 const showMoreMenu = ref(false)
 
-const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
+const { isActive } = useActiveNav()
+const primaryNavigation = navigation.filter((item) => item.menus.includes('tabbar'))
+const moreNavigation = navigation.filter((item) => item.menus.includes('tabbar-more'))
 </script>
 
 <template>
   <div>
     <BottomSheet :show="showMoreMenu" title="المزيد" @close="showMoreMenu = false">
       <div class="px-3 py-3">
-        <RouterLink :to="{ name: 'qibla' }" class="more-menu-item" @click="showMoreMenu = false">
-          <span class="icon-tile"><IconCompass size="1.25rem" aria-hidden="true" /></span>
-          <span>اتجاه القبلة</span>
-        </RouterLink>
-        <RouterLink :to="{ name: 'zakat' }" class="more-menu-item" @click="showMoreMenu = false">
-          <span class="icon-tile"><IconCoins size="1.25rem" aria-hidden="true" /></span>
-          <span>حاسبة الزكاة</span>
-        </RouterLink>
-        <RouterLink :to="{ name: 'sebha' }" class="more-menu-item" @click="showMoreMenu = false">
-          <span class="icon-tile"><IconAbacus size="1.25rem" aria-hidden="true" /></span>
-          <span>السبحة الإلكترونية</span>
-        </RouterLink>
-        <RouterLink :to="{ name: 'settings' }" class="more-menu-item" @click="showMoreMenu = false">
-          <span class="icon-tile"><IconSettings size="1.25rem" aria-hidden="true" /></span>
-          <span>الإعدادات</span>
+        <RouterLink
+          v-for="item in moreNavigation"
+          :key="item.name"
+          :to="{ name: item.name }"
+          class="more-menu-item"
+          @click="showMoreMenu = false"
+        >
+          <span class="icon-tile"><component :is="item.icon" size="1.25rem" aria-hidden="true" /></span>
+          <span>{{ item.label }}</span>
         </RouterLink>
 
         <hr class="my-2 opacity-25" />
@@ -56,27 +42,18 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
 
     <nav class="position-fixed bottom-0 start-0 end-0 d-flex tab-bar" aria-label="التنقل الرئيسي">
       <div class="tab-bar__pill">
-        <RouterLink :to="{ name: 'home' }" class="tab-item">
-          <span class="tab-item__icon"><IconHome size="1.4rem" /></span>
-          <span class="tab-item__label">الرئيسية</span>
-        </RouterLink>
-
-        <RouterLink :to="{ name: 'quran' }" class="tab-item" :class="{ 'is-active': isQuranActive }">
-          <span class="tab-item__icon"><IconBook size="1.4rem" /></span>
-          <span class="tab-item__label">القرآن</span>
-        </RouterLink>
-
-        <RouterLink :to="{ name: 'azkar' }" class="tab-item" :class="{ 'is-active': isAzkarActive }">
-          <span class="tab-item__icon"><IconSparkles size="1.4rem" /></span>
-          <span class="tab-item__label">الأذكار</span>
-        </RouterLink>
-
-        <RouterLink :to="{ name: 'radio' }" class="tab-item" :class="{ 'is-active': isRadioActive }">
-          <span class="tab-item__icon position-relative">
-            <IconRadio size="1.4rem" />
-            <span class="radio-status" v-if="radio.isPlaying"></span>
+        <RouterLink
+          v-for="item in primaryNavigation"
+          :key="item.name"
+          :to="{ name: item.name }"
+          class="tab-item"
+          :class="{ 'is-active': isActive(item.name) }"
+        >
+          <span class="tab-item__icon" :class="{ 'position-relative': item.name === 'radio' }">
+            <component :is="item.icon" size="1.4rem" />
+            <span class="radio-status" v-if="item.name === 'radio' && radio.isPlaying"></span>
           </span>
-          <span class="tab-item__label">الإذاعة</span>
+          <span class="tab-item__label">{{ item.label }}</span>
         </RouterLink>
 
         <button

@@ -3,22 +3,15 @@ import { RouterLink } from 'vue-router'
 import { useRadioStore } from '@/features/radio/store'
 import { useActiveNav } from '@/layout/useActiveNav'
 
-import {
-  IconHome,
-  IconBook,
-  IconSparkles,
-  IconRadio,
-  IconDotsCircleHorizontal,
-  IconBrandTelegram,
-  IconCoins,
-  IconAbacus,
-  IconSettings,
-} from '@tabler/icons-vue'
+import { IconDotsCircleHorizontal, IconBrandTelegram } from '@tabler/icons-vue'
+import { navigation } from '@/layout/navigation'
 
 import Logo from '@/shared/ui/Logo.vue'
 
 const radio = useRadioStore()
-const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
+const { isActive } = useActiveNav()
+const primaryNavigation = navigation.filter((item) => item.menus.includes('navbar'))
+const moreNavigation = navigation.filter((item) => item.menus.includes('navbar-more'))
 </script>
 
 <template>
@@ -34,32 +27,11 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
 
       <div class="collapse navbar-collapse" id="menu">
         <ul class="navbar-nav ms-lg-3 me-lg-auto mt-3 mt-lg-0 mb-2 mb-lg-0 gap-2">
-          <li class="nav-item">
-            <RouterLink :to="{ name: 'home' }" class="nav-link">
-              <IconHome class="me-2" size="1.25rem" />
-              <span>الرئيسية</span>
-            </RouterLink>
-          </li>
-
-          <li class="nav-item">
-            <RouterLink :to="{ name: 'quran' }" class="nav-link" :class="{ 'is-active': isQuranActive }">
-              <IconBook class="me-2" size="1.25rem" />
-              <span>القرآن الكريم</span>
-            </RouterLink>
-          </li>
-
-          <li class="nav-item">
-            <RouterLink :to="{ name: 'azkar' }" class="nav-link" :class="{ 'is-active': isAzkarActive }">
-              <IconSparkles class="me-2" size="1.25rem" />
-              <span>الأذكار</span>
-            </RouterLink>
-          </li>
-
-          <li class="nav-item">
-            <RouterLink :to="{ name: 'radio' }" class="nav-link" :class="{ 'is-active': isRadioActive }">
-              <IconRadio class="me-2" size="1.25rem" />
-              <span>الإذاعة</span>
-              <span class="radio-status ms-2" v-if="radio.isPlaying"></span>
+          <li v-for="item in primaryNavigation" :key="item.name" class="nav-item">
+            <RouterLink :to="{ name: item.name }" class="nav-link" :class="{ 'is-active': isActive(item.name) }">
+              <component :is="item.icon" class="me-2" size="1.25rem" />
+              <span>{{ item.label }}</span>
+              <span class="radio-status ms-2" v-if="item.name === 'radio' && radio.isPlaying"></span>
             </RouterLink>
           </li>
 
@@ -69,22 +41,10 @@ const { isQuranActive, isAzkarActive, isRadioActive } = useActiveNav()
               <span>المزيد</span>
             </a>
             <ul class="dropdown-menu">
-              <li>
-                <RouterLink class="dropdown-item d-flex align-items-center gap-2" :to="{ name: 'zakat' }">
-                  <IconCoins size="1.25rem" aria-hidden="true" />
-                  <span>حاسبة الزكاة</span>
-                </RouterLink>
-              </li>
-              <li>
-                <RouterLink class="dropdown-item d-flex align-items-center gap-2" :to="{ name: 'sebha' }">
-                  <IconAbacus size="1.25rem" aria-hidden="true" />
-                  <span>السبحة الإلكترونية</span>
-                </RouterLink>
-              </li>
-              <li>
-                <RouterLink class="dropdown-item d-flex align-items-center gap-2" :to="{ name: 'settings' }">
-                  <IconSettings size="1.25rem" aria-hidden="true" />
-                  <span>الإعدادات</span>
+              <li v-for="item in moreNavigation" :key="item.name">
+                <RouterLink class="dropdown-item d-flex align-items-center gap-2" :to="{ name: item.name }">
+                  <component :is="item.icon" size="1.25rem" aria-hidden="true" />
+                  <span>{{ item.label }}</span>
                 </RouterLink>
               </li>
             </ul>
