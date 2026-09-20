@@ -6,9 +6,10 @@ export default defineConfig([
   {
     rules: {
       'vue/multi-word-component-names': 'off',
+      'no-unused-vars': 'error',
     },
   },
   {
-    ignores: ['node_modules', 'dist', 'dev-dist'],
+    ignores: ['node_modules', 'dist', 'dev-dist', 'coverage'],
   },
 ])

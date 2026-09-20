@@ -10,7 +10,6 @@ import {
   IconRadio,
   IconDotsCircleHorizontal,
   IconBrandTelegram,
-  IconCompass,
   IconCoins,
   IconAbacus,
   IconSettings,

@@ -1,5 +1,4 @@
 <script setup>
-import { computed } from 'vue'
 import { IconHeart, IconHeartFilled } from '@tabler/icons-vue'
 import { useFavorites } from '@/shared/composables/useFavorites'
 import EmptyState from '@/shared/ui/EmptyState.vue'
@@ -30,10 +29,7 @@ const props = defineProps({
 const { isFavorite, toggleFavorite, filterFavorites } = useFavorites(props.favoritesKey)
 
 const getKey = (item) => item[props.itemKey]
-const favorites = filterFavorites(
-  () => props.items,
-  (item) => getKey(item),
-)
+const favorites = filterFavorites(() => props.items, getKey)
 </script>
 
 <template>

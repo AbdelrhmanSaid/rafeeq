@@ -79,6 +79,11 @@ const importance = [
   'تنمية وبركة في المال',
 ]
 
+const infoCards = [
+  { title: 'مصارف الزكاة الثمانية', icon: IconHeartHandshake, items: recipients },
+  { title: 'أهمية الزكاة', icon: IconWheat, items: importance },
+]
+
 const conditions = {
   money: ['أن يبلغ النصاب', 'أن يحول عليه الحول الهجري (سنة قمرية)', 'أن يكون زائداً عن الحاجات الأساسية'],
   gold: [
@@ -293,32 +298,15 @@ const conditions = {
         </ZakatCalculatorCard>
 
         <div class="row g-3">
-          <div class="col-md-6">
+          <div v-for="card in infoCards" :key="card.title" class="col-md-6">
             <div class="card h-100 zakat-info">
               <div class="card-body">
                 <div class="zakat-info__header">
-                  <span class="icon-tile zakat-info__icon"><IconHeartHandshake :size="18" /></span>
-                  <h4 class="zakat-info__title">مصارف الزكاة الثمانية</h4>
+                  <span class="icon-tile zakat-info__icon"><component :is="card.icon" :size="18" /></span>
+                  <h4 class="zakat-info__title">{{ card.title }}</h4>
                 </div>
                 <ol class="zakat-info__list">
-                  <li v-for="(item, index) in recipients" :key="index">
-                    <span class="zakat-info__num">{{ toArabicNumerals(index + 1) }}</span>
-                    <span>{{ item }}</span>
-                  </li>
-                </ol>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-md-6">
-            <div class="card h-100 zakat-info">
-              <div class="card-body">
-                <div class="zakat-info__header">
-                  <span class="icon-tile zakat-info__icon"><IconWheat :size="18" /></span>
-                  <h4 class="zakat-info__title">أهمية الزكاة</h4>
-                </div>
-                <ol class="zakat-info__list">
-                  <li v-for="(item, index) in importance" :key="index">
+                  <li v-for="(item, index) in card.items" :key="index">
                     <span class="zakat-info__num">{{ toArabicNumerals(index + 1) }}</span>
                     <span>{{ item }}</span>
                   </li>

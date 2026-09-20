@@ -10,8 +10,8 @@ const normalize = (s) => s.replace(/\s+/g, ' ')
 
 const fullReciters = reciters.filter((r) => r.soar_count >= 114).map((r) => ({ ...r, rewaya: normalize(r.rewaya) }))
 
-const rewayat = computed(() => [...new Set(fullReciters.map((r) => r.rewaya))])
-const currentRewaya = computed(() => normalize(quranStore.reciter?.rewaya ?? '') || rewayat.value[0])
+const rewayat = [...new Set(fullReciters.map((r) => r.rewaya))]
+const currentRewaya = computed(() => normalize(quranStore.reciter?.rewaya ?? '') || rewayat[0])
 const filteredReciters = computed(() => fullReciters.filter((r) => r.rewaya === currentRewaya.value))
 
 function onRewayaChange(value) {

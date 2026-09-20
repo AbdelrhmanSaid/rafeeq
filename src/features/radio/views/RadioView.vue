@@ -1,7 +1,6 @@
 <script setup>
 import { useRadioStore } from '@/features/radio/store'
 import { IconPlayerPlay, IconPlayerPause } from '@tabler/icons-vue'
-import { computed } from 'vue'
 import { useOnline } from '@vueuse/core'
 
 import Page from '@/layout/Page.vue'
@@ -15,12 +14,10 @@ import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 const store = useRadioStore()
 const online = useOnline()
 
-const radiosList = computed(() =>
-  Object.entries(radiosData).map(([slug, station]) => ({
-    slug,
-    ...station,
-  })),
-)
+const radiosList = Object.entries(radiosData).map(([slug, station]) => ({
+  slug,
+  ...station,
+}))
 </script>
 
 <template>

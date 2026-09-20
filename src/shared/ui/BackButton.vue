@@ -1,5 +1,5 @@
 <script setup>
-const props = defineProps({
+defineProps({
   to: {
     type: [String, Object],
     required: true,
