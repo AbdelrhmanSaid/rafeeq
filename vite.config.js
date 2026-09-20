@@ -109,6 +109,12 @@ export default defineConfig({
   ],
 
   css: {
+    preprocessorOptions: {
+      scss: {
+        quietDeps: true,
+        silenceDeprecations: ['import'],
+      },
+    },
     postcss: {
       plugins: [rtlcssWithExclude()],
     },
