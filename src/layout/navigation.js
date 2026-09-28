@@ -18,7 +18,7 @@ export const navigation = [
   },
   {
     name: 'quran',
-    label: 'القرآن الكريم',
+    label: 'القرآن',
     icon: IconBook,
     menus: ['navbar', 'tabbar'],
   },
