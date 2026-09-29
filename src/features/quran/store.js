@@ -7,13 +7,18 @@ import { API } from '@/shared/constants/api'
 
 const DEFAULT_RECITER_ID = 51
 const DEFAULT_TAFSEER = 'ar.muyassar'
+const DEFAULT_READING_MODE = 'vertical'
 
+export const READING_MODES = ['vertical', 'horizontal']
 export const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
 
 export const useQuranStore = defineStore('quran', () => {
   const currentReciter = useLocalStorage(STORAGE_KEYS.currentReciter, DEFAULT_RECITER_ID)
   const currentTafseer = useLocalStorage(STORAGE_KEYS.currentTafseer, DEFAULT_TAFSEER)
   const playbackRate = useLocalStorage(STORAGE_KEYS.playbackRate, 1)
+  const readingMode = useLocalStorage(STORAGE_KEYS.quranReadingMode, DEFAULT_READING_MODE)
+
+  if (!READING_MODES.includes(readingMode.value)) readingMode.value = DEFAULT_READING_MODE
 
   const surahAudioUrl = ref(null)
   const surahName = ref(null)
@@ -107,6 +112,7 @@ export const useQuranStore = defineStore('quran', () => {
     currentReciter,
     currentTafseer,
     playbackRate,
+    readingMode,
     surahAudioUrl,
     surahName,
 

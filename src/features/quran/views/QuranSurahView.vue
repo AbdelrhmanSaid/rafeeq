@@ -15,6 +15,7 @@ import AyahActionSheet from '@/features/quran/components/AyahActionSheet.vue'
 import TafseerSheet from '@/features/quran/components/TafseerSheet.vue'
 import { useQuranStore } from '@/features/quran/store'
 import { useQuranBookmark } from '@/features/quran/composables/useQuranBookmark'
+import { useMushafPager } from '@/features/quran/composables/useMushafPager'
 import { useAsyncData } from '@/shared/composables/useAsyncData'
 import { usePageMeta } from '@/shared/composables/usePageMeta'
 import { useScreenWakeLock } from '@/shared/composables/useScreenWakeLock'
@@ -32,9 +33,13 @@ const playerRef = ref(null)
 
 const { data: surah, error, pending: isFetching, execute: reloadSurah } = useAsyncData(() => fetchSurah(surahId.value))
 
+const pagesRef = ref(null)
+const isHorizontal = computed(() => quranStore.readingMode === 'horizontal')
+
 // Router reuses this view for param changes.
 watch(surahId, () => {
   reloadSurah()
+
   window.scrollTo({ top: 0 })
 })
 
@@ -70,6 +75,20 @@ const ayat = computed(() => {
 
   return []
 })
+
+const pages = computed(() => {
+  const groups = []
+  for (const ayah of ayat.value) {
+    const last = groups.at(-1)
+
+    if (last?.number === ayah.page) last.ayat.push(ayah)
+    else groups.push({ number: ayah.page, ayat: [ayah] })
+  }
+
+  return groups
+})
+
+const pager = useMushafPager(pagesRef, { enabled: isHorizontal, pages })
 
 const activeAyah = ref(null)
 const tafseerAyah = ref(null)
@@ -109,8 +128,23 @@ const handleBookmark = () => {
 
 const scrollToAyah = (ayahNumber) => {
   const el = document.getElementById(`ayah-${ayahNumber}`)
-  el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  if (!el) return
+
+  if (isHorizontal.value) {
+    const index = pages.value.findIndex((page) => page.ayat.some((ayah) => ayah.numberInSurah === ayahNumber))
+    if (index !== pager.activeIndex.value) pager.goToPage(index)
+  } else {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
 }
+
+// Horizontal pages hide off-screen ayat, so follow the recitation across pages.
+watch(
+  () => quranStore.currentAyah?.ayah,
+  (ayahNumber) => {
+    if (isHorizontal.value && ayahNumber) scrollToAyah(ayahNumber)
+  },
+)
 
 const ayatRef = ref(null)
 
@@ -127,9 +161,10 @@ const goToSurah = (number) => {
   if (number >= 1 && number <= 114) router.push({ name: 'quran-surah', params: { surah: number } })
 }
 
+// Horizontal mode uses swipes to turn pages instead of surahs.
 useSwipeNavigation(ayatRef, {
-  onNext: () => goToSurah(surahNumber.value + 1),
-  onPrev: () => goToSurah(surahNumber.value - 1),
+  onNext: () => !isHorizontal.value && goToSurah(surahNumber.value + 1),
+  onPrev: () => !isHorizontal.value && goToSurah(surahNumber.value - 1),
 })
 
 useScreenWakeLock()
@@ -149,25 +184,36 @@ useScreenWakeLock()
       <p class="small text-secondary text-center m-0">اضغط على أي آية لعرض التفسير والاستماع والمزيد</p>
 
       <div class="card my-3" ref="ayatRef">
-        <div class="ayat card-body font-quran mb-4">
-          <span class="basmallah" v-if="surahId != 9">بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span>
+        <div ref="pagesRef" class="ayat font-quran" :class="isHorizontal ? 'is-horizontal' : 'card-body mb-4'">
+          <template v-for="(page, pageIndex) in pages" :key="page.number">
+            <div class="mushaf-page">
+              <span class="basmallah" v-if="pageIndex === 0 && surahId != 9"
+                >بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</span
+              >
 
-          <template v-for="(ayah, index) in ayat" :key="ayah.number">
-            <span
-              :id="`ayah-${ayah.numberInSurah}`"
-              class="ayah clickable-ayah"
-              :class="{
-                'current-ayah': isCurrentVerse(ayah),
-                'bookmarked-ayah': isBookmarkedVerse(ayah),
-                'selected-ayah': activeAyah?.number === ayah.number,
-              }"
-              @click="activeAyah = ayah"
-              :title="`خيارات الآية ${toArabicNumerals(ayah.numberInSurah)}`"
-              >{{ ayah.text }}</span
-            >
-            <span class="ayah-number" aria-hidden="true">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
-            <div v-if="index < ayat.length - 1 && ayah.page !== ayat[index + 1].page" class="page-separator">
-              <span class="page-number">{{ toArabicNumerals(ayah.page) }}</span>
+              <template v-for="ayah in page.ayat" :key="ayah.number">
+                <span
+                  :id="`ayah-${ayah.numberInSurah}`"
+                  class="ayah clickable-ayah"
+                  :class="{
+                    'current-ayah': isCurrentVerse(ayah),
+                    'bookmarked-ayah': isBookmarkedVerse(ayah),
+                    'selected-ayah': activeAyah?.number === ayah.number,
+                  }"
+                  @click="activeAyah = ayah"
+                  :title="`خيارات الآية ${toArabicNumerals(ayah.numberInSurah)}`"
+                  >{{ ayah.text }}</span
+                >
+                <span class="ayah-number" aria-hidden="true">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
+              </template>
+
+              <div v-if="isHorizontal" class="page-footer">
+                <span class="page-number">{{ toArabicNumerals(page.number) }}</span>
+              </div>
+            </div>
+
+            <div v-if="!isHorizontal && pageIndex < pages.length - 1" class="page-separator">
+              <span class="page-number">{{ toArabicNumerals(page.number) }}</span>
             </div>
           </template>
         </div>
@@ -251,6 +297,40 @@ useScreenWakeLock()
       margin-bottom: 0.75rem;
     }
 
+    &.is-horizontal {
+      display: flex;
+      align-items: flex-start;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      scroll-margin-top: calc(var(--navbar-height) + 1rem);
+      transition: height 0.3s ease;
+
+      @media (prefers-reduced-motion: reduce) {
+        transition: none;
+      }
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      .mushaf-page {
+        flex: 0 0 100%;
+        min-width: 0;
+        padding: var(--bs-card-spacer-y) var(--bs-card-spacer-x);
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+      }
+    }
+
+    .page-footer {
+      display: flex;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+
     .page-separator {
       display: flex;
       align-items: center;
@@ -263,7 +343,10 @@ useScreenWakeLock()
         flex: 1;
         border-bottom: 1px solid var(--bs-border-color);
       }
+    }
 
+    .page-separator,
+    .page-footer {
       .page-number {
         padding: 0.15rem 0.75rem;
         font-size: 0.875rem;

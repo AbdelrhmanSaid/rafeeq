@@ -23,6 +23,7 @@ export const STORAGE_KEYS = {
   currentReciter: 'currentReciter',
   currentTafseer: 'currentTafseer',
   playbackRate: 'quran-playback-rate',
+  quranReadingMode: 'quran-reading-mode',
 
   installPromptDismissed: 'install-prompt-dismissed',
 
