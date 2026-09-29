@@ -6,8 +6,6 @@ function createContainer({ width = 300, heights = [500, 200, 350], dir = 'rtl' }
   el.dir = dir
   el.style.direction = dir
   Object.defineProperty(el, 'clientWidth', { value: width })
-  el.scrollTo = vi.fn()
-  el.scrollIntoView = vi.fn()
 
   for (const height of heights) {
     const page = document.createElement('div')
@@ -47,6 +45,7 @@ describe('useMushafPager', () => {
 
     el.scrollLeft = -300
     el.dispatchEvent(new Event('scroll'))
+    el.dispatchEvent(new Event('scrollend'))
     vi.advanceTimersByTime(200)
 
     expect(pager.activeIndex.value).toBe(1)
@@ -54,10 +53,22 @@ describe('useMushafPager', () => {
     scope.stop()
   })
 
-  it('scrolls toward negative offsets in RTL', async () => {
+  it('turns toward negative offsets in RTL', async () => {
     const { el, pager, scope } = await setup()
+
     pager.goToPage(2)
-    expect(el.scrollTo).toHaveBeenCalledWith({ left: -600, behavior: 'smooth' })
+    expect(el.style.scrollSnapType).toBe('none')
+
+    vi.advanceTimersByTime(300)
+    expect(el.scrollLeft).toBe(-600)
+    expect(el.style.scrollSnapType).toBe('')
+    scope.stop()
+  })
+
+  it('jumps without animating when asked', async () => {
+    const { el, pager, scope } = await setup()
+    pager.goToPage(1, { animate: false })
+    expect(el.scrollLeft).toBe(-300)
     scope.stop()
   })
 
@@ -69,7 +80,9 @@ describe('useMushafPager', () => {
 
     expect(pager.activeIndex.value).toBe(2)
     expect(el.style.height).toBe('350px')
-    expect(el.scrollTo).toHaveBeenLastCalledWith({ left: -600, behavior: 'smooth' })
+
+    vi.advanceTimersByTime(300)
+    expect(el.scrollLeft).toBe(-600)
     scope.stop()
   })
 
@@ -79,8 +92,9 @@ describe('useMushafPager', () => {
     pager.prev()
     pager.goToPage(3)
 
+    vi.advanceTimersByTime(300)
     expect(pager.activeIndex.value).toBe(0)
-    expect(el.scrollTo).not.toHaveBeenCalled()
+    expect(el.scrollLeft).toBe(0)
     scope.stop()
   })
 

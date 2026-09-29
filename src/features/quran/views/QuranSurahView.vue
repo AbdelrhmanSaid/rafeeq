@@ -336,12 +336,6 @@ useScreenWakeLock()
       scroll-snap-type: x mandatory;
       overflow-y: hidden;
       scrollbar-width: none;
-      scroll-margin-top: calc(var(--navbar-height) + 1rem);
-      transition: height 0.3s ease;
-
-      @media (prefers-reduced-motion: reduce) {
-        transition: none;
-      }
 
       &::-webkit-scrollbar {
         display: none;
