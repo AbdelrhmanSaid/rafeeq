@@ -61,6 +61,29 @@ describe('useMushafPager', () => {
     scope.stop()
   })
 
+  it('steps pages immediately so repeated steps advance further', async () => {
+    const { el, pager, scope } = await setup()
+
+    pager.next()
+    pager.next()
+
+    expect(pager.activeIndex.value).toBe(2)
+    expect(el.style.height).toBe('350px')
+    expect(el.scrollTo).toHaveBeenLastCalledWith({ left: -600, behavior: 'smooth' })
+    scope.stop()
+  })
+
+  it('stays within the first and last page', async () => {
+    const { el, pager, scope } = await setup()
+
+    pager.prev()
+    pager.goToPage(3)
+
+    expect(pager.activeIndex.value).toBe(0)
+    expect(el.scrollTo).not.toHaveBeenCalled()
+    scope.stop()
+  })
+
   it('releases the height when disabled', async () => {
     const { el, enabled, scope } = await setup()
     enabled.value = false

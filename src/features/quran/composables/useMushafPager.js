@@ -18,11 +18,8 @@ export function useMushafPager(container, { enabled, pages }) {
     el.style.height = page ? `${page.offsetHeight}px` : ''
   }
 
-  function settle() {
+  function setActive(index) {
     const el = container.value
-    if (!el || !toValue(enabled) || !el.clientWidth) return
-
-    const index = Math.round(Math.abs(el.scrollLeft) / el.clientWidth)
     if (index === activeIndex.value) return
 
     activeIndex.value = index
@@ -33,11 +30,23 @@ export function useMushafPager(container, { enabled, pages }) {
     if (el.getBoundingClientRect().top < offset) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
+  function settle() {
+    const el = container.value
+    if (!el || !toValue(enabled) || !el.clientWidth) return
+    setActive(Math.round(Math.abs(el.scrollLeft) / el.clientWidth))
+  }
+
+  // Updates the active page up front so repeated steps queue instead of landing on the same page.
   function goToPage(index, behavior = 'smooth') {
     const el = container.value
-    if (!el || index < 0) return
+    if (!el || index < 0 || index >= pageEls().length) return
+
+    setActive(index)
     el.scrollTo({ left: direction(el) * index * el.clientWidth, behavior })
   }
+
+  const next = () => goToPage(activeIndex.value + 1)
+  const prev = () => goToPage(activeIndex.value - 1)
 
   // Snapping keeps emitting scroll events, so this runs once the page has settled.
   useEventListener(container, 'scroll', useDebounceFn(settle, 120), { passive: true })
@@ -59,5 +68,5 @@ export function useMushafPager(container, { enabled, pages }) {
 
   onScopeDispose(() => observer?.disconnect())
 
-  return { activeIndex, goToPage }
+  return { activeIndex, goToPage, next, prev }
 }

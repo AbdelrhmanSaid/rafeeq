@@ -1,7 +1,7 @@
 <script setup>
 import { computed, nextTick, ref, watch } from 'vue'
-import { IconArrowLeft, IconArrowRight } from '@tabler/icons-vue'
-import { useOnline } from '@vueuse/core'
+import { IconArrowLeft, IconArrowRight, IconChevronLeft, IconChevronRight } from '@tabler/icons-vue'
+import { useEventListener, useOnline } from '@vueuse/core'
 import { useRoute, useRouter } from 'vue-router'
 import { useRouteParams } from '@vueuse/router'
 import { toast } from 'vue-sonner'
@@ -126,6 +126,19 @@ const handleBookmark = () => {
   toast.success(wasBookmarked ? 'تمت إزالة الإشارة المرجعية' : 'تم حفظ الإشارة المرجعية')
 }
 
+// Mushaf order runs right to left, so the left arrow turns to the next page.
+useEventListener(window, 'keydown', (event) => {
+  if (!isHorizontal.value || activeAyah.value || tafseerAyah.value) return
+  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
+  if (event.target.closest?.('input, textarea, select, [contenteditable]')) return
+
+  const step = { ArrowLeft: pager.next, ArrowRight: pager.prev }[event.key]
+  if (!step) return
+
+  event.preventDefault()
+  step()
+})
+
 const scrollToAyah = (ayahNumber) => {
   const el = document.getElementById(`ayah-${ayahNumber}`)
   if (!el) return
@@ -208,7 +221,25 @@ useScreenWakeLock()
               </template>
 
               <div v-if="isHorizontal" class="page-footer">
+                <button
+                  type="button"
+                  class="btn btn-flat btn-icon"
+                  :disabled="pageIndex === 0"
+                  aria-label="الصفحة السابقة"
+                  @click="pager.prev"
+                >
+                  <IconChevronRight size="1.25rem" />
+                </button>
                 <span class="page-number">{{ toArabicNumerals(page.number) }}</span>
+                <button
+                  type="button"
+                  class="btn btn-flat btn-icon"
+                  :disabled="pageIndex === pages.length - 1"
+                  aria-label="الصفحة التالية"
+                  @click="pager.next"
+                >
+                  <IconChevronLeft size="1.25rem" />
+                </button>
               </div>
             </div>
 
@@ -328,6 +359,8 @@ useScreenWakeLock()
     .page-footer {
       display: flex;
       justify-content: center;
+      align-items: center;
+      gap: 0.75rem;
       margin-top: 1.5rem;
     }
 
