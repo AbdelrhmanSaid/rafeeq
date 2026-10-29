@@ -38,18 +38,6 @@ export default defineConfig({
         globIgnores: ['push/onesignal/**/*'],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/api\.aladhan\.com\/v1\/.*/,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'prayer-times-cache',
-              expiration: {
-                maxEntries: 30,
-                maxAgeSeconds: 60 * 60 * 12,
-              },
-              networkTimeoutSeconds: 5,
-            },
-          },
-          {
             urlPattern: /^.*\.(ttf|woff|woff2)$/,
             handler: 'CacheFirst',
             options: {

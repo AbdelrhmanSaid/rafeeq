@@ -15,7 +15,6 @@ export const usePrayersStore = defineStore('prayers', function () {
   const calcMethod = useLocalStorage(STORAGE_KEYS.prayerCalcMethod, AUTO)
   const calcSchool = useLocalStorage(STORAGE_KEYS.prayerCalcSchool, AUTO)
   const calcLatitudeAdjustment = useLocalStorage(STORAGE_KEYS.prayerCalcLatitudeAdjustment, AUTO)
-  const calcMidnightMode = useLocalStorage(STORAGE_KEYS.prayerCalcMidnightMode, AUTO)
   const calcShafaq = useLocalStorage(STORAGE_KEYS.prayerCalcShafaq, AUTO)
 
   const isCompactViewport = useIsMobile()
@@ -57,7 +56,6 @@ export const usePrayersStore = defineStore('prayers', function () {
     calcMethod,
     calcSchool,
     calcLatitudeAdjustment,
-    calcMidnightMode,
     calcShafaq,
     isDetecting,
     detect,

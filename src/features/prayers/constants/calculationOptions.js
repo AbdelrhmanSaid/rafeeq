@@ -38,12 +38,6 @@ export const LATITUDE_ADJUSTMENT_METHODS = [
   { value: '3', label: 'حسب الزاوية' },
 ]
 
-export const MIDNIGHT_MODES = [
-  autoOption,
-  { value: '0', label: 'قياسي (من الغروب إلى الشروق)' },
-  { value: '1', label: 'جعفري (من الغروب إلى الفجر)' },
-]
-
 export const SHAFAQ_OPTIONS = [
   autoOption,
   { value: 'general', label: 'عام' },
@@ -52,14 +46,8 @@ export const SHAFAQ_OPTIONS = [
 ]
 
 export const CALCULATION_FIELDS = [
-  { key: 'calcMethod', param: 'method', label: 'طريقة الحساب', options: CALCULATION_METHODS },
-  { key: 'calcSchool', param: 'school', label: 'المذهب (حساب العصر)', options: SCHOOLS },
-  {
-    key: 'calcLatitudeAdjustment',
-    param: 'latitudeAdjustmentMethod',
-    label: 'تعديل خطوط العرض العليا',
-    options: LATITUDE_ADJUSTMENT_METHODS,
-  },
-  { key: 'calcMidnightMode', param: 'midnightMode', label: 'وضع منتصف الليل', options: MIDNIGHT_MODES },
-  { key: 'calcShafaq', param: 'shafaq', label: 'الشفق', options: SHAFAQ_OPTIONS },
+  { key: 'calcMethod', label: 'طريقة الحساب', options: CALCULATION_METHODS },
+  { key: 'calcSchool', label: 'المذهب (حساب العصر)', options: SCHOOLS },
+  { key: 'calcLatitudeAdjustment', label: 'تعديل خطوط العرض العليا', options: LATITUDE_ADJUSTMENT_METHODS },
+  { key: 'calcShafaq', label: 'الشفق', options: SHAFAQ_OPTIONS },
 ]

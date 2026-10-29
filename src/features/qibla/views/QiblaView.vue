@@ -1,20 +1,16 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useFetch, useOnline } from '@vueuse/core'
 import { IconLocationFilled, IconDeviceMobile } from '@tabler/icons-vue'
 
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
 import LoadingState from '@/shared/ui/LoadingState.vue'
-import ErrorState from '@/shared/ui/ErrorState.vue'
-import OfflineState from '@/shared/ui/OfflineState.vue'
 import QiblaCompass from '@/features/qibla/components/QiblaCompass.vue'
 import { getCurrentPosition } from '@/shared/composables/useGeolocation'
 import { useIsMobile } from '@/shared/composables/useIsMobile'
 import { useDeviceCompass } from '@/features/qibla/composables/useDeviceCompass'
-import { API } from '@/shared/constants/api'
+import { getQiblaDirection } from '@/features/qibla/lib/qibla'
 
-const online = useOnline()
 const isMobile = useIsMobile()
 
 const latitude = ref(null)
@@ -40,23 +36,9 @@ async function requestLocation() {
   }
 }
 
-const endpoint = computed(() => {
-  if (!latitude.value || !longitude.value) return null
-  return `${API.aladhan}/qibla/${latitude.value}/${longitude.value}`
-})
-
-const fetchOptions = {
-  refetch: true,
-  beforeFetch: ({ url, cancel }) => {
-    if (!url) cancel()
-  },
-}
-
-const { isFetching, data: qiblaData, error } = useFetch(endpoint, fetchOptions).json().get()
-
 const qiblaDirection = computed(() => {
-  const direction = qiblaData.value?.data?.direction
-  return typeof direction === 'number' ? direction : null
+  if (latitude.value == null || longitude.value == null) return null
+  return getQiblaDirection(latitude.value, longitude.value)
 })
 
 const { heading, hasSupport, error: compassError, canRequestPermission, requestPermission } = useDeviceCompass()
@@ -75,10 +57,6 @@ onMounted(requestLocation)
         <p class="text-muted mb-0">افتح التطبيق من هاتفك لاستخدام البوصلة</p>
       </div>
 
-      <div v-else-if="!online" class="qibla-card card-body qibla-card--static">
-        <OfflineState />
-      </div>
-
       <div v-else-if="locationLoading" class="qibla-card card-body qibla-card--static">
         <LoadingState message="جاري تحديد موقعك..." />
       </div>
@@ -91,14 +69,6 @@ onMounted(requestLocation)
         <IconLocationFilled size="3rem" class="text-danger mb-3" />
         <p class="mb-2">{{ locationError }}</p>
         <p class="text-muted small mb-0">إضغط للمحاولة مرة أخرى</p>
-      </div>
-
-      <div v-else-if="isFetching" class="qibla-card card-body qibla-card--static">
-        <LoadingState message="جاري تحديد اتجاه القبلة..." />
-      </div>
-
-      <div v-else-if="error" class="qibla-card card-body qibla-card--static">
-        <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." />
       </div>
 
       <QiblaCompass
