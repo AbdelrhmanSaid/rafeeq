@@ -5,7 +5,7 @@ import { IconBrandGithub, IconBrandTelegram, IconHeart } from '@tabler/icons-vue
 const resources = [
   {
     title: 'مواقيت الصلاة',
-    link: 'https://aladhan.com/prayer-times-api',
+    link: 'https://github.com/batoulapps/adhan-js',
   },
   {
     title: 'قاعدة بيانات الأذكار',

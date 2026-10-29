@@ -47,10 +47,9 @@ const lastUpdated = toArabicNumerals('2025-08-18')
       <ul>
         <li>
           <strong>مواقيت الصلاة:</strong>
-          قد يعتمد التطبيق على واجهة برمجية مثل
-          <a href="https://aladhan.com/prayer-times-api" target="_blank" rel="noopener">Aladhan API</a>
-          لجلب مواقيت الصلاة. تُرسل هذه الطلبات المعلومات اللازمة فقط (مثل المدينة/المعادلات الحسابية) ولا نربطها
-          بهويتك.
+          تُحسب مواقيت الصلاة واتجاه القبلة محليًا على جهازك باستخدام مكتبة
+          <a href="https://github.com/batoulapps/adhan-js" target="_blank" rel="noopener">Adhan</a>
+          مفتوحة المصدر، ولا يُرسل موقعك إلى أي خادم لهذا الغرض.
         </li>
         <li>
           <strong>إذاعات القرآن الكريم:</strong>

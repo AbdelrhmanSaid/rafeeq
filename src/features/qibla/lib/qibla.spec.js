@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { normalizeAngle, getShortestRotation, smoothAngle, needleRotation, isFacingQibla } from './qibla'
+import {
+  normalizeAngle,
+  getShortestRotation,
+  smoothAngle,
+  needleRotation,
+  isFacingQibla,
+  getQiblaDirection,
+} from './qibla'
 
 describe('normalizeAngle', () => {
   it('wraps into [0, 360)', () => {
@@ -44,5 +51,12 @@ describe('isFacingQibla', () => {
     expect(isFacingQibla(350, 15)).toBe(true)
     expect(isFacingQibla(30, 15)).toBe(false)
     expect(isFacingQibla(180, 15)).toBe(false)
+  })
+})
+
+describe('getQiblaDirection', () => {
+  it('returns the bearing to the Kaaba', () => {
+    expect(getQiblaDirection(30.0444, 31.2357)).toBeCloseTo(136.1, 1)
+    expect(getQiblaDirection(40.7128, -74.006)).toBeCloseTo(58.5, 1)
   })
 })

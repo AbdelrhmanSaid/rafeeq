@@ -1,3 +1,5 @@
+import { Coordinates, Qibla } from 'adhan'
+
 export function normalizeAngle(angle) {
   let a = angle
   while (a < 0) a += 360
@@ -22,4 +24,9 @@ export function needleRotation(qiblaDirection, heading) {
 
 export function isFacingQibla(needleAngle, tolerance) {
   return needleAngle <= tolerance || needleAngle >= 360 - tolerance
+}
+
+// Bearing to the Kaaba in degrees clockwise from true north.
+export function getQiblaDirection(latitude, longitude) {
+  return Qibla(new Coordinates(Number(latitude), Number(longitude)))
 }

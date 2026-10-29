@@ -2,15 +2,12 @@
 import { computed } from 'vue'
 import { usePrayersStore } from '@/features/prayers/store'
 import { usePrayerLocation } from '@/features/prayers/composables/usePrayerLocation'
-import { useFetch, formatDate, useOnline, useNow } from '@vueuse/core'
-import { useReconnectExecute } from '@/shared/composables/useReconnectExecute'
+import { formatDate, useNow } from '@vueuse/core'
 
 import LoadingState from '@/shared/ui/LoadingState.vue'
-import ErrorState from '@/shared/ui/ErrorState.vue'
-import OfflineState from '@/shared/ui/OfflineState.vue'
 import { formatTime, toArabicNumerals } from '@/shared/utils/arabic'
-import { API } from '@/shared/constants/api'
-import { CALCULATION_FIELDS } from '@/features/prayers/constants/calculationOptions'
+import { calculatePrayerTimes } from '@/features/prayers/lib/prayerTimes'
+import { getHijriDate } from '@/features/prayers/lib/hijri'
 import { getNextPrayerKey, getPrayerPhase, PRAYER_SEQUENCE } from '@/features/prayers/lib/prayerPhase'
 import { IconMapPin } from '@tabler/icons-vue'
 
@@ -27,7 +24,9 @@ const hasPropsCoords = computed(() => props.lat != null && props.long != null)
 // Match the countdown's one-second precision instead of updating every frame.
 const now = useNow({ interval: 1000 })
 
-const online = useOnline()
+// A local-date string only changes at midnight, so the times below are recomputed once a day.
+const today = computed(() => formatDate(now.value, 'YYYY-MM-DD'))
+const todayDate = computed(() => new Date(`${today.value}T00:00:00`))
 
 const timingsMap = {
   Fajr: { label: 'الفجر', icon: 'fajr' },
@@ -44,52 +43,34 @@ const { detect } = usePrayerLocation()
 const latitude = computed(() => (hasPropsCoords.value ? props.lat : store.latitude))
 const longitude = computed(() => (hasPropsCoords.value ? props.long : store.longitude))
 
-const endpoint = computed(() => {
+const timings = computed(() => {
   if (!latitude.value || !longitude.value) return null
-  const today = new Date().toISOString().split('T')[0].split('-').reverse().join('-')
 
-  const params = new URLSearchParams({
+  return calculatePrayerTimes({
     latitude: latitude.value,
     longitude: longitude.value,
-    iso8601: 'true',
+    date: todayDate.value,
+    method: store.calcMethod,
+    school: store.calcSchool,
+    latitudeAdjustment: store.calcLatitudeAdjustment,
+    shafaq: store.calcShafaq,
   })
-
-  for (const { key, param } of CALCULATION_FIELDS) {
-    const value = store[key]
-    if (value) params.append(param, value)
-  }
-
-  return `${API.aladhan}/timings/${today}?${params.toString()}`
 })
-
-const options = {
-  refetch: true,
-  beforeFetch: ({ url, cancel }) => {
-    if (!url) cancel()
-  },
-}
-
-const { isFetching, data: timings, error, execute } = useFetch(endpoint, options).json().get()
-const { isRecoveringOnReconnect } = useReconnectExecute(online, execute)
 
 const formatTiming = (time) => {
   return toArabicNumerals(formatDate(new Date(time), 'hh:mm A').replace('AM', 'ص').replace('PM', 'م'))
 }
 
-const hijriDate = computed(() => {
-  let date = timings.value?.data?.date?.hijri
-  if (!date) return ''
-  return toArabicNumerals(`${date.day} ${date.month.ar} ${date.year}`)
-})
+const hijri = computed(() => getHijriDate(todayDate.value))
+const hijriDate = computed(() => toArabicNumerals(`${hijri.value.day} ${hijri.value.month} ${hijri.value.year}`))
+const hijriDay = computed(() => hijri.value.weekday)
 
-const hijriDay = computed(() => timings.value?.data?.date?.hijri?.weekday?.ar ?? '')
-
-const nextPrayerKey = computed(() => getNextPrayerKey(now.value.getTime(), timings.value?.data?.timings))
+const nextPrayerKey = computed(() => getNextPrayerKey(now.value.getTime(), timings.value))
 
 const phases = computed(() => {
   const result = {}
   const next = nextPrayerKey.value
-  const prayerTimes = timings.value?.data?.timings
+  const prayerTimes = timings.value
   const nowMs = now.value.getTime()
 
   for (const key of Object.keys(timingsMap)) {
@@ -100,9 +81,9 @@ const phases = computed(() => {
 })
 
 const remainingTime = computed(() => {
-  if (!timings.value?.data?.timings || !nextPrayerKey.value) return null
+  if (!timings.value || !nextPrayerKey.value) return null
 
-  let nextPrayerTime = new Date(timings.value.data.timings[nextPrayerKey.value])
+  let nextPrayerTime = new Date(timings.value[nextPrayerKey.value])
   const currentTime = now.value
 
   if (nextPrayerTime < currentTime) {
@@ -113,7 +94,7 @@ const remainingTime = computed(() => {
 })
 
 const progress = computed(() => {
-  const prayerTimes = timings.value?.data?.timings
+  const prayerTimes = timings.value
   const next = nextPrayerKey.value
   if (!prayerTimes || !next) return 0
 
@@ -134,7 +115,7 @@ const progress = computed(() => {
 })
 
 const nextPrayerTime = computed(() => {
-  const time = timings.value?.data?.timings?.[nextPrayerKey.value]
+  const time = timings.value?.[nextPrayerKey.value]
   return time ? formatTiming(time) : ''
 })
 </script>
@@ -156,15 +137,6 @@ const nextPrayerTime = computed(() => {
       نحتاج موقعك لحساب مواقيت الصلاة بدقة. لا نخزّن موقعك على أي خادم.
     </p>
     <button type="button" class="btn btn-primary rounded-pill px-4" @click="detect">تحديد موقعي</button>
-  </div>
-
-  <div v-else-if="isFetching || isRecoveringOnReconnect" class="prayer-state border rounded p-5">
-    <LoadingState message="جاري تحميل مواقيت الصلاة..." />
-  </div>
-
-  <div v-else-if="error" class="prayer-state border rounded p-5">
-    <OfflineState v-if="!online" />
-    <ErrorState :code="500" message="حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق." v-else />
   </div>
 
   <div v-else-if="timings" class="d-flex flex-column gap-2">
@@ -218,7 +190,7 @@ const nextPrayerTime = computed(() => {
           </span>
           <span class="fw-semibold">{{ timing.label }}</span>
         </div>
-        <span class="fw-semibold">{{ formatTiming(timings.data.timings[key]) }}</span>
+        <span class="fw-semibold">{{ formatTiming(timings[key]) }}</span>
       </div>
     </div>
 
@@ -237,7 +209,7 @@ const nextPrayerTime = computed(() => {
               <div class="small fw-semibold mb-1" :class="{ 'text-body-secondary': phases[key] !== 'next' }">
                 {{ timing.label }}
               </div>
-              <div class="fs-5 fw-bold lh-1">{{ formatTiming(timings.data.timings[key]) }}</div>
+              <div class="fs-5 fw-bold lh-1">{{ formatTiming(timings[key]) }}</div>
             </div>
           </div>
         </div>
