@@ -16,7 +16,7 @@
   "dependencies": {
     "@onesignal/onesignal-vue3": "^2.5.4",
     "@popperjs/core": "^2.11.8",
-    "@tabler/icons-vue": "^3.49.0",
+    "@tabler/icons-vue": "^3.50.0",
     "@vueuse/components": "^15.0.0",
     "@vueuse/core": "^15.0.0",
     "@vueuse/integrations": "^15.0.0",
@@ -33,17 +33,17 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.10",
-    "@vitest/coverage-v8": "^5.0.4",
+    "@vitest/coverage-v8": "^5.0.5",
     "@vue/test-utils": "^2.5.1",
-    "eslint": "^10.12.0",
-    "eslint-plugin-vue": "^10.11.1",
-    "jsdom": "^30.1.2",
+    "eslint": "^10.13.0",
+    "eslint-plugin-vue": "^10.12.0",
+    "jsdom": "^30.1.3",
     "prettier": "3.9.10",
     "rtlcss": "^4.3.0",
-    "sass": "^1.105.1",
-    "vite": "^8.3.4",
+    "sass": "^1.106.1",
+    "vite": "^8.3.5",
     "vite-plugin-pwa": "^2.0.0",
-    "vitest": "^5.0.4",
+    "vitest": "^5.0.5",
     "vue-eslint-parser": "^10.4.1"
   }
 }
