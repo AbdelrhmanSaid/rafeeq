@@ -20,11 +20,7 @@ export const normalizeQuranicText = (text) =>
     .replace(/\u0671/gu, '\u0627')
     .normalize('NFC')
 
-export const BISMILLAH_VARIANTS = [
-  'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
-  'بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ',
-  'بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ',
-]
+export const BISMILLAH_VARIANTS = ['بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ', 'بِسْمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ', 'بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ']
 
 export const removeBismillah = (text) => {
   text = String(text ?? '').replace(/^\uFEFF/, '')
