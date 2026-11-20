@@ -57,6 +57,11 @@ export default defineConfig({
         name: 'رفيق - زادك في الطريق',
         short_name: 'رفيق',
         description: 'تطبيق إسلامي شامل للأذكار والقرآن الكريم ومواقيت الصلاة',
+        lang: 'ar',
+        dir: 'rtl',
+        // Explicitly unset: vite-plugin-pwa otherwise defaults theme_color to #42b883 (Vue green),
+        // which Android uses to paint the status and navigation bars.
+        theme_color: undefined,
         background_color: '#ffffff',
         display: 'standalone',
         start_url: '/',
