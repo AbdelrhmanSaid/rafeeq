@@ -89,10 +89,10 @@ onBeforeRouteLeave(async () => {
   </AsyncContent>
 
   <BottomSheet :show="isRevealed" title="لم تنتهِ بعد" @close="cancel">
-    <p class="px-4 pt-3 mb-2 lh-lg text-secondary">لم تنتهِ من جميع الأذكار بعد، هل تريد المغادرة؟</p>
-    <ul class="list-unstyled m-0 py-2">
+    <p class="px-4 pt-1 mb-2 lh-lg text-secondary">لم تنتهِ من جميع الأذكار بعد، هل تريد المغادرة؟</p>
+    <ul class="bottom-sheet-list">
       <li>
-        <button class="bottom-sheet-item" @click="cancel">
+        <button type="button" class="bottom-sheet-item" @click="cancel">
           <IconArrowBackUp size="20" />
           <span>البقاء ومتابعة الأذكار</span>
         </button>

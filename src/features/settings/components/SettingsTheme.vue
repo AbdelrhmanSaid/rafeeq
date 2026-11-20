@@ -72,8 +72,10 @@ const colors = [
   transition: background 0.15s;
 }
 
-.color-option:hover {
-  background: rgba(var(--bs-secondary-rgb), 0.1);
+@media (hover: hover) and (pointer: fine) {
+  .color-option:hover {
+    background: rgba(var(--bs-secondary-rgb), 0.1);
+  }
 }
 
 .color-option.active {

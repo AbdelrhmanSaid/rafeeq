@@ -89,8 +89,10 @@ function increase() {
   transition: background 0.15s;
 }
 
-.font-step:hover:not(:disabled) {
-  background: rgba(var(--bs-secondary-rgb), 0.1);
+@media (hover: hover) and (pointer: fine) {
+  .font-step:hover:not(:disabled) {
+    background: rgba(var(--bs-secondary-rgb), 0.1);
+  }
 }
 
 .font-step:disabled {

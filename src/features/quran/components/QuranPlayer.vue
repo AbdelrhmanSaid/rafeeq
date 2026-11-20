@@ -217,7 +217,7 @@ defineExpose({ seekToAyah })
       </button>
 
       <div class="flex-grow-1 min-w-0">
-        <div class="fw-semibold text-truncate text-primary">
+        <div class="fw-semibold text-truncate">
           {{ playerTitle }}
         </div>
         <div class="small text-secondary">{{ ayahLabel }}</div>
@@ -288,9 +288,11 @@ defineExpose({ seekToAyah })
   background-color: var(--app-tint);
   border-radius: var(--bs-border-radius-pill);
 
-  &:hover {
-    color: var(--bs-primary);
-    background-color: var(--app-tint-strong);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: var(--bs-primary);
+      background-color: var(--app-tint-strong);
+    }
   }
 
   .text-truncate {
@@ -301,8 +303,10 @@ defineExpose({ seekToAyah })
 [data-bs-theme='dark'] .player-chip {
   color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
 
-  &:hover {
-    color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
+    }
   }
 }
 </style>

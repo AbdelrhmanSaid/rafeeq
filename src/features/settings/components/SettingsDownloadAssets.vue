@@ -366,9 +366,11 @@ const handleAssetAction = (asset) => {
   height: 2.5rem;
 }
 
-.dm-action-btn--danger:hover:not(:disabled) {
-  --bs-btn-hover-bg: var(--bs-danger);
-  --bs-btn-hover-color: #fff;
+@media (hover: hover) and (pointer: fine) {
+  .dm-action-btn--danger:hover:not(:disabled) {
+    --bs-btn-hover-bg: var(--bs-danger);
+    --bs-btn-hover-color: #fff;
+  }
 }
 
 .dm-list {

@@ -92,8 +92,10 @@ onMounted(requestLocation)
   &--clickable {
     cursor: pointer;
 
-    &:hover {
-      border-color: var(--bs-primary);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        border-color: var(--bs-primary);
+      }
     }
   }
 

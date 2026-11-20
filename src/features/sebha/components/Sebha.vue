@@ -55,10 +55,12 @@ const sebha = ref(0)
     border-color 160ms ease;
 }
 
-.sebha-btn:hover {
-  transform: translateY(-3px);
-  border-color: var(--bs-primary);
-  box-shadow: 0 18px 30px rgba(16, 24, 40, 0.12);
+@media (hover: hover) and (pointer: fine) {
+  .sebha-btn:hover {
+    transform: translateY(-3px);
+    border-color: var(--bs-primary);
+    box-shadow: 0 18px 30px rgba(16, 24, 40, 0.12);
+  }
 }
 
 .sebha-btn:active {

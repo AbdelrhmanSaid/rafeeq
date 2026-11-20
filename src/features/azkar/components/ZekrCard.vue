@@ -9,6 +9,7 @@ import { useIsMobile } from '@/shared/composables/useIsMobile'
 import { useZekrScroll } from '@/features/azkar/composables/useZekrScroll'
 import { useZekrVibration } from '@/features/azkar/composables/useZekrVibration'
 
+import BottomSheet from '@/shared/ui/BottomSheet.vue'
 import ZekrImage from './ZekrImage.vue'
 
 const props = defineProps({
@@ -30,6 +31,7 @@ const props = defineProps({
 
 const count = defineModel('count', { type: Number, default: 0 })
 const card = ref(null)
+const showActions = ref(false)
 const isMobile = useIsMobile()
 const { vibrateOnFinish } = useZekrVibration()
 const { scrollToNextZekr } = useZekrScroll(card)
@@ -83,6 +85,7 @@ onLongPress(
 )
 
 const exportAsImage = () => {
+  showActions.value = false
   toast.promise(
     async () => {
       await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -97,14 +100,20 @@ const exportAsImage = () => {
 }
 
 const shareZekr = () => {
-  toast.promise(() => navigator.share({ title: 'رفيق', text: props.text }), {
-    loading: 'جاري المشاركة...',
-    success: 'تم مشاركة الذكر بنجاح',
-    error: 'حدث خطأ أثناء مشاركة الذكر',
-  })
+  showActions.value = false
+  const canShare = !!navigator.share
+  toast.promise(
+    () => (canShare ? navigator.share({ title: 'رفيق', text: props.text }) : navigator.clipboard.writeText(props.text)),
+    {
+      loading: 'جاري المشاركة...',
+      success: canShare ? 'تم مشاركة الذكر بنجاح' : 'تعذرت المشاركة، تم نسخ الذكر بدلاً من ذلك',
+      error: 'حدث خطأ أثناء مشاركة الذكر',
+    },
+  )
 }
 
 const copyZekr = () => {
+  showActions.value = false
   toast.promise(() => navigator.clipboard.writeText(props.text), {
     loading: 'جاري النسخ...',
     success: 'تم نسخ الذكر بنجاح',
@@ -134,7 +143,20 @@ const copyZekr = () => {
           <IconRestore size="18" />
         </button>
 
-        <div class="dropdown">
+        <!-- Phones get the actions in a bottom sheet, larger screens in a dropdown. -->
+        <button
+          v-if="isMobile"
+          class="btn p-0 bg-transparent border-0"
+          type="button"
+          aria-label="خيارات الذكر"
+          aria-haspopup="dialog"
+          :aria-expanded="showActions"
+          @click="showActions = true"
+        >
+          <IconHeartShare size="18" />
+        </button>
+
+        <div v-else class="dropdown">
           <button class="btn p-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-label="خيارات الذكر">
             <IconHeartShare size="18" />
           </button>
@@ -160,6 +182,29 @@ const copyZekr = () => {
             </li>
           </ul>
         </div>
+
+        <BottomSheet :show="showActions" title="خيارات الذكر" @close="showActions = false">
+          <ul class="bottom-sheet-list">
+            <li>
+              <button type="button" class="bottom-sheet-item" @click="exportAsImage">
+                <IconDownload size="20" />
+                <span>تنزيل كصورة</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="bottom-sheet-item" @click="shareZekr">
+                <IconShare3 size="20" />
+                <span>مشاركة</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="bottom-sheet-item" @click="copyZekr">
+                <IconCopy size="20" />
+                <span>نسخ</span>
+              </button>
+            </li>
+          </ul>
+        </BottomSheet>
       </div>
 
       <div class="row align-items-center g-4 text-center text-lg-start">
@@ -262,9 +307,11 @@ const copyZekr = () => {
         background-color 0.2s ease,
         color 0.2s ease;
 
-      &:hover:not(:disabled) {
-        background-color: var(--app-tint);
-        color: var(--bs-primary);
+      @media (hover: hover) and (pointer: fine) {
+        &:hover:not(:disabled) {
+          background-color: var(--app-tint);
+          color: var(--bs-primary);
+        }
       }
 
       &:disabled {

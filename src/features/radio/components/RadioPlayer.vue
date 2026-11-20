@@ -187,8 +187,10 @@ defineEmits(['toggle', 'favorite', 'share'])
   color: white;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-  &:hover {
-    transform: scale(1.08);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: scale(1.08);
+    }
   }
 
   &:active {

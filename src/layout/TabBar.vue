@@ -1,46 +1,63 @@
 <script setup>
-import { RouterLink } from 'vue-router'
-import { ref } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
+import { computed, ref, watch } from 'vue'
 import { useRadioStore } from '@/features/radio/store'
 import { useActiveNav } from '@/layout/useActiveNav'
+import { useVirtualKeyboard } from '@/shared/composables/useVirtualKeyboard'
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
 
 import { IconDotsCircleHorizontal, IconBrandTelegram } from '@tabler/icons-vue'
 import { navigation } from '@/layout/navigation'
 
 const radio = useRadioStore()
+const route = useRoute()
 const showMoreMenu = ref(false)
+const { open: keyboardOpen } = useVirtualKeyboard()
 
 const { isActive } = useActiveNav()
 const primaryNavigation = navigation.filter((item) => item.menus.includes('tabbar'))
 const moreNavigation = navigation.filter((item) => item.menus.includes('tabbar-more'))
+
+// The More tab stands for every page it lists, like a native tab bar's overflow tab.
+const isMoreActive = computed(() => showMoreMenu.value || moreNavigation.some((item) => item.name === route.name))
+
+watch(
+  () => route.fullPath,
+  () => (showMoreMenu.value = false),
+)
 </script>
 
 <template>
   <div>
     <BottomSheet :show="showMoreMenu" title="المزيد" @close="showMoreMenu = false">
-      <div class="px-3 py-3">
-        <RouterLink
-          v-for="item in moreNavigation"
-          :key="item.name"
-          :to="{ name: item.name }"
-          class="more-menu-item"
-          @click="showMoreMenu = false"
-        >
-          <span class="icon-tile"><component :is="item.icon" size="1.25rem" aria-hidden="true" /></span>
-          <span>{{ item.label }}</span>
-        </RouterLink>
-
-        <hr class="my-2 opacity-25" />
-
-        <a href="https://t.me/rafeeqme" target="_blank" class="more-menu-item" @click="showMoreMenu = false">
-          <span class="icon-tile"><IconBrandTelegram size="1.25rem" /></span>
-          <span>قناة التليجرام</span>
-        </a>
-      </div>
+      <ul class="bottom-sheet-list">
+        <li v-for="item in moreNavigation" :key="item.name">
+          <RouterLink :to="{ name: item.name }" class="bottom-sheet-item more-menu-item" @click="showMoreMenu = false">
+            <span class="icon-tile"><component :is="item.icon" size="1.25rem" aria-hidden="true" /></span>
+            <span>{{ item.label }}</span>
+          </RouterLink>
+        </li>
+        <li role="separator" class="bottom-sheet-separator"></li>
+        <li>
+          <a
+            href="https://t.me/rafeeqme"
+            target="_blank"
+            rel="noopener"
+            class="bottom-sheet-item more-menu-item"
+            @click="showMoreMenu = false"
+          >
+            <span class="icon-tile"><IconBrandTelegram size="1.25rem" aria-hidden="true" /></span>
+            <span>قناة التليجرام</span>
+          </a>
+        </li>
+      </ul>
     </BottomSheet>
 
-    <nav class="position-fixed bottom-0 start-0 end-0 d-flex tab-bar" aria-label="التنقل الرئيسي">
+    <nav
+      class="position-fixed bottom-0 start-0 end-0 d-flex tab-bar"
+      :class="{ 'is-hidden': keyboardOpen }"
+      aria-label="التنقل الرئيسي"
+    >
       <div class="tab-bar__pill">
         <RouterLink
           v-for="item in primaryNavigation"
@@ -48,6 +65,7 @@ const moreNavigation = navigation.filter((item) => item.menus.includes('tabbar-m
           :to="{ name: item.name }"
           class="tab-item"
           :class="{ 'is-active': isActive(item.name) }"
+          :aria-current="isActive(item.name) ? 'page' : undefined"
         >
           <span class="tab-item__icon" :class="{ 'position-relative': item.name === 'radio' }">
             <component :is="item.icon" size="1.4rem" />
@@ -58,7 +76,9 @@ const moreNavigation = navigation.filter((item) => item.menus.includes('tabbar-m
 
         <button
           type="button"
-          class="tab-item bg-transparent border-0"
+          class="tab-item"
+          :class="{ 'is-active': isMoreActive }"
+          aria-haspopup="dialog"
           :aria-expanded="showMoreMenu"
           @click="showMoreMenu = !showMoreMenu"
         >
@@ -72,7 +92,8 @@ const moreNavigation = navigation.filter((item) => item.menus.includes('tabbar-m
 
 <style lang="scss" scoped>
 .tab-bar {
-  padding: 0.5rem 0.75rem calc(0.5rem + env(safe-area-inset-bottom));
+  /* Float just above the home indicator, or a little off the edge where there is none. */
+  padding: 0.5rem 0.75rem max(0.75rem, env(safe-area-inset-bottom, 0px));
   /* Keep physical safe-area sides from being flipped by rtlcss. */
   /*! rtl:begin:ignore */
   padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
@@ -80,6 +101,20 @@ const moreNavigation = navigation.filter((item) => item.menus.includes('tabbar-m
   /*! rtl:end:ignore */
   z-index: 1020;
   pointer-events: none;
+  transition:
+    transform 0.3s var(--app-ease-out),
+    opacity 0.2s ease;
+
+  /* Out of the way while the keyboard is up, instead of riding over the field being typed in. */
+  &.is-hidden {
+    transform: translateY(100%);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      transform 0.2s ease-in,
+      opacity 0.2s ease-in,
+      visibility 0s 0.2s;
+  }
 }
 
 .tab-bar__pill {
@@ -94,7 +129,7 @@ const moreNavigation = navigation.filter((item) => item.menus.includes('tabbar-m
   min-height: calc(var(--navbar-height) - 1rem);
   padding: 0.3rem;
   border: 1px solid var(--app-hairline);
-  border-radius: var(--bs-border-radius-xl);
+  border-radius: calc(var(--bs-border-radius-xl) + 0.3rem);
   background: var(--app-glass);
   box-shadow: var(--app-shadow-card-hover);
   /* Lightning CSS mishandles a paired -webkit-backdrop-filter declaration. */
@@ -110,38 +145,58 @@ const moreNavigation = navigation.filter((item) => item.menus.includes('tabbar-m
   justify-content: center;
   gap: 0.2rem;
   padding: 0.25rem;
-  border-radius: var(--bs-border-radius-lg);
+  border: 0;
+  border-radius: var(--bs-border-radius-xl);
+  background: none;
   color: var(--bs-secondary-color);
   text-decoration: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
   transition:
     color 0.2s ease,
-    background-color 0.25s var(--app-ease),
-    transform 0.25s var(--app-ease);
+    background-color 0.25s var(--app-ease);
 
   &__icon {
     display: grid;
     place-items: center;
     height: 1.9rem;
+    transition: transform 0.15s var(--app-ease-out);
   }
 
   &__label {
-    font-size: 0.78rem;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.75rem;
     font-weight: 500;
     white-space: nowrap;
   }
 
-  &:hover {
-    color: var(--bs-body-color);
+  /* Press the icon, not the whole capsule, so the active tint does not wobble. */
+  &:active .tab-item__icon {
+    transform: scale(0.88);
   }
 
   &.router-link-active,
   &.is-active {
     color: var(--bs-primary);
     background-color: var(--app-tint);
+
+    .tab-item__label {
+      font-weight: 600;
+    }
   }
 
-  &:active {
-    transform: scale(0.94);
+  &:focus-visible {
+    outline: 2px solid rgba(var(--bs-primary-rgb), 0.5);
+    outline-offset: -2px;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tab-item:hover {
+    color: var(--bs-body-color);
   }
 }
 
@@ -175,41 +230,11 @@ const moreNavigation = navigation.filter((item) => item.menus.includes('tabbar-m
   }
 }
 
-.more-menu-item {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  padding: 0.7rem 0.75rem;
-  border-radius: var(--bs-border-radius-lg);
-  color: var(--bs-body-color);
-  font-weight: 500;
-  text-decoration: none;
-  transition:
-    background-color 0.2s,
-    color 0.2s;
-
-  .icon-tile {
-    color: var(--bs-primary);
-  }
-
-  &:hover {
-    background-color: var(--app-surface-hover);
-    color: var(--bs-body-color);
-  }
-
-  &.router-link-active {
-    background-color: var(--app-tint);
-    color: var(--bs-primary);
-  }
+.more-menu-item .icon-tile {
+  color: var(--bs-primary);
 }
 
-[data-bs-theme='dark'] .more-menu-item {
-  .icon-tile {
-    color: color-mix(in srgb, var(--bs-primary) 28%, #fff);
-  }
-
-  &.router-link-active {
-    color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
-  }
+[data-bs-theme='dark'] .more-menu-item .icon-tile {
+  color: color-mix(in srgb, var(--bs-primary) 28%, #fff);
 }
 </style>

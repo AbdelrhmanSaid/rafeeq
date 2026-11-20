@@ -131,9 +131,11 @@ const formatRakaa = (value) => {
     transform 0.25s var(--app-ease),
     box-shadow 0.25s var(--app-ease);
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--app-shadow-card-hover);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--app-shadow-card-hover);
+    }
   }
 }
 

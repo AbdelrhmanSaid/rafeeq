@@ -56,6 +56,9 @@
   --app-shadow-card-hover: 0 2px 4px rgba(18, 18, 18, 0.05), 0 16px 32px -12px rgba(18, 18, 18, 0.16);
   --app-shadow-bar: 0 -8px 24px -12px rgba(18, 18, 18, 0.12);
   --app-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --app-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  /* The curve iOS sheets rise and settle on. */
+  --app-ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 
   @media screen and (min-width: 768px) {
     --navbar-height: 85px;
@@ -88,6 +91,8 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  /* Cards and ayahs with click handlers would flash gray on tap; every control brings its own :active instead. */
+  -webkit-tap-highlight-color: transparent;
 }
 
 a,
@@ -98,7 +103,34 @@ select,
 textarea,
 label {
   touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
+}
+
+/* Controls are not content: a long press should not select their label or pop the link callout. */
+button,
+.btn,
+[role='button'],
+.nav-link,
+.tab-pill,
+.chip,
+.bottom-sheet-item,
+.dropdown-item {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Touch keeps the last :hover until the next tap, so neutralize Bootstrap's button hover where nothing can hover. */
+@media (hover: none) {
+  .btn:hover:not(:active, .active, .show) {
+    color: var(--bs-btn-color);
+    background-color: var(--bs-btn-bg);
+    border-color: var(--bs-btn-border-color);
+  }
+
+  .list-group-item-action {
+    --bs-list-group-action-hover-bg: var(--bs-list-group-bg);
+    --bs-list-group-action-hover-color: var(--bs-list-group-color);
+  }
 }
 
 body {
@@ -138,15 +170,26 @@ body {
     border-color 0.2s ease,
     background-color 0.2s ease;
 
-  &:hover,
-  &:focus-within {
-    transform: translateY(-2px);
-    border-color: var(--app-hairline-strong);
-    background-color: var(--app-surface-hover);
-    box-shadow: var(--app-shadow-card-hover);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: translateY(-2px);
+      border-color: var(--app-hairline-strong);
+      background-color: var(--app-surface-hover);
+      box-shadow: var(--app-shadow-card-hover);
+    }
   }
 
-  &:focus-within {
+  /* Touch gets feedback the moment the finger lands. */
+  &:active {
+    transform: scale(0.985);
+    background-color: var(--app-surface-active);
+    transition-duration: 0.1s;
+  }
+
+  /* Only keyboard focus rings the card; a tapped link keeps focus on Android and would leave it lit. */
+  &:has(:focus-visible) {
+    border-color: var(--app-hairline-strong);
+    background-color: var(--app-surface-hover);
     box-shadow:
       var(--app-shadow-card-hover),
       0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
@@ -383,9 +426,15 @@ body {
     color 0.15s;
 }
 
-.tab-pill:hover {
-  background: rgba(var(--bs-secondary-rgb), 0.1);
-  color: var(--bs-body-color);
+@media (hover: hover) and (pointer: fine) {
+  .tab-pill:hover {
+    background: rgba(var(--bs-secondary-rgb), 0.1);
+    color: var(--bs-body-color);
+  }
+}
+
+.tab-pill:active {
+  background: rgba(var(--bs-secondary-rgb), 0.16);
 }
 
 .tab-pill.active {
@@ -402,22 +451,76 @@ body {
   flex-shrink: 0;
 }
 
+/* Rows in a bottom sheet: inset, rounded, and tall enough for a thumb. */
+.bottom-sheet-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  margin: 0;
+  padding: 0.25rem 0.5rem;
+  list-style: none;
+}
+
+.bottom-sheet-separator {
+  height: 1px;
+  /* Cancel the list's inline padding so the line spans the sheet. */
+  margin: 0.375rem -0.5rem;
+  border: 0;
+  background-color: var(--app-hairline);
+  opacity: 1;
+}
+
 .bottom-sheet-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.875rem;
   width: 100%;
-  padding: 0.75rem 1.25rem;
-  background: transparent;
+  min-height: 3rem;
+  padding: 0.5rem 0.75rem;
   border: none;
+  border-radius: var(--bs-border-radius-lg);
+  background: transparent;
   color: var(--bs-body-color);
   font-size: 1rem;
+  font-weight: 500;
   text-align: start;
-  transition: background-color 0.2s;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
 
-  &:hover {
-    background-color: var(--bs-secondary-bg);
+  > svg {
+    flex-shrink: 0;
+    color: var(--bs-secondary-color);
   }
+
+  &.text-danger > svg {
+    color: inherit;
+  }
+
+  &:active {
+    background-color: var(--app-surface-active);
+    transition-duration: 0s;
+  }
+
+  &.router-link-active {
+    background-color: var(--app-tint);
+    color: var(--bs-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(var(--bs-primary-rgb), 0.5);
+    outline-offset: -2px;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .bottom-sheet-item:hover {
+    background-color: var(--app-surface-hover);
+    color: var(--bs-body-color);
+  }
+}
+
+[data-bs-theme='dark'] .bottom-sheet-item.router-link-active {
+  color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
 }
 
 .btn-group-toggle {
@@ -440,8 +543,10 @@ body {
   cursor: pointer;
   transition: all 0.2s;
 
-  &:hover {
-    background: rgba(var(--bs-secondary-rgb), 0.1);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: rgba(var(--bs-secondary-rgb), 0.1);
+    }
   }
 
   &.active {

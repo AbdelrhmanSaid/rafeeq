@@ -113,9 +113,11 @@ const favorites = filterFavorites(() => props.items, getKey)
     color 0.2s ease,
     transform 0.2s var(--app-ease);
 
-  &:hover {
-    background-color: rgba(var(--bs-danger-rgb), 0.1);
-    color: var(--bs-danger);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background-color: rgba(var(--bs-danger-rgb), 0.1);
+      color: var(--bs-danger);
+    }
   }
 
   &:active {

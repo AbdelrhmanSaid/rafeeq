@@ -49,8 +49,10 @@ defineEmits(['action'])
   border-bottom: none;
 }
 
-.dm-item:hover {
-  background: var(--app-surface-hover);
+@media (hover: hover) and (pointer: fine) {
+  .dm-item:hover {
+    background: var(--app-surface-hover);
+  }
 }
 
 .dm-item.downloaded {
@@ -126,9 +128,11 @@ defineEmits(['action'])
   color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
 }
 
-.dm-item-action.not-downloaded:hover:not(:disabled) {
-  background: var(--bs-primary);
-  color: #fff;
+@media (hover: hover) and (pointer: fine) {
+  .dm-item-action.not-downloaded:hover:not(:disabled) {
+    background: var(--bs-primary);
+    color: #fff;
+  }
 }
 
 .dm-item-action.downloaded {
@@ -136,8 +140,10 @@ defineEmits(['action'])
   color: #fff;
 }
 
-.dm-item-action.downloaded:hover {
-  background: var(--bs-danger);
+@media (hover: hover) and (pointer: fine) {
+  .dm-item-action.downloaded:hover {
+    background: var(--bs-danger);
+  }
 }
 
 .dm-item-action.downloading {

@@ -101,8 +101,10 @@ const radiosList = Object.entries(radiosData).map(([slug, station]) => ({
     }
   }
 
-  &:hover:not(.active) {
-    background-color: rgba(var(--bs-secondary-rgb), 0.1);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(.active) {
+      background-color: rgba(var(--bs-secondary-rgb), 0.1);
+    }
   }
 }
 </style>

@@ -202,8 +202,10 @@ async function toggleAyahPlayback() {
       background-color 0.2s ease,
       color 0.2s ease;
 
-    &:hover:not(:disabled) {
-      background-color: var(--app-tint);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) {
+        background-color: var(--app-tint);
+      }
     }
   }
 }

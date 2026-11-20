@@ -85,9 +85,11 @@ const { bookmark } = useQuranBookmark()
     background-color 0.15s ease,
     border-color 0.15s ease;
 
-  &:hover {
-    background-color: rgba(var(--bs-primary-rgb), 0.12);
-    border-color: rgba(var(--bs-primary-rgb), 0.5);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background-color: rgba(var(--bs-primary-rgb), 0.12);
+      border-color: rgba(var(--bs-primary-rgb), 0.5);
+    }
   }
 
   &__icon {
