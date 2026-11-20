@@ -114,7 +114,6 @@ export function syncMetaThemeColor() {
   const bg = normalizeColor(styles.backgroundColor || styles.getPropertyValue('--bs-body-bg'))
   if (!bg) return
 
-  ensureMeta('theme-color').setAttribute('content', bg)
   ensureMeta('msapplication-TileColor').setAttribute('content', bg)
 
   const colorScheme = document.body.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light'

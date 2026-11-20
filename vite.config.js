@@ -57,7 +57,6 @@ export default defineConfig({
         name: 'رفيق - زادك في الطريق',
         short_name: 'رفيق',
         description: 'تطبيق إسلامي شامل للأذكار والقرآن الكريم ومواقيت الصلاة',
-        theme_color: '#795547',
         background_color: '#ffffff',
         display: 'standalone',
         start_url: '/',
