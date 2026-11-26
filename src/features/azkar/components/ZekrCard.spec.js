@@ -121,4 +121,12 @@ describe('ZekrCard', () => {
 
     expect(counts[0]).toBe(0)
   })
+
+  it('counts a click anywhere on the card, even on desktop', async () => {
+    const { wrapper, counts } = mountCard(3)
+
+    await wrapper.find('.zekr-text').trigger('click')
+
+    expect(counts[0]).toBe(1)
+  })
 })

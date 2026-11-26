@@ -10,7 +10,6 @@ import { useAppStore } from '@/app/stores/app'
 
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
-import BackButton from '@/shared/ui/BackButton.vue'
 import AsyncContent from '@/shared/ui/AsyncContent.vue'
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
 import ZekrCard from '@/features/azkar/components/ZekrCard.vue'
@@ -72,18 +71,12 @@ onBeforeRouteLeave(async () => {
         :benefit="zekr.benefit"
       />
 
-      <div class="d-flex justify-content-center gap-2">
-        <button
-          v-if="totalClicked > 0"
-          type="button"
-          class="btn btn-flat d-inline-flex align-items-center gap-2"
-          @click="resetProgress"
-        >
+      <!-- Back lives in the app bar; the page ends with a quiet reset once counting has started. -->
+      <div v-if="totalClicked > 0" class="d-flex justify-content-center">
+        <button type="button" class="btn btn-flat d-inline-flex align-items-center gap-2" @click="resetProgress">
           <IconRestore size="1.25rem" />
-          <span>تصفير</span>
+          <span>تصفير الكل</span>
         </button>
-
-        <BackButton :to="{ name: 'azkar' }" button-class="btn-primary" />
       </div>
     </Page>
   </AsyncContent>
