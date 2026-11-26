@@ -57,12 +57,15 @@ export default defineConfig({
         name: 'رفيق - زادك في الطريق',
         short_name: 'رفيق',
         description: 'تطبيق إسلامي شامل للأذكار والقرآن الكريم ومواقيت الصلاة',
+        // A stable identity, so a future change to start_url doesn't install as a new app.
+        id: '/',
         lang: 'ar',
         dir: 'rtl',
-        // Explicitly unset: vite-plugin-pwa otherwise defaults theme_color to #42b883 (Vue green),
-        // which Android uses to paint the status and navigation bars.
-        theme_color: undefined,
-        background_color: '#ffffff',
+        // The app's light background, so the status bar and splash screen blend into the first page.
+        // (Left unset, vite-plugin-pwa defaults theme_color to Vue green.) At runtime the page's theme-color
+        // meta follows the chosen theme.
+        theme_color: '#faf8f8',
+        background_color: '#faf8f8',
         display: 'standalone',
         start_url: '/',
         scope: '/',

@@ -116,6 +116,18 @@ export function syncMetaThemeColor() {
 
   ensureMeta('msapplication-TileColor').setAttribute('content', bg)
 
+  // The status bar and browser UI take this colour; match the page so they blend in both themes.
+  // index.html ships light and dark first-paint tags keyed to the system theme; once the app knows its own theme,
+  // every tag carries that colour and drops its media query, so a manual theme wins over the system one.
+  const rgb = toRgbValue(bg)
+  if (rgb) {
+    ensureMeta('theme-color')
+    for (const meta of document.querySelectorAll('meta[name="theme-color"]')) {
+      meta.setAttribute('content', `rgb(${rgb})`)
+      meta.removeAttribute('media')
+    }
+  }
+
   const colorScheme = document.body.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light'
   ensureMeta('color-scheme').setAttribute('content', colorScheme)
   document.documentElement.style.colorScheme = colorScheme

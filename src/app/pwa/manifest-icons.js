@@ -319,6 +319,17 @@ export const manifestIcons = [
     src: 'icons/windows11/Square44x44Logo.altform-lightunplated_targetsize-256.png',
     sizes: '256x256',
   },
+  // Full-bleed versions for Android's adaptive icons, which crop to the launcher's shape.
+  {
+    src: 'icons/android/maskable-512.png',
+    sizes: '512x512',
+    purpose: 'maskable',
+  },
+  {
+    src: 'icons/android/maskable-192.png',
+    sizes: '192x192',
+    purpose: 'maskable',
+  },
   {
     src: 'icons/android/android-launchericon-512-512.png',
     sizes: '512x512',
