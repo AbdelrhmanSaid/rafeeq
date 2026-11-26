@@ -8,7 +8,7 @@
 .page-container {
   /* The app bar above already gives the page its top breathing room. */
   padding-block: 0.25rem 2rem;
-  animation: page-enter 0.35s var(--app-ease) both;
+  animation: page-enter 0.2s ease-out both;
 }
 
 @media (min-width: 768px) {

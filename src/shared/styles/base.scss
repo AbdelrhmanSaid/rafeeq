@@ -579,14 +579,31 @@ body {
   }
 }
 
+/* Screens only fade in: nothing slides, so the layout holds still between pages. */
 @keyframes page-enter {
   from {
     opacity: 0;
-    transform: translateY(10px);
   }
 
   to {
     opacity: 1;
-    transform: none;
   }
+}
+
+/* Toasts read as a native snackbar: an inverted surface in both themes, in the app's palette. */
+html [data-sonner-toaster][data-sonner-theme] {
+  --normal-bg: color-mix(in srgb, var(--bs-primary) 16%, #171310);
+  --normal-border: transparent;
+  --normal-text: #fff;
+  --border-radius: var(--bs-border-radius-lg);
+}
+
+[data-bs-theme='dark'] [data-sonner-toaster][data-sonner-theme] {
+  --normal-bg: color-mix(in srgb, var(--bs-primary) 12%, #f4f1ee);
+  --normal-text: #171310;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-styled='true'] {
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.45);
+  font-weight: 500;
 }
