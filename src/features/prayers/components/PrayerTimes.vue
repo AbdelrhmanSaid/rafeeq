@@ -17,6 +17,10 @@ const props = defineProps({
   lat: { type: [Number, String], default: null },
   long: { type: [Number, String], default: null },
   vertical: { type: Boolean, default: false },
+  // Folds the six times into the next-prayer card instead of listing them below it.
+  compact: { type: Boolean, default: false },
+  // Home shows the weekday in its greeting, so the card can leave it out.
+  showWeekday: { type: Boolean, default: true },
 })
 
 const hasPropsCoords = computed(() => props.lat != null && props.long != null)
@@ -43,8 +47,12 @@ const { detect } = usePrayerLocation()
 const latitude = computed(() => (hasPropsCoords.value ? props.lat : store.latitude))
 const longitude = computed(() => (hasPropsCoords.value ? props.long : store.longitude))
 
+// Corrupt or cleared saved coordinates (NaN, 0) must lead back to the location prompt, not a blank section.
+const isCoordinate = (value) => Number.isFinite(Number(value)) && Number(value) !== 0
+const hasCoords = computed(() => isCoordinate(latitude.value) && isCoordinate(longitude.value))
+
 const timings = computed(() => {
-  if (!latitude.value || !longitude.value) return null
+  if (!hasCoords.value) return null
 
   return calculatePrayerTimes({
     latitude: latitude.value,
@@ -56,6 +64,9 @@ const timings = computed(() => {
     shafaq: store.calcShafaq,
   })
 })
+
+// The compact strip drops the ص/م suffix and leading zero; which half of the day each prayer falls in is obvious.
+const formatShortTiming = (time) => toArabicNumerals(formatDate(new Date(time), 'h:mm'))
 
 const formatTiming = (time) => {
   return toArabicNumerals(formatDate(new Date(time), 'hh:mm A').replace('AM', 'ص').replace('PM', 'م'))
@@ -125,10 +136,7 @@ const nextPrayerTime = computed(() => {
     <LoadingState message="جاري تحديد موقعك..." />
   </div>
 
-  <div
-    v-else-if="!hasPropsCoords && (store.latitude === 0 || store.longitude === 0)"
-    class="prayer-state prayer-detect p-4 p-md-5 text-center"
-  >
+  <div v-else-if="!hasPropsCoords && !hasCoords" class="prayer-state prayer-detect p-4 p-md-5 text-center">
     <span class="icon-circle icon-circle--lg text-primary mb-3">
       <IconMapPin />
     </span>
@@ -143,8 +151,10 @@ const nextPrayerTime = computed(() => {
     <div class="prayer-hero text-white">
       <div class="prayer-hero__meta">
         <div class="prayer-hero__date">
-          <span v-if="hijriDay">{{ hijriDay }}</span>
-          <span v-if="hijriDay && hijriDate" class="prayer-hero__dot" aria-hidden="true">·</span>
+          <template v-if="showWeekday && hijriDay">
+            <span>{{ hijriDay }}</span>
+            <span v-if="hijriDate" class="prayer-hero__dot" aria-hidden="true">·</span>
+          </template>
           <span>{{ hijriDate }}</span>
         </div>
         <span class="prayer-hero__badge">الصلاة القادمة</span>
@@ -174,9 +184,23 @@ const nextPrayerTime = computed(() => {
       >
         <span class="prayer-hero__bar" :style="{ '--progress': progress }"></span>
       </div>
+
+      <ol v-if="compact" class="prayer-strip" aria-label="مواقيت اليوم">
+        <li
+          v-for="(timing, key) in timingsMap"
+          :key="key"
+          class="prayer-strip__item"
+          :class="`prayer-strip__item--${phases[key]}`"
+          :aria-current="phases[key] === 'next' ? 'true' : undefined"
+        >
+          <PrayerIcon :name="timing.icon" class="prayer-strip__icon" />
+          <span class="prayer-strip__label">{{ timing.label }}</span>
+          <span class="prayer-strip__time">{{ formatShortTiming(timings[key]) }}</span>
+        </li>
+      </ol>
     </div>
 
-    <div v-if="vertical" class="d-flex flex-column gap-1">
+    <div v-if="!compact && vertical" class="d-flex flex-column gap-1">
       <div
         v-for="(timing, key) in timingsMap"
         :key="key"
@@ -194,7 +218,7 @@ const nextPrayerTime = computed(() => {
       </div>
     </div>
 
-    <div v-else class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2">
+    <div v-else-if="!compact" class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2">
       <div v-for="(timing, key) in timingsMap" :key="key" class="col">
         <div
           class="card h-100 prayer-card"
@@ -223,7 +247,7 @@ const nextPrayerTime = computed(() => {
   position: relative;
   overflow: hidden;
   padding: 1.35rem 1.35rem 1.25rem;
-  border-radius: var(--bs-border-radius-xl);
+  border-radius: var(--bs-border-radius-lg);
   background:
     radial-gradient(28rem 14rem at 100% 0, rgba(255, 255, 255, 0.18), transparent 70%),
     linear-gradient(135deg, var(--bs-primary), color-mix(in srgb, var(--bs-primary) 72%, #000));
@@ -332,6 +356,57 @@ const nextPrayerTime = computed(() => {
   transition: width 1s linear;
 }
 
+.prayer-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.25rem;
+  margin: 1.125rem -0.5rem -0.375rem;
+  padding: 0.875rem 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  list-style: none;
+}
+
+.prayer-strip__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.45rem 0.125rem;
+  border-radius: var(--bs-border-radius);
+  color: rgba(255, 255, 255, 0.85);
+  text-align: center;
+}
+
+.prayer-strip__item--past {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.prayer-strip__item--next {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+.prayer-strip__icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.prayer-strip__label {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prayer-strip__time {
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
 .prayer-row {
   border: 1px solid var(--app-hairline);
   border-radius: var(--bs-border-radius);
@@ -381,7 +456,7 @@ const nextPrayerTime = computed(() => {
     min-height: 13rem;
   }
   border: 1px solid var(--app-hairline);
-  border-radius: var(--bs-border-radius-xl);
+  border-radius: var(--bs-border-radius-lg);
   background: var(--app-surface);
   box-shadow: var(--app-shadow-card);
 }

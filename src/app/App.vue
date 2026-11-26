@@ -3,6 +3,7 @@ import { RouterView, useRoute } from 'vue-router'
 import AppBar from '@/layout/AppBar.vue'
 import TopNav from '@/layout/TopNav.vue'
 import TabBar from '@/layout/TabBar.vue'
+import Footer from '@/layout/Footer.vue'
 import InstallBanner from '@/app/pwa/InstallBanner.vue'
 import { computed, watch } from 'vue'
 import { useOnline } from '@vueuse/core'
@@ -62,6 +63,8 @@ const updateSW = registerSW({
     <div class="main-content">
       <RouterView />
     </div>
+
+    <Footer class="d-none d-lg-block" v-if="!isEmbedRoute" />
 
     <TabBar class="d-lg-none" v-if="!isEmbedRoute" />
 

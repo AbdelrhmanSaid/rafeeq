@@ -27,15 +27,19 @@ const links = [
 </script>
 
 <template>
-  <Page>
+  <Page class="more-page">
     <Heading class="mb-4" title="المزيد" />
 
     <section class="more-section" aria-labelledby="more-tools">
       <h2 id="more-tools" class="more-section__title">الأدوات</h2>
-      <div class="more-tools">
-        <RouterLink v-for="item in tools" :key="item.name" :to="{ name: item.name }" class="more-tool">
-          <span class="icon-tile more-tool__icon"><component :is="item.icon" aria-hidden="true" /></span>
-          <span class="more-tool__label">{{ item.label }}</span>
+      <div class="more-list">
+        <RouterLink v-for="item in tools" :key="item.name" :to="{ name: item.name }" class="more-row">
+          <span class="icon-tile more-row__icon"><component :is="item.icon" aria-hidden="true" /></span>
+          <span class="more-row__text">
+            <span class="more-row__label">{{ item.label }}</span>
+            <span class="more-row__description">{{ item.description }}</span>
+          </span>
+          <IconChevronLeft class="more-row__trail" aria-hidden="true" />
         </RouterLink>
       </div>
     </section>
@@ -77,6 +81,13 @@ const links = [
 </template>
 
 <style lang="scss" scoped>
+/* A settings-style screen reads best as a capped column, even on wide screens. */
+@media (min-width: 768px) {
+  .more-page {
+    max-width: 40rem;
+  }
+}
+
 .more-section {
   margin-bottom: 1.5rem;
 }
@@ -87,49 +98,6 @@ const links = [
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 600;
-}
-
-.more-tools {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.625rem;
-}
-
-.more-tool {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.625rem;
-  padding: 1rem 0.5rem 0.875rem;
-  border: 1px solid var(--app-hairline);
-  border-radius: var(--bs-border-radius-xl);
-  background: var(--app-surface);
-  box-shadow: var(--app-shadow-card);
-  color: var(--bs-body-color);
-  text-align: center;
-  text-decoration: none;
-
-  &:active {
-    background: var(--app-surface-active);
-  }
-}
-
-.more-tool__icon {
-  width: 3rem;
-  height: 3rem;
-  border-radius: var(--bs-border-radius-lg);
-  color: var(--bs-primary);
-
-  svg {
-    width: 1.5rem;
-    height: 1.5rem;
-  }
-}
-
-.more-tool__label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  line-height: 1.3;
 }
 
 /* An inset grouped list, like a native settings screen. */
@@ -151,13 +119,13 @@ const links = [
   color: var(--bs-body-color);
   text-decoration: none;
 
-  /* Separators start after the icon, so the icons read as one column. */
+  /* Full-width separators between rows. */
   & + & {
     &::before {
       content: '';
       position: absolute;
       top: 0;
-      inset-inline: 4.375rem 0;
+      inset-inline: 0;
       height: 1px;
       background: var(--app-hairline);
     }
@@ -174,7 +142,6 @@ const links = [
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .more-tool:hover,
   .more-row:hover {
     background: var(--app-surface-hover);
   }
@@ -197,6 +164,25 @@ const links = [
   font-weight: 500;
 }
 
+.more-row__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+
+  .more-row__label {
+    flex: none;
+  }
+}
+
+.more-row__description {
+  overflow: hidden;
+  color: var(--bs-secondary-color);
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .more-row__trail {
   width: 1.1rem;
   height: 1.1rem;
@@ -205,7 +191,6 @@ const links = [
 }
 
 [data-bs-theme='dark'] {
-  .more-tool__icon,
   .more-row__icon {
     color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
   }

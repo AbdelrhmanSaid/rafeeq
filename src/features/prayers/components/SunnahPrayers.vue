@@ -2,6 +2,11 @@
 import PrayerIcon from '@/features/prayers/components/icons/PrayerIcon.vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 
+defineProps({
+  // Shown on the label row above the list, beside the قبل / بعد column labels.
+  title: { type: String, default: '' },
+})
+
 const prayers = [
   {
     name: 'الفجر',
@@ -45,9 +50,12 @@ const formatRakaa = (value) => {
 <template>
   <div>
     <div class="d-lg-none">
-      <div class="d-flex justify-content-end px-3 pb-2 small text-body-secondary">
-        <span class="rakaa-col">قبل</span>
-        <span class="rakaa-col">بعد</span>
+      <div class="d-flex align-items-center px-3 pb-2">
+        <h2 v-if="title" class="sunnah-header__title">{{ title }}</h2>
+        <div class="d-flex small text-body-secondary ms-auto">
+          <span class="rakaa-col">قبل</span>
+          <span class="rakaa-col">بعد</span>
+        </div>
       </div>
       <div class="list-group">
         <div
@@ -73,6 +81,7 @@ const formatRakaa = (value) => {
       </div>
     </div>
 
+    <h2 v-if="title" class="d-none d-lg-block sunnah-header__title sunnah-desktop-title">{{ title }}</h2>
     <div class="d-none d-lg-flex row row-cols-lg-5 g-2">
       <div v-for="(prayer, index) in prayers" :key="index" class="col">
         <div class="card h-100 sunnah-card">
@@ -124,6 +133,19 @@ const formatRakaa = (value) => {
     width: 1.15rem;
     height: 1.15rem;
   }
+}
+
+.sunnah-header__title {
+  margin: 0;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* Desktop keeps the five separate cards, so the title sits above them like the other home section titles. */
+.sunnah-desktop-title {
+  margin: 0 0.125rem 0.75rem;
+  color: color-mix(in srgb, var(--bs-body-color) 60%, transparent);
 }
 
 .sunnah-card {

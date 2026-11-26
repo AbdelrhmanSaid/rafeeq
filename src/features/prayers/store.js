@@ -19,6 +19,9 @@ export const usePrayersStore = defineStore('prayers', function () {
 
   const isCompactViewport = useIsMobile()
 
+  // Phones on the automatic layout get the times folded into the next-prayer card.
+  const compact = computed(() => layout.value === 'auto' && isCompactViewport.value)
+
   const vertical = computed(() => {
     if (layout.value === 'list') return true
     if (layout.value === 'cards') return false
@@ -53,6 +56,7 @@ export const usePrayersStore = defineStore('prayers', function () {
     latitude,
     layout,
     vertical,
+    compact,
     calcMethod,
     calcSchool,
     calcLatitudeAdjustment,

@@ -35,4 +35,21 @@ describe('PrayerTimes', () => {
     expect(fetch).not.toHaveBeenCalled()
     expect(wrapper.findAll('.prayer-card, .prayer-row')).toHaveLength(6)
   })
+
+  it('folds the six times into the next-prayer card when compact', () => {
+    const wrapper = mount(PrayerTimes, { props: { lat: 30.0444, long: 31.2357, compact: true } })
+
+    expect(wrapper.findAll('.prayer-strip__item')).toHaveLength(6)
+    expect(wrapper.findAll('.prayer-card, .prayer-row')).toHaveLength(0)
+  })
+
+  it('asks for a location again when the saved coordinates are corrupt', () => {
+    localStorage.setItem('latitude', '"30.0444"')
+    localStorage.setItem('longitude', '"31.2357"')
+
+    const wrapper = mount(PrayerTimes)
+
+    expect(wrapper.text()).toContain('تحديد موقعي')
+    localStorage.clear()
+  })
 })

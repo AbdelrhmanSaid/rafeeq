@@ -1,6 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router'
-import { IconSun, IconMoon, IconShield, IconDots, IconChevronLeft } from '@tabler/icons-vue'
+import { IconSun, IconMoon, IconShield, IconChevronLeft } from '@tabler/icons-vue'
 
 const azkar = [
   {
@@ -38,17 +38,6 @@ const azkar = [
       <div class="min-w-0 flex-grow-1">
         <h3 class="quick-row__title">{{ item.name }}</h3>
         <small class="text-body-secondary d-block">{{ item.description }}</small>
-      </div>
-      <IconChevronLeft class="quick-row__chevron" size="1rem" aria-hidden="true" />
-    </RouterLink>
-
-    <RouterLink :to="{ name: 'azkar' }" class="list-group-item list-group-item-action quick-row">
-      <span class="quick-row__icon">
-        <IconDots size="1.25rem" />
-      </span>
-      <div class="min-w-0 flex-grow-1">
-        <h3 class="quick-row__title">كل الأذكار</h3>
-        <small class="text-body-secondary d-block">تصفح جميع الأبواب المتاحة</small>
       </div>
       <IconChevronLeft class="quick-row__chevron" size="1rem" aria-hidden="true" />
     </RouterLink>
