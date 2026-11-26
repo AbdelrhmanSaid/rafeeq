@@ -9,11 +9,18 @@ import { toArabicNumerals, normalizeQuranicText } from '@/shared/utils/arabic'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 
 const { bookmark } = useQuranBookmark()
+
+// Arabic counts ending in 3–10 (7, 103, 110) take the plural آيات; the rest (11, 99, 200) take the singular آية.
+const formatAyahCount = (count) => {
+  const lastTwo = count % 100
+  return `${toArabicNumerals(count)} ${lastTwo >= 3 && lastTwo <= 10 ? 'آيات' : 'آية'}`
+}
 </script>
 
 <template>
   <Page>
     <Heading
+      subtitle-desktop-only
       title="القرآن الكريم"
       subtitle="إن له لحلاوة، وإن عليه لطلاوة، وإن أعلاه لمثمر، وإن أسفله لمغدق، وإنه يعلو ولا يعلى عليه."
       :share="true"
@@ -35,40 +42,71 @@ const { bookmark } = useQuranBookmark()
       <IconChevronLeft class="bookmark-card__chevron" size="20" />
     </RouterLink>
 
-    <SearchableFavoritesList
-      :items="surahs"
-      item-key="id"
-      :favorites-key="STORAGE_KEYS.quranFavorites"
-      placeholder="ابحث بالسورة"
-      label="تبحث عن سورة معينة؟"
-    >
-      <template #favorites-title>
-        <h5 class="mb-3">السور المفضلة</h5>
-      </template>
+    <div class="surah-list">
+      <SearchableFavoritesList
+        :items="surahs"
+        item-key="id"
+        :favorites-key="STORAGE_KEYS.quranFavorites"
+        placeholder="ابحث بالسورة"
+        label="تبحث عن سورة معينة؟"
+      >
+        <template #favorites-title>
+          <h5 class="mb-3">السور المفضلة</h5>
+        </template>
 
-      <template #all-title>
-        <h5 class="mb-3">كل السور</h5>
-      </template>
+        <template #all-title>
+          <h5 class="mb-3">كل السور</h5>
+        </template>
 
-      <template #default="{ item }">
-        <RouterLink
-          :to="{ name: 'quran-surah', params: { surah: item.id } }"
-          class="stretched-link text-decoration-none text-reset d-flex align-items-center gap-3 min-w-0 flex-grow-1"
-        >
-          <span class="list-index">{{ toArabicNumerals(item.id) }}</span>
-          <span class="d-flex flex-column min-w-0">
+        <template #default="{ item }">
+          <RouterLink
+            :to="{ name: 'quran-surah', params: { surah: item.id } }"
+            class="stretched-link text-decoration-none text-reset d-flex align-items-center gap-3 min-w-0 flex-grow-1"
+          >
+            <span class="list-index">{{ toArabicNumerals(item.id) }}</span>
             <span class="fw-medium text-truncate">{{ normalizeQuranicText(item.name) }}</span>
-            <small class="text-body-secondary text-truncate">
-              عدد الآيات: {{ toArabicNumerals(item.numberOfAyahs) }} - {{ item.isMeccan ? 'مكية' : 'مدنية' }}
+            <small class="surah-meta text-body-secondary">
+              <span>{{ item.isMeccan ? 'مكية' : 'مدنية' }}</span>
+              <span class="surah-meta__dot" aria-hidden="true"></span>
+              <span>{{ formatAyahCount(item.numberOfAyahs) }}</span>
             </small>
-          </span>
-        </RouterLink>
-      </template>
-    </SearchableFavoritesList>
+          </RouterLink>
+        </template>
+      </SearchableFavoritesList>
+    </div>
   </Page>
 </template>
 
 <style lang="scss" scoped>
+/* Shorter rows: the heart's 44px target sets the height. */
+.surah-list :deep(.fav-row) {
+  padding-block: 0.375rem;
+}
+
+/* One line per surah: the details sit at the end of the row, before the heart. */
+.surah-meta {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.375rem;
+  margin-inline-start: auto;
+  white-space: nowrap;
+}
+
+/* A drawn dot, since a "·" beside Arabic numerals reads as the digit zero (٠). */
+.surah-meta__dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.surah-list :deep(.list-index) {
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.8125rem;
+}
+
 .bookmark-card {
   display: flex;
   align-items: center;

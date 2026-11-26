@@ -18,6 +18,11 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  // List screens drop the subtitle on phones so the list starts higher.
+  subtitleDesktopOnly: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const heading = useTemplateRef('heading')
@@ -34,11 +39,11 @@ if (props.size === 1) {
 
 <template>
   <div>
-    <component ref="heading" :is="`h${size}`">
+    <component ref="heading" :is="`h${size}`" :class="{ 'heading--solo-mobile': subtitleDesktopOnly }">
       {{ title }}
     </component>
 
-    <p class="lead" v-if="subtitle">{{ subtitle }}</p>
+    <p v-if="subtitle" class="lead" :class="{ 'd-none d-lg-block': subtitleDesktopOnly }">{{ subtitle }}</p>
   </div>
 </template>
 
@@ -46,5 +51,11 @@ if (props.size === 1) {
 .lead {
   color: var(--bs-secondary-color);
   font-size: 1.05rem;
+}
+
+@media (max-width: 991.98px) {
+  .heading--solo-mobile {
+    margin-bottom: 1rem;
+  }
 }
 </style>

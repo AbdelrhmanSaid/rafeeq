@@ -282,7 +282,7 @@ const nextPrayerTime = computed(() => {
   align-items: center;
   gap: 0.35rem;
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.85);
+  color: color-mix(in srgb, #fff 85%, var(--bs-primary));
 }
 
 .prayer-hero__badge {
@@ -331,7 +331,7 @@ const nextPrayerTime = computed(() => {
   margin-top: 0.3rem;
   font-size: 1rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
+  color: color-mix(in srgb, #fff 90%, var(--bs-primary));
 }
 
 .prayer-hero__time {
@@ -360,8 +360,9 @@ const nextPrayerTime = computed(() => {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 0.25rem;
-  margin: 1.125rem -0.5rem -0.375rem;
-  padding: 0.875rem 0 0;
+  /* The divider spans the card edge to edge; the padding keeps the items where they were. */
+  margin: 1.125rem -1.35rem -0.375rem;
+  padding: 0.875rem 0.85rem 0;
   border-top: 1px solid rgba(255, 255, 255, 0.16);
   list-style: none;
 }
@@ -373,12 +374,12 @@ const nextPrayerTime = computed(() => {
   gap: 0.2rem;
   padding: 0.45rem 0.125rem;
   border-radius: var(--bs-border-radius);
-  color: rgba(255, 255, 255, 0.85);
+  color: color-mix(in srgb, #fff 85%, var(--bs-primary));
   text-align: center;
 }
 
 .prayer-strip__item--past {
-  color: rgba(255, 255, 255, 0.5);
+  color: color-mix(in srgb, #fff 50%, var(--bs-primary));
 }
 
 .prayer-strip__item--next {

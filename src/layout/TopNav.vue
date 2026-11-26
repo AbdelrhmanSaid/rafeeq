@@ -149,7 +149,7 @@ const destinations = navigation.filter((item) => item.menus.includes('primary'))
   align-items: center;
   gap: 0.5rem;
   padding-inline: 0.875rem;
-  color: color-mix(in srgb, var(--bs-body-color) 55%, transparent);
+  color: color-mix(in srgb, var(--bs-body-color) 55%, var(--bs-body-bg));
   font-weight: 500;
   text-decoration: none;
 

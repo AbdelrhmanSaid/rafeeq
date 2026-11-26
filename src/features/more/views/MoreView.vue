@@ -27,7 +27,7 @@ const links = [
 </script>
 
 <template>
-  <Page class="more-page">
+  <Page>
     <Heading class="mb-4" title="المزيد" />
 
     <section class="more-section" aria-labelledby="more-tools">
@@ -81,13 +81,6 @@ const links = [
 </template>
 
 <style lang="scss" scoped>
-/* A settings-style screen reads best as a capped column, even on wide screens. */
-@media (min-width: 768px) {
-  .more-page {
-    max-width: 40rem;
-  }
-}
-
 .more-section {
   margin-bottom: 1.5rem;
 }

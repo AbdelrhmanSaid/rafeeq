@@ -157,11 +157,25 @@ html[dir='rtl'],
   border-color: var(--bs-primary);
 }
 
-.form-check-input:focus,
+/* Inputs show no focus ring or border change in any state; the caret and the field itself mark focus. */
+.form-check-input,
+.form-control,
+.form-select {
+  &:focus,
+  &:focus-visible,
+  &:active {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
 .form-control:focus,
 .form-select:focus {
-  border-color: color-mix(in srgb, var(--bs-primary) 65%, #fff);
-  box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+  border-color: var(--app-hairline);
+}
+
+.form-check-input:not(:checked):focus {
+  border-color: var(--bs-border-color);
 }
 
 /* Keep numeric input alignment from being flipped by rtlcss. */

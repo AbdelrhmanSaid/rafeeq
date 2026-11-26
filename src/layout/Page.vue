@@ -23,4 +23,11 @@
     padding-top: 1.5rem;
   }
 }
+
+/* Every screen reads as one capped column from tablets up, the same width as More. */
+@media (min-width: 768px) {
+  .page-container {
+    max-width: 40rem;
+  }
+}
 </style>

@@ -66,76 +66,43 @@ const formatRakaa = (value) => {
 
 <template>
   <div>
-    <div class="d-lg-none">
-      <div class="d-flex align-items-center px-3 pb-2">
-        <h2 v-if="title" class="sunnah-header__title">{{ title }}</h2>
-        <div class="d-flex small text-body-secondary ms-auto">
-          <span class="rakaa-col">قبل</span>
-          <span class="rakaa-col">بعد</span>
-        </div>
-      </div>
-      <div class="list-group">
-        <div
-          v-for="prayer in visiblePrayers"
-          :key="prayer.key"
-          class="list-group-item d-flex align-items-center justify-content-between sunnah-row"
-        >
-          <div class="d-flex align-items-center gap-2 min-w-0">
-            <span class="sunnah-row__icon">
-              <PrayerIcon :name="prayer.icon" />
-            </span>
-            <span class="fw-semibold text-truncate">{{ prayer.name }}</span>
-          </div>
-          <div class="d-flex small">
-            <span class="rakaa-col fw-semibold" :class="{ 'text-body-secondary': prayer.before === 0 }">
-              {{ formatRakaa(prayer.before) }}
-            </span>
-            <span class="rakaa-col fw-semibold" :class="{ 'text-body-secondary': prayer.after === 0 }">
-              {{ formatRakaa(prayer.after) }}
-            </span>
-          </div>
-        </div>
-        <button
-          v-if="current"
-          type="button"
-          class="list-group-item list-group-item-action sunnah-toggle"
-          :aria-expanded="expanded"
-          @click="expanded = !expanded"
-        >
-          {{ expanded ? 'عرض أقل' : 'عرض الكل' }}
-        </button>
+    <div class="d-flex align-items-center px-3 pb-2">
+      <h2 v-if="title" class="sunnah-header__title">{{ title }}</h2>
+      <div class="d-flex small text-body-secondary ms-auto">
+        <span class="rakaa-col">قبل</span>
+        <span class="rakaa-col">بعد</span>
       </div>
     </div>
-
-    <h2 v-if="title" class="d-none d-lg-block sunnah-header__title sunnah-desktop-title">{{ title }}</h2>
-    <div class="d-none d-lg-flex row row-cols-lg-5 g-2">
-      <div v-for="(prayer, index) in prayers" :key="index" class="col">
-        <div class="card h-100 sunnah-card">
-          <div class="card-body p-3">
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <span class="icon-circle text-primary">
-                <PrayerIcon :name="prayer.icon" />
-              </span>
-              <h3 class="card-title mb-0 fs-6 fw-semibold">{{ prayer.name }}</h3>
-            </div>
-
-            <div class="row g-0 text-center small">
-              <div class="col-6 pe-2">
-                <div class="text-body-secondary mb-1">قبل</div>
-                <div class="fw-semibold" :class="{ 'text-body-secondary': prayer.before === 0 }">
-                  {{ formatRakaa(prayer.before) }}
-                </div>
-              </div>
-              <div class="col-6 ps-2 border-start">
-                <div class="text-body-secondary mb-1">بعد</div>
-                <div class="fw-semibold" :class="{ 'text-body-secondary': prayer.after === 0 }">
-                  {{ formatRakaa(prayer.after) }}
-                </div>
-              </div>
-            </div>
-          </div>
+    <div class="list-group">
+      <div
+        v-for="prayer in visiblePrayers"
+        :key="prayer.key"
+        class="list-group-item d-flex align-items-center justify-content-between sunnah-row"
+      >
+        <div class="d-flex align-items-center gap-2 min-w-0">
+          <span class="sunnah-row__icon">
+            <PrayerIcon :name="prayer.icon" />
+          </span>
+          <span class="fw-semibold text-truncate">{{ prayer.name }}</span>
+        </div>
+        <div class="d-flex small">
+          <span class="rakaa-col fw-semibold" :class="{ 'text-body-secondary': prayer.before === 0 }">
+            {{ formatRakaa(prayer.before) }}
+          </span>
+          <span class="rakaa-col fw-semibold" :class="{ 'text-body-secondary': prayer.after === 0 }">
+            {{ formatRakaa(prayer.after) }}
+          </span>
         </div>
       </div>
+      <button
+        v-if="current"
+        type="button"
+        class="list-group-item list-group-item-action sunnah-toggle"
+        :aria-expanded="expanded"
+        @click="expanded = !expanded"
+      >
+        {{ expanded ? 'عرض أقل' : 'عرض الكل' }}
+      </button>
     </div>
   </div>
 </template>
@@ -166,25 +133,6 @@ const formatRakaa = (value) => {
   font-family: inherit;
   font-size: 1rem;
   font-weight: 700;
-}
-
-/* Desktop keeps the five separate cards, so the title sits above them like the other home section titles. */
-.sunnah-desktop-title {
-  margin: 0 0.125rem 0.75rem;
-  color: color-mix(in srgb, var(--bs-body-color) 60%, transparent);
-}
-
-.sunnah-card {
-  transition:
-    transform 0.25s var(--app-ease),
-    box-shadow 0.25s var(--app-ease);
-
-  @media (hover: hover) and (pointer: fine) {
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--app-shadow-card-hover);
-    }
-  }
 }
 
 .sunnah-toggle {

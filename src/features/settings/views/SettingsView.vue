@@ -98,29 +98,32 @@ const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab)
 </template>
 
 <style scoped>
+/* One column with a scrollable row of tabs on every screen size; pages are capped at 40rem. */
 .settings-layout {
   display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 1.5rem;
+  grid-template-columns: 1fr;
+  gap: 1rem;
   align-items: start;
 }
 
 .settings-nav {
-  flex-direction: column;
-  gap: 0.25rem;
-  overflow-x: visible;
-  padding: 0;
-  margin: 0;
-  position: sticky;
-  top: calc(var(--header-offset) + env(safe-area-inset-top, 0px) + 1rem);
+  flex-direction: row;
+  gap: 0.5rem;
+  overflow-x: auto;
+  margin: 0 -0.25rem;
+  padding: 0 0.25rem 0.35rem;
 }
 
 .settings-nav-item {
-  width: 100%;
-  flex-shrink: 1;
-  padding-block: 0.7rem;
+  width: auto;
+  flex-shrink: 0;
+  border-color: var(--bs-border-color);
+  padding: 0.5rem 0.9rem;
+  font-size: 0.85rem;
+}
+
+.settings-nav-item.active {
   border-color: transparent;
-  font-size: 0.9rem;
 }
 
 .settings-content {
@@ -131,35 +134,5 @@ const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab)
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-}
-
-@media (max-width: 767.98px) {
-  .settings-layout {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .settings-nav {
-    flex-direction: row;
-    position: static;
-    gap: 0.5rem;
-    overflow-x: auto;
-    padding-top: 0;
-    padding-bottom: 0.35rem;
-    margin-inline: -0.25rem;
-    padding-inline: 0.25rem;
-  }
-
-  .settings-nav-item {
-    width: auto;
-    flex-shrink: 0;
-    border-color: var(--bs-border-color);
-    padding: 0.5rem 0.9rem;
-    font-size: 0.85rem;
-  }
-
-  .settings-nav-item.active {
-    border-color: transparent;
-  }
 }
 </style>

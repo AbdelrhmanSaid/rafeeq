@@ -87,7 +87,7 @@ const tabs = navigation.filter((item) => item.menus.includes('primary'))
   border: 0;
   background: none;
   /* Quieter than body text in both themes, so the brand-colored current tab stands out. */
-  color: color-mix(in srgb, var(--bs-body-color) 55%, transparent);
+  color: color-mix(in srgb, var(--bs-body-color) 55%, var(--bs-body-bg));
   text-decoration: none;
   -webkit-touch-callout: none;
   -webkit-user-select: none;

@@ -19,8 +19,8 @@ export const usePrayersStore = defineStore('prayers', function () {
 
   const isCompactViewport = useIsMobile()
 
-  // Phones on the automatic layout get the times folded into the next-prayer card.
-  const compact = computed(() => layout.value === 'auto' && isCompactViewport.value)
+  // The automatic layout folds the times into the next-prayer card, on phones and desktop alike.
+  const compact = computed(() => layout.value === 'auto')
 
   const vertical = computed(() => {
     if (layout.value === 'list') return true

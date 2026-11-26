@@ -26,7 +26,12 @@ const radiosList = Object.entries(radiosData).map(([slug, station]) => ({
   </Page>
 
   <Page v-else>
-    <Heading title="الإذاعة" subtitle="استمع لإذاعات القرآن الكريم المختلفة حول العالم" :share="true" />
+    <Heading
+      subtitle-desktop-only
+      title="الإذاعة"
+      subtitle="استمع لإذاعات القرآن الكريم المختلفة حول العالم"
+      :share="true"
+    />
 
     <SearchableFavoritesList
       :items="radiosList"

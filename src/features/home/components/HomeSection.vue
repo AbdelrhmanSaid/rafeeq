@@ -55,7 +55,7 @@ defineProps({
 /* Muted so the section content, not its label, carries the screen. */
 .home-section__title {
   margin: 0;
-  color: color-mix(in srgb, var(--bs-body-color) 60%, transparent);
+  color: color-mix(in srgb, var(--bs-body-color) 60%, var(--bs-body-bg));
   font-size: 1rem;
   font-weight: 700;
   line-height: 1.3;
