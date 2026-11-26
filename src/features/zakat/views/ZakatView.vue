@@ -4,18 +4,10 @@ import { RouterLink, useRoute } from 'vue-router'
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
 import ZakatCalculatorCard from '@/features/zakat/components/ZakatCalculatorCard.vue'
-import {
-  IconCoins,
-  IconWheat,
-  IconGift,
-  IconBuildingStore,
-  IconDiamond,
-  IconPlant2,
-  IconUsersGroup,
-  IconHeartHandshake,
-} from '@tabler/icons-vue'
+import ZakatInputRow from '@/features/zakat/components/ZakatInputRow.vue'
+import { IconCoins, IconGift, IconBuildingStore, IconDiamond, IconPlant2, IconUsersGroup } from '@tabler/icons-vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
-import { formatNumber, formatCurrency } from '@/shared/utils/format'
+import { formatNumber } from '@/shared/utils/format'
 import {
   NISAB,
   goldPriceNisab,
@@ -51,6 +43,56 @@ const livestockResult = computed(() =>
   livestockZakat({ cows: livestockCows.value, sheep: livestockSheep.value, camels: livestockCamels.value }),
 )
 
+// Amounts are written as a plain number plus unit; Intl's currency format scrambles in RTL.
+const money = (value) => `${formatNumber(value)} ج.م`
+const hasValue = (value) => parseFloat(value) > 0
+const statusOf = (reached) => (reached ? 'reached' : 'below')
+
+const results = computed(() => ({
+  money: {
+    value: money(moneyResult.value),
+    hint: hasValue(goldPrice.value)
+      ? `٢٫٥٪ · النصاب ${money(moneyNisab.value)}`
+      : '٢٫٥٪ · أدخل سعر الذهب لمعرفة النصاب',
+    status:
+      hasValue(goldPrice.value) && hasValue(moneyAmount.value)
+        ? statusOf(parseFloat(moneyAmount.value) >= moneyNisab.value)
+        : null,
+  },
+  gold: {
+    value: `${formatNumber(goldResult.value)} جرام`,
+    hint: `٢٫٥٪ · النصاب ${toArabicNumerals(NISAB.gold)} جرام`,
+    status: hasValue(goldWeight.value) ? statusOf(parseFloat(goldWeight.value) >= NISAB.gold) : null,
+  },
+  silver: {
+    value: `${formatNumber(silverResult.value)} جرام`,
+    hint: `٢٫٥٪ · النصاب ${toArabicNumerals(NISAB.silver)} جرام`,
+    status: hasValue(silverWeight.value) ? statusOf(parseFloat(silverWeight.value) >= NISAB.silver) : null,
+  },
+  livestock: {
+    value: `${toArabicNumerals(livestockResult.value)} رأس`,
+    hint: 'حسب الأنصبة الشرعية لكل نوع',
+    status: [livestockCows, livestockSheep, livestockCamels].some((count) => hasValue(count.value))
+      ? statusOf(livestockResult.value > 0)
+      : null,
+  },
+  crops: {
+    value: `${formatNumber(cropsResult.value)} ~ ${formatNumber(cropsResult.value * 2)} كجم`,
+    hint: `٥٪ للمروية · ١٠٪ للمطرية · النصاب ${toArabicNumerals(NISAB.crops)} كجم`,
+    status: hasValue(cropsAmount.value) ? statusOf(parseFloat(cropsAmount.value) >= NISAB.crops) : null,
+  },
+  business: {
+    value: money(businessResult.value),
+    hint: hasValue(goldPrice.value)
+      ? `٢٫٥٪ · النصاب ${money(businessNisab.value)}`
+      : '٢٫٥٪ · أدخل سعر الذهب لمعرفة النصاب',
+    status:
+      hasValue(goldPrice.value) && hasValue(businessAmount.value)
+        ? statusOf(parseFloat(businessAmount.value) >= businessNisab.value)
+        : null,
+  },
+}))
+
 const tabs = [
   { id: 'money', title: 'المال والمدخرات', icon: IconCoins },
   { id: 'gold', title: 'الذهب', icon: IconGift },
@@ -80,8 +122,8 @@ const importance = [
 ]
 
 const infoCards = [
-  { title: 'مصارف الزكاة الثمانية', icon: IconHeartHandshake, items: recipients },
-  { title: 'أهمية الزكاة', icon: IconWheat, items: importance },
+  { title: 'مصارف الزكاة الثمانية', items: recipients },
+  { title: 'أهمية الزكاة', items: importance },
 ]
 
 const conditions = {
@@ -119,7 +161,13 @@ const conditions = {
 
 <template>
   <Page>
-    <Heading class="mb-4" title="حاسبة الزكاة" subtitle="خذ من أموالهم صدقة تطهرهم وتزكيهم بها" :share="true" />
+    <Heading
+      class="mb-4"
+      subtitle-desktop-only
+      title="حاسبة الزكاة"
+      subtitle="خذ من أموالهم صدقة تطهرهم وتزكيهم بها"
+      :share="true"
+    />
 
     <div class="zakat-layout">
       <nav class="zakat-nav tab-pills" aria-label="أنواع الزكاة">
@@ -137,179 +185,43 @@ const conditions = {
         </RouterLink>
       </nav>
 
-      <div class="zakat-content">
-        <ZakatCalculatorCard
-          v-if="activeTab === 'money'"
-          :icon="IconCoins"
-          title="زكاة المال والمدخرات"
-          :result="{ value: formatCurrency(moneyResult), hint: '٢.٥% من إجمالي المال' }"
-          conditions-title="شروط زكاة المال:"
-          :conditions="conditions.money"
-        >
-          <div class="mb-3">
-            <label class="form-label">سعر جرام الذهب (عيار ٢٤) بالجنيه المصري</label>
-            <input
-              v-model="goldPrice"
-              type="number"
-              class="form-control"
-              placeholder="أدخل السعر الحالي"
-              min="0"
-              step="0.01"
-            />
-          </div>
+      <ZakatCalculatorCard
+        :result="results[activeTab]"
+        :status="results[activeTab].status"
+        :conditions="conditions[activeTab]"
+      >
+        <template v-if="activeTab === 'money'">
+          <ZakatInputRow v-model="goldPrice" label="سعر جرام الذهب (عيار ٢٤)" unit="ج.م" />
+          <ZakatInputRow v-model="moneyAmount" label="إجمالي المال والمدخرات" unit="ج.م" />
+        </template>
 
-          <div>
-            <label class="form-label">إجمالي المال والمدخرات</label>
-            <input
-              v-model="moneyAmount"
-              type="number"
-              class="form-control"
-              placeholder="أدخل المبلغ"
-              min="0"
-              step="0.01"
-            />
-            <div class="form-text" v-if="goldPrice">النصاب: {{ formatCurrency(moneyNisab) }} جنيه مصري</div>
-          </div>
-        </ZakatCalculatorCard>
+        <ZakatInputRow v-else-if="activeTab === 'gold'" v-model="goldWeight" label="وزن الذهب" unit="جرام" />
 
-        <ZakatCalculatorCard
-          v-if="activeTab === 'gold'"
-          :icon="IconGift"
-          title="زكاة الذهب"
-          :result="{ value: `${formatNumber(goldResult)} جرام`, hint: '٢.٥% من وزن الذهب' }"
-          conditions-title="شروط زكاة الذهب:"
-          :conditions="conditions.gold"
-        >
-          <label class="form-label">وزن الذهب (بالجرام)</label>
-          <input v-model="goldWeight" type="number" class="form-control" placeholder="أدخل الوزن" min="0" step="0.1" />
-          <div class="form-text">النصاب: {{ toArabicNumerals(NISAB.gold) }} جرام</div>
-        </ZakatCalculatorCard>
+        <ZakatInputRow v-else-if="activeTab === 'silver'" v-model="silverWeight" label="وزن الفضة" unit="جرام" />
 
-        <ZakatCalculatorCard
-          v-if="activeTab === 'silver'"
-          :icon="IconDiamond"
-          title="زكاة الفضة"
-          :result="{ value: `${formatNumber(silverResult)} جرام`, hint: '٢.٥% من وزن الفضة' }"
-          conditions-title="شروط زكاة الفضة:"
-          :conditions="conditions.silver"
-        >
-          <label class="form-label">وزن الفضة (بالجرام)</label>
-          <input
-            v-model="silverWeight"
-            type="number"
-            class="form-control"
-            placeholder="أدخل الوزن"
-            min="0"
-            step="0.1"
-          />
-          <div class="form-text">النصاب: {{ toArabicNumerals(NISAB.silver) }} جرام</div>
-        </ZakatCalculatorCard>
+        <template v-else-if="activeTab === 'livestock'">
+          <ZakatInputRow v-model="livestockCows" label="عدد الأبقار" unit="رأس" step="1" />
+          <ZakatInputRow v-model="livestockSheep" label="عدد الأغنام" unit="رأس" step="1" />
+          <ZakatInputRow v-model="livestockCamels" label="عدد الإبل" unit="رأس" step="1" />
+        </template>
 
-        <ZakatCalculatorCard
-          v-if="activeTab === 'livestock'"
-          :icon="IconUsersGroup"
-          title="زكاة الأنعام"
-          :result="{ value: `${toArabicNumerals(livestockResult)} رأس`, hint: 'حسب الأنصبة الشرعية' }"
-          conditions-title="شروط زكاة الأنعام:"
-          :conditions="conditions.livestock"
-        >
-          <div class="row g-3">
-            <div class="col-sm-4">
-              <label class="form-label">عدد الأبقار</label>
-              <input v-model="livestockCows" type="number" class="form-control" placeholder="٠" min="0" />
-              <div class="form-text">النصاب: {{ toArabicNumerals(NISAB.cows) }}</div>
-            </div>
+        <ZakatInputRow v-else-if="activeTab === 'crops'" v-model="cropsAmount" label="كمية المحصول" unit="كجم" />
 
-            <div class="col-sm-4">
-              <label class="form-label">عدد الأغنام</label>
-              <input v-model="livestockSheep" type="number" class="form-control" placeholder="٠" min="0" />
-              <div class="form-text">النصاب: {{ toArabicNumerals(NISAB.sheep) }}</div>
-            </div>
+        <template v-else-if="activeTab === 'business'">
+          <ZakatInputRow v-model="goldPrice" label="سعر جرام الذهب (عيار ٢٤)" unit="ج.م" />
+          <ZakatInputRow v-model="businessAmount" label="قيمة البضائع والأصول التجارية" unit="ج.م" />
+        </template>
+      </ZakatCalculatorCard>
 
-            <div class="col-sm-4">
-              <label class="form-label">عدد الإبل</label>
-              <input v-model="livestockCamels" type="number" class="form-control" placeholder="٠" min="0" />
-              <div class="form-text">النصاب: {{ toArabicNumerals(NISAB.camels) }}</div>
-            </div>
-          </div>
-        </ZakatCalculatorCard>
-
-        <ZakatCalculatorCard
-          v-if="activeTab === 'crops'"
-          :icon="IconPlant2"
-          title="زكاة الزروع والثمار"
-          :result="{
-            value: `${formatNumber(cropsResult)} ~ ${formatNumber(cropsResult * 2)} كجم`,
-            hint: '١٠% (مطرية) أو ٥% (مروية)',
-          }"
-          conditions-title="شروط زكاة الزروع:"
-          :conditions="conditions.crops"
-        >
-          <label class="form-label">كمية المحصول (بالكيلوجرام)</label>
-          <input
-            v-model="cropsAmount"
-            type="number"
-            class="form-control"
-            placeholder="أدخل الكمية"
-            min="0"
-            step="0.1"
-          />
-          <div class="form-text">النصاب: {{ toArabicNumerals(NISAB.crops) }} كيلوجرام</div>
-        </ZakatCalculatorCard>
-
-        <ZakatCalculatorCard
-          v-if="activeTab === 'business'"
-          :icon="IconBuildingStore"
-          title="زكاة عروض التجارة"
-          :result="{ value: formatCurrency(businessResult), hint: '٢.٥% من قيمة البضائع' }"
-          conditions-title="شروط زكاة التجارة:"
-          :conditions="conditions.business"
-        >
-          <div class="mb-3">
-            <label class="form-label">سعر جرام الذهب (عيار ٢٤) بالجنيه المصري</label>
-            <input
-              v-model="goldPrice"
-              type="number"
-              class="form-control"
-              placeholder="أدخل السعر الحالي"
-              min="0"
-              step="0.01"
-            />
-          </div>
-
-          <div>
-            <label class="form-label">قيمة البضائع والأصول التجارية (بالجنيه المصري)</label>
-            <input
-              v-model="businessAmount"
-              type="number"
-              class="form-control"
-              placeholder="أدخل القيمة"
-              min="0"
-              step="0.01"
-            />
-            <div class="form-text" v-if="goldPrice">النصاب: {{ formatCurrency(businessNisab) }} جنيه مصري</div>
-          </div>
-        </ZakatCalculatorCard>
-
-        <div class="row g-3">
-          <div v-for="card in infoCards" :key="card.title" class="col-md-6">
-            <div class="card h-100 zakat-info">
-              <div class="card-body">
-                <div class="zakat-info__header">
-                  <span class="icon-tile zakat-info__icon"><component :is="card.icon" :size="18" /></span>
-                  <h4 class="zakat-info__title">{{ card.title }}</h4>
-                </div>
-                <ol class="zakat-info__list">
-                  <li v-for="(item, index) in card.items" :key="index">
-                    <span class="zakat-info__num">{{ toArabicNumerals(index + 1) }}</span>
-                    <span>{{ item }}</span>
-                  </li>
-                </ol>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <section v-for="card in infoCards" :key="card.title" class="zakat-info">
+        <h2 class="list-title">{{ card.title }}</h2>
+        <ol class="list-group">
+          <li v-for="(item, index) in card.items" :key="index" class="list-group-item zakat-info__row">
+            <span class="list-index">{{ toArabicNumerals(index + 1) }}</span>
+            <span>{{ item }}</span>
+          </li>
+        </ol>
+      </section>
     </div>
   </Page>
 </template>
@@ -343,64 +255,14 @@ const conditions = {
   border-color: transparent;
 }
 
-.zakat-content {
-  min-width: 0;
+.zakat-info {
+  margin-top: 0.5rem;
 }
 
-.zakat-content > :deep(.zakat-card) {
-  margin-bottom: 1.5rem;
-}
-
-.zakat-info__header {
+.zakat-info__row {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  margin-bottom: 1rem;
-}
-
-.zakat-info__icon {
-  color: var(--bs-primary);
-}
-
-[data-bs-theme='dark'] .zakat-info__icon {
-  color: color-mix(in srgb, var(--bs-primary) 28%, #fff);
-}
-
-.zakat-info__title {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.zakat-info__list {
-  display: grid;
-  gap: 0.5rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.9rem;
-}
-
-.zakat-info__list li {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-}
-
-.zakat-info__num {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 50%;
-  background: var(--app-tint);
-  color: var(--bs-primary);
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-[data-bs-theme='dark'] .zakat-info__num {
-  color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
+  gap: 0.75rem;
+  min-height: 3rem;
 }
 </style>
