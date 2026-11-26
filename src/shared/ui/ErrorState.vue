@@ -1,29 +1,19 @@
 <script setup>
-import { toArabicNumerals } from '@/shared/utils/arabic'
+import { IconAlertTriangle } from '@tabler/icons-vue'
+import StatePanel from '@/shared/ui/StatePanel.vue'
 
 defineProps({
-  code: {
-    type: Number,
-  },
-  icon: {
-    type: [Object, Function],
-    default: null,
-  },
-  message: {
-    type: String,
-    default: 'حدث خطأ، برجاء المحاولة في وقت لاحق.',
-  },
+  // Icons are functions, so the default must return one; Vue would otherwise call it as a factory.
+  icon: { type: [Object, Function], default: () => IconAlertTriangle },
+  title: { type: String, default: 'تعذّر التحميل' },
+  message: { type: String, default: 'حدث خطأ غير متوقع، برجاء المحاولة مرة أخرى.' },
+  // Shows a "try again" button when given.
+  retry: { type: Function, default: null },
 })
 </script>
 
 <template>
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-lg-6 text-center">
-        <component v-if="icon" :is="icon" size="3rem" class="mb-3" />
-        <h1 v-if="code" class="display-1">{{ toArabicNumerals(code) }}</h1>
-        <p class="lead">{{ message }}</p>
-      </div>
-    </div>
-  </div>
+  <StatePanel :icon="icon" :title="title" :message="message">
+    <button v-if="retry" type="button" class="btn btn-soft" @click="retry">إعادة المحاولة</button>
+  </StatePanel>
 </template>

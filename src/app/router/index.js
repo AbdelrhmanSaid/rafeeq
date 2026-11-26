@@ -1,5 +1,3 @@
-import nProgress from 'nprogress'
-
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/features/home/views/HomeView.vue'
 import NotFoundView from '@/app/views/NotFoundView.vue'
@@ -197,14 +195,6 @@ const router = createRouter({
   ]),
 })
 
-nProgress.configure({ showSpinner: false })
-
-router.beforeEach((to) => {
-  if (!to.path.startsWith('/embed')) {
-    nProgress.start()
-  }
-})
-
 router.afterEach((to) => {
   const themeStore = useThemeStore()
   if (to.path.startsWith('/embed')) {
@@ -212,8 +202,6 @@ router.afterEach((to) => {
   } else {
     themeStore.clearQueryOverrides()
   }
-
-  nProgress.done()
 
   useMeta(to.meta)
 

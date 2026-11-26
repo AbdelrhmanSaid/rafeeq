@@ -17,7 +17,7 @@ const { enabled, loading, state, toggle } = usePushNotifications()
     <button
       type="button"
       class="btn btn-sm d-inline-flex align-items-center gap-2"
-      :class="enabled ? 'btn-danger' : 'btn-primary'"
+      :class="enabled ? 'btn-soft text-danger' : 'btn-soft'"
       :disabled="loading"
       @click="toggle"
     >

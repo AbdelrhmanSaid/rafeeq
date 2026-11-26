@@ -1,6 +1,5 @@
 <script setup>
 import { computed } from 'vue'
-import { IconCompass } from '@tabler/icons-vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import { getShortestRotation, getTapeTicks, normalizeAngle } from '@/features/qibla/lib/qibla'
 
@@ -22,10 +21,15 @@ const props = defineProps({
   // A live compass: the tape follows the phone. Without one the tape rests on the qibla bearing.
   live: { type: Boolean, default: false },
   compassError: { type: String, default: null },
-  canRequestPermission: { type: Boolean, default: false },
+  // A short warning under the hint, like asking to hold the phone upright or to calibrate.
+  notice: { type: String, default: null },
+  // The bearing comes from the location saved for prayer times because a fresh fix failed.
+  savedLocation: { type: Boolean, default: false },
+  // A fresh location fix is on its way; until it lands the saved location is in use.
+  refreshingLocation: { type: Boolean, default: false },
 })
 
-defineEmits(['request-permission'])
+defineEmits(['refresh-location'])
 
 const centerDegree = computed(() => (props.live ? props.heading : props.qiblaDirection))
 const ticks = computed(() => getTapeTicks(centerDegree.value, HALF_RANGE, 5))
@@ -34,14 +38,16 @@ const ticks = computed(() => getTapeTicks(centerDegree.value, HALF_RANGE, 5))
 const turn = computed(() => getShortestRotation(centerDegree.value, props.qiblaDirection))
 const isFacing = computed(() => props.live && Math.abs(turn.value) <= FACING_TOLERANCE)
 
-// The Kaaba marker sits on the tape at the qibla bearing, or waits at the nearer edge when it's out of view.
-const kaabaX = computed(() => {
-  const offset = Math.max(-HALF_RANGE, Math.min(HALF_RANGE, turn.value))
-  return CENTER + offset * PX_PER_DEGREE
-})
-const kaabaOutOfView = computed(() => Math.abs(turn.value) > HALF_RANGE)
+// The Kaaba marker sits on the tape at the qibla bearing while that's within ±EDGE_OFFSET, the part of the tape that
+// isn't faded. Further out it becomes an arrow at that edge pointing the way to turn, so the marker never sits over
+// the wrong tick.
+const EDGE_OFFSET = 32
+const kaabaOutOfView = computed(() => Math.abs(turn.value) > EDGE_OFFSET)
+const kaabaX = computed(() => CENTER + turn.value * PX_PER_DEGREE)
+const arrowX = computed(() => CENTER + Math.sign(turn.value) * EDGE_OFFSET * PX_PER_DEGREE)
 
-const degrees = (value) => `${toArabicNumerals(Math.round(normalizeAngle(value)))}°`
+// Rounded after wrapping, so 359.6° reads 0° rather than 360°.
+const degrees = (value) => `${toArabicNumerals(Math.round(normalizeAngle(value)) % 360)}°`
 const distanceLabel = computed(() =>
   props.distance == null ? '' : `${Math.round(props.distance).toLocaleString('ar-EG')} كم إلى مكة`,
 )
@@ -72,11 +78,17 @@ const turnAmount = computed(() => `${toArabicNumerals(Math.round(Math.abs(turn.v
         </text>
       </g>
 
-      <!-- The Kaaba: a dark cube with its gold band. -->
-      <g class="qibla__kaaba" :class="{ 'is-away': kaabaOutOfView }" :transform="`translate(${kaabaX} 24)`">
+      <!-- The Kaaba: a dark cube with its gold band. Out of view, an arrow at the edge points the way to turn. -->
+      <g v-if="!kaabaOutOfView" class="qibla__kaaba" :transform="`translate(${kaabaX} 24)`">
         <rect x="-10" y="-10" width="20" height="20" rx="2.5" class="qibla__kaaba-body" />
         <rect x="-10" y="-4" width="20" height="3.5" class="qibla__kaaba-band" />
       </g>
+      <path
+        v-else
+        class="qibla__arrow"
+        :transform="`translate(${arrowX} 24) scale(${turn > 0 ? 1 : -1} 1)`"
+        d="M-4 -8 L4 0 L-4 8"
+      />
 
       <line :x1="CENTER" :x2="CENTER" y1="8" y2="70" class="qibla__center" />
     </svg>
@@ -91,11 +103,11 @@ const turnAmount = computed(() => `${toArabicNumerals(Math.round(Math.abs(turn.v
         <span v-if="compassError" class="d-block">{{ compassError }}</span>
       </template>
     </p>
+    <p v-if="notice" class="qibla__notice">{{ notice }}</p>
     <p v-if="distanceLabel" class="qibla__distance">{{ distanceLabel }}</p>
-
-    <button v-if="canRequestPermission" class="btn btn-primary mt-3" @click="$emit('request-permission')">
-      <IconCompass class="me-2" size="1.25rem" />
-      تفعيل البوصلة
+    <p v-if="savedLocation && refreshingLocation" class="qibla__distance">حسب موقعك المحفوظ · جاري تحديث الموقع…</p>
+    <button v-else-if="savedLocation" type="button" class="qibla__location" @click="$emit('refresh-location')">
+      حسب موقعك المحفوظ · تحديث الموقع
     </button>
   </div>
 </template>
@@ -126,6 +138,22 @@ const turnAmount = computed(() => `${toArabicNumerals(Math.round(Math.abs(turn.v
   font-weight: 700;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
+}
+
+.qibla__location {
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border: 0;
+  background: none;
+  color: var(--qibla-accent);
+  font-size: 0.875rem;
+}
+
+.qibla__notice {
+  max-width: 18rem;
+  margin: 0 0 0.5rem;
+  color: var(--bs-warning-text-emphasis);
+  font-size: 0.875rem;
 }
 
 .qibla__caption,
@@ -166,8 +194,12 @@ const turnAmount = computed(() => `${toArabicNumerals(Math.round(Math.abs(turn.v
   transition: stroke 0.3s ease;
 }
 
-.qibla__kaaba.is-away {
-  opacity: 0.5;
+.qibla__arrow {
+  fill: none;
+  stroke: var(--qibla-accent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .qibla__kaaba-body {

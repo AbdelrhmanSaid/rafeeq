@@ -45,7 +45,7 @@ usePageMeta(
     <div v-if="!station" class="text-center py-5 px-3">
       <div class="display-1 mb-4 opacity-50">📻</div>
       <Heading title="لم يتم العثور على الإذاعة" subtitle="يمكنك العودة لقائمة الإذاعات المتاحة." />
-      <BackButton :to="{ name: 'radio' }" label="العودة إلى الإذاعات" button-class="btn-primary" />
+      <BackButton :to="{ name: 'radio' }" label="العودة إلى الإذاعات" button-class="btn-soft" />
     </div>
 
     <RadioPlayer

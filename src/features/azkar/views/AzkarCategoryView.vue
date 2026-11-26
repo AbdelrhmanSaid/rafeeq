@@ -1,10 +1,10 @@
 <script setup>
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import { onBeforeRouteLeave } from 'vue-router'
+import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { useConfirmDialog } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
-import { IconDoorExit, IconArrowBackUp, IconRestore } from '@tabler/icons-vue'
+import { IconDoorExit, IconArrowBackUp, IconRestore, IconBookOff } from '@tabler/icons-vue'
 
 import { useAppStore } from '@/app/stores/app'
 
@@ -12,6 +12,7 @@ import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
 import AsyncContent from '@/shared/ui/AsyncContent.vue'
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
+import StatePanel from '@/shared/ui/StatePanel.vue'
 import ZekrCard from '@/features/azkar/components/ZekrCard.vue'
 import { useAsyncData } from '@/shared/composables/useAsyncData'
 import { usePageMeta } from '@/shared/composables/usePageMeta'
@@ -19,12 +20,18 @@ import { useAzkarProgress } from '@/features/azkar/composables/useAzkarProgress'
 import { useScreenWakeLock } from '@/shared/composables/useScreenWakeLock'
 import { fetchCategory } from '@/features/azkar/api'
 
+const router = useRouter()
 const { zekrSaveProgress, zekrConfirmOnLeave } = storeToRefs(useAppStore())
 
 const slug = useRouteParams('category')
 const { counts, reset: resetProgress } = useAzkarProgress(slug, zekrSaveProgress.value)
 
-const { data: category, error, pending: isFetching } = useAsyncData(() => fetchCategory(slug.value))
+const {
+  data: category,
+  error,
+  pending: isFetching,
+  execute: reloadCategory,
+} = useAsyncData(() => fetchCategory(slug.value))
 
 usePageMeta(
   () =>
@@ -56,7 +63,7 @@ onBeforeRouteLeave(async () => {
 </script>
 
 <template>
-  <AsyncContent :pending="isFetching" :error="error" loading-message="جاري تحميل الأذكار...">
+  <AsyncContent :pending="isFetching" :error="error" :retry="reloadCategory" loading-message="جاري تحميل الأذكار...">
     <Page v-if="category">
       <Heading class="mb-4" :title="category.meta.name" :subtitle="category.meta.description" :share="true" />
 
@@ -78,6 +85,13 @@ onBeforeRouteLeave(async () => {
           <span>تصفير الكل</span>
         </button>
       </div>
+    </Page>
+
+    <!-- An unknown category loads empty rather than failing, so it gets its own state instead of a blank screen. -->
+    <Page v-else class="full-height missing-category">
+      <StatePanel :icon="IconBookOff" title="الباب غير موجود" message="لم نعثر على هذا الباب من الأذكار.">
+        <button type="button" class="btn btn-soft" @click="router.push({ name: 'azkar' })">كل الأذكار</button>
+      </StatePanel>
     </Page>
   </AsyncContent>
 
@@ -101,6 +115,11 @@ onBeforeRouteLeave(async () => {
 </template>
 
 <style scoped>
+.missing-category {
+  display: grid;
+  place-items: center;
+}
+
 /* Skip rendering off-screen cards in long categories. */
 .zekr-card-lazy {
   content-visibility: auto;

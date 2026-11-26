@@ -9,21 +9,31 @@ defineProps({
   pending: { type: Boolean, default: false },
   error: { type: [Object, Error], default: null },
   loadingMessage: { type: String, default: undefined },
-  errorMessage: { type: String, default: 'حدث خطأ أثناء تحميل البيانات، برجاء المحاولة في وقت لاحق.' },
+  errorMessage: { type: String, default: 'حدث خطأ أثناء تحميل البيانات، برجاء المحاولة مرة أخرى.' },
+  // Reloads the content; offered as a "try again" button on the error and offline states.
+  retry: { type: Function, default: null },
 })
 
 const online = useOnline()
 </script>
 
 <template>
-  <Page v-if="pending">
+  <!-- Loading and failure fill the screen and sit in its centre. -->
+  <Page v-if="pending" class="full-height async-state">
     <LoadingState :message="loadingMessage" />
   </Page>
 
-  <Page v-else-if="error">
-    <OfflineState v-if="!online" />
-    <ErrorState v-else :code="500" :message="errorMessage" />
+  <Page v-else-if="error" class="full-height async-state">
+    <OfflineState v-if="!online" :retry="retry" />
+    <ErrorState v-else :message="errorMessage" :retry="retry" />
   </Page>
 
   <slot v-else />
 </template>
+
+<style scoped>
+.async-state {
+  display: grid;
+  place-items: center;
+}
+</style>

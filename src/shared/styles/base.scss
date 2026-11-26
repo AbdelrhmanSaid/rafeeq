@@ -34,7 +34,6 @@
 
 @import 'fonts';
 
-@import 'nprogress/nprogress';
 @import 'overrides';
 
 :root {
@@ -150,18 +149,6 @@ body {
   background-attachment: fixed;
   /* Disable native pull-to-refresh and top-edge scroll glow. */
   overscroll-behavior-y: contain;
-}
-
-/* Keep the route progress bar below the status bar / notch. */
-#nprogress .bar {
-  top: env(safe-area-inset-top, 0px);
-  background: var(--bs-primary);
-}
-
-#nprogress .peg {
-  box-shadow:
-    0 0 10px var(--bs-primary),
-    0 0 5px var(--bs-primary);
 }
 
 ::selection {

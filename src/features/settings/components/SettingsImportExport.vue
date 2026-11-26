@@ -65,11 +65,7 @@ async function importSettings(event) {
     :icon="IconRestore"
   >
     <div class="d-flex gap-2">
-      <button
-        type="button"
-        class="btn btn-sm btn-primary d-inline-flex align-items-center gap-2"
-        @click="exportSettings"
-      >
+      <button type="button" class="btn btn-sm btn-soft d-inline-flex align-items-center gap-2" @click="exportSettings">
         <IconFileExport size="18" />
         <span>تصدير الإعدادات</span>
       </button>

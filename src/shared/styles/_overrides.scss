@@ -24,21 +24,6 @@ html[dir='rtl'],
   --bs-btn-disabled-border-color: var(--bs-primary);
 }
 
-.btn-outline-primary {
-  --bs-btn-color: var(--bs-primary);
-  --bs-btn-border-color: var(--bs-primary);
-  --bs-btn-hover-color: #fff;
-  --bs-btn-hover-bg: var(--bs-primary);
-  --bs-btn-hover-border-color: var(--bs-primary);
-  --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
-  --bs-btn-active-color: #fff;
-  --bs-btn-active-bg: color-mix(in srgb, var(--bs-primary) 88%, #000);
-  --bs-btn-active-border-color: color-mix(in srgb, var(--bs-primary) 80%, #000);
-  --bs-btn-disabled-color: var(--bs-primary);
-  --bs-btn-disabled-bg: transparent;
-  --bs-btn-disabled-border-color: var(--bs-primary);
-}
-
 .dropdown-menu {
   --bs-dropdown-bg: var(--app-surface);
   --bs-dropdown-border-color: var(--app-hairline);
@@ -217,4 +202,28 @@ html[dir='rtl'] input[type='number']::placeholder {
 [data-bs-theme='dark'] .form-switch .form-check-input:not(:checked):not(:focus),
 .form-switch .form-check-input:not(:checked):focus {
   --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3.25' fill='%23fff' stroke='rgba(0,0,0,.06)' stroke-width='.15'/%3e%3c/svg%3e");
+}
+
+/* Soft tinted button for secondary actions: a light brand fill, brand text, no border.
+   Solid btn-primary is kept for the one main action on a screen. */
+.btn-soft {
+  --bs-btn-color: var(--bs-primary);
+  --bs-btn-bg: var(--app-tint);
+  --bs-btn-border-color: transparent;
+  --bs-btn-hover-color: var(--bs-primary);
+  --bs-btn-hover-bg: var(--app-tint-strong);
+  --bs-btn-hover-border-color: transparent;
+  --bs-btn-active-color: var(--bs-primary);
+  --bs-btn-active-bg: color-mix(in srgb, var(--bs-primary) 22%, transparent);
+  --bs-btn-active-border-color: transparent;
+  --bs-btn-disabled-color: var(--bs-primary);
+  --bs-btn-disabled-bg: var(--app-tint);
+  --bs-btn-disabled-border-color: transparent;
+}
+
+[data-bs-theme='dark'] .btn-soft {
+  --bs-btn-color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
+  --bs-btn-hover-color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
+  --bs-btn-active-color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
+  --bs-btn-disabled-color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
 }

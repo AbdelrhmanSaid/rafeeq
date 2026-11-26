@@ -62,7 +62,7 @@ watch([() => props.ayah, edition], ([ayah]) => {
 
       <OfflineState v-else-if="!online && !tafsir" />
 
-      <ErrorState v-else-if="error" :code="500" message="حدث خطأ أثناء تحميل التفسير، برجاء المحاولة مرة أخرى." />
+      <ErrorState v-else-if="error" message="حدث خطأ أثناء تحميل التفسير، برجاء المحاولة مرة أخرى." :retry="execute" />
 
       <template v-else-if="displayAyah && tafsir">
         <p class="mb-0">{{ tafsir.text }}</p>

@@ -136,7 +136,7 @@ useScreenWakeLock()
 </script>
 
 <template>
-  <AsyncContent :pending="isFetching" :error="error" loading-message="جاري تحميل السورة...">
+  <AsyncContent :pending="isFetching" :error="error" :retry="reloadSurah" loading-message="جاري تحميل السورة...">
     <Page class="quran-page" v-if="surah">
       <Heading
         :title="normalizeQuranicText(surah.data.name)"
@@ -183,7 +183,7 @@ useScreenWakeLock()
           <span>السابقة</span>
         </RouterLink>
 
-        <BackButton :to="{ name: 'quran' }" button-class="btn-primary" />
+        <BackButton :to="{ name: 'quran' }" button-class="btn-soft" />
 
         <RouterLink
           :to="{ name: 'quran-surah', params: { surah: surahNumber + 1 } }"

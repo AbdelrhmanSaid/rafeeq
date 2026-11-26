@@ -102,8 +102,8 @@ async function toggleAyahPlayback() {
     </div>
 
     <div v-else-if="error" class="card-body p-5">
-      <OfflineState v-if="!online" />
-      <ErrorState :code="500" message="حدث خطأ أثناء تحميل الآية، برجاء المحاولة مرة أخرى." v-else />
+      <OfflineState v-if="!online" :retry="execute" />
+      <ErrorState v-else message="حدث خطأ أثناء تحميل الآية، برجاء المحاولة مرة أخرى." :retry="execute" />
     </div>
 
     <template v-else-if="ayah">
