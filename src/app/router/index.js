@@ -50,6 +50,7 @@ const router = createRouter({
       path: '/quran/:surah(\\d+)',
       name: 'quran-surah',
       component: () => import('@/features/quran/views/QuranSurahView.vue'),
+      meta: { parent: 'quran' },
     },
 
     {
@@ -68,6 +69,7 @@ const router = createRouter({
       path: '/azkar/:category',
       name: 'azkar-category',
       component: () => import('@/features/azkar/views/AzkarCategoryView.vue'),
+      meta: { parent: 'azkar' },
     },
 
     {
@@ -86,6 +88,7 @@ const router = createRouter({
       path: '/radio/:slug',
       name: 'radio-station',
       component: () => import('@/features/radio/views/RadioStationView.vue'),
+      meta: { parent: 'radio' },
     },
 
     {
@@ -93,6 +96,7 @@ const router = createRouter({
       name: 'sebha',
       component: () => import('@/features/sebha/views/SebhaView.vue'),
       meta: {
+        parent: 'more',
         title: 'السبحة الإلكترونية',
         description: 'سبحة إلكترونية بسيطة وسهلة الاستخدام لمساعدتك في المداومة على ذكر الله في أي وقت.',
         keywords: ['سبحة', 'تسبيح', 'عداد', 'ذكر'],
@@ -104,6 +108,7 @@ const router = createRouter({
       name: 'qibla',
       component: () => import('@/features/qibla/views/QiblaView.vue'),
       meta: {
+        parent: 'more',
         title: 'اتجاه القبلة',
         description: 'حدد اتجاه القبلة بسهولة باستخدام البوصلة الإلكترونية ومعرفة الاتجاه الصحيح للصلاة.',
         keywords: ['قبلة', 'اتجاه القبلة', 'بوصلة', 'صلاة', 'مكة'],
@@ -115,6 +120,7 @@ const router = createRouter({
       name: 'zakat',
       component: () => import('@/features/zakat/views/ZakatView.vue'),
       meta: {
+        parent: 'more',
         paramTabs: true,
         title: 'حساب الزكاة',
         description: 'احسب زكاة مالك، الذهب، والفضة بسهولة ودقة وفقاً للضوابط الشرعية.',
@@ -127,9 +133,22 @@ const router = createRouter({
       name: 'settings',
       component: () => import('@/features/settings/views/SettingsView.vue'),
       meta: {
+        parent: 'more',
         title: 'الإعدادات',
         description: 'تخصيص إعدادات تطبيق رفيق بما يناسب احتياجاتك وتفضيلاتك.',
         keywords: ['إعدادات', 'تخصيص', 'خيارات'],
+      },
+    },
+
+    {
+      noEmbed: true,
+      path: '/more',
+      name: 'more',
+      component: () => import('@/features/more/views/MoreView.vue'),
+      meta: {
+        title: 'المزيد',
+        description: 'أدوات رفيق الإضافية، الإعدادات، وروابط التواصل والدعم.',
+        keywords: ['رفيق', 'المزيد', 'أدوات'],
       },
     },
 
@@ -138,6 +157,7 @@ const router = createRouter({
       name: 'privacy',
       component: () => import('@/app/views/PrivacyPolicyView.vue'),
       meta: {
+        parent: 'more',
         title: 'سياسة الخصوصية',
         description: 'تعرف على كيفية حماية تطبيق رفيق لبياناتك وخصوصيتك.',
         keywords: ['خصوصية', 'بيانات', 'أمان'],
@@ -163,6 +183,8 @@ const router = createRouter({
     },
   ]),
 })
+
+nProgress.configure({ showSpinner: false })
 
 router.beforeEach((to) => {
   if (!to.path.startsWith('/embed')) {

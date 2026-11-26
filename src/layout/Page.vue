@@ -6,7 +6,8 @@
 
 <style lang="scss" scoped>
 .page-container {
-  padding-block: 2rem;
+  /* The app bar above already gives the page its top breathing room. */
+  padding-block: 0.25rem 2rem;
   animation: page-enter 0.35s var(--app-ease) both;
 }
 

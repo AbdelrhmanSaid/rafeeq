@@ -1,19 +1,20 @@
 import {
-  IconHome,
+  IconSmartHome,
   IconBook,
   IconSparkles,
-  IconRadio,
+  IconBroadcast,
   IconCompass,
   IconCoins,
   IconAbacus,
   IconSettings,
+  IconLayoutGrid,
 } from '@tabler/icons-vue'
 
 export const navigation = [
   {
     name: 'home',
     label: 'الرئيسية',
-    icon: IconHome,
+    icon: IconSmartHome,
     menus: ['navbar', 'tabbar'],
   },
   {
@@ -31,8 +32,14 @@ export const navigation = [
   {
     name: 'radio',
     label: 'الإذاعة',
-    icon: IconRadio,
+    icon: IconBroadcast,
     menus: ['navbar', 'tabbar'],
+  },
+  {
+    name: 'more',
+    label: 'المزيد',
+    icon: IconLayoutGrid,
+    menus: ['tabbar'],
   },
   {
     name: 'qibla',
@@ -56,6 +63,6 @@ export const navigation = [
     name: 'settings',
     label: 'الإعدادات',
     icon: IconSettings,
-    menus: ['navbar-more', 'tabbar-more'],
+    menus: ['navbar-more'],
   },
 ]

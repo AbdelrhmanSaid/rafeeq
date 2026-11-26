@@ -39,7 +39,8 @@
 @import 'overrides';
 
 :root {
-  --navbar-height: 70px;
+  --navbar-height: 64px;
+  --appbar-height: 3.5rem;
   --app-body-bg-base: #fff;
   --bs-body-bg: color-mix(in srgb, var(--app-body-bg-base) 96%, var(--bs-primary));
   --bs-secondary-color: rgba(33, 37, 41, 0.85);
@@ -145,6 +146,18 @@ body {
   background-attachment: fixed;
   /* Disable native pull-to-refresh and top-edge scroll glow. */
   overscroll-behavior-y: contain;
+}
+
+/* Keep the route progress bar below the status bar / notch. */
+#nprogress .bar {
+  top: env(safe-area-inset-top, 0px);
+  background: var(--bs-primary);
+}
+
+#nprogress .peg {
+  box-shadow:
+    0 0 10px var(--bs-primary),
+    0 0 5px var(--bs-primary);
 }
 
 ::selection {
@@ -390,6 +403,16 @@ body {
   min-height: calc(100vh - var(--navbar-height));
   /* Use the visible mobile viewport and reserved home-indicator inset. */
   min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-bottom, 0px));
+
+  /* Phones also stack the app bar and its status-bar inset on top. */
+  @media (max-width: 767.98px) {
+    min-height: calc(
+      100dvh - var(--navbar-height) - var(--appbar-height) - env(safe-area-inset-top, 0px) - env(
+          safe-area-inset-bottom,
+          0px
+        )
+    );
+  }
 }
 
 .tab-pills {

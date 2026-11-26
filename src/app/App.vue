@@ -1,6 +1,7 @@
 <script setup>
 import { RouterView, useRoute } from 'vue-router'
 import Navbar from '@/layout/Navbar.vue'
+import AppBar from '@/layout/AppBar.vue'
 import Footer from '@/layout/Footer.vue'
 import TabBar from '@/layout/TabBar.vue'
 import InstallBanner from '@/app/pwa/InstallBanner.vue'
@@ -72,6 +73,7 @@ const updateSW = registerSW({
     </div>
 
     <Navbar class="d-none d-md-block" v-if="!isEmbedRoute" />
+    <AppBar class="d-md-none" v-if="!isEmbedRoute" />
 
     <div class="main-content">
       <RouterView />
@@ -123,6 +125,14 @@ const updateSW = registerSW({
 
 .offline-banner + .navbar {
   top: 50px;
+}
+
+/* On phones the app bar owns the top edge; the banner scrolls away above it instead of stacking. */
+@media (max-width: 767.98px) {
+  .offline-banner {
+    position: relative;
+    padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
+  }
 }
 
 .main-content {
