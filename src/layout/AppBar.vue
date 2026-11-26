@@ -18,7 +18,9 @@ const title = computed(() => pageHeader.title || route.meta.title || '')
 
 const scrolled = ref(false)
 const largeTitleHidden = ref(false)
-const showTitle = computed(() => Boolean(title.value) && (!hasLargeTitle.value || largeTitleHidden.value))
+// The bar's title only ever takes over from a large title scrolled under it. Showing the route title as a fallback
+// made it flash on a direct load: visible until the page mounted and registered its large title, then hidden.
+const showTitle = computed(() => Boolean(title.value) && hasLargeTitle.value && largeTitleHidden.value)
 
 let frame = 0
 

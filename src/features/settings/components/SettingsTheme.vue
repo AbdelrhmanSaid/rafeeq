@@ -80,7 +80,7 @@ const colors = [
 
 .color-option.active {
   background: rgba(var(--bs-secondary-rgb), 0.1);
-  border-color: var(--bs-border-color);
+  border-color: var(--app-hairline);
 }
 
 .color-dot {

@@ -101,9 +101,10 @@ const formatAyahCount = (count) => {
   width: 100%;
   margin-bottom: 1rem;
   padding: 1rem;
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
-  background-color: rgba(var(--bs-primary-rgb), 0.06);
+  border: 1px solid var(--app-hairline);
+  border-radius: var(--bs-border-radius-lg);
+  background-color: color-mix(in srgb, var(--bs-primary) 6%, var(--app-surface));
+  box-shadow: var(--app-shadow-card);
   color: var(--bs-body-color);
   text-decoration: none;
   transition:
@@ -112,8 +113,8 @@ const formatAyahCount = (count) => {
 
   @media (hover: hover) and (pointer: fine) {
     &:hover {
-      background-color: rgba(var(--bs-primary-rgb), 0.12);
-      border-color: rgba(var(--bs-primary-rgb), 0.5);
+      background-color: color-mix(in srgb, var(--bs-primary) 10%, var(--app-surface));
+      border-color: var(--app-hairline-strong);
     }
   }
 

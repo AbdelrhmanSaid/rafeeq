@@ -261,7 +261,7 @@ useScreenWakeLock()
       &::after {
         content: '';
         flex: 1;
-        border-bottom: 1px solid var(--bs-border-color);
+        border-bottom: 1px solid var(--app-hairline);
       }
 
       .page-number {
@@ -270,7 +270,7 @@ useScreenWakeLock()
         color: var(--bs-gray-600);
         font-family: 'Thmanyah Sans', sans-serif;
         white-space: nowrap;
-        border: 1px solid var(--bs-border-color);
+        border: 1px solid var(--app-hairline);
         border-radius: var(--bs-border-radius-pill);
       }
     }

@@ -97,7 +97,7 @@ const links = [
 .more-list {
   overflow: hidden;
   border: 1px solid var(--app-hairline);
-  border-radius: var(--bs-border-radius-xl);
+  border-radius: var(--bs-border-radius-lg);
   background: var(--app-surface);
   box-shadow: var(--app-shadow-card);
 }

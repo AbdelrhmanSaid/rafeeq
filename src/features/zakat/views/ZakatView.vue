@@ -246,7 +246,7 @@ const conditions = {
 .zakat-nav-item {
   width: auto;
   flex-shrink: 0;
-  border-color: var(--bs-border-color);
+  border-color: var(--app-hairline);
   padding: 0.5rem 0.9rem;
   font-size: 0.85rem;
 }

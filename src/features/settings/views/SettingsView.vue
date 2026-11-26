@@ -107,7 +107,7 @@ const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab)
 .settings-group {
   overflow: hidden;
   border: 1px solid var(--app-hairline);
-  border-radius: var(--bs-border-radius-xl);
+  border-radius: var(--bs-border-radius-lg);
   background: var(--app-surface);
   box-shadow: var(--app-shadow-card);
 }

@@ -81,7 +81,7 @@ function increase() {
   justify-content: center;
   width: 2.25rem;
   height: 2.25rem;
-  border: 1px solid var(--bs-border-color);
+  border: 1px solid var(--app-hairline);
   border-radius: var(--bs-border-radius-sm);
   background: none;
   color: var(--bs-body-color);
@@ -113,7 +113,7 @@ function increase() {
 .font-preview {
   text-align: center;
   color: var(--bs-secondary-color);
-  border-top: 1px solid var(--bs-border-color);
+  border-top: 1px solid var(--app-hairline);
   padding-top: 0.75rem;
 }
 </style>

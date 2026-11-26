@@ -248,6 +248,7 @@ const nextPrayerTime = computed(() => {
   overflow: hidden;
   padding: 1.35rem 1.35rem 1.25rem;
   border-radius: var(--bs-border-radius-lg);
+  box-shadow: var(--app-shadow-card);
   background:
     radial-gradient(28rem 14rem at 100% 0, rgba(255, 255, 255, 0.18), transparent 70%),
     linear-gradient(135deg, var(--bs-primary), color-mix(in srgb, var(--bs-primary) 72%, #000));
@@ -410,7 +411,7 @@ const nextPrayerTime = computed(() => {
 
 .prayer-row {
   border: 1px solid var(--app-hairline);
-  border-radius: var(--bs-border-radius);
+  border-radius: var(--bs-border-radius-lg);
   background-color: var(--app-surface);
   box-shadow: var(--app-shadow-card);
   transition:

@@ -187,10 +187,6 @@ html[dir='rtl'] input[type='number']::placeholder {
 }
 /*! rtl:end:ignore */
 
-.card {
-  --bs-card-border-color: var(--bs-border-color);
-}
-
 /* iOS-style switches: a pill track, a white knob, the brand colour when on. */
 .form-switch {
   min-height: 0;

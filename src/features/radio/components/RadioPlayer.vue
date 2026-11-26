@@ -140,6 +140,7 @@ const STARS = [
   overflow: hidden;
   height: 15rem;
   border-radius: var(--bs-border-radius-lg);
+  box-shadow: var(--app-shadow-card);
   /* A soft light at the top, like the prayer card, over a sky that deepens towards the skyline. */
   background:
     radial-gradient(28rem 12rem at 50% 0, rgba(255, 255, 255, 0.16), transparent 70%),

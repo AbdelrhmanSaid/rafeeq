@@ -41,6 +41,7 @@ defineProps({
   gap: 0.25rem;
   padding: 1.25rem 1.35rem;
   border-radius: var(--bs-border-radius-lg);
+  box-shadow: var(--app-shadow-card);
   background:
     radial-gradient(28rem 14rem at 100% 0, rgba(255, 255, 255, 0.18), transparent 70%),
     linear-gradient(135deg, var(--bs-primary), color-mix(in srgb, var(--bs-primary) 72%, #000));
