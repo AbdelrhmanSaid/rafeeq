@@ -26,11 +26,11 @@ const items = categories.map((category, index) => ({ ...category, id: index + 1 
       label="تبحث عن باب معين؟"
     >
       <template #favorites-title>
-        <h5 class="mb-3">الأبواب المفضلة</h5>
+        <h2 class="list-title">الأبواب المفضلة</h2>
       </template>
 
       <template #all-title>
-        <h5 class="mb-3">كل الأبواب</h5>
+        <h2 class="list-title">كل الأبواب</h2>
       </template>
 
       <template #default="{ item }">

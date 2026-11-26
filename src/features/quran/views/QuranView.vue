@@ -50,11 +50,11 @@ const formatAyahCount = (count) => {
       label="تبحث عن سورة معينة؟"
     >
       <template #favorites-title>
-        <h5 class="mb-3">السور المفضلة</h5>
+        <h2 class="list-title">السور المفضلة</h2>
       </template>
 
       <template #all-title>
-        <h5 class="mb-3">كل السور</h5>
+        <h2 class="list-title">كل السور</h2>
       </template>
 
       <template #default="{ item }">

@@ -55,7 +55,7 @@ const radiosList = Object.entries(radiosData).map(([slug, station]) => ({
       :groups="groups"
     >
       <template #favorites-title>
-        <h5 class="mb-3">الإذاعات المفضلة</h5>
+        <h2 class="list-title">الإذاعات المفضلة</h2>
       </template>
 
       <template #default="{ item, index }">

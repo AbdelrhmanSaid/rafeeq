@@ -81,15 +81,15 @@ watch([() => route.fullPath, () => pageHeader.el], () => nextTick(measure), { im
   z-index: 1020;
   /* Sit below the status bar / notch in a standalone or store build. */
   padding-top: env(safe-area-inset-top, 0px);
-  border-bottom: 1px solid transparent;
   background: transparent;
   transition:
     background-color 0.2s ease,
-    border-color 0.2s ease;
+    box-shadow 0.2s ease;
 
-  /* Glass only once content slides under it, so the top of each page stays one clean surface. */
+  /* Glass only once content slides under it, so the top of each page stays one clean surface.
+     The hairline is an inset shadow, so the bar stays exactly --appbar-height tall and full-height screens fit. */
   &.is-scrolled {
-    border-bottom-color: var(--app-hairline);
+    box-shadow: inset 0 -1px 0 var(--app-hairline);
     background: var(--app-glass);
     /* Lightning CSS mishandles a paired -webkit-backdrop-filter declaration. */
     backdrop-filter: blur(18px) saturate(1.4);

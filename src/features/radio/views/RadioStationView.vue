@@ -11,6 +11,7 @@ import OfflineState from '@/shared/ui/OfflineState.vue'
 import RadioPlayer from '@/features/radio/components/RadioPlayer.vue'
 import radiosData from '@/features/radio/data/radios.js'
 import { stationLabel } from '@/features/radio/lib/stationLabel'
+import { getSimilarStations } from '@/features/radio/lib/similarStations'
 import { useRadioStore } from '@/features/radio/store'
 import { useFavorites } from '@/shared/composables/useFavorites'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
@@ -23,7 +24,7 @@ const { isFavorite, toggleFavorite } = useFavorites(STORAGE_KEYS.radioFavorites)
 const stationSlug = computed(() => route.params.slug.toLowerCase())
 const station = computed(() => radiosData[stationSlug.value])
 const isPlaying = computed(() => station.value && store.station === station.value.url)
-const canShare = computed(() => typeof navigator !== 'undefined' && typeof navigator.share === 'function')
+const similar = computed(() => getSimilarStations(stationSlug.value, radiosData, 8))
 
 usePageMeta(
   () =>
@@ -33,22 +34,6 @@ usePageMeta(
       keywords: ['إذاعة', 'راديو', 'قرآن', station.value.name, 'بث مباشر'],
     },
 )
-
-const shareStation = async () => {
-  if (!station.value || !navigator.share) {
-    return
-  }
-
-  const data = {
-    title: stationLabel(station.value),
-    text: `استمع إلى ${stationLabel(station.value)}`,
-    url: window.location.href,
-  }
-
-  try {
-    await navigator.share(data)
-  } catch {}
-}
 </script>
 
 <template>
@@ -56,7 +41,7 @@ const shareStation = async () => {
     <OfflineState />
   </Page>
 
-  <Page v-else class="full-height d-flex align-items-center justify-content-center">
+  <Page v-else class="full-height" :class="{ 'd-flex align-items-center justify-content-center': !station }">
     <div v-if="!station" class="text-center py-5 px-3">
       <div class="display-1 mb-4 opacity-50">📻</div>
       <Heading title="لم يتم العثور على الإذاعة" subtitle="يمكنك العودة لقائمة الإذاعات المتاحة." />
@@ -68,10 +53,9 @@ const shareStation = async () => {
       :station="station"
       :is-playing="isPlaying"
       :is-favorite="isFavorite(stationSlug)"
-      :can-share="canShare"
+      :similar="similar"
       @toggle="isPlaying ? store.stop() : store.play(station.url, station)"
       @favorite="toggleFavorite(stationSlug)"
-      @share="shareStation"
     />
   </Page>
 </template>

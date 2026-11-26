@@ -607,3 +607,13 @@ html [data-sonner-toaster][data-sonner-theme] {
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.45);
   font-weight: 500;
 }
+
+/* Muted list and section titles, like the Home section titles, so the rows carry the screen. */
+.list-title {
+  margin: 0 0.125rem 0.75rem;
+  color: color-mix(in srgb, var(--bs-body-color) 60%, var(--bs-body-bg));
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}

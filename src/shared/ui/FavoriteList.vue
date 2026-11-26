@@ -82,7 +82,7 @@ const sections = computed(() => {
 
   <slot v-if="favorites.length && !search && !groups" name="all-title" />
   <div v-for="section in sections" :key="section.key" class="fav-section">
-    <h2 v-if="section.title" class="fav-section__title">{{ section.title }}</h2>
+    <h2 v-if="section.title" class="list-title">{{ section.title }}</h2>
     <ul class="list-group">
       <li
         v-for="(item, index) in section.items"
@@ -133,16 +133,6 @@ const sections = computed(() => {
 
 .fav-section + .fav-section {
   margin-top: 1.5rem;
-}
-
-/* Muted, like the Home section titles, so the rows carry the screen. */
-.fav-section__title {
-  margin: 0 0.125rem 0.75rem;
-  color: color-mix(in srgb, var(--bs-body-color) 60%, var(--bs-body-bg));
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 700;
-  line-height: 1.3;
 }
 
 .fav-actions {
