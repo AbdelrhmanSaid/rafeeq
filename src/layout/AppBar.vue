@@ -1,17 +1,15 @@
 <script setup>
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useEventListener } from '@vueuse/core'
 import { IconChevronRight, IconShare3 } from '@tabler/icons-vue'
 import { pageHeader } from '@/layout/pageHeader'
 import { useBackNavigation } from '@/layout/useBackNavigation'
 import { sharePage } from '@/shared/utils/share'
-import Logo from '@/shared/ui/Logo.vue'
 
 const route = useRoute()
 const bar = useTemplateRef('bar')
 
-const isHome = computed(() => route.name === 'home')
 const { parent, goBack } = useBackNavigation()
 
 // A page with a large title hands it to the bar once it scrolls away; other pages show theirs from the start.
@@ -20,9 +18,7 @@ const title = computed(() => pageHeader.title || route.meta.title || '')
 
 const scrolled = ref(false)
 const largeTitleHidden = ref(false)
-const showTitle = computed(
-  () => !isHome.value && Boolean(title.value) && (!hasLargeTitle.value || largeTitleHidden.value),
-)
+const showTitle = computed(() => Boolean(title.value) && (!hasLargeTitle.value || largeTitleHidden.value))
 
 let frame = 0
 
@@ -57,10 +53,6 @@ watch([() => route.fullPath, () => pageHeader.el], () => nextTick(measure), { im
         <button v-if="parent" type="button" class="app-bar__action" aria-label="رجوع" @click="goBack">
           <IconChevronRight size="1.6rem" aria-hidden="true" />
         </button>
-
-        <RouterLink v-else-if="isHome" to="/" class="app-bar__brand" aria-label="رفيق">
-          <Logo :size="30" />
-        </RouterLink>
       </div>
 
       <div class="app-bar__title" :class="{ 'is-visible': showTitle }" :aria-hidden="!showTitle">
@@ -120,11 +112,6 @@ watch([() => route.fullPath, () => pageHeader.el], () => nextTick(measure), { im
   &--end {
     justify-content: flex-end;
   }
-}
-
-.app-bar__brand {
-  display: flex;
-  padding-inline: 0.625rem;
 }
 
 .app-bar__action {

@@ -84,6 +84,13 @@ const today = computed(() =>
   }
 }
 
+/* Phones show no top bar on Home, so the greeting clears the status bar / notch itself. */
+@media (max-width: 991.98px) {
+  .home-greeting {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 1rem);
+  }
+}
+
 [data-bs-theme='dark'] .home-greeting__badge {
   background: var(--app-tint-strong);
   color: color-mix(in srgb, var(--bs-primary) 35%, #fff);

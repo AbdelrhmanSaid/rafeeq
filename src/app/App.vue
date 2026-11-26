@@ -58,7 +58,7 @@ const updateSW = registerSW({
 <template>
   <div :class="['app-shell', { 'main-content-embed': isEmbedRoute }]">
     <TopNav class="d-none d-lg-block" v-if="!isEmbedRoute" />
-    <AppBar class="d-lg-none" v-if="!isEmbedRoute" />
+    <AppBar class="d-lg-none" v-if="!isEmbedRoute && route.name !== 'home'" />
 
     <div class="main-content">
       <RouterView />
