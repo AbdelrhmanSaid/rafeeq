@@ -10,13 +10,23 @@ import radiosData from '@/features/radio/data/radios.js'
 import OfflineState from '@/shared/ui/OfflineState.vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
+import { stationTitle } from '@/features/radio/lib/stationLabel'
 
 const store = useRadioStore()
 const online = useOnline()
 
+const groups = [
+  // The first section needs no heading; the screen title already covers it.
+  { key: 'general', title: null },
+  { key: 'reciters', title: 'القراء' },
+  { key: 'translations', title: 'الترجمات' },
+]
+
+// `title` spells out translation stations, so searching "ترجمة" still finds them.
 const radiosList = Object.entries(radiosData).map(([slug, station]) => ({
   slug,
   ...station,
+  title: stationTitle(station),
 }))
 </script>
 
@@ -38,16 +48,14 @@ const radiosList = Object.entries(radiosData).map(([slug, station]) => ({
       item-key="slug"
       :favorites-key="STORAGE_KEYS.radioFavorites"
       search-type="search"
+      :search-keys="['title', 'description']"
       placeholder="ابحث عن إذاعة"
       label="تبحث عن إذاعة معينة؟"
       :item-class="(item) => ({ active: store.station === item.url })"
+      :groups="groups"
     >
       <template #favorites-title>
         <h5 class="mb-3">الإذاعات المفضلة</h5>
-      </template>
-
-      <template #all-title>
-        <h5 class="mb-3">كل الإذاعات</h5>
       </template>
 
       <template #default="{ item, index }">
@@ -56,7 +64,10 @@ const radiosList = Object.entries(radiosData).map(([slug, station]) => ({
           class="flex-grow-1 radio-link d-flex align-items-center gap-3 min-w-0"
         >
           <span class="list-index">{{ toArabicNumerals(index + 1) }}</span>
-          <span class="fw-medium text-truncate">{{ item.name }}</span>
+          <span class="fw-medium text-truncate">
+            {{ item.name }}
+            <span v-if="item.description" class="text-body-secondary">{{ item.description }}</span>
+          </span>
         </RouterLink>
       </template>
 
@@ -65,7 +76,7 @@ const radiosList = Object.entries(radiosData).map(([slug, station]) => ({
           v-if="store.station === item.url"
           type="button"
           class="btn btn-flat btn-icon"
-          :aria-label="`إيقاف ${item.name}`"
+          :aria-label="`إيقاف ${item.title}`"
           @click.stop="store.stop()"
         >
           <IconPlayerPause size="1.25rem" />
@@ -75,7 +86,7 @@ const radiosList = Object.entries(radiosData).map(([slug, station]) => ({
           v-else
           type="button"
           class="btn btn-flat btn-icon"
-          :aria-label="`تشغيل ${item.name}`"
+          :aria-label="`تشغيل ${item.title}`"
           @click.stop="store.play(item.url, item)"
         >
           <IconPlayerPlay size="1.25rem" />

@@ -13,7 +13,7 @@ export const useSearch = (items, keys = []) => {
 
     return itemsValue.filter((item) => {
       return keys.some((key) => {
-        const value = normalize(item[key])
+        const value = normalize(item[key] ?? '')
 
         return value.includes(normalizedSearch)
       })

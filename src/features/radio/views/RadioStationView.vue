@@ -10,6 +10,7 @@ import BackButton from '@/shared/ui/BackButton.vue'
 import OfflineState from '@/shared/ui/OfflineState.vue'
 import RadioPlayer from '@/features/radio/components/RadioPlayer.vue'
 import radiosData from '@/features/radio/data/radios.js'
+import { stationLabel } from '@/features/radio/lib/stationLabel'
 import { useRadioStore } from '@/features/radio/store'
 import { useFavorites } from '@/shared/composables/useFavorites'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
@@ -27,8 +28,8 @@ const canShare = computed(() => typeof navigator !== 'undefined' && typeof navig
 usePageMeta(
   () =>
     station.value && {
-      title: station.value.name,
-      description: `استمع إلى ${station.value.name} بث مباشر`,
+      title: stationLabel(station.value),
+      description: `استمع إلى ${stationLabel(station.value)} بث مباشر`,
       keywords: ['إذاعة', 'راديو', 'قرآن', station.value.name, 'بث مباشر'],
     },
 )
@@ -39,8 +40,8 @@ const shareStation = async () => {
   }
 
   const data = {
-    title: station.value.name,
-    text: `استمع إلى ${station.value.name}`,
+    title: stationLabel(station.value),
+    text: `استمع إلى ${stationLabel(station.value)}`,
     url: window.location.href,
   }
 

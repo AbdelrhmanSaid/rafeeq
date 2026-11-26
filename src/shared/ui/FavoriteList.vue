@@ -1,4 +1,5 @@
 <script setup>
+import { computed } from 'vue'
 import { IconHeart, IconHeartFilled } from '@tabler/icons-vue'
 import { useFavorites } from '@/shared/composables/useFavorites'
 import EmptyState from '@/shared/ui/EmptyState.vue'
@@ -24,12 +25,29 @@ const props = defineProps({
     type: Function,
     default: () => ({}),
   },
+  // Optional sections, as [{ key, title }]; each item goes in the section named by its `groupKey` field.
+  groups: {
+    type: Array,
+    default: null,
+  },
+  groupKey: {
+    type: String,
+    default: 'category',
+  },
 })
 
 const { isFavorite, toggleFavorite, filterFavorites } = useFavorites(props.favoritesKey)
 
 const getKey = (item) => item[props.itemKey]
 const favorites = filterFavorites(() => props.items, getKey)
+
+const sections = computed(() => {
+  if (!props.groups) return [{ key: 'all', title: null, items: props.items }]
+
+  return props.groups
+    .map((group) => ({ ...group, items: props.items.filter((item) => item[props.groupKey] === group.key) }))
+    .filter((group) => group.items.length)
+})
 </script>
 
 <template>
@@ -62,35 +80,40 @@ const favorites = filterFavorites(() => props.items, getKey)
     </ul>
   </div>
 
-  <slot v-if="favorites.length && !search" name="all-title" />
-  <ul class="list-group">
-    <li
-      v-for="(item, index) in items"
-      :key="getKey(item)"
-      class="list-group-item list-group-item-action fav-row"
-      :class="itemClass(item)"
-    >
-      <div class="d-flex justify-content-between align-items-center">
-        <slot :item="item" :index="index" />
+  <slot v-if="favorites.length && !search && !groups" name="all-title" />
+  <div v-for="section in sections" :key="section.key" class="fav-section">
+    <h2 v-if="section.title" class="fav-section__title">{{ section.title }}</h2>
+    <ul class="list-group">
+      <li
+        v-for="(item, index) in section.items"
+        :key="getKey(item)"
+        class="list-group-item list-group-item-action fav-row"
+        :class="itemClass(item)"
+      >
+        <div class="d-flex justify-content-between align-items-center">
+          <slot :item="item" :index="index" />
 
-        <div class="d-flex gap-1 fav-actions">
-          <button
-            class="btn btn-flat btn-icon fav-btn position-relative z-1"
-            :class="{ 'is-active': isFavorite(getKey(item)) }"
-            @click.stop="toggleFavorite(getKey(item))"
-            :title="isFavorite(getKey(item)) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"
-            :aria-label="isFavorite(getKey(item)) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"
-          >
-            <IconHeartFilled v-if="isFavorite(getKey(item))" size="1.25rem" class="text-danger" />
-            <IconHeart v-else size="1.25rem" />
-          </button>
+          <div class="d-flex gap-1 fav-actions">
+            <button
+              class="btn btn-flat btn-icon fav-btn position-relative z-1"
+              :class="{ 'is-active': isFavorite(getKey(item)) }"
+              @click.stop="toggleFavorite(getKey(item))"
+              :title="isFavorite(getKey(item)) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"
+              :aria-label="isFavorite(getKey(item)) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"
+            >
+              <IconHeartFilled v-if="isFavorite(getKey(item))" size="1.25rem" class="text-danger" />
+              <IconHeart v-else size="1.25rem" />
+            </button>
 
-          <slot name="actions" :item="item" />
+            <slot name="actions" :item="item" />
+          </div>
         </div>
-      </div>
-    </li>
+      </li>
+    </ul>
+  </div>
 
-    <li v-if="items.length === 0" class="list-group-item">
+  <ul v-if="items.length === 0" class="list-group">
+    <li class="list-group-item">
       <EmptyState />
     </li>
   </ul>
@@ -106,6 +129,20 @@ const favorites = filterFavorites(() => props.items, getKey)
   width: 2rem;
   height: 2rem;
   font-size: 0.8125rem;
+}
+
+.fav-section + .fav-section {
+  margin-top: 1.5rem;
+}
+
+/* Muted, like the Home section titles, so the rows carry the screen. */
+.fav-section__title {
+  margin: 0 0.125rem 0.75rem;
+  color: color-mix(in srgb, var(--bs-body-color) 60%, var(--bs-body-bg));
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
 }
 
 .fav-actions {

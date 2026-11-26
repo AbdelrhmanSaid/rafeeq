@@ -1,6 +1,7 @@
 <script setup>
 import { IconHeart, IconHeartFilled, IconPlayerPause, IconPlayerPlay, IconShare3, IconRadio } from '@tabler/icons-vue'
 import BackButton from '@/shared/ui/BackButton.vue'
+import { stationTitle } from '@/features/radio/lib/stationLabel'
 
 defineProps({
   station: { type: Object, required: true },
@@ -40,7 +41,8 @@ defineEmits(['toggle', 'favorite', 'share'])
       </div>
 
       <div class="mb-5">
-        <h1 class="h2 fw-bold mb-2">{{ station.name }}</h1>
+        <h1 class="h2 fw-bold mb-2">{{ stationTitle(station) }}</h1>
+        <p v-if="station.description" class="text-body-secondary mb-2">{{ station.description }}</p>
         <p class="d-inline-flex align-items-center gap-2 small text-secondary m-0">
           <span class="status-dot" :class="{ live: isPlaying }"></span>
           {{ isPlaying ? 'البث المباشر جارٍ الآن' : 'جاهز للتشغيل' }}
@@ -52,7 +54,7 @@ defineEmits(['toggle', 'favorite', 'share'])
           class="play-btn"
           :class="isPlaying ? 'bg-danger' : 'bg-primary'"
           type="button"
-          :aria-label="isPlaying ? `إيقاف ${station.name}` : `تشغيل ${station.name}`"
+          :aria-label="isPlaying ? `إيقاف ${stationTitle(station)}` : `تشغيل ${stationTitle(station)}`"
           @click="$emit('toggle')"
         >
           <IconPlayerPause v-if="isPlaying" size="2.5rem" />
