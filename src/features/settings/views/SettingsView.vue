@@ -112,7 +112,7 @@ const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab)
   padding: 0;
   margin: 0;
   position: sticky;
-  top: calc(var(--navbar-height) + 1rem);
+  top: calc(var(--header-offset) + env(safe-area-inset-top, 0px) + 1rem);
 }
 
 .settings-nav-item {

@@ -1,18 +1,18 @@
 <script setup>
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import { useEventListener } from '@vueuse/core'
 import { IconChevronRight, IconShare3 } from '@tabler/icons-vue'
 import { pageHeader } from '@/layout/pageHeader'
+import { useBackNavigation } from '@/layout/useBackNavigation'
 import { sharePage } from '@/shared/utils/share'
 import Logo from '@/shared/ui/Logo.vue'
 
 const route = useRoute()
-const router = useRouter()
 const bar = useTemplateRef('bar')
 
 const isHome = computed(() => route.name === 'home')
-const parent = computed(() => route.meta.parent)
+const { parent, goBack } = useBackNavigation()
 
 // A page with a large title hands it to the bar once it scrolls away; other pages show theirs from the start.
 const hasLargeTitle = computed(() => Boolean(pageHeader.title && pageHeader.el))
@@ -48,20 +48,11 @@ useEventListener(window, 'scroll', scheduleMeasure, { passive: true })
 useEventListener(window, 'resize', scheduleMeasure, { passive: true })
 
 watch([() => route.fullPath, () => pageHeader.el], () => nextTick(measure), { immediate: true })
-
-function goBack() {
-  // Deep links have nowhere to go back to, so step up to the parent screen instead of leaving the app.
-  if (window.history.state?.back) {
-    router.back()
-  } else {
-    router.push({ name: parent.value })
-  }
-}
 </script>
 
 <template>
   <header ref="bar" class="app-bar" :class="{ 'is-scrolled': scrolled }">
-    <div class="app-bar__inner">
+    <div class="app-bar__inner container">
       <div class="app-bar__slot app-bar__slot--start">
         <button v-if="parent" type="button" class="app-bar__action" aria-label="رجوع" @click="goBack">
           <IconChevronRight size="1.6rem" aria-hidden="true" />

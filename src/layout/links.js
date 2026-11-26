@@ -1,4 +1,4 @@
-// Project and support links, shared by the desktop footer and the mobile More screen.
+// Project and support links, shown on the More screen.
 export const TELEGRAM_URL = 'https://t.me/rafeeqme'
 
 export const supportLinks = [

@@ -17,7 +17,6 @@
 @import 'bootstrap/scss/transitions';
 @import 'bootstrap/scss/dropdown';
 @import 'bootstrap/scss/nav';
-@import 'bootstrap/scss/navbar';
 @import 'bootstrap/scss/card';
 @import 'bootstrap/scss/badge';
 @import 'bootstrap/scss/progress';
@@ -41,6 +40,9 @@
 :root {
   --navbar-height: 64px;
   --appbar-height: 3.5rem;
+  --topnav-height: 4rem;
+  /* Height of whatever sticks to the top: the app bar on phones and tablets, the top nav on desktop. */
+  --header-offset: var(--appbar-height);
   --app-body-bg-base: #fff;
   --bs-body-bg: color-mix(in srgb, var(--app-body-bg-base) 96%, var(--bs-primary));
   --bs-secondary-color: rgba(33, 37, 41, 0.85);
@@ -61,8 +63,10 @@
   /* The curve iOS sheets rise and settle on. */
   --app-ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 
-  @media screen and (min-width: 768px) {
-    --navbar-height: 85px;
+  /* Desktop navigates from the top nav, so nothing sits at the bottom. */
+  @media screen and (min-width: 992px) {
+    --navbar-height: 0px;
+    --header-offset: var(--topnav-height);
   }
 }
 
@@ -400,19 +404,14 @@ body {
 }
 
 .full-height {
-  min-height: calc(100vh - var(--navbar-height));
-  /* Use the visible mobile viewport and reserved home-indicator inset. */
-  min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-bottom, 0px));
-
-  /* Phones also stack the app bar and its status-bar inset on top. */
-  @media (max-width: 767.98px) {
-    min-height: calc(
-      100dvh - var(--navbar-height) - var(--appbar-height) - env(safe-area-inset-top, 0px) - env(
-          safe-area-inset-bottom,
-          0px
-        )
-    );
-  }
+  min-height: calc(100vh - var(--navbar-height) - var(--header-offset));
+  /* The visible viewport, minus the app bar above and the tab bar (if any) below, with their safe-area insets. */
+  min-height: calc(
+    100dvh - var(--navbar-height) - var(--header-offset) - env(safe-area-inset-top, 0px) - env(
+        safe-area-inset-bottom,
+        0px
+      )
+  );
 }
 
 .tab-pills {

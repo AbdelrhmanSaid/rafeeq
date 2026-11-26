@@ -1,8 +1,7 @@
 <script setup>
 import { RouterView, useRoute } from 'vue-router'
-import Navbar from '@/layout/Navbar.vue'
 import AppBar from '@/layout/AppBar.vue'
-import Footer from '@/layout/Footer.vue'
+import TopNav from '@/layout/TopNav.vue'
 import TabBar from '@/layout/TabBar.vue'
 import InstallBanner from '@/app/pwa/InstallBanner.vue'
 import { IconWifiOff } from '@tabler/icons-vue'
@@ -72,16 +71,14 @@ const updateSW = registerSW({
       </div>
     </div>
 
-    <Navbar class="d-none d-md-block" v-if="!isEmbedRoute" />
-    <AppBar class="d-md-none" v-if="!isEmbedRoute" />
+    <TopNav class="d-none d-lg-block" v-if="!isEmbedRoute" />
+    <AppBar class="d-lg-none" v-if="!isEmbedRoute" />
 
     <div class="main-content">
       <RouterView />
     </div>
 
-    <Footer class="d-none d-md-block" v-if="!isEmbedRoute" />
-
-    <TabBar class="d-block d-md-none" v-if="!isEmbedRoute" />
+    <TabBar class="d-lg-none" v-if="!isEmbedRoute" />
 
     <InstallBanner v-if="!isEmbedRoute" />
   </div>
@@ -89,7 +86,11 @@ const updateSW = registerSW({
   <Toaster
     :theme="themeStore.mode"
     position="bottom-right"
-    offset="20px"
+    :offset="{
+      bottom: 'calc(var(--navbar-height) + env(safe-area-inset-bottom, 0px) + 16px)',
+      right: '20px',
+      left: '20px',
+    }"
     :mobile-offset="{ bottom: 'calc(var(--navbar-height) + env(safe-area-inset-bottom, 0px) + 12px)' }"
     :toast-options="{
       style: {
@@ -123,16 +124,10 @@ const updateSW = registerSW({
   animation: slideDown 0.3s ease-out;
 }
 
-.offline-banner + .navbar {
-  top: 50px;
-}
-
-/* On phones the app bar owns the top edge; the banner scrolls away above it instead of stacking. */
-@media (max-width: 767.98px) {
-  .offline-banner {
-    position: relative;
-    padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
-  }
+/* The app bar owns the top edge; the banner scrolls away above it instead of stacking. */
+.offline-banner {
+  position: relative;
+  padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
 }
 
 .main-content {
@@ -148,12 +143,6 @@ const updateSW = registerSW({
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-@media (min-width: 768px) {
-  .main-content {
-    padding-bottom: 0;
-  }
 }
 
 @keyframes slideDown {

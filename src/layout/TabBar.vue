@@ -8,7 +8,7 @@ import { navigation } from '@/layout/navigation'
 const radio = useRadioStore()
 const { open: keyboardOpen } = useVirtualKeyboard()
 const { isActive } = useActiveNav()
-const tabs = navigation.filter((item) => item.menus.includes('tabbar'))
+const tabs = navigation.filter((item) => item.menus.includes('primary'))
 </script>
 
 <template>

@@ -13,7 +13,14 @@
 
 @media (min-width: 768px) {
   .page-container {
-    padding-block: 2.5rem 3.5rem;
+    padding-block: 0.5rem 3.5rem;
+  }
+}
+
+/* Desktop: no app bar above, so the page brings its own space under the top nav. */
+@media (min-width: 992px) {
+  .page-container {
+    padding-top: 1.5rem;
   }
 }
 </style>

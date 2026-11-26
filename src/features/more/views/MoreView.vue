@@ -16,7 +16,7 @@ import Logo from '@/shared/ui/Logo.vue'
 import { navigation } from '@/layout/navigation'
 import { TELEGRAM_URL, supportLinks } from '@/layout/links'
 
-const tools = navigation.filter((item) => item.menus.includes('tabbar-more'))
+const tools = navigation.filter((item) => item.menus.includes('more'))
 
 const SUPPORT_ICONS = [IconBrandGithub, IconBug, IconHeart, IconShieldLock]
 

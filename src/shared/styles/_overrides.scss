@@ -1,13 +1,3 @@
-.navbar-toggler {
-  border: none;
-
-  &:focus,
-  &:active {
-    outline: none;
-    box-shadow: none;
-  }
-}
-
 html[dir='rtl'],
 [data-sonner-toaster][dir='rtl'] {
   --toast-button-margin-start: auto !important;

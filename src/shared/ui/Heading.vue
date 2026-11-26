@@ -1,8 +1,6 @@
 <script setup>
 import { useTemplateRef } from 'vue'
-import { IconShare3 } from '@tabler/icons-vue'
 import { usePageHeader } from '@/layout/pageHeader'
-import { sharePage } from '@/shared/utils/share'
 
 const props = defineProps({
   title: {
@@ -24,7 +22,7 @@ const props = defineProps({
 
 const heading = useTemplateRef('heading')
 
-// A page's h1 is its large title; the mobile app bar picks it up once it scrolls under the bar.
+// A page's h1 is its large title; the app bar picks it up once it scrolls under the bar, and carries its share action.
 if (props.size === 1) {
   usePageHeader({
     title: () => props.title,
@@ -36,20 +34,8 @@ if (props.size === 1) {
 
 <template>
   <div>
-    <component ref="heading" :is="`h${size}`" class="d-flex align-items-end justify-content-between">
+    <component ref="heading" :is="`h${size}`">
       {{ title }}
-      <!-- On phones the app bar carries the share action. -->
-      <button
-        v-if="share"
-        class="btn btn-soft btn-icon heading-share"
-        :class="{ 'd-none d-md-inline-flex': size === 1 }"
-        type="button"
-        title="مشاركة الصفحة"
-        aria-label="مشاركة الصفحة"
-        @click="sharePage(title)"
-      >
-        <IconShare3 size="18" />
-      </button>
     </component>
 
     <p class="lead" v-if="subtitle">{{ subtitle }}</p>
@@ -57,13 +43,6 @@ if (props.size === 1) {
 </template>
 
 <style scoped>
-.heading-share {
-  width: 2.25rem;
-  height: 2.25rem;
-  flex-shrink: 0;
-  border-radius: 50%;
-}
-
 .lead {
   color: var(--bs-secondary-color);
   font-size: 1.05rem;

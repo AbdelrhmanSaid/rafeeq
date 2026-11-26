@@ -79,7 +79,6 @@ const { canInstall, install, dismiss } = useInstallPrompt()
 
 @media (min-width: 768px) {
   .install-banner {
-    bottom: 1.25rem;
     inset-inline: auto 1.25rem;
     margin-inline: 0;
     width: 26rem;

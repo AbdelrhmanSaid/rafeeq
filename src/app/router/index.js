@@ -200,8 +200,6 @@ router.afterEach((to) => {
     themeStore.clearQueryOverrides()
   }
 
-  document.querySelector('.navbar-collapse')?.classList?.remove('show')
-
   nProgress.done()
 
   useMeta(to.meta)

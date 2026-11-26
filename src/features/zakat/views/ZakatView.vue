@@ -119,13 +119,7 @@ const conditions = {
 
 <template>
   <Page>
-    <Heading
-      :size="2"
-      class="mb-4"
-      title="حاسبة الزكاة"
-      subtitle="خذ من أموالهم صدقة تطهرهم وتزكيهم بها"
-      :share="true"
-    />
+    <Heading class="mb-4" title="حاسبة الزكاة" subtitle="خذ من أموالهم صدقة تطهرهم وتزكيهم بها" :share="true" />
 
     <div class="zakat-layout">
       <nav class="zakat-nav tab-pills" aria-label="أنواع الزكاة">
@@ -335,7 +329,7 @@ const conditions = {
   padding: 0;
   margin: 0;
   position: sticky;
-  top: calc(var(--navbar-height) + 1rem);
+  top: calc(var(--header-offset) + env(safe-area-inset-top, 0px) + 1rem);
 }
 
 .zakat-nav-item {
