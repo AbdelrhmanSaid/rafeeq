@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { IconLocationFilled, IconDeviceMobile } from '@tabler/icons-vue'
+import { IconLocationFilled } from '@tabler/icons-vue'
 
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
@@ -8,14 +8,19 @@ import LoadingState from '@/shared/ui/LoadingState.vue'
 import QiblaCompass from '@/features/qibla/components/QiblaCompass.vue'
 import { getCurrentPosition } from '@/shared/composables/useGeolocation'
 import { useIsMobile } from '@/shared/composables/useIsMobile'
+import { usePrayersStore } from '@/features/prayers/store'
 import { useDeviceCompass } from '@/features/qibla/composables/useDeviceCompass'
-import { getQiblaDirection } from '@/features/qibla/lib/qibla'
+import { getDistanceToKaaba, getQiblaDirection } from '@/features/qibla/lib/qibla'
 
 const isMobile = useIsMobile()
+const prayersStore = usePrayersStore()
 
-const latitude = ref(null)
-const longitude = ref(null)
-const locationLoading = ref(true)
+const isCoordinate = (value) => Number.isFinite(Number(value)) && Number(value) !== 0
+
+// The location saved for prayer times is good enough for the qibla, so only ask when there isn't one.
+const latitude = ref(isCoordinate(prayersStore.latitude) ? Number(prayersStore.latitude) : null)
+const longitude = ref(isCoordinate(prayersStore.longitude) ? Number(prayersStore.longitude) : null)
+const locationLoading = ref(latitude.value == null)
 const locationError = ref(null)
 
 async function requestLocation() {
@@ -36,48 +41,46 @@ async function requestLocation() {
   }
 }
 
-const qiblaDirection = computed(() => {
-  if (latitude.value == null || longitude.value == null) return null
-  return getQiblaDirection(latitude.value, longitude.value)
+const hasLocation = computed(() => latitude.value != null && longitude.value != null)
+const qiblaDirection = computed(() => (hasLocation.value ? getQiblaDirection(latitude.value, longitude.value) : null))
+const distance = computed(() => (hasLocation.value ? getDistanceToKaaba(latitude.value, longitude.value) : null))
+
+const { heading, hasReading, error: compassError, canRequestPermission, requestPermission } = useDeviceCompass()
+
+// Phones with a working compass follow the phone; anywhere else the screen shows the bearing and distance.
+const live = computed(() => isMobile.value && hasReading.value && !compassError.value)
+
+onMounted(() => {
+  if (!hasLocation.value) requestLocation()
 })
-
-const { heading, hasSupport, error: compassError, canRequestPermission, requestPermission } = useDeviceCompass()
-
-onMounted(requestLocation)
 </script>
 
 <template>
-  <Page>
-    <Heading class="mb-4" title="اتجاه القبلة" subtitle="حدد اتجاه القبلة بسهولة باستخدام البوصلة الإلكترونية." />
+  <!-- One screen tall: the title, then the compass centred in the rest. -->
+  <Page class="qibla-page full-height">
+    <Heading
+      subtitle-desktop-only
+      title="اتجاه القبلة"
+      subtitle="حدد اتجاه القبلة بسهولة باستخدام البوصلة الإلكترونية."
+    />
 
-    <div class="card">
-      <div v-if="!isMobile" class="qibla-card card-body qibla-card--static text-center">
-        <IconDeviceMobile size="3rem" class="text-muted mb-3" />
-        <p class="h5 mb-2">هذه الميزة متاحة فقط على الهاتف</p>
-        <p class="text-muted mb-0">افتح التطبيق من هاتفك لاستخدام البوصلة</p>
-      </div>
+    <div class="qibla-page__body">
+      <LoadingState v-if="locationLoading" message="جاري تحديد موقعك..." />
 
-      <div v-else-if="locationLoading" class="qibla-card card-body qibla-card--static">
-        <LoadingState message="جاري تحديد موقعك..." />
-      </div>
-
-      <div
-        v-else-if="locationError"
-        class="qibla-card card-body qibla-card--clickable text-center"
-        @click="requestLocation"
-      >
-        <IconLocationFilled size="3rem" class="text-danger mb-3" />
-        <p class="mb-2">{{ locationError }}</p>
-        <p class="text-muted small mb-0">إضغط للمحاولة مرة أخرى</p>
-      </div>
+      <button v-else-if="locationError" type="button" class="qibla-page__error" @click="requestLocation">
+        <IconLocationFilled size="2.5rem" class="text-danger mb-3" />
+        <span class="d-block mb-1">{{ locationError }}</span>
+        <span class="d-block small text-body-secondary">اضغط للمحاولة مرة أخرى</span>
+      </button>
 
       <QiblaCompass
         v-else-if="qiblaDirection !== null"
         :qibla-direction="qiblaDirection"
+        :distance="distance"
         :heading="heading"
-        :has-compass-support="hasSupport"
-        :compass-error="compassError"
-        :can-request-permission="canRequestPermission"
+        :live="live"
+        :compass-error="isMobile ? compassError : null"
+        :can-request-permission="isMobile && canRequestPermission"
         @request-permission="requestPermission"
       />
     </div>
@@ -85,22 +88,22 @@ onMounted(requestLocation)
 </template>
 
 <style lang="scss" scoped>
-.qibla-card {
-  padding: 3rem;
-  transition: border-color 0.2s;
+.qibla-page {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
 
-  &--clickable {
-    cursor: pointer;
+.qibla-page__body {
+  display: grid;
+  place-items: center;
+  padding-block: 1rem 2rem;
+}
 
-    @media (hover: hover) and (pointer: fine) {
-      &:hover {
-        border-color: var(--bs-primary);
-      }
-    }
-  }
-
-  &--static {
-    cursor: default;
-  }
+.qibla-page__error {
+  padding: 1.5rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: center;
 }
 </style>

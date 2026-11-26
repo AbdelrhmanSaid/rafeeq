@@ -6,6 +6,8 @@ import {
   needleRotation,
   isFacingQibla,
   getQiblaDirection,
+  getDistanceToKaaba,
+  getTapeTicks,
 } from './qibla'
 
 describe('normalizeAngle', () => {
@@ -58,5 +60,30 @@ describe('getQiblaDirection', () => {
   it('returns the bearing to the Kaaba', () => {
     expect(getQiblaDirection(30.0444, 31.2357)).toBeCloseTo(136.1, 1)
     expect(getQiblaDirection(40.7128, -74.006)).toBeCloseTo(58.5, 1)
+  })
+})
+
+describe('getDistanceToKaaba', () => {
+  it('is about 1,290 km from Cairo', () => {
+    expect(getDistanceToKaaba(30.0444, 31.2357)).toBeCloseTo(1290, -1)
+  })
+
+  it('is zero at the Kaaba', () => {
+    expect(getDistanceToKaaba(21.4225, 39.8262)).toBeCloseTo(0)
+  })
+})
+
+describe('getTapeTicks', () => {
+  it('lists ticks around the heading with their offsets', () => {
+    const ticks = getTapeTicks(112, 20, 10)
+
+    expect(ticks.map((tick) => tick.degree)).toEqual([100, 110, 120, 130])
+    expect(ticks.map((tick) => tick.offset)).toEqual([-12, -2, 8, 18])
+  })
+
+  it('wraps past north', () => {
+    const ticks = getTapeTicks(355, 10, 5)
+
+    expect(ticks.map((tick) => tick.degree)).toEqual([345, 350, 355, 0, 5])
   })
 })

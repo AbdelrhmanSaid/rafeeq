@@ -2,61 +2,98 @@
 import { computed } from 'vue'
 import { IconCompass } from '@tabler/icons-vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
-import {
-  needleRotation as computeNeedleRotation,
-  isFacingQibla as computeIsFacingQibla,
-} from '@/features/qibla/lib/qibla'
+import { getShortestRotation, getTapeTicks, normalizeAngle } from '@/features/qibla/lib/qibla'
 
-const FACING_TOLERANCE = 15
+// Within this many degrees either side, you're facing the qibla.
+const FACING_TOLERANCE = 5
+
+// The tape spans ±HALF_RANGE degrees around the centre line, drawn PX_PER_DEGREE apart in a 320-wide box.
+const TAPE_WIDTH = 320
+const CENTER = TAPE_WIDTH / 2
+const HALF_RANGE = 50
+const PX_PER_DEGREE = CENTER / HALF_RANGE
+
+const CARDINALS = { 0: 'ش', 90: 'ق', 180: 'ج', 270: 'غ' }
 
 const props = defineProps({
   qiblaDirection: { type: Number, required: true },
+  distance: { type: Number, default: null },
   heading: { type: Number, default: 0 },
-  hasCompassSupport: { type: Boolean, default: false },
+  // A live compass: the tape follows the phone. Without one the tape rests on the qibla bearing.
+  live: { type: Boolean, default: false },
   compassError: { type: String, default: null },
   canRequestPermission: { type: Boolean, default: false },
 })
 
 defineEmits(['request-permission'])
 
-const needleRotation = computed(() => computeNeedleRotation(props.qiblaDirection, props.heading))
-const isFacingQibla = computed(
-  () => props.hasCompassSupport && computeIsFacingQibla(needleRotation.value, FACING_TOLERANCE),
+const centerDegree = computed(() => (props.live ? props.heading : props.qiblaDirection))
+const ticks = computed(() => getTapeTicks(centerDegree.value, HALF_RANGE, 5))
+
+// Positive: the qibla is to the right, so turn clockwise.
+const turn = computed(() => getShortestRotation(centerDegree.value, props.qiblaDirection))
+const isFacing = computed(() => props.live && Math.abs(turn.value) <= FACING_TOLERANCE)
+
+// The Kaaba marker sits on the tape at the qibla bearing, or waits at the nearer edge when it's out of view.
+const kaabaX = computed(() => {
+  const offset = Math.max(-HALF_RANGE, Math.min(HALF_RANGE, turn.value))
+  return CENTER + offset * PX_PER_DEGREE
+})
+const kaabaOutOfView = computed(() => Math.abs(turn.value) > HALF_RANGE)
+
+const degrees = (value) => `${toArabicNumerals(Math.round(normalizeAngle(value)))}°`
+const distanceLabel = computed(() =>
+  props.distance == null ? '' : `${Math.round(props.distance).toLocaleString('ar-EG')} كم إلى مكة`,
 )
+
+// The instruction under the tape: which way to turn, and by how much.
+const turnSide = computed(() => (turn.value > 0 ? 'يمينًا' : 'يسارًا'))
+const turnAmount = computed(() => `${toArabicNumerals(Math.round(Math.abs(turn.value)))}°`)
 </script>
 
 <template>
-  <div class="qibla-shell">
-    <div class="compass-container" :class="{ 'facing-qibla': isFacingQibla }">
-      <div class="needle" :style="{ transform: `rotate(${needleRotation}deg)` }">
-        <div class="needle-pointer"></div>
-        <div class="kaaba-icon">🕋</div>
-      </div>
-
-      <div class="center-dot"></div>
-
-      <div class="you-indicator">
-        <span>أنت</span>
-      </div>
+  <div class="qibla" :class="{ 'is-facing': isFacing }">
+    <div class="qibla__reading">
+      <bdi class="qibla__degrees" dir="ltr">{{ degrees(centerDegree) }}</bdi>
+      <span class="qibla__caption">{{ live ? 'اتجاهك الآن' : 'اتجاه القبلة من الشمال' }}</span>
     </div>
 
-    <div class="qibla-info">
-      <div class="qibla-degree">
-        <IconCompass size="1.25rem" class="me-2" />
-        <span>{{ toArabicNumerals(qiblaDirection.toFixed(1)) }}° من الشمال</span>
-      </div>
-      <p class="qibla-hint">
-        <template v-if="hasCompassSupport && !compassError">
-          <span v-if="isFacingQibla" class="text-success fw-bold">أنت تواجه القبلة!</span>
-          <span v-else>أدر هاتفك حتى تشير الكعبة للأعلى</span>
-        </template>
-        <template v-else>
-          <span class="text-warning">{{ compassError || 'البوصلة غير متاحة' }}</span>
-        </template>
-      </p>
-    </div>
+    <!-- The tape slides under a fixed centre line as the phone turns; ticks every 5°, labels every 10°. -->
+    <svg class="qibla__tape" :viewBox="`0 0 ${TAPE_WIDTH} 96`" aria-hidden="true">
+      <g v-for="tick in ticks" :key="tick.degree" :transform="`translate(${CENTER + tick.offset * PX_PER_DEGREE} 0)`">
+        <line
+          y1="48"
+          :y2="tick.degree % 10 === 0 ? 64 : 58"
+          class="qibla__tick"
+          :class="{ 'is-major': tick.degree % 10 === 0 }"
+        />
+        <text v-if="tick.degree % 10 === 0" y="82" text-anchor="middle" class="qibla__label">
+          {{ CARDINALS[tick.degree] ?? toArabicNumerals(tick.degree) }}
+        </text>
+      </g>
 
-    <button v-if="canRequestPermission" class="btn btn-primary" @click="$emit('request-permission')">
+      <!-- The Kaaba: a dark cube with its gold band. -->
+      <g class="qibla__kaaba" :class="{ 'is-away': kaabaOutOfView }" :transform="`translate(${kaabaX} 24)`">
+        <rect x="-10" y="-10" width="20" height="20" rx="2.5" class="qibla__kaaba-body" />
+        <rect x="-10" y="-4" width="20" height="3.5" class="qibla__kaaba-band" />
+      </g>
+
+      <line :x1="CENTER" :x2="CENTER" y1="8" y2="70" class="qibla__center" />
+    </svg>
+
+    <p class="qibla__hint">
+      <template v-if="isFacing">أنت تواجه القبلة</template>
+      <template v-else-if="live">
+        أدر هاتفك {{ turnSide }} <bdi dir="ltr">{{ turnAmount }}</bdi>
+      </template>
+      <template v-else>
+        القبلة على <bdi dir="ltr">{{ degrees(qiblaDirection) }}</bdi>
+        <span v-if="compassError" class="d-block">{{ compassError }}</span>
+      </template>
+    </p>
+    <p v-if="distanceLabel" class="qibla__distance">{{ distanceLabel }}</p>
+
+    <button v-if="canRequestPermission" class="btn btn-primary mt-3" @click="$emit('request-permission')">
       <IconCompass class="me-2" size="1.25rem" />
       تفعيل البوصلة
     </button>
@@ -64,110 +101,93 @@ const isFacingQibla = computed(
 </template>
 
 <style lang="scss" scoped>
-.qibla-shell {
+.qibla {
+  --qibla-accent: var(--bs-primary);
+
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
-  padding: 1.5rem 1rem;
-}
-
-.compass-container {
-  position: relative;
-  width: 260px;
-  height: 260px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--bs-body-bg) 0%, var(--bs-secondary-bg) 100%);
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.1),
-    inset 0 2px 10px rgba(0, 0, 0, 0.05);
-  border: 3px solid var(--bs-border-color);
-  transition:
-    border-color 0.3s,
-    box-shadow 0.3s;
-
-  &.facing-qibla {
-    border-color: var(--bs-success);
-    box-shadow:
-      0 0 0 4px rgba(var(--bs-success-rgb), 0.2),
-      0 4px 20px rgba(0, 0, 0, 0.1);
-  }
-}
-
-.needle {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 4px;
-  height: 50%;
-  margin-left: -2px;
-  margin-top: -50%;
-  transform-origin: bottom center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  will-change: transform;
-}
-
-.needle-pointer {
-  width: 0;
-  height: 0;
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-bottom: 24px solid var(--bs-primary);
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-}
-
-.kaaba-icon {
-  font-size: 1.75rem;
-  margin-top: 4px;
-  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.15));
-}
-
-.center-dot {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 14px;
-  height: 14px;
-  background: var(--bs-primary);
-  border-radius: 50%;
-  border: 3px solid var(--bs-body-bg);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  z-index: 10;
-}
-
-.you-indicator {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--bs-primary);
-  color: white;
-  padding: 4px 12px;
-  border-radius: var(--bs-border-radius-pill);
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.qibla-info {
   text-align: center;
 }
 
-.qibla-degree {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--bs-primary);
-  margin-bottom: 0.5rem;
+/* Facing the qibla: the centre line and the hint turn gold, the Kaaba's own colour. */
+.qibla.is-facing {
+  --qibla-accent: #b8913f;
 }
 
-.qibla-hint {
-  color: var(--bs-secondary-color);
+.qibla__reading {
+  display: grid;
+  justify-items: center;
+  gap: 0.25rem;
+}
+
+.qibla__degrees {
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.qibla__caption,
+.qibla__distance {
   margin: 0;
-  font-size: 1rem;
+  color: var(--bs-secondary-color);
+  font-size: 0.875rem;
+}
+
+.qibla__tape {
+  width: min(20rem, 100%);
+  height: auto;
+  margin-top: 2rem;
+  overflow: hidden;
+  /* Fade the tape out at both ends. */
+  mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+}
+
+.qibla__tick {
+  stroke: var(--bs-secondary-color);
+  stroke-width: 1;
+
+  &.is-major {
+    stroke: var(--bs-body-color);
+    stroke-width: 1.5;
+  }
+}
+
+.qibla__label {
+  fill: var(--bs-secondary-color);
+  font-size: 11px;
+}
+
+.qibla__center {
+  stroke: var(--qibla-accent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  transition: stroke 0.3s ease;
+}
+
+.qibla__kaaba.is-away {
+  opacity: 0.5;
+}
+
+.qibla__kaaba-body {
+  fill: #1f1b1a;
+  stroke: #d9b26a;
+  stroke-width: 1;
+}
+
+.qibla__kaaba-band {
+  fill: #d9b26a;
+}
+
+.qibla__hint {
+  margin: 1.5rem 0 0.25rem;
+  font-weight: 600;
+  color: var(--qibla-accent);
+  transition: color 0.3s ease;
+}
+
+[data-bs-theme='dark'] .qibla:not(.is-facing) {
+  --qibla-accent: color-mix(in srgb, var(--bs-primary) 35%, #fff);
 }
 </style>

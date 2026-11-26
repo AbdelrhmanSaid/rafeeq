@@ -9,12 +9,16 @@ const needsPermissionPrompt = () =>
 export function useDeviceCompass() {
   const heading = ref(0)
   const hasSupport = ref(false)
+  // Desktop browsers expose the orientation API without ever firing it, so only a real reading means a live compass.
+  const hasReading = ref(false)
   const error = ref(null)
 
   const canRequestPermission = computed(() => !hasSupport.value && needsPermissionPrompt())
 
   function update(rawHeading) {
-    heading.value = smoothAngle(heading.value, rawHeading, SMOOTHING)
+    // The first reading jumps straight to the heading instead of sweeping there from north.
+    heading.value = hasReading.value ? smoothAngle(heading.value, rawHeading, SMOOTHING) : normalizeAngle(rawHeading)
+    hasReading.value = true
   }
 
   function handleOrientation(event) {
@@ -57,11 +61,14 @@ export function useDeviceCompass() {
     }
   }
 
-  onMounted(requestPermission)
+  // Where the browser asks for permission, the request only works from a tap, so wait for the "enable" button.
+  onMounted(() => {
+    if (!needsPermissionPrompt()) requestPermission()
+  })
   onUnmounted(() => {
     window.removeEventListener('deviceorientation', handleOrientation, true)
     window.removeEventListener('deviceorientationabsolute', handleAbsoluteOrientation, true)
   })
 
-  return { heading, hasSupport, error, canRequestPermission, requestPermission }
+  return { heading, hasSupport, hasReading, error, canRequestPermission, requestPermission }
 }
