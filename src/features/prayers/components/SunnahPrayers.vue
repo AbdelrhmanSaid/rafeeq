@@ -1,6 +1,8 @@
 <script setup>
+import { computed, ref } from 'vue'
 import PrayerIcon from '@/features/prayers/components/icons/PrayerIcon.vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
+import { useCurrentPrayerKey } from '@/features/prayers/composables/useCurrentPrayerKey'
 
 defineProps({
   // Shown on the label row above the list, beside the قبل / بعد column labels.
@@ -9,36 +11,51 @@ defineProps({
 
 const prayers = [
   {
+    key: 'Fajr',
     name: 'الفجر',
     before: 2,
     after: 0,
     icon: 'fajr',
   },
   {
+    key: 'Dhuhr',
     name: 'الظهر',
     before: 4,
     after: 4,
     icon: 'dhuhr',
   },
   {
+    key: 'Asr',
     name: 'العصر',
     before: 0,
     after: 0,
     icon: 'asr',
   },
   {
+    key: 'Maghrib',
     name: 'المغرب',
     before: 0,
     after: 2,
     icon: 'maghrib',
   },
   {
+    key: 'Isha',
     name: 'العشاء',
     before: 0,
     after: 2,
     icon: 'isha',
   },
 ]
+
+// Phones show only the current prayer's sunnah until expanded; the time after sunrise has none, so Dhuhr stands in.
+const currentPrayerKey = useCurrentPrayerKey()
+const current = computed(() => {
+  const key = currentPrayerKey.value === 'Sunrise' ? 'Dhuhr' : currentPrayerKey.value
+  return prayers.find((prayer) => prayer.key === key) ?? null
+})
+const expanded = ref(false)
+// Without a location there's no current prayer to pick, so the full list shows.
+const visiblePrayers = computed(() => (expanded.value || !current.value ? prayers : [current.value]))
 
 const formatRakaa = (value) => {
   if (value === 0) return '—'
@@ -59,8 +76,8 @@ const formatRakaa = (value) => {
       </div>
       <div class="list-group">
         <div
-          v-for="(prayer, index) in prayers"
-          :key="index"
+          v-for="prayer in visiblePrayers"
+          :key="prayer.key"
           class="list-group-item d-flex align-items-center justify-content-between sunnah-row"
         >
           <div class="d-flex align-items-center gap-2 min-w-0">
@@ -78,6 +95,15 @@ const formatRakaa = (value) => {
             </span>
           </div>
         </div>
+        <button
+          v-if="current"
+          type="button"
+          class="list-group-item list-group-item-action sunnah-toggle"
+          :aria-expanded="expanded"
+          @click="expanded = !expanded"
+        >
+          {{ expanded ? 'عرض أقل' : 'عرض الكل' }}
+        </button>
       </div>
     </div>
 
@@ -159,6 +185,18 @@ const formatRakaa = (value) => {
       box-shadow: var(--app-shadow-card-hover);
     }
   }
+}
+
+.sunnah-toggle {
+  padding-block: 0.625rem;
+  color: var(--bs-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+[data-bs-theme='dark'] .sunnah-toggle {
+  color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
 }
 
 .rakaa-col {
