@@ -19,6 +19,14 @@ const asIos = () => {
   window.DeviceOrientationEvent.requestPermission = async () => 'granted'
 }
 
+// Recent Chrome, Android included, has the permission prompt as well as the absolute event.
+const asChrome = (answer = 'granted') => {
+  window.ondeviceorientationabsolute = null
+  window.DeviceOrientationEvent.requestPermission = async () => answer
+}
+
+const settle = () => new Promise((resolve) => setTimeout(resolve))
+
 let wrapper
 const mountCompass = () => {
   let compass
@@ -84,5 +92,38 @@ describe('useDeviceCompass', () => {
     fire('deviceorientationabsolute', { alpha: 0, beta: 0, gamma: 85, absolute: true })
 
     expect(compass.sideways.value).toBe(true)
+  })
+  it('reads the absolute orientation in Chrome, which also has the permission prompt', async () => {
+    asChrome()
+    const compass = mountCompass()
+    await settle()
+    fire('deviceorientationabsolute', { alpha: 90, beta: 0, gamma: 0, absolute: true })
+
+    expect(compass.canRequestPermission.value).toBe(false)
+    expect(compass.heading.value).toBeCloseTo(270)
+  })
+
+  it('waits for a tap without an error when the quiet request on opening is refused', async () => {
+    asChrome('denied')
+    const compass = mountCompass()
+    await settle()
+
+    expect(compass.canRequestPermission.value).toBe(true)
+    expect(compass.error.value).toBe(null)
+  })
+
+  it('starts listening and drops the earlier refusal when a later tap is granted', async () => {
+    asChrome('denied')
+    const compass = mountCompass()
+    await settle()
+    await compass.requestPermission()
+    expect(compass.error.value).not.toBe(null)
+
+    window.DeviceOrientationEvent.requestPermission = async () => 'granted'
+    await compass.requestPermission()
+    expect(compass.error.value).toBe(null)
+    fire('deviceorientationabsolute', { alpha: 90, beta: 0, gamma: 0, absolute: true })
+
+    expect(compass.heading.value).toBeCloseTo(270)
   })
 })
