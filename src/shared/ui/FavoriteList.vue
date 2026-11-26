@@ -97,8 +97,15 @@ const favorites = filterFavorites(() => props.items, getKey)
 </template>
 
 <style lang="scss" scoped>
+/* Compact rows: the 44px action buttons set the height. */
 .fav-row {
-  padding-block: 0.9rem;
+  padding-block: 0.375rem;
+}
+
+.fav-row :deep(.list-index) {
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.8125rem;
 }
 
 .fav-actions {
