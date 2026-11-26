@@ -11,6 +11,7 @@ import {
   IconClockHour4,
 } from '@tabler/icons-vue'
 import SettingsSection from './SettingsSection.vue'
+import SelectRow from '@/shared/ui/SelectRow.vue'
 import { CALCULATION_FIELDS } from '@/features/prayers/constants/calculationOptions'
 
 const store = usePrayersStore()
@@ -29,7 +30,7 @@ const location = computed(() => {
 
 <template>
   <SettingsSection title="مواقيت الصلاة" description="حدّد موقعك وطريقة عرض المواقيت" :icon="IconClockHour4">
-    <div class="mb-3">
+    <div class="mb-2">
       <span class="d-block mb-2">طريقة العرض</span>
       <div class="btn-group-toggle">
         <button class="btn-toggle" :class="{ active: store.layout === 'cards' }" @click="store.layout = 'cards'">
@@ -47,32 +48,58 @@ const location = computed(() => {
       </div>
     </div>
 
-    <div class="mb-3">
-      <div class="input-group">
-        <div class="form-floating">
-          <input id="location" type="text" class="form-control" :value="location" readonly />
-          <label for="location">الموقع</label>
-        </div>
-
-        <button type="button" class="input-group-text" @click="detect">
+    <div class="row-group row-group--flush">
+      <!-- The saved location, with buttons to detect it again or clear it. -->
+      <div class="location-row">
+        <span>الموقع</span>
+        <bdi class="location-row__value" dir="ltr">{{ location }}</bdi>
+        <button type="button" class="location-row__action" aria-label="تحديد الموقع" @click="detect">
           <IconRefreshDot size="1.25rem" />
         </button>
-
-        <button type="button" class="input-group-text" @click="store.clear">
+        <button type="button" class="location-row__action" aria-label="مسح الموقع" @click="store.clear">
           <IconTrash size="1.25rem" />
         </button>
       </div>
-    </div>
 
-    <div v-for="field in calculationFields" :key="field.key" class="mb-3">
-      <div class="form-floating">
-        <select :id="field.key" class="form-select" v-model="store[field.key]">
-          <option v-for="option in field.options" :key="option.value" :value="option.value">
-            {{ option.label }}
-          </option>
-        </select>
-        <label :for="field.key">{{ field.label }}</label>
-      </div>
+      <SelectRow
+        v-for="field in calculationFields"
+        :key="field.key"
+        v-model="store[field.key]"
+        :label="field.label"
+        :options="field.options"
+      />
     </div>
   </SettingsSection>
 </template>
+
+<style scoped>
+.location-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 3rem;
+}
+
+.location-row__value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--bs-secondary-color);
+  font-size: 0.875rem;
+  text-align: end;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.location-row__action {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--bs-secondary-color);
+}
+</style>

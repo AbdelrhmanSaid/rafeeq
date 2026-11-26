@@ -129,11 +129,24 @@ const router = createRouter({
     },
 
     {
-      path: '/settings/:tab(appearance|prayer|quran|azkar|app|downloads)?',
+      path: '/settings',
       name: 'settings',
       component: () => import('@/features/settings/views/SettingsView.vue'),
       meta: {
         parent: 'more',
+        title: 'الإعدادات',
+        description: 'تخصيص إعدادات تطبيق رفيق بما يناسب احتياجاتك وتفضيلاتك.',
+        keywords: ['إعدادات', 'تخصيص', 'خيارات'],
+      },
+    },
+
+    // Each settings section is its own screen, opened from the list on /settings.
+    {
+      path: '/settings/:tab(appearance|prayer|quran|azkar|app|downloads)',
+      name: 'settings-section',
+      component: () => import('@/features/settings/views/SettingsView.vue'),
+      meta: {
+        parent: 'settings',
         title: 'الإعدادات',
         description: 'تخصيص إعدادات تطبيق رفيق بما يناسب احتياجاتك وتفضيلاتك.',
         keywords: ['إعدادات', 'تخصيص', 'خيارات'],

@@ -6,7 +6,7 @@ export const NAV_GROUPS = {
   azkar: ['azkar', 'azkar-category'],
   radio: ['radio', 'radio-station'],
   // The More tab stands for every screen it opens, like a native tab bar's overflow tab.
-  more: ['more', 'qibla', 'zakat', 'sebha', 'settings', 'privacy'],
+  more: ['more', 'qibla', 'zakat', 'sebha', 'settings', 'settings-section', 'privacy'],
 }
 
 export function isNavGroupActive(group, routeName) {

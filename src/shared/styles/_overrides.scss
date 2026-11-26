@@ -190,3 +190,35 @@ html[dir='rtl'] input[type='number']::placeholder {
 .card {
   --bs-card-border-color: var(--bs-border-color);
 }
+
+/* iOS-style switches: a pill track, a white knob, the brand colour when on. */
+.form-switch {
+  min-height: 0;
+  padding-inline-start: 0;
+
+  .form-check-input {
+    --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3.25' fill='%23fff' stroke='rgba(0,0,0,.06)' stroke-width='.15'/%3e%3c/svg%3e");
+
+    float: none;
+    width: 3.125rem;
+    height: 1.875rem;
+    margin: 0;
+    border: 0;
+    border-radius: 999px;
+    background-color: color-mix(in srgb, var(--bs-body-color) 18%, var(--bs-body-bg));
+    cursor: pointer;
+    transition:
+      background-position 0.2s ease,
+      background-color 0.2s ease;
+
+    &:checked {
+      background-color: var(--bs-primary);
+    }
+  }
+}
+
+/* Bootstrap greys the off knob in dark mode; keep it white like the light theme. */
+[data-bs-theme='dark'] .form-switch .form-check-input:not(:checked):not(:focus),
+.form-switch .form-check-input:not(:checked):focus {
+  --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3.25' fill='%23fff' stroke='rgba(0,0,0,.06)' stroke-width='.15'/%3e%3c/svg%3e");
+}

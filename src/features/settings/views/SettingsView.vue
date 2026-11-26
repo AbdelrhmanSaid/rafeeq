@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import {
+  IconChevronLeft,
   IconPalette,
   IconClockHour4,
   IconBook2,
@@ -67,72 +68,109 @@ const tabs = [
 ]
 
 const route = useRoute()
-const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab) ?? tabs[0])
+// /settings lists the sections; /settings/<section> shows one of them on its own screen.
+const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab) ?? null)
 </script>
 
 <template>
-  <Page>
-    <Heading class="mb-4" title="الإعدادات" subtitle="تعديل الإعدادات المختلفة للتطبيق" />
+  <Page v-if="activeTab">
+    <Heading class="mb-4" :title="activeTab.label" />
 
-    <div class="settings-layout">
-      <nav class="settings-nav tab-pills" aria-label="أقسام الإعدادات">
-        <RouterLink
-          v-for="tab in tabs"
-          :key="tab.id"
-          :to="{ name: 'settings', params: { tab: tab.id } }"
-          class="settings-nav-item tab-pill"
-          :class="{ active: activeTab.id === tab.id }"
-        >
-          <component :is="tab.icon" :size="20" />
-          <span>{{ tab.label }}</span>
-        </RouterLink>
-      </nav>
-
-      <div class="settings-content">
-        <div class="settings-stack">
-          <component v-for="(section, index) in activeTab.sections" :key="index" :is="section" />
-        </div>
-      </div>
+    <!-- One grouped list per section: each setting is a row, separated by hairlines. -->
+    <div class="settings-group">
+      <component v-for="(section, index) in activeTab.sections" :key="index" :is="section" />
     </div>
+  </Page>
+
+  <Page v-else>
+    <Heading class="mb-4" subtitle-desktop-only title="الإعدادات" subtitle="تعديل الإعدادات المختلفة للتطبيق" />
+
+    <!-- The sections, as rows like the More screen. -->
+    <nav class="settings-list" aria-label="أقسام الإعدادات">
+      <RouterLink
+        v-for="tab in tabs"
+        :key="tab.id"
+        :to="{ name: 'settings-section', params: { tab: tab.id } }"
+        class="settings-row"
+      >
+        <span class="icon-tile settings-row__icon"><component :is="tab.icon" aria-hidden="true" /></span>
+        <span class="settings-row__label">{{ tab.label }}</span>
+        <IconChevronLeft class="settings-row__chevron" aria-hidden="true" />
+      </RouterLink>
+    </nav>
   </Page>
 </template>
 
-<style scoped>
-/* One column with a scrollable row of tabs on every screen size; pages are capped at 40rem. */
-.settings-layout {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  align-items: start;
+<style lang="scss" scoped>
+/* An inset grouped list, matching the More screen. */
+.settings-list,
+.settings-group {
+  overflow: hidden;
+  border: 1px solid var(--app-hairline);
+  border-radius: var(--bs-border-radius-xl);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-card);
 }
 
-.settings-nav {
-  flex-direction: row;
-  gap: 0.5rem;
-  overflow-x: auto;
-  margin: 0 -0.25rem;
-  padding: 0 0.25rem 0.35rem;
+/* Settings inside a section sit as rows with full-width hairlines between them. */
+.settings-group > :deep(* + *) {
+  border-top: 1px solid var(--app-hairline);
 }
 
-.settings-nav-item {
-  width: auto;
-  flex-shrink: 0;
-  border-color: var(--bs-border-color);
-  padding: 0.5rem 0.9rem;
-  font-size: 0.85rem;
-}
-
-.settings-nav-item.active {
-  border-color: transparent;
-}
-
-.settings-content {
-  min-width: 0;
-}
-
-.settings-stack {
+.settings-row {
+  position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  align-items: center;
+  gap: 0.875rem;
+  min-height: 3.5rem;
+  padding: 0.625rem 1rem;
+  color: var(--bs-body-color);
+  text-decoration: none;
+
+  & + & {
+    border-top: 1px solid var(--app-hairline);
+  }
+
+  &:active {
+    background: var(--app-surface-active);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .settings-row:hover {
+    background: var(--app-surface-hover);
+  }
+}
+
+.settings-row__icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  color: var(--bs-primary);
+
+  svg {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+}
+
+[data-bs-theme='dark'] .settings-row__icon {
+  color: color-mix(in srgb, var(--bs-primary) 28%, #fff);
+}
+
+.settings-row__label {
+  flex: 1;
+  min-width: 0;
+  font-weight: 500;
+}
+
+.settings-row__chevron {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--bs-secondary-color);
+}
+
+[dir='ltr'] .settings-row__chevron {
+  transform: scaleX(-1);
 }
 </style>

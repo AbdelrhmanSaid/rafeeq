@@ -8,6 +8,7 @@ import tafseers from '@/features/quran/data/tafseers.js'
 import { IconChevronRight, IconChevronLeft } from '@tabler/icons-vue'
 
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
+import SelectRow from '@/shared/ui/SelectRow.vue'
 import LoadingState from '@/shared/ui/LoadingState.vue'
 import ErrorState from '@/shared/ui/ErrorState.vue'
 import OfflineState from '@/shared/ui/OfflineState.vue'
@@ -19,6 +20,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close', 'prev', 'next'])
+
+const tafseerOptions = tafseers.map((tafseer) => ({ value: tafseer.identifier, label: tafseer.name }))
 
 const online = useOnline()
 const quranStore = useQuranStore()
@@ -50,13 +53,8 @@ watch([() => props.ayah, edition], ([ayah]) => {
           <span class="ayah-number">{{ toArabicNumerals(displayAyah.numberInSurah) }}</span>
         </p>
 
-        <div class="form-floating mb-4">
-          <select id="tafseerEdition" v-model="edition" class="form-select">
-            <option v-for="tafseer in tafseers" :key="tafseer.identifier" :value="tafseer.identifier">
-              {{ tafseer.name }}
-            </option>
-          </select>
-          <label for="tafseerEdition">التفسير</label>
+        <div class="row-group mb-4">
+          <SelectRow v-model="edition" label="التفسير" :options="tafseerOptions" />
         </div>
       </template>
 

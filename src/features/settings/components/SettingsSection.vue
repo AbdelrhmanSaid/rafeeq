@@ -27,72 +27,61 @@ const hasBody = computed(() => {
     <slot />
   </div>
 
-  <section v-else class="settings-section card h-100">
-    <div class="card-body">
-      <header v-if="title || $slots.actions" class="settings-section-header" :class="{ 'is-flush': !hasBody }">
-        <div class="settings-section-heading">
-          <span v-if="icon" class="icon-tile settings-section-icon">
-            <component :is="icon" :size="18" />
-          </span>
-          <div>
-            <h6 class="settings-section-title">{{ title }}</h6>
-            <p v-if="description" class="settings-section-description">{{ description }}</p>
-          </div>
-        </div>
-
-        <div v-if="$slots.actions" class="settings-section-actions">
-          <slot name="actions" />
-        </div>
-      </header>
-
-      <div v-if="hasBody" class="settings-section-body">
-        <slot />
+  <!-- One row in a settings group: the title and a muted description, the control at the end, any body below. -->
+  <section v-else class="settings-section">
+    <header v-if="title || $slots.actions" class="settings-section-header">
+      <div class="settings-section-heading">
+        <h2 class="settings-section-title">{{ title }}</h2>
+        <p v-if="description" class="settings-section-description">{{ description }}</p>
       </div>
+
+      <div v-if="$slots.actions" class="settings-section-actions">
+        <slot name="actions" />
+      </div>
+    </header>
+
+    <div v-if="hasBody" class="settings-section-body" :class="{ 'has-header': title || $slots.actions }">
+      <slot />
     </div>
   </section>
 </template>
 
 <style scoped>
+.settings-section {
+  padding: 0.875rem 1rem;
+}
+
 .settings-section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
-}
-
-.settings-section-header.is-flush {
-  margin-bottom: 0;
+  gap: 1rem;
+  min-height: 2rem;
 }
 
 .settings-section-heading {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
   min-width: 0;
-}
-
-.settings-section-icon {
-  color: var(--bs-primary);
-}
-
-[data-bs-theme='dark'] .settings-section-icon {
-  color: color-mix(in srgb, var(--bs-primary) 28%, #fff);
 }
 
 .settings-section-title {
   margin: 0;
+  font-family: inherit;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .settings-section-description {
-  margin: 0.15rem 0 0;
-  font-size: 0.85rem;
+  margin: 0.125rem 0 0;
   color: var(--bs-secondary-color);
+  font-size: 0.8125rem;
+  line-height: 1.6;
 }
 
 .settings-section-actions {
   flex-shrink: 0;
+}
+
+.settings-section-body.has-header {
+  margin-top: 0.875rem;
 }
 </style>

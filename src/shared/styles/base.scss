@@ -629,3 +629,23 @@ input[type='number'] {
     -webkit-appearance: none;
   }
 }
+
+/* Rows of label-and-value controls (iOS-style), separated by hairlines.
+   Flush groups sit edge to edge inside an already padded surface, like a settings section. */
+.row-group {
+  padding-inline: 1rem;
+  border: 1px solid var(--app-hairline);
+  border-radius: var(--bs-border-radius-lg);
+  background: var(--app-surface);
+
+  > * + * {
+    border-top: 1px solid var(--app-hairline);
+  }
+}
+
+.row-group--flush {
+  margin-inline: -1rem;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
