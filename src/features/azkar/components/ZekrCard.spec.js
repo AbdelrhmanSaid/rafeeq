@@ -129,4 +129,17 @@ describe('ZekrCard', () => {
 
     expect(counts[0]).toBe(1)
   })
+
+  it('still counts a tap while text is selected elsewhere on the page', async () => {
+    const { wrapper, counts } = mountCard(3)
+    const elsewhere = document.createElement('p')
+    elsewhere.textContent = 'نص محدد'
+    document.body.appendChild(elsewhere)
+    window.getSelection().selectAllChildren(elsewhere)
+
+    await wrapper.find('.zekr-text').trigger('click')
+
+    expect(counts[0]).toBe(1)
+    elsewhere.remove()
+  })
 })

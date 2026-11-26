@@ -76,10 +76,16 @@ const onTouchEnd = (e) => {
   touchStartY = null
 }
 
-// A click anywhere on the card counts, on phones and desktop alike, unless it ends a scroll or a text selection.
+// Every new press starts clean. A long press counts by itself and flags the click that follows so it doesn't count
+// twice; that flag used to clear only on pointer-up, which iOS sometimes skips, and then it swallowed the next tap.
+const onPressStart = () => {
+  longPressed = false
+}
+
+// A click anywhere on the card counts, on phones and desktop alike, unless it ends a scroll.
+// (The card can't be text-selected, so a page-wide selection check only blocked real taps.)
 const onCardClick = () => {
-  const selecting = Boolean(window.getSelection?.()?.toString())
-  if (!longPressed && !touchMoved && !selecting) increment()
+  if (!longPressed && !touchMoved) increment()
   longPressed = false
   touchMoved = false
 }
@@ -139,6 +145,7 @@ const copyZekr = () => {
     class="card zekr-card-root"
     :class="{ completed: count >= repeat }"
     @click="onCardClick"
+    @pointerdown="onPressStart"
     @touchstart.passive="onTouchStart"
     @touchend.passive="onTouchEnd"
   >
