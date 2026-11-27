@@ -14,7 +14,8 @@ const props = defineProps({
   similar: { type: Array, default: () => [] },
 })
 
-defineEmits(['toggle', 'favorite'])
+// `play-similar` fires with the tapped suggestion, which also opens that station's page.
+defineEmits(['toggle', 'favorite', 'play-similar'])
 
 // The station name is the page's large title: the app bar (or the desktop top nav) carries back and share.
 usePageHeader({
@@ -117,6 +118,7 @@ const STARS = [
           :key="item.slug"
           :to="{ name: 'radio-station', params: { slug: item.slug } }"
           class="list-group-item list-group-item-action d-flex align-items-center gap-3 station__row"
+          @click="$emit('play-similar', item)"
         >
           <span class="list-index">{{ toArabicNumerals(index + 1) }}</span>
           <span class="fw-medium text-truncate">
@@ -263,8 +265,9 @@ const STARS = [
     height: 2rem;
   }
 
+  /* Darken instead of fading, so the sky behind the button never shows through. */
   &:active {
-    opacity: 0.85;
+    background: color-mix(in srgb, var(--bs-primary) 85%, #000);
   }
 }
 

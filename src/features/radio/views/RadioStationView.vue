@@ -56,6 +56,7 @@ usePageMeta(
       :similar="similar"
       @toggle="isPlaying ? store.stop() : store.play(station.url, station)"
       @favorite="toggleFavorite(stationSlug)"
+      @play-similar="(item) => store.play(item.url, item)"
     />
   </Page>
 </template>
