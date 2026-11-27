@@ -13,8 +13,6 @@ export const STORAGE_KEYS = {
 
   longitude: 'longitude',
   latitude: 'latitude',
-  // No longer set (prayer times have one layout); kept so backups that include it still import.
-  prayerTimesLayout: 'prayer-times-layout',
   prayerCalcMethod: 'prayer-calc-method',
   prayerCalcSchool: 'prayer-calc-school',
   prayerCalcLatitudeAdjustment: 'prayer-calc-latitude-adjustment',
@@ -22,15 +20,13 @@ export const STORAGE_KEYS = {
 
   currentReciter: 'currentReciter',
   currentTafseer: 'currentTafseer',
-  // No longer set (the Mushaf player has no speed control); kept so backups that include it still import.
-  playbackRate: 'quran-playback-rate',
 
   installPromptDismissed: 'install-prompt-dismissed',
 
   azkarProgress: 'azkar-progress',
   azkarFavorites: 'azkarFavorites',
   quranFavorites: 'quranFavorites',
-  // The single bookmark of the old reader, moved into quranBookmarks on first load; kept so old backups import.
+  // The single bookmark of the old reader, read once to move it into quranBookmarks on first load.
   quranBookmark: 'quranBookmark',
   quranBookmarks: 'quran-bookmarks',
   quranLastPage: 'quran-last-page',
