@@ -1,7 +1,6 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import Heading from '@/shared/ui/Heading.vue'
 import Page from '@/layout/Page.vue'
 import ErrorState from '@/shared/ui/ErrorState.vue'
 import { IconAlertTriangle } from '@tabler/icons-vue'
@@ -10,19 +9,11 @@ import SunnahPrayers from '@/features/prayers/components/SunnahPrayers.vue'
 import Sebha from '@/features/sebha/components/Sebha.vue'
 import RandomAyah from '@/features/quran/components/RandomAyah.vue'
 
-const schema = {
-  title: { type: String, default: null },
-  subtitle: { type: String, default: null },
-}
-
+// Each embed looks as it does in the app; the query only picks a location and adds a title.
 const components = {
   'prayer-times': {
     component: PrayerTimes,
-    schema: {
-      lat: { type: Number, default: null },
-      long: { type: Number, default: null },
-      vertical: { type: Boolean, default: false },
-    },
+    props: (query) => ({ lat: toNumber(query.lat), long: toNumber(query.long) }),
   },
   'sunnah-prayers': {
     component: SunnahPrayers,
@@ -37,49 +28,29 @@ const components = {
   },
 }
 
-function resolveProps(schema, query) {
-  const result = {}
-
-  for (const key in schema) {
-    const raw = query[key]
-    const { type, default: defaultValue } = schema[key]
-
-    if (raw == null) {
-      result[key] = defaultValue
-      continue
-    }
-
-    if (type === Number) result[key] = Number(raw)
-    else if (type === Boolean) result[key] = raw !== 'false' && raw !== '0'
-    else result[key] = raw
-  }
-
-  return result
+function toNumber(value) {
+  if (value == null || value === '') return null
+  const number = Number(value)
+  return Number.isFinite(number) ? number : null
 }
 
 const route = useRoute()
 const entry = computed(() => components[route.params.component])
-const component = computed(() => entry.value?.component)
 
-const props = computed(() => resolveProps(schema, route.query))
+const title = computed(() => (typeof route.query.title === 'string' ? route.query.title.trim() : ''))
 const componentProps = computed(() => ({
-  ...resolveProps(entry.value?.schema ?? {}, route.query),
-  ...(entry.value?.ownsTitle && props.value.title ? { title: props.value.title } : {}),
+  ...entry.value?.props?.(route.query),
+  ...(entry.value?.ownsTitle && title.value ? { title: title.value } : {}),
 }))
 </script>
 
 <template>
   <Page>
-    <template v-if="component">
-      <Heading
-        v-if="props.title && !entry.ownsTitle"
-        :size="2"
-        class="mb-4"
-        :title="props.title"
-        :subtitle="props.subtitle"
-      />
-      <component :is="component" v-bind="componentProps" />
-    </template>
+    <section v-if="entry">
+      <!-- The app's muted section title, as on Home. -->
+      <h2 v-if="title && !entry.ownsTitle" class="list-title">{{ title }}</h2>
+      <component :is="entry.component" v-bind="componentProps" />
+    </section>
 
     <!-- A wrong name in the embed code, not a failed load: say so, with no retry. -->
     <ErrorState

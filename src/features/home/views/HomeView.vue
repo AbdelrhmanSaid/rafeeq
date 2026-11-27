@@ -41,7 +41,7 @@ const today = computed(() =>
     </header>
 
     <HomeSection>
-      <PrayerTimes :vertical="prayersStore.vertical" :compact="prayersStore.compact" :show-weekday="false" />
+      <PrayerTimes :layout="prayersStore.layout" :show-weekday="false" />
     </HomeSection>
 
     <HomeSection>

@@ -16,9 +16,8 @@ import PrayerIcon from '@/features/prayers/components/icons/PrayerIcon.vue'
 const props = defineProps({
   lat: { type: [Number, String], default: null },
   long: { type: [Number, String], default: null },
-  vertical: { type: Boolean, default: false },
-  // Folds the six times into the next-prayer card instead of listing them below it.
-  compact: { type: Boolean, default: false },
+  // 'auto' folds the six times into the next-prayer card; 'list' and 'cards' list them below it instead.
+  layout: { type: String, default: 'auto' },
   // Home shows the weekday in its greeting, so the card can leave it out.
   showWeekday: { type: Boolean, default: true },
 })
@@ -183,7 +182,7 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
         <span class="prayer-hero__bar" :style="{ '--progress': progress }"></span>
       </div>
 
-      <ol v-if="compact" class="prayer-strip" aria-label="مواقيت اليوم">
+      <ol v-if="layout === 'auto'" class="prayer-strip" aria-label="مواقيت اليوم">
         <li
           v-for="(timing, key) in timingsMap"
           :key="key"
@@ -199,7 +198,7 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
     </div>
 
     <!-- One inset grouped list, like the rest of the app's lists. -->
-    <ol v-if="!compact && vertical" class="list-group prayer-list" aria-label="مواقيت اليوم">
+    <ol v-if="layout === 'list'" class="list-group prayer-list" aria-label="مواقيت اليوم">
       <li
         v-for="(timing, key) in timingsMap"
         :key="key"
@@ -215,7 +214,7 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
       </li>
     </ol>
 
-    <div v-else-if="!compact" class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2">
+    <div v-else-if="layout === 'cards'" class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2">
       <div v-for="(timing, key) in timingsMap" :key="key" class="col">
         <div
           class="card h-100 prayer-card"

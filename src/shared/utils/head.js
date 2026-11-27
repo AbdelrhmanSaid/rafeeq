@@ -32,8 +32,10 @@ const setMetaTag = ({ name, property, content }) => {
   element.setAttribute('content', content)
 }
 
-export const useMeta = (meta) => {
-  let { title, description, keywords } = Object.assign({}, defaultMeta, meta)
+export const useMeta = (meta = {}) => {
+  // A route without a title (or a function that found none) passes undefined, which must not replace the default.
+  const given = Object.fromEntries(Object.entries(meta).filter(([, value]) => value != null && value !== ''))
+  let { title, description, keywords } = { ...defaultMeta, ...given }
 
   if (title !== defaultMeta.title) title = `${title} - رفيق`
 
