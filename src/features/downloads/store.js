@@ -146,6 +146,12 @@ export const useDownloadStore = defineStore('download', () => {
   // Mushaf pages, then the old copies go.
   async function replaceOldSurahDownloads() {
     await scanStoredPages()
+    // Surahs downloaded before whose pages are gone (the move to the V4 Mushaf fonts replaced them) come back.
+    const missing = new Set(mushafDownloads.missing().map(String))
+    if (missing.size) {
+      downloadQueue.value.push(...assetTypes.surah.assets.filter((a) => missing.has(a.key) && !isInQueue(a)))
+      processQueue()
+    }
     const old = (await idbKeys()).filter((key) => key === 'offline-quran' || String(key).startsWith('quran.'))
     if (!old.length) return
     const ids = new Set(old.filter((key) => key !== 'offline-quran').map((key) => String(key).slice('quran.'.length)))

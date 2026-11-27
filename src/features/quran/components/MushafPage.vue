@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, reactive, ref, shallowRef, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, reactive, ref, shallowRef, useTemplateRef, watch } from 'vue'
 import { useOnline } from '@vueuse/core'
 import { IconRefresh } from '@tabler/icons-vue'
 import { loadPage } from '@/features/quran/lib/mushafStorage'
@@ -55,6 +55,20 @@ async function load() {
 }
 
 watch(() => props.page, load, { immediate: true })
+
+// The V4 fonts stretch their letters more on some lines than others, so about one line in forty comes out wider than the
+// page (up to a third wider on a few pages). Once the page's font has drawn its lines, those are set a little smaller so
+// they still meet both margins. Everything is in em, so the ratio holds at any size.
+const linesBox = useTemplateRef('linesBox')
+watch(data, async () => {
+  await nextTick()
+  for (const line of linesBox.value?.querySelectorAll('.mushaf-line--text') ?? []) {
+    line.style.removeProperty('--fit')
+    if (!line.clientWidth) continue
+    const over = line.scrollWidth / line.clientWidth
+    if (over > 1.002) line.style.setProperty('--fit', (1 / over).toFixed(4))
+  }
+})
 // A page that failed offline loads once the connection is back.
 watch(online, (isOnline) => isOnline && failed.value && load())
 
@@ -242,7 +256,7 @@ onBeforeUnmount(() => {
         <span>الجزء {{ toArabicNumerals(data.juz) }}</span>
       </div>
 
-      <div class="mushaf-sheet__lines">
+      <div ref="linesBox" class="mushaf-sheet__lines">
         <template v-for="(line, index) in lines" :key="index">
           <div v-if="line.surah" class="mushaf-line mushaf-line--surah" role="heading" aria-level="2">
             <span class="visually-hidden">
@@ -273,7 +287,7 @@ onBeforeUnmount(() => {
             <span class="basmala" aria-hidden="true">&#xFB51;&#xFB52;&#xFB53;</span>
           </div>
 
-          <div v-else class="mushaf-line" :class="{ 'is-centered': line.centered }">
+          <div v-else class="mushaf-line mushaf-line--text" :class="{ 'is-centered': line.centered }">
             <template v-for="(segment, i) in line.segments" :key="i">
               <span
                 class="ayah"
@@ -341,16 +355,17 @@ onBeforeUnmount(() => {
 }
 
 /* The page is sized to the screen: as wide as a full line allows, unless fifteen lines would then run too tall.
-   Measured across all 604 pages, a line's words come to 15.6em on average and 16.4em at most (page 254, line 7),
-   so a 16.6em line fits every one, with the rest of each line going to the spaces between words. */
+   Measured across all 604 pages with the V4 fonts, a line's words come to 16.1em at the median and 17.2em or less for
+   97 lines in 100, so a 17.2em line fits nearly all of them with the rest going to the spaces between words; the few
+   wider ones are set smaller to fit (see the watch on data). */
 .mushaf-sheet {
-  --line-width: 16.6em;
+  --line-width: 17.2em;
   --pitch: clamp(1.85em, calc((100cqh - 96px - var(--player-room)) / 15), 2.5em);
 
   display: flex;
   flex-direction: column;
   width: var(--line-width);
-  font-size: min(calc((100cqw - 24px) / 16.6), calc((100cqh - 96px - var(--player-room)) / 28));
+  font-size: min(calc((100cqw - 24px) / 17.2), calc((100cqh - 96px - var(--player-room)) / 28));
   color: var(--bs-body-color);
   -webkit-user-select: none;
   user-select: none;
@@ -386,13 +401,19 @@ onBeforeUnmount(() => {
   text-align: justify;
   text-align-last: justify;
   white-space: nowrap;
-  // The spaces come from the app font (the page fonts have none) and start at nothing; justifying sets their width.
-  word-spacing: -0.25em;
+  // The spaces come from the app font (the page fonts have none). They start at a small gap (0.17em) so words never
+  // touch, even on a line that fills the page or was set smaller to fit; justifying widens them from there.
+  word-spacing: -0.08em;
+
+  // A line wider than the page is drawn smaller to fit. Only its words shrink, so the line keeps its height.
+  > .ayah {
+    font-size: calc(1em * var(--fit, 1));
+  }
 
   // A centred line isn't stretched, so its words get an ordinary gap.
   &.is-centered {
     text-align-last: center;
-    word-spacing: -0.13em;
+    word-spacing: -0.05em;
   }
 }
 
@@ -403,7 +424,7 @@ onBeforeUnmount(() => {
 
 .is-opening .mushaf-line {
   text-align-last: center;
-  word-spacing: -0.13em;
+  word-spacing: -0.05em;
 }
 
 .mushaf-line--surah {

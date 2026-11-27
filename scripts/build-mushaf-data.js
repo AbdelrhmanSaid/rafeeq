@@ -1,8 +1,9 @@
 // Builds the Madinah Mushaf layout the Quran reader draws: one JSON file per page in public/data/mushaf, and a small
 // index of where each page and surah starts in src/features/quran/data/mushaf-index.js.
 //
-// The layout comes from the Quran.com API (King Fahd Complex 15-line Mushaf, QCF V2 glyphs), so each word is drawn
-// with its page's own font exactly where the printed Mushaf puts it.
+// The layout comes from the Quran.com API, as the King Fahd Complex V4 Mushaf (mushaf 19): 15 lines a page, with the
+// V2 glyph codes that the V4 page fonts draw. Each word is drawn with its page's own font exactly where the printed
+// Mushaf puts it. scripts/build-mushaf-fonts.py fetches those fonts.
 //
 //   node scripts/build-mushaf-data.js [raw-dir]
 //
@@ -13,7 +14,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const rawDir = path.resolve(process.argv[2] || path.join(root, 'node_modules/.cache/mushaf-raw'))
+const rawDir = path.resolve(process.argv[2] || path.join(root, 'node_modules/.cache/mushaf-raw-v4'))
 const outDir = path.join(root, 'public/data/mushaf')
 const indexFile = path.join(root, 'src/features/quran/data/mushaf-index.js')
 
@@ -21,7 +22,7 @@ const PAGES = 604
 const LINES = 15
 const API = 'https://api.quran.com/api/v4/verses/by_page'
 const QUERY =
-  'words=true&word_fields=code_v2,line_number,page_number&fields=text_uthmani,chapter_id&per_page=all&mushaf=1'
+  'words=true&word_fields=code_v2,line_number,page_number&fields=text_uthmani,chapter_id&per_page=all&mushaf=19'
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 

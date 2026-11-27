@@ -5,7 +5,9 @@ import { pageDataUrl, pageFontUrl, surahPages } from '@/features/quran/lib/musha
 
 // Every page read or downloaded stays on the device: its layout and its font, kept together in one cache so a stored
 // page always opens offline. The cache name changes only if the files themselves ever change.
-const CACHE_NAME = 'mushaf-v1'
+const CACHE_NAME = 'mushaf-v2'
+// Earlier caches, deleted on start. mushaf-v1 held the V2 fonts and their layouts, which don't match the V4 ones.
+const OLD_CACHES = ['mushaf-v1']
 
 const hasCacheStorage = () => typeof caches !== 'undefined'
 const openCache = () => (hasCacheStorage() ? caches.open(CACHE_NAME).catch(() => null) : Promise.resolve(null))
@@ -18,12 +20,13 @@ let scanned = null
 // Read once what earlier sessions stored, so the downloads list shows it.
 export function scanStoredPages() {
   scanned ??= (async () => {
+    if (hasCacheStorage()) await Promise.all(OLD_CACHES.map((name) => caches.delete(name).catch(() => {})))
     const cache = await openCache()
     if (!cache) return
     const urls = new Set((await cache.keys()).map((request) => request.url))
     const absolute = (url) => new URL(url, location.origin).href
     for (let page = 1; page <= 604; page++) {
-      if (urls.has(absolute(pageDataUrl(page))) && urls.has(pageFontUrl(page))) storedPages.add(page)
+      if (urls.has(absolute(pageDataUrl(page))) && urls.has(absolute(pageFontUrl(page)))) storedPages.add(page)
     }
   })()
   return scanned
@@ -153,8 +156,14 @@ const downloadedSet = computed(() => new Set(downloaded.value))
 const isSurahDownloaded = (surah) =>
   downloadedSet.value.has(surah) && surahPages(surah).every((page) => storedPages.has(page))
 
+// Whether any surah was downloaded on purpose, so the app knows to check those downloads are still whole on start.
+export const hasMushafDownloads = () => downloaded.value.length > 0
+
 // The downloads list counts the Mushaf by surah.
 export const mushafDownloads = {
+  // Surahs downloaded on purpose whose pages are no longer all stored: the Mushaf moved to new files, or the browser
+  // cleared some of its storage. They are downloaded again.
+  missing: () => downloaded.value.filter((surah) => !isSurahDownloaded(surah)),
   downloadedCount: computed(() => surahs.filter((s) => isSurahDownloaded(s.id)).length),
   isDownloaded: (key) => isSurahDownloaded(Number(key)),
   // Stops between pages once `signal` aborts, and then the surah isn't recorded as downloaded.

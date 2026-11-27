@@ -5,13 +5,14 @@ import TopNav from '@/layout/TopNav.vue'
 import TabBar from '@/layout/TabBar.vue'
 import Footer from '@/layout/Footer.vue'
 import InstallBanner from '@/app/pwa/InstallBanner.vue'
-import { computed, watch } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useOnline } from '@vueuse/core'
 import { Toaster, toast } from 'vue-sonner'
 import { useThemeStore } from '@/app/stores/theme'
 import { useAppStore } from '@/app/stores/app'
 import { useRadioNotifications } from '@/features/radio/composables/useRadioNotifications'
 import { registerSW } from 'virtual:pwa-register'
+import { hasMushafDownloads } from '@/features/quran/lib/mushafStorage'
 
 const themeStore = useThemeStore()
 const appStore = useAppStore()
@@ -36,6 +37,13 @@ watch(isEmbedRoute, (embed) => document.body.classList.toggle('is-embed', embed)
 
 // A service-worker update may reload only once per page load.
 let hasReloadedForUpdate = false
+
+// Surahs downloaded for offline reading are checked on start, and any whose pages are gone are downloaded again (the
+// downloads store does that as it starts), so they stay readable offline without a visit to the downloads screen.
+onMounted(() => {
+  if (isEmbedRoute.value || !hasMushafDownloads()) return
+  import('@/features/downloads/store').then(({ useDownloadStore }) => useDownloadStore()).catch(() => {})
+})
 
 const updateSW = registerSW({
   onNeedRefresh() {

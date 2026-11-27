@@ -37,13 +37,14 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,woff,woff2}'],
         // Store screenshots are for the store listings, not something the app needs offline. The iOS splash images
-        // are only read by iOS when the app is added to the home screen, so they aren't precached either.
-        globIgnores: ['push/onesignal/**/*', 'screenshots/**/*', 'splash/**/*'],
+        // are only read by iOS when the app is added to the home screen, so they aren't precached either. The 604
+        // Mushaf page fonts (about 48 MB) are stored as pages are read or downloaded, by the reader itself.
+        globIgnores: ['push/onesignal/**/*', 'screenshots/**/*', 'splash/**/*', 'fonts/mushaf/**/*'],
         runtimeCaching: [
           {
             // Mushaf page fonts keep their own cache (see src/features/quran/lib/mushafStorage.js), so they aren't
             // stored twice.
-            urlPattern: ({ url }) => url.hostname !== 'static.qurancdn.com' && /\.(ttf|woff2?)$/.test(url.pathname),
+            urlPattern: ({ url }) => !url.pathname.startsWith('/fonts/mushaf/') && /\.(ttf|woff2?)$/.test(url.pathname),
             handler: 'CacheFirst',
             options: {
               cacheName: 'fonts-cache',

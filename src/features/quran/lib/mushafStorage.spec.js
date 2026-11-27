@@ -9,19 +9,27 @@ vi.mock('@/features/quran/lib/mushaf', async (importOriginal) => ({
 const layout = () => new TextEncoder().encode(JSON.stringify({ lines: [], verses: {} })).buffer
 const font = () => new TextEncoder().encode('wOF2 font').buffer
 
-// An in-memory Cache Storage with one cache.
+// An in-memory Cache Storage, by cache name. `urls()` lists the current Mushaf cache.
 function fakeCaches() {
-  let entries = new Map()
-  const cache = {
-    match: async (url) => (entries.has(url) ? new Response(entries.get(url)) : undefined),
-    put: async (url, response) => void entries.set(url, await response.arrayBuffer()),
-    delete: async (url) => entries.delete(url),
-    keys: async () => [...entries.keys()].map((url) => ({ url })),
+  const stores = new Map()
+  const store = (name) => {
+    if (!stores.has(name)) stores.set(name, new Map())
+    return stores.get(name)
+  }
+  const open = async (name) => {
+    const entries = store(name)
+    return {
+      match: async (url) => (entries.has(url) ? new Response(entries.get(url)) : undefined),
+      put: async (url, response) => void entries.set(url, await response.arrayBuffer()),
+      delete: async (url) => entries.delete(url),
+      keys: async () => [...entries.keys()].map((url) => ({ url })),
+    }
   }
   return {
-    urls: () => [...entries.keys()],
-    open: async () => cache,
-    delete: async () => ((entries = new Map()), true),
+    urls: () => [...store('mushaf-v2').keys()],
+    names: () => [...stores.keys()],
+    open,
+    delete: async (name) => stores.delete(name),
   }
 }
 
@@ -102,5 +110,21 @@ describe('mushafDownloads', () => {
     await storage.mushafDownloads.discard('1')
 
     expect(storage.storedPages.has(1)).toBe(true)
+  })
+
+  it('drops the cache of the V2 fonts and lists the surahs to download again', async () => {
+    await (await caches.open('mushaf-v1')).put('http://localhost:3000/data/mushaf/1.json', new Response(layout()))
+    localStorage.setItem('mushaf-downloaded-surahs', JSON.stringify([1, 2]))
+    vi.resetModules()
+    storage = await import('./mushafStorage')
+
+    await storage.scanStoredPages()
+
+    expect(caches.names()).not.toContain('mushaf-v1')
+    expect(storage.hasMushafDownloads()).toBe(true)
+    expect(storage.mushafDownloads.missing()).toEqual([1, 2])
+
+    await storage.mushafDownloads.download('1')
+    expect(storage.mushafDownloads.missing()).toEqual([2])
   })
 })
