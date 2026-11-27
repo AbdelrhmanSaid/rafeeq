@@ -1,0 +1,52 @@
+/* Bookmark colors: --mark tints the ayah on the page, --mark-solid is the dot in lists and menus. */
+.mark-gold {
+  --mark: rgba(234, 179, 8, 0.26);
+  --mark-solid: #d29e0c;
+}
+
+.mark-green {
+  --mark: rgba(34, 197, 94, 0.22);
+  --mark-solid: #1f9d55;
+}
+
+.mark-blue {
+  --mark: rgba(59, 130, 246, 0.2);
+  --mark-solid: #2f6fe4;
+}
+
+.mark-rose {
+  --mark: rgba(244, 63, 94, 0.18);
+  --mark-solid: #e0315a;
+}
+
+.mark-violet {
+  --mark: rgba(139, 92, 246, 0.2);
+  --mark-solid: #7c4ddb;
+}
+
+[data-bs-theme='dark'] {
+  .mark-gold {
+    --mark: rgba(234, 179, 8, 0.3);
+    --mark-solid: #eab308;
+  }
+
+  .mark-green {
+    --mark: rgba(34, 197, 94, 0.28);
+    --mark-solid: #34c46a;
+  }
+
+  .mark-blue {
+    --mark: rgba(96, 150, 250, 0.3);
+    --mark-solid: #5b93f5;
+  }
+
+  .mark-rose {
+    --mark: rgba(244, 63, 94, 0.28);
+    --mark-solid: #f05577;
+  }
+
+  .mark-violet {
+    --mark: rgba(160, 120, 250, 0.3);
+    --mark-solid: #9b78f2;
+  }
+}

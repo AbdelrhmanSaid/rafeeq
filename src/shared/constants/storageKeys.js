@@ -28,7 +28,10 @@ export const STORAGE_KEYS = {
   azkarProgress: 'azkar-progress',
   azkarFavorites: 'azkarFavorites',
   quranFavorites: 'quranFavorites',
+  // The single bookmark of the old reader, moved into quranBookmarks on first load; kept so old backups import.
   quranBookmark: 'quranBookmark',
+  quranBookmarks: 'quran-bookmarks',
+  quranLastPage: 'quran-last-page',
   radioFavorites: 'radioFavorites',
 
   sebhaCount: 'sebha-count',

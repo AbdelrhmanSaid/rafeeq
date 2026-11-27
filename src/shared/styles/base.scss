@@ -92,6 +92,13 @@
   }
 }
 
+/* A full-screen reader is open: the page behind it must not scroll or bounce. */
+html.is-immersive,
+html.is-immersive body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;

@@ -38,7 +38,9 @@ export default defineConfig({
         globIgnores: ['push/onesignal/**/*'],
         runtimeCaching: [
           {
-            urlPattern: /^.*\.(ttf|woff|woff2)$/,
+            // Mushaf page fonts keep their own cache (see src/features/quran/lib/mushafStorage.js), so they aren't
+            // stored twice.
+            urlPattern: ({ url }) => url.hostname !== 'static.qurancdn.com' && /\.(ttf|woff2?)$/.test(url.pathname),
             handler: 'CacheFirst',
             options: {
               cacheName: 'fonts-cache',

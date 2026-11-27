@@ -1,6 +1,6 @@
 import { useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
-import { ref, computed, watch } from 'vue'
+import { computed, watch } from 'vue'
 import reciters from '@/features/quran/data/reciters.js'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 import { API } from '@/shared/constants/api'
@@ -8,19 +8,12 @@ import { API } from '@/shared/constants/api'
 const DEFAULT_RECITER_ID = 51
 const DEFAULT_TAFSEER = 'ar.muyassar'
 
-export const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
-
 export const useQuranStore = defineStore('quran', () => {
   const currentReciter = useLocalStorage(STORAGE_KEYS.currentReciter, DEFAULT_RECITER_ID)
   const currentTafseer = useLocalStorage(STORAGE_KEYS.currentTafseer, DEFAULT_TAFSEER)
   const playbackRate = useLocalStorage(STORAGE_KEYS.playbackRate, 1)
-
-  const surahAudioUrl = ref(null)
-  const surahName = ref(null)
-  const currentSurahNumber = ref(null)
-  const ayahTimings = ref([])
-  const currentAyahIndex = ref(-1)
-  let audioLoadId = 0
+  // The Mushaf page last open, so the Quran screen can offer to carry on from it. 0 until something is read.
+  const lastPage = useLocalStorage(STORAGE_KEYS.quranLastPage, 0)
 
   const reciter = computed(() => {
     const id = Number(currentReciter.value)
@@ -35,89 +28,32 @@ export const useQuranStore = defineStore('quran', () => {
     { immediate: true },
   )
 
-  const currentAyah = computed(() => {
-    if (currentAyahIndex.value < 0 || currentAyahIndex.value >= ayahTimings.value.length) return null
-    return ayahTimings.value[currentAyahIndex.value]
-  })
-
-  function getSurahAudioUrl(surahNumber) {
+  function surahAudioUrl(surah) {
     const r = reciter.value
-    if (!r) return null
-    const paddedNumber = String(surahNumber).padStart(3, '0')
-    return `${r.folder_url}${paddedNumber}.mp3`
+    return r ? `${r.folder_url}${String(surah).padStart(3, '0')}.mp3` : null
   }
 
-  async function fetchTimings(surahNumber) {
+  // When each ayah starts in the reciter's recording of a surah, in milliseconds. Ayah 0 is the Basmala.
+  async function fetchAyahTimings(surah) {
     const r = reciter.value
     if (!r) return []
-
-    const response = await fetch(`${API.mp3quran}/ayat_timing?surah=${surahNumber}&read=${r.id}`)
+    const response = await fetch(`${API.mp3quran}/ayat_timing?surah=${surah}&read=${r.id}`)
     if (!response.ok) throw new Error('Failed to fetch ayah timings')
-    return await response.json()
+    return response.json()
   }
 
-  async function loadSurahAudio(surahNumber, name) {
-    const loadId = ++audioLoadId
-    currentSurahNumber.value = surahNumber
-    surahName.value = name
-    surahAudioUrl.value = getSurahAudioUrl(surahNumber)
-    currentAyahIndex.value = -1
-    ayahTimings.value = []
-
-    const timings = await fetchTimings(surahNumber).catch(() => [])
-    if (loadId === audioLoadId) ayahTimings.value = timings
-  }
-
-  function updateCurrentAyahFromTime(timeMs) {
-    const timings = ayahTimings.value
-    if (!timings.length) return
-
-    for (let i = timings.length - 1; i >= 0; i--) {
-      if (timeMs >= timings[i].start_time) {
-        if (currentAyahIndex.value !== i) {
-          currentAyahIndex.value = i
-        }
-        return
-      }
-    }
-    currentAyahIndex.value = 0
-  }
-
-  function getAyahStartTime(ayahNumber) {
-    const timing = ayahTimings.value.find((t) => t.ayah === ayahNumber)
-    return timing ? timing.start_time / 1000 : null
-  }
-
-  function resetAyahTracking() {
-    currentAyahIndex.value = -1
-  }
-
-  // The caller reloads once after reciter selection settles.
   function changeReciter(reciterId) {
     currentReciter.value = reciterId
-  }
-
-  function reloadSurahAudio() {
-    if (currentSurahNumber.value && surahName.value) {
-      return loadSurahAudio(currentSurahNumber.value, surahName.value)
-    }
   }
 
   return {
     currentReciter,
     currentTafseer,
     playbackRate,
-    surahAudioUrl,
-    surahName,
-
+    lastPage,
     reciter,
-    currentAyah,
-
-    loadSurahAudio,
-    reloadSurahAudio,
-    updateCurrentAyahFromTime,
-    getAyahStartTime,
-    resetAyahTracking,
+    surahAudioUrl,
+    fetchAyahTimings,
     changeReciter,
   }
 })

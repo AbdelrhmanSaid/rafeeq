@@ -4,6 +4,7 @@ import { useRadioStore } from '@/features/radio/store'
 import { useActiveNav } from '@/layout/useActiveNav'
 import { useVirtualKeyboard } from '@/shared/composables/useVirtualKeyboard'
 import { navigation } from '@/layout/navigation'
+import { chrome } from '@/layout/chrome'
 
 const radio = useRadioStore()
 const { open: keyboardOpen } = useVirtualKeyboard()
@@ -12,7 +13,7 @@ const tabs = navigation.filter((item) => item.menus.includes('primary'))
 </script>
 
 <template>
-  <nav class="tab-bar" :class="{ 'is-hidden': keyboardOpen }" aria-label="التنقل الرئيسي">
+  <nav class="tab-bar" :class="{ 'is-hidden': keyboardOpen || chrome.hidden }" aria-label="التنقل الرئيسي">
     <div class="tab-bar__items">
       <RouterLink
         v-for="item in tabs"
@@ -54,7 +55,7 @@ const tabs = navigation.filter((item) => item.menus.includes('primary'))
     transform 0.3s var(--app-ease-out),
     opacity 0.2s ease;
 
-  /* Out of the way while the keyboard is up, instead of riding over the field being typed in. */
+  /* Out of the way while the keyboard is up, instead of riding over the field being typed in, and while reading. */
   &.is-hidden {
     transform: translateY(100%);
     opacity: 0;

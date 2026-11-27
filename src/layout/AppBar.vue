@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { useEventListener } from '@vueuse/core'
 import { IconChevronRight, IconShare3 } from '@tabler/icons-vue'
 import { pageHeader } from '@/layout/pageHeader'
+import { chrome } from '@/layout/chrome'
 import { useBackNavigation } from '@/layout/useBackNavigation'
 import { sharePage } from '@/shared/utils/share'
 
@@ -59,7 +60,7 @@ watch(
 </script>
 
 <template>
-  <header ref="bar" class="app-bar" :class="{ 'is-scrolled': scrolled }">
+  <header ref="bar" class="app-bar" :class="{ 'is-scrolled': scrolled || chrome.overlay, 'is-hidden': chrome.hidden }">
     <div class="app-bar__inner container">
       <div class="app-bar__slot app-bar__slot--start">
         <button v-if="parent" type="button" class="app-bar__action" aria-label="رجوع" @click="goBack">
@@ -96,7 +97,9 @@ watch(
   background: transparent;
   transition:
     background-color 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    transform 0.3s var(--app-ease-out),
+    opacity 0.2s ease;
 
   /* Glass only once content slides under it, so the top of each page stays one clean surface.
      The hairline is an inset shadow, so the bar stays exactly --appbar-height tall and full-height screens fit. */
@@ -105,6 +108,17 @@ watch(
     background: var(--app-glass);
     /* Lightning CSS mishandles a paired -webkit-backdrop-filter declaration. */
     backdrop-filter: blur(18px) saturate(1.4);
+  }
+
+  /* Tucked away while reading the Mushaf. */
+  &.is-hidden {
+    transform: translateY(-100%);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      transform 0.25s ease-in,
+      opacity 0.2s ease-in,
+      visibility 0s 0.25s;
   }
 }
 

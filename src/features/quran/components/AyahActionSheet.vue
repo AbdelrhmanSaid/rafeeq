@@ -1,24 +1,26 @@
 <script setup>
 import { computed } from 'vue'
 import { toast } from 'vue-sonner'
-import { IconPlayerPlay, IconBook2, IconCopy, IconShare3, IconBookmark, IconBookmarkOff } from '@tabler/icons-vue'
+import { IconPlayerPlay, IconBook2, IconCopy, IconShare3, IconBookmarkOff, IconCheck } from '@tabler/icons-vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
+import { BOOKMARK_COLORS } from '@/features/quran/composables/useQuranBookmarks'
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
 
 const props = defineProps({
+  // { key, surah, ayah, text } of the selected ayah.
   ayah: { type: Object, default: null },
   surahName: { type: String, default: '' },
   online: { type: Boolean, default: true },
-  bookmarked: { type: Boolean, default: false },
+  bookmarkColor: { type: String, default: null },
 })
 
-const emit = defineEmits(['recite', 'tafseer', 'bookmark', 'close'])
+const emit = defineEmits(['recite', 'tafseer', 'bookmark', 'unbookmark', 'close'])
 
-const title = computed(() => (props.ayah ? `${props.surahName} ${toArabicNumerals(props.ayah.numberInSurah)}` : ''))
+const title = computed(() => (props.ayah ? `${props.surahName} ${toArabicNumerals(props.ayah.ayah)}` : ''))
 const shareText = computed(() => (props.ayah ? `${props.ayah.text}\n[${title.value}]` : ''))
 
-const emitAndClose = (event) => {
-  emit(event)
+const emitAndClose = (event, value) => {
+  emit(event, value)
   emit('close')
 }
 
@@ -46,23 +48,43 @@ const share = () => {
 
 <template>
   <BottomSheet :show="!!ayah" :title="title" @close="emit('close')">
+    <!-- Bookmarking is a color: the ayah is tinted with it on the page. -->
+    <div class="bookmark-colors" role="radiogroup" aria-label="لون الإشارة المرجعية">
+      <span class="bookmark-colors__label">إشارة مرجعية</span>
+      <div class="bookmark-colors__dots">
+        <button
+          v-for="color in BOOKMARK_COLORS"
+          :key="color.id"
+          type="button"
+          role="radio"
+          class="bookmark-dot"
+          :class="`mark-${color.id}`"
+          :aria-checked="bookmarkColor === color.id"
+          :aria-label="color.label"
+          @click="emitAndClose('bookmark', color.id)"
+        >
+          <IconCheck v-if="bookmarkColor === color.id" size="16" stroke-width="3" aria-hidden="true" />
+        </button>
+      </div>
+    </div>
+
     <ul class="bottom-sheet-list">
+      <li v-if="bookmarkColor">
+        <button type="button" class="bottom-sheet-item" @click="emitAndClose('unbookmark')">
+          <IconBookmarkOff size="20" />
+          <span>إزالة الإشارة المرجعية</span>
+        </button>
+      </li>
       <li v-if="online">
         <button type="button" class="bottom-sheet-item" @click="emitAndClose('recite')">
           <IconPlayerPlay size="20" />
-          <span>تلاوة</span>
+          <span>تلاوة من هنا</span>
         </button>
       </li>
       <li>
         <button type="button" class="bottom-sheet-item" @click="emitAndClose('tafseer')">
           <IconBook2 size="20" />
           <span>تفسير</span>
-        </button>
-      </li>
-      <li>
-        <button type="button" class="bottom-sheet-item" @click="emitAndClose('bookmark')">
-          <component :is="bookmarked ? IconBookmarkOff : IconBookmark" size="20" />
-          <span>{{ bookmarked ? 'إزالة الإشارة المرجعية' : 'تعيين كإشارة مرجعية' }}</span>
         </button>
       </li>
       <li role="separator" class="bottom-sheet-separator"></li>
@@ -81,3 +103,58 @@ const share = () => {
     </ul>
   </BottomSheet>
 </template>
+
+<style lang="scss" scoped>
+.bookmark-colors {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.25rem 1.25rem 0.5rem;
+}
+
+.bookmark-colors__label {
+  font-weight: 500;
+}
+
+.bookmark-colors__dots {
+  display: flex;
+  gap: 0.25rem;
+}
+
+/* A 44px target around a 28px swatch. */
+.bookmark-dot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #fff;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0.5rem;
+    border-radius: 50%;
+    background: var(--mark-solid);
+    transition: transform 0.15s var(--app-ease-out);
+  }
+
+  svg {
+    position: relative;
+  }
+
+  &:active::before {
+    transform: scale(0.88);
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(var(--bs-primary-rgb), 0.5);
+    outline-offset: -2px;
+    border-radius: 50%;
+  }
+}
+</style>

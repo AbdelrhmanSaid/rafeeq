@@ -1,0 +1,374 @@
+<script setup>
+import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
+import { useOnline } from '@vueuse/core'
+import { IconRefresh } from '@tabler/icons-vue'
+import { loadPage } from '@/features/quran/lib/mushafStorage'
+import { parseVerseKey, surahName } from '@/features/quran/lib/mushaf'
+import { toArabicNumerals } from '@/shared/utils/arabic'
+
+const props = defineProps({
+  page: { type: Number, required: true },
+  selectedKey: { type: String, default: null },
+  playingKey: { type: String, default: null },
+  // Verse key → bookmark color id.
+  bookmarks: { type: Map, default: () => new Map() },
+})
+
+const emit = defineEmits(['tap', 'select'])
+
+const online = useOnline()
+const data = shallowRef(null)
+const fontFamily = ref('')
+const failed = ref(false)
+
+let loadId = 0
+async function load() {
+  const id = ++loadId
+  failed.value = false
+  try {
+    const page = await loadPage(props.page)
+    if (id !== loadId) return
+    data.value = page.data
+    fontFamily.value = page.fontFamily
+  } catch {
+    if (id === loadId) failed.value = true
+  }
+}
+
+watch(() => props.page, load, { immediate: true })
+// A page that failed offline loads once the connection is back.
+watch(online, (isOnline) => isOnline && failed.value && load())
+
+const headerSurah = computed(() => {
+  const first = data.value && Object.keys(data.value.verses)[0]
+  return first ? surahName(parseVerseKey(first).surah) : ''
+})
+
+// The first piece of each ayah on the page is the one a keyboard or screen reader lands on.
+const lines = computed(() => {
+  if (!data.value) return []
+  const seen = new Set()
+  return data.value.lines.map((line) => {
+    if (!line.segments) return line
+    return {
+      ...line,
+      segments: line.segments.map(([key, glyphs]) => {
+        const first = !seen.has(key)
+        seen.add(key)
+        return { key, glyphs, first }
+      }),
+    }
+  })
+})
+
+const ayahLabel = (key) => {
+  const { surah, ayah } = parseVerseKey(key)
+  return `${surahName(surah)}، الآية ${toArabicNumerals(ayah)}`
+}
+
+const markOf = (key) => {
+  if (key === props.selectedKey) return 'is-selected'
+  if (key === props.playingKey) return 'is-playing'
+  const color = props.bookmarks.get(key)
+  return color ? `is-bookmarked mark-${color}` : null
+}
+
+// The surah-names font draws "سورة" from the word "surah" and each name from its three-digit number. Those are
+// left-to-right text, so the two words are laid out by the right-to-left row instead: "سورة" first, on the right.
+const surahNumber = (surah) => String(surah).padStart(3, '0')
+
+// A tap shows or hides the bars; holding an ayah selects it. Moving the finger (turning the page) cancels the hold.
+const HOLD_MS = 450
+let holdTimer = 0
+let holdStart = null
+let held = false
+
+function cancelHold() {
+  clearTimeout(holdTimer)
+  holdTimer = 0
+  holdStart = null
+}
+
+function onPointerDown(event) {
+  const key = event.target.closest('[data-key]')?.dataset.key
+  held = false
+  cancelHold()
+  // A mouse selects with a right-click instead.
+  if (!key || event.pointerType === 'mouse') return
+  holdStart = { x: event.clientX, y: event.clientY }
+  holdTimer = setTimeout(() => {
+    held = true
+    holdTimer = 0
+    navigator.vibrate?.(10)
+    select(key)
+  }, HOLD_MS)
+}
+
+function onPointerMove(event) {
+  if (!holdStart) return
+  if (Math.hypot(event.clientX - holdStart.x, event.clientY - holdStart.y) > 10) cancelHold()
+}
+
+function onClick(event) {
+  if (held) {
+    held = false
+    return
+  }
+  // The retry button on a page that failed to load is its own action.
+  if (event.target.closest('button')) return
+  emit('tap')
+}
+
+// Touch browsers open a menu on a long press, and a mouse on a right-click: on an ayah the page's own menu opens.
+function onContextMenu(event) {
+  event.preventDefault()
+  const key = event.target.closest('[data-key]')?.dataset.key
+  if (key && !held && !holdTimer) select(key)
+}
+
+function onKeydown(event) {
+  const key = event.target.dataset?.key
+  if (!key || (event.key !== 'Enter' && event.key !== ' ')) return
+  event.preventDefault()
+  select(key)
+}
+
+const select = (key) => emit('select', { key, text: data.value.verses[key] })
+
+onBeforeUnmount(cancelHold)
+</script>
+
+<template>
+  <!-- The whole page takes the taps, margins included, so the bars come back from anywhere. -->
+  <article
+    class="mushaf-page"
+    :aria-label="`صفحة ${toArabicNumerals(page)}`"
+    @pointerdown="onPointerDown"
+    @pointermove="onPointerMove"
+    @pointerup="cancelHold"
+    @pointercancel="cancelHold"
+    @click="onClick"
+    @keydown="onKeydown"
+    @contextmenu="onContextMenu"
+  >
+    <div v-if="data" class="mushaf-sheet" :class="{ 'is-opening': page <= 2 }" :style="{ '--page-font': fontFamily }">
+      <header class="mushaf-sheet__meta">
+        <span>{{ headerSurah }}</span>
+        <span>الجزء {{ toArabicNumerals(data.juz) }}</span>
+      </header>
+
+      <div class="mushaf-sheet__lines">
+        <template v-for="(line, index) in lines" :key="index">
+          <div v-if="line.surah" class="mushaf-line mushaf-line--surah" role="heading" aria-level="2">
+            <span class="visually-hidden">سورة {{ surahName(line.surah) }}</span>
+            <span class="surah-frame" aria-hidden="true">&#xFC20;</span>
+            <span class="surah-title" dir="rtl" aria-hidden="true">
+              <span>surah</span>
+              <span>{{ surahNumber(line.surah) }}</span>
+            </span>
+          </div>
+
+          <div v-else-if="line.basmala" class="mushaf-line mushaf-line--basmala">
+            <span class="visually-hidden">بسم الله الرحمن الرحيم</span>
+            <span class="basmala" aria-hidden="true">&#xFB51;&#xFB52;&#xFB53;</span>
+          </div>
+
+          <div v-else class="mushaf-line" :class="{ 'is-centered': line.centered }">
+            <template v-for="(segment, i) in line.segments" :key="i">
+              <span
+                class="ayah"
+                :class="markOf(segment.key)"
+                :data-key="segment.key"
+                :role="segment.first ? 'button' : undefined"
+                :tabindex="segment.first ? 0 : undefined"
+                :aria-label="segment.first ? ayahLabel(segment.key) : undefined"
+                :aria-hidden="segment.first ? undefined : 'true'"
+                >{{ segment.glyphs }}</span>{{ i < line.segments.length - 1 ? ' ' : '' }}
+            </template>
+          </div>
+        </template>
+      </div>
+
+      <footer class="mushaf-sheet__number">{{ toArabicNumerals(page) }}</footer>
+    </div>
+
+    <div v-else-if="failed" class="mushaf-page__state">
+      <p>{{ online ? 'تعذّر تحميل الصفحة' : 'هذه الصفحة غير محمّلة، اتصل بالإنترنت لعرضها' }}</p>
+      <button v-if="online" type="button" class="btn btn-soft d-inline-flex align-items-center gap-2" @click="load">
+        <IconRefresh size="18" aria-hidden="true" />
+        <span>إعادة المحاولة</span>
+      </button>
+    </div>
+  </article>
+</template>
+
+<style lang="scss" scoped>
+@font-face {
+  font-family: 'Mushaf Headings';
+  font-display: block;
+  src: url('@/features/quran/assets/fonts/mushaf-headings.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Surah Names';
+  font-display: block;
+  src: url('@/features/quran/assets/fonts/surah-names.woff2') format('woff2');
+}
+
+.mushaf-page {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  // Room for the notch and home indicator; the bars float over the rest.
+  padding: calc(env(safe-area-inset-top, 0px) + 0.75rem) 0.75rem calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
+}
+
+/* The page is sized to the screen: as wide as a full line allows, unless fifteen lines would then run too tall.
+   Measured across all 604 pages, a line's words come to 15.6em on average and 16.4em at most (page 254, line 7),
+   so a 16.6em line fits every one, with the rest of each line going to the spaces between words. */
+.mushaf-sheet {
+  --line-width: 16.6em;
+  --pitch: clamp(1.85em, calc((100cqh - 6rem) / 15), 2.5em);
+
+  display: flex;
+  flex-direction: column;
+  width: var(--line-width);
+  font-size: min(calc((100cqw - 1.5rem) / 16.6), calc((100cqh - 6rem) / 28));
+  color: var(--bs-body-color);
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.mushaf-sheet__meta,
+.mushaf-sheet__number {
+  font-family: var(--bs-body-font-family);
+  font-size: 0.8125rem;
+  color: var(--bs-secondary-color);
+}
+
+.mushaf-sheet__meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.mushaf-sheet__number {
+  margin-top: 0.25rem;
+  text-align: center;
+}
+
+.mushaf-sheet__lines {
+  font-family: var(--page-font), 'Thmanyah Sans', sans-serif;
+  touch-action: pan-x pan-y;
+}
+
+.mushaf-line {
+  height: var(--pitch);
+  line-height: var(--pitch);
+  // Justified like the printed page: the spaces between words stretch so every full line meets both margins.
+  text-align: justify;
+  text-align-last: justify;
+  white-space: nowrap;
+  // The spaces come from the app font (the page fonts have none) and start at nothing; justifying sets their width.
+  word-spacing: -0.25em;
+
+  // A centred line isn't stretched, so its words get an ordinary gap.
+  &.is-centered {
+    text-align-last: center;
+    word-spacing: -0.13em;
+  }
+}
+
+.is-opening .mushaf-sheet__lines {
+  // The opening pages sit in the middle of the page, like the printed Mushaf.
+  padding-block: calc(var(--pitch) * 3.5);
+}
+
+.is-opening .mushaf-line {
+  text-align-last: center;
+  word-spacing: -0.13em;
+}
+
+.mushaf-line--surah {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.surah-frame {
+  // The frame glyph is 8em wide; this makes it as wide as the page.
+  font-family: 'Mushaf Headings';
+  font-size: calc(var(--line-width) / 8);
+  line-height: 1;
+  color: color-mix(in srgb, var(--bs-primary) 60%, var(--bs-body-color));
+}
+
+.surah-title {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  font-family: 'Surah Names';
+  font-size: 1.15em;
+  line-height: var(--pitch);
+}
+
+.mushaf-line--basmala {
+  text-align: center;
+  text-align-last: center;
+}
+
+.basmala {
+  font-family: 'Mushaf Headings';
+  font-size: 1.05em;
+  word-spacing: normal;
+}
+
+.ayah {
+  border-radius: 0.35em;
+  cursor: default;
+  transition: background-color 0.2s ease;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+
+  &.is-selected,
+  &.is-playing,
+  &.is-bookmarked {
+    background-color: var(--mark);
+    // A little past the words on either side without moving them.
+    box-shadow:
+      0.15em 0 0 var(--mark),
+      -0.15em 0 0 var(--mark);
+  }
+
+  &.is-playing {
+    --mark: var(--app-tint);
+  }
+
+  &.is-selected {
+    --mark: var(--app-tint-strong);
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(var(--bs-primary-rgb), 0.5);
+    outline-offset: 2px;
+  }
+}
+
+.mushaf-page__state {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  max-width: 18rem;
+  text-align: center;
+  color: var(--bs-secondary-color);
+
+  p {
+    margin: 0;
+  }
+}
+</style>

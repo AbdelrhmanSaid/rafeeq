@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useOnline } from '@vueuse/core'
+import { delMany, keys as idbKeys } from 'idb-keyval'
 
 import { useOfflineData } from '@/shared/offline/useOfflineData'
-import { fetchSurah } from '@/features/quran/api'
+import { mushafDownloads, scanStoredPages } from '@/features/quran/lib/mushafStorage'
 import { fetchCategory } from '@/features/azkar/api'
 import surahs from '@/features/quran/data/surahs.js'
 import azkarCategories from '@/features/azkar/data/categories.js'
@@ -13,10 +14,11 @@ export const useDownloadStore = defineStore('download', () => {
   const online = useOnline()
 
   const assetTypes = {
+    // Each surah downloads its Mushaf pages, layout and font.
     surah: {
-      offline: useOfflineData('quran'),
+      offline: mushafDownloads,
       assets: surahs.map((s) => ({ id: `surah-${s.id}`, type: 'surah', name: s.name, key: String(s.id), data: s })),
-      fetch: (asset) => fetchSurah(asset.data.id),
+      fetch: (asset) => mushafDownloads.download(asset.key),
     },
     azkar: {
       offline: useOfflineData('azkar'),
@@ -31,6 +33,12 @@ export const useDownloadStore = defineStore('download', () => {
     },
   }
   const types = Object.values(assetTypes)
+
+  scanStoredPages()
+  // The old reader stored surahs as text, which nothing reads now.
+  idbKeys()
+    .then((all) => delMany(all.filter((key) => key === 'offline-quran' || String(key).startsWith('quran.'))))
+    .catch(() => {})
 
   const downloadQueue = ref([])
   const isDownloading = ref(false)

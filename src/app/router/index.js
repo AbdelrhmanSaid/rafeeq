@@ -4,6 +4,7 @@ import NotFoundView from '@/app/views/NotFoundView.vue'
 import { trackPageview } from '@/shared/utils/analytics'
 import { useMeta } from '@/shared/utils/head'
 import { useThemeStore } from '@/app/stores/theme'
+import { isVerse, pageOfAyah, verseKey } from '@/features/quran/lib/mushaf'
 
 function withEmbedAliases(routes) {
   return routes.map((route) =>
@@ -16,8 +17,8 @@ const router = createRouter({
   // Custom behavior also puts browser history scrolling in manual mode.
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) return savedPosition
-    // Param tabs are in-page state changes, so preserve their scroll position.
-    if (to.name === from.name && to.meta.paramTabs) return
+    // Param tabs and Mushaf pages are in-page state changes, so preserve their scroll position.
+    if (to.name === from.name && (to.meta.paramTabs || to.meta.pageParam)) return
     // A new screen opens at its top at once. Gliding up from the last page's depth showed the app bar's title and
     // glass for a moment, since the large title started out scrolled under the bar. 'instant' is explicit because
     // Bootstrap makes the page scroll smoothly by default.
@@ -47,11 +48,29 @@ const router = createRouter({
       },
     },
 
+    // The Mushaf, one page at a time. The page follows the reader with replace(), so it stays out of the history.
+    {
+      path: '/quran/page/:page(\\d+)',
+      name: 'quran-page',
+      component: () => import('@/features/quran/views/QuranReaderView.vue'),
+      meta: { parent: 'quran', pageParam: true },
+    },
+
+    // Older links open a surah, or an ayah with ?ayah=, on its page.
     {
       path: '/quran/:surah(\\d+)',
       name: 'quran-surah',
-      component: () => import('@/features/quran/views/QuranSurahView.vue'),
-      meta: { parent: 'quran' },
+      // By path, so an embedded link stays embedded and keeps its theme query.
+      redirect: ({ path, params, query }) => {
+        const base = path.startsWith('/embed') ? '/embed' : ''
+        const surah = Number(params.surah)
+        const ayah = Number(query.ayah) || 1
+        if (!isVerse(surah, ayah)) return { path: `${base}/quran`, query: {} }
+        return {
+          path: `${base}/quran/page/${pageOfAyah(surah, ayah)}`,
+          query: { ...query, ayah: query.ayah ? verseKey(surah, ayah) : undefined },
+        }
+      },
     },
 
     {
@@ -198,13 +217,16 @@ const router = createRouter({
   ]),
 })
 
-router.afterEach((to) => {
+router.afterEach((to, from) => {
   const themeStore = useThemeStore()
   if (to.path.startsWith('/embed')) {
     themeStore.applyQueryOverrides(to.query)
   } else {
     themeStore.clearQueryOverrides()
   }
+
+  // Turning a Mushaf page is reading, not a new visit; the reader keeps its own title up to date.
+  if (to.meta.pageParam && from.name === to.name) return
 
   useMeta(to.meta)
 

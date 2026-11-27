@@ -2,7 +2,7 @@ import { useRoute } from 'vue-router'
 
 // Keep detail routes grouped under their parent nav item.
 export const NAV_GROUPS = {
-  quran: ['quran', 'quran-surah'],
+  quran: ['quran', 'quran-surah', 'quran-page'],
   azkar: ['azkar', 'azkar-category'],
   radio: ['radio', 'radio-station'],
   // The More tab stands for every screen it opens, like a native tab bar's overflow tab.
