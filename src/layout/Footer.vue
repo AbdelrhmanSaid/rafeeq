@@ -1,6 +1,6 @@
 <script setup>
 import Logo from '@/shared/ui/Logo.vue'
-import { TELEGRAM_URL, supportLinks as support } from '@/layout/links'
+import { DONATE_URL, GITHUB_URL, TELEGRAM_URL, supportLinks as support } from '@/layout/links'
 import { IconBrandGithub, IconBrandTelegram, IconHeart } from '@tabler/icons-vue'
 
 const resources = [
@@ -30,12 +30,7 @@ const resources = [
             إعادة نشرها دون الرجوع إلينا مطلقًا، ولكن لا تنسانا من صالح دعائك.
           </p>
           <div class="d-flex gap-2">
-            <a
-              href="https://github.com/AbdelrhmanSaid/rafeeq"
-              target="_blank"
-              class="btn btn-soft btn-icon rounded-circle"
-              aria-label="GitHub"
-            >
+            <a :href="GITHUB_URL" target="_blank" class="btn btn-soft btn-icon rounded-circle" aria-label="GitHub">
               <IconBrandGithub size="1.2rem" />
             </a>
             <a
@@ -46,12 +41,7 @@ const resources = [
             >
               <IconBrandTelegram size="1.2rem" />
             </a>
-            <a
-              href="https://buymeacoffee.com/abdelrhmansaid"
-              target="_blank"
-              class="btn btn-soft btn-icon rounded-circle"
-              aria-label="دعم المطور"
-            >
+            <a :href="DONATE_URL" target="_blank" class="btn btn-soft btn-icon rounded-circle" aria-label="دعم المطور">
               <IconHeart size="1.2rem" />
             </a>
           </div>

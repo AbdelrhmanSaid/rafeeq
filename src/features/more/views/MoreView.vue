@@ -1,15 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router'
-import {
-  IconBrandGithub,
-  IconBrandTelegram,
-  IconBug,
-  IconChevronLeft,
-  IconExternalLink,
-  IconHeart,
-  IconSettings,
-  IconShieldLock,
-} from '@tabler/icons-vue'
+import { IconBrandTelegram, IconChevronLeft, IconExternalLink, IconSettings } from '@tabler/icons-vue'
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
 import Logo from '@/shared/ui/Logo.vue'
@@ -18,12 +9,9 @@ import { TELEGRAM_URL, supportLinks } from '@/layout/links'
 
 const tools = navigation.filter((item) => item.menus.includes('more'))
 
-const SUPPORT_ICONS = [IconBrandGithub, IconBug, IconHeart, IconShieldLock]
-
-const links = [
-  { title: 'قناة التليجرام', link: TELEGRAM_URL, icon: IconBrandTelegram },
-  ...supportLinks.map((item, index) => ({ ...item, icon: SUPPORT_ICONS[index] })),
-].map((item) => ({ ...item, external: /^https?:/.test(item.link) }))
+const links = [{ title: 'قناة التليجرام', link: TELEGRAM_URL, icon: IconBrandTelegram }, ...supportLinks].map(
+  (item) => ({ ...item, external: /^https?:/.test(item.link) }),
+)
 </script>
 
 <template>
