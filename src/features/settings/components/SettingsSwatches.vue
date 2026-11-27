@@ -71,6 +71,11 @@ const model = defineModel({ type: String, default: '' })
   box-shadow: inset 0 0 0 1px rgba(var(--bs-emphasis-color-rgb), 0.2);
 }
 
+/* Lifts the check off a two-tone dot, like the automatic theme's. */
+.swatch-dot svg {
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.45));
+}
+
 .swatch-label {
   font-size: 0.75rem;
   color: var(--bs-secondary-color);

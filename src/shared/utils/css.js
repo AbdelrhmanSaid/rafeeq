@@ -186,7 +186,7 @@ export function applyBgColor(color) {
   const bg = normalizeColor(color)
 
   if (bg) {
-    // An embed's host page or the Quran reader's chosen paper, so it's used exactly: no brand tint, no glow.
+    // Only embeds set a background, to sit on the host page, so it's used exactly: no brand tint, no glow.
     const vars = {
       '--app-body-bg-base': bg,
       '--bs-body-bg': bg,
@@ -207,6 +207,11 @@ export function applyBgColor(color) {
 
 export function applyMode(mode) {
   document.body.setAttribute('data-bs-theme', mode)
+}
+
+export function applyPaper(paper) {
+  if (paper) document.body.setAttribute('data-app-paper', paper)
+  else document.body.removeAttribute('data-app-paper')
 }
 
 export function clampFontScale(value) {

@@ -6,6 +6,7 @@ vi.mock('@/shared/utils/css', () => ({
   applyPrimaryColor: vi.fn(),
   applyBgColor: vi.fn(),
   applyMode: vi.fn(),
+  applyPaper: vi.fn(),
   applyFontScale: vi.fn(),
   syncMetaThemeColor: vi.fn(),
   clampFontScale: (value) => value,
@@ -17,7 +18,7 @@ vi.mock('@vueuse/core', () => ({
   usePreferredDark: () => ref(false),
 }))
 
-import { applyBgColor, applyMode } from '@/shared/utils/css'
+import { applyMode, applyPaper } from '@/shared/utils/css'
 import { useQuranStore } from '@/features/quran/store'
 import { useReaderBackground } from './useReaderBackground'
 
@@ -42,7 +43,7 @@ describe('useReaderBackground', () => {
     await nextTick()
 
     expect(applyMode).toHaveBeenLastCalledWith('light')
-    expect(applyBgColor).toHaveBeenLastCalledWith(null)
+    expect(applyPaper).toHaveBeenLastCalledWith(null)
     app.unmount()
   })
 
@@ -53,12 +54,12 @@ describe('useReaderBackground', () => {
     quran.readerBackground = 'black'
     await nextTick()
     expect(applyMode).toHaveBeenLastCalledWith('dark')
-    expect(applyBgColor).toHaveBeenLastCalledWith('#000000')
+    expect(applyPaper).toHaveBeenLastCalledWith('black')
 
     app.unmount()
     await nextTick()
     expect(applyMode).toHaveBeenLastCalledWith('light')
-    expect(applyBgColor).toHaveBeenLastCalledWith(null)
+    expect(applyPaper).toHaveBeenLastCalledWith(null)
   })
 
   it('reads an unknown saved value as the default', async () => {
@@ -68,7 +69,7 @@ describe('useReaderBackground', () => {
     await nextTick()
 
     expect(quran.readerBackgroundOption.value).toBe('default')
-    expect(applyBgColor).toHaveBeenLastCalledWith(null)
+    expect(applyPaper).toHaveBeenLastCalledWith(null)
     app.unmount()
   })
 })

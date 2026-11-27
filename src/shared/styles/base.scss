@@ -83,6 +83,23 @@
   }
 }
 
+/* Papers on top of a scheme, keyed to body like data-bs-theme; keep the colours in step with shared/constants/themes.js. */
+body[data-app-paper='yellow'] {
+  --app-body-bg-base: #fdf9ee;
+  --bs-body-bg: color-mix(in srgb, #f6eed6 96%, var(--bs-primary));
+  --bs-secondary-bg: #ebe1c6;
+  --bs-tertiary-bg: #f2e9d0;
+}
+
+/* True black for OLED screens: no brand tint or glow behind the page, only on the cards above it. */
+body[data-bs-theme='dark'][data-app-paper='black'] {
+  --bs-body-bg: #000;
+  --app-surface: #121212;
+  --app-page-bg-color: #000;
+  --app-page-top-color: #000;
+  --app-page-bg-image: none;
+}
+
 html.is-immersive,
 html.is-immersive body {
   overflow: hidden;
