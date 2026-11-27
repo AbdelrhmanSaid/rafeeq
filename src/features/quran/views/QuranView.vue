@@ -56,7 +56,6 @@ const bookmarkRows = computed(() =>
       label="تبحث عن سورة معينة؟"
       :item-label="(item) => surahName(item.id)"
     >
-      <!-- Under the search: where reading was left, and the bookmarks. A search puts its results right under it. -->
       <template #before-list="{ search }">
         <template v-if="!search">
           <section v-if="lastPage" class="mb-4">
@@ -135,8 +134,6 @@ const bookmarkRows = computed(() =>
 </template>
 
 <style lang="scss" scoped>
-/* One line per surah, named without "سورة" like the rest of the Quran screens. The name comes first: the details at
-   the end of the row give way, then trail off, before the name is ever cut. */
 .surah-name {
   flex-shrink: 0;
   max-width: calc(100% - 2.75rem);
@@ -162,7 +159,6 @@ const bookmarkRows = computed(() =>
   vertical-align: middle;
 }
 
-/* As compact as the surah rows: the 44px remove button sets the height and sits out at the row's end. */
 .bookmark-row {
   padding-block: 0.375rem;
 }

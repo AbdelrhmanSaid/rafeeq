@@ -57,7 +57,6 @@ const displayText = computed(() => {
   return ayah.value.text.trim()
 })
 
-// The sheet follows the card: its prev/next move the card's ayah, and it shows whichever ayah is loaded.
 const showTafseer = ref(false)
 const tafseerAyah = computed(() =>
   showTafseer.value && ayah.value

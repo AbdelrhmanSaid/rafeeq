@@ -47,7 +47,6 @@ const fire = (type, fields) => {
   window.dispatchEvent(event)
 }
 
-// One relative (gyroscope) and one absolute (compass) reading, as Chrome sends them side by side.
 const readBoth = (compassAlpha, gyroAlpha) => {
   fire('deviceorientation', { alpha: gyroAlpha, beta: 0, gamma: 0, absolute: false })
   fire('deviceorientationabsolute', { alpha: compassAlpha, beta: 0, gamma: 0, absolute: true })

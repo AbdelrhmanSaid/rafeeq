@@ -28,7 +28,6 @@ export const isVerse = (surah, ayah) =>
   ayah >= 1 &&
   ayah <= surahs[surah - 1].numberOfAyahs
 
-// Ayat before each surah, so an ayah's place in the whole Quran (1 to 6236) is one addition away.
 const ayahsBefore = surahs.reduce((offsets, surah) => [...offsets, offsets.at(-1) + surah.numberOfAyahs], [0])
 
 export const ayahIndex = (surah, ayah) => ayahsBefore[surah - 1] + ayah
@@ -54,8 +53,7 @@ export const juzOfPage = (page) => PAGE_STARTS[page - 1][1]
 
 const lastOpeningOnPage = new Map(surahs.map((_, i) => [surahStartPage(i + 1), i + 1]))
 
-// A page a surah opens on is that surah's, though the one before may end at its top (page 293 is al-Kahf's, not
-// al-Isra's). Where several surahs open on one page, the last one counts.
+// A page belongs to the last surah opening on it, even if the previous one ends at its top (293 is al-Kahf's).
 export const readingSurahOfPage = (page) => lastOpeningOnPage.get(page) ?? surahOfPage(page)
 
 export const nextVerse = (surah, ayah) => {
@@ -71,7 +69,6 @@ export const formatAyahCount = (count) => {
 
 export const surahName = (surah) => removeSurahPrefix(normalizeQuranicText(surahs[surah - 1].name))
 
-// The name without its vowel marks, for small print where full tashkeel crowds the letters.
 export const plainSurahName = (surah) => surahName(surah).replace(/[\u064b-\u065f\u0670\u06d6-\u06ed]/g, '')
 
 export function surahPages(surah) {

@@ -1,7 +1,6 @@
 import { CalculationParameters, Coordinates, HighLatitudeRule, Madhab, PolarCircleResolution, PrayerTimes } from 'adhan'
 import { DEFAULT_METHOD, METHOD_PARAMETERS } from '@/features/prayers/constants/methodParameters'
 
-// Beyond this distance no regional authority is a sensible guess, so fall back to the default method.
 const MAX_AUTO_DISTANCE_KM = 2000
 const EARTH_RADIUS_KM = 6371
 
@@ -64,7 +63,6 @@ function getCalculationParameters({ latitude, longitude, method, school, latitud
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000
-// How far towards the equator to look for a latitude where Asr still falls inside the afternoon.
 const ASR_SEARCH_STEP = 0.5
 const ASR_SEARCH_LIMIT = 48
 
@@ -110,7 +108,6 @@ function resolveAsr(lat, lng, date, settings, times) {
   return new Date(times.dhuhr.getTime() + afternoon * share)
 }
 
-// Absolute instants for the local calendar day of `date`, so the device timezone handles daylight saving.
 // Always in order (Fajr … Isha): the next-prayer and phase logic relies on it.
 export function calculatePrayerTimes({ latitude, longitude, date = new Date(), ...settings }) {
   const lat = Number(latitude)

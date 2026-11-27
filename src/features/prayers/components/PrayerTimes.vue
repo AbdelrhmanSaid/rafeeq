@@ -17,7 +17,6 @@ import PrayerIcon from '@/features/prayers/components/icons/PrayerIcon.vue'
 const props = defineProps({
   lat: { type: [Number, String], default: null },
   long: { type: [Number, String], default: null },
-  // Home shows the weekday in its greeting, so the card can leave it out.
   showWeekday: { type: Boolean, default: true },
 })
 
@@ -56,7 +55,6 @@ const timingsFor = (date) =>
 
 const timings = computed(() => (hasCoords.value ? timingsFor(todayDate.value) : null))
 
-// The strip drops the ص/م suffix and the leading zero.
 const formatShortTiming = (time) => toArabicNumerals(formatDate(new Date(time), 'h:mm'))
 
 const formatTiming = (time) =>
@@ -192,13 +190,12 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
   padding: 1.35rem 1.35rem 1.25rem;
   border-radius: var(--bs-border-radius-lg);
   box-shadow: var(--app-shadow-card);
-  /* Text and icons take --app-on-primary: white on a dark brand colour, near-black on a light one (sand). */
   color: var(--app-on-primary);
   background:
     radial-gradient(28rem 14rem at 100% 0, rgba(255, 255, 255, 0.18), transparent 70%),
     linear-gradient(135deg, var(--bs-primary), color-mix(in srgb, var(--bs-primary) 72%, #000));
 
-  /* Deepen away from the text colour (towards white under dark text), so a light brand colour doesn't darken. */
+  /* Mix towards the inverse of the text colour, so a light brand colour doesn't darken. */
   @supports (color: rgb(from red r g b)) {
     background:
       radial-gradient(28rem 14rem at 100% 0, rgba(255, 255, 255, 0.18), transparent 70%),
@@ -256,8 +253,7 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
   white-space: nowrap;
 }
 
-/* A wrapped line's leading dot sits in the pulled-in start margin, which this clips. Clip, not hidden, so the wrapper
-   still won't shrink narrower than its words. */
+/* Clips a wrapped line's leading dot in the pulled-in margin; clip, not hidden, keeps the min width of its words. */
 .prayer-hero__date,
 .prayer-hero__remain {
   overflow: clip;
@@ -317,7 +313,6 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
   color: color-mix(in srgb, var(--app-on-primary) 90%, var(--bs-primary));
 }
 
-/* The time and the countdown each stay on one line; between them is where the line breaks. */
 .prayer-hero__remain .dot-list > * {
   white-space: nowrap;
 }
@@ -345,12 +340,10 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
 }
 
 .prayer-strip {
-  /* The names and times scale with the strip's width, so a narrow phone at a large text size still fits all six. */
   container-type: inline-size;
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 0.125rem;
-  /* The divider spans the card edge to edge; the padding keeps the items where they were. */
   margin: 1.125rem -1.35rem -0.375rem;
   padding: 0.875rem 0.5rem 0;
   border-top: 1px solid color-mix(in srgb, var(--app-on-primary) 16%, transparent);
@@ -400,7 +393,6 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
   white-space: nowrap;
 }
 
-/* Prevent layout shift while state content changes. */
 .prayer-state {
   display: grid;
   place-items: center;

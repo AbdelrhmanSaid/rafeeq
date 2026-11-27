@@ -106,7 +106,6 @@ describe('MushafPage, not downloaded', () => {
 })
 
 describe('MushafPage, loaded', () => {
-  // A <header> or <footer> here would read as a second banner or content-info landmark on the screen.
   it('names the surah and juz in its header without landmarks or vowel marks', async () => {
     const wrapper = mount(MushafPage, { props: { page: 3 } })
     await flushPromises()

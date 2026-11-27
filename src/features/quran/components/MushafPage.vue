@@ -19,7 +19,6 @@ const props = defineProps({
   page: { type: Number, required: true },
   selectedKey: { type: String, default: null },
   playingKey: { type: String, default: null },
-  // Verse key → bookmark color id.
   bookmarks: { type: Map, default: () => new Map() },
 })
 
@@ -55,8 +54,7 @@ async function load() {
 
 watch(() => props.page, load, { immediate: true })
 
-// About one line in forty of the V4 fonts comes out wider than the page (up to a third wider); once drawn, those are
-// set smaller to fit. Everything is in em, so the ratio holds at any size.
+// About 1 line in 40 of the V4 fonts is wider than the page (up to a third); in em, so the fit holds at any size.
 const linesBox = useTemplateRef('linesBox')
 watch(data, async () => {
   await nextTick()
@@ -74,7 +72,6 @@ const headerSurah = computed(() => {
   return first ? plainSurahName(parseVerseKey(first).surah) : ''
 })
 
-// The first piece of each ayah on the page is the one a keyboard or screen reader lands on.
 const lines = computed(() => {
   if (!data.value) return []
   const seen = new Set()
@@ -92,7 +89,6 @@ const lines = computed(() => {
 })
 const bannerSurahs = computed(() => lines.value.filter((line) => line.surah).map((line) => line.surah))
 
-// The glyphs mean nothing to a screen reader, so each ayah is read out from its text.
 const ayahLabel = (key) => {
   const { surah, ayah } = parseVerseKey(key)
   return `${data.value.verses[key]} (${surahName(surah)}، الآية ${toArabicNumerals(ayah)})`
@@ -105,8 +101,7 @@ const markOf = (key) => {
   return color ? `is-bookmarked mark-${color}` : null
 }
 
-// The surah-names font draws "سورة" from the word "surah" and each name from its three-digit number. Those are
-// left-to-right text, so the two words are laid out by the right-to-left row instead: "سورة" first, on the right.
+// The surah-names font ligates "surah" and the 3-digit number as LTR text, so the RTL flex row orders the two words.
 const surahNumber = (surah) => String(surah).padStart(3, '0')
 
 const surahInfo = (surah) => {
@@ -114,8 +109,7 @@ const surahInfo = (surah) => {
   return { place: isMeccan ? 'مكية' : 'مدنية', ayahs: numberOfAyahs }
 }
 
-// Centre the visible ink of each label within its part of the frame. The title has two runs with a 0.3em gap.
-// Canvas measures at 100px, so dividing the centre difference by 100 gives the shift in em at any display size.
+// Centres each label's ink. Canvas measures at 100px, so px / 100 is em; the title's two runs are 0.3em apart.
 function inkOffset(first, second) {
   const last = second ?? first
   const advance = second ? first.width + 30 : 0
@@ -166,7 +160,7 @@ watch(bannerSurahs, centreBannerLabels)
 const HOLD_MS = 450
 let holdTimer = 0
 let holdStart = null
-// Touch selects by holding; the long-press menu a touch browser would open on its own is not a second way in.
+// The browser's own long-press menu is ignored on touch, which selects by holding.
 let lastPointerType = 'mouse'
 
 function cancelHold() {
@@ -178,7 +172,7 @@ function cancelHold() {
   window.removeEventListener('pointercancel', cancelHold)
 }
 
-// The click ending a hold isn't a tap, and may land on the backdrop of the ayah's menu, which would close it.
+// The click ending a hold isn't a tap, and could land on the ayah menu's backdrop and close it.
 function swallowNextClick() {
   const swallow = (event) => {
     event.stopPropagation()
@@ -199,7 +193,6 @@ function onPointerDown(event) {
   if (holdStart && event.pointerId !== holdStart.id) return cancelHold()
   const key = event.target.closest('[data-key]')?.dataset.key
   cancelHold()
-  // A mouse selects with a right-click instead.
   if (!key || event.pointerType === 'mouse' || !event.isPrimary) return
   holdStart = { id: event.pointerId, x: event.clientX, y: event.clientY }
   window.addEventListener('pointermove', onHoldMove)
@@ -220,7 +213,7 @@ function onHoldMove(event) {
 
 function onClick(event) {
   if (event.target.closest('button')) return
-  // A click with no pointer behind it (a screen reader activating an ayah's button) opens the ayah's menu.
+  // detail 0: a click with no pointer behind it, e.g. a screen reader activating the ayah.
   const key = event.target.closest('[data-key]')?.dataset.key
   if (key && event.detail === 0) return select(key)
   emit('tap')
@@ -250,7 +243,6 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <!-- The whole page takes the taps, margins included, so the bars come back from anywhere. -->
   <article
     class="mushaf-page"
     :aria-label="`صفحة ${toArabicNumerals(page)}`"
@@ -288,7 +280,6 @@ onBeforeUnmount(() => {
               <span>surah</span>
               <span>{{ surahNumber(line.surah) }}</span>
             </span>
-            <!-- The frame's two medallions: where the surah was revealed on the right, its ayat on the left. -->
             <span
               class="surah-label surah-medallion surah-medallion--start"
               aria-hidden="true"
@@ -331,7 +322,6 @@ onBeforeUnmount(() => {
     <LoadingState v-else-if="slow && !failed" message="جاري تحميل الصفحة..." />
 
     <div v-else-if="failed" class="mushaf-page__state">
-      <!-- From the bundled index, so a page not downloaded still says where it is. -->
       <p class="mushaf-page__where">
         صفحة {{ toArabicNumerals(page) }}، {{ plainSurahName(surahOfPage(page)) }}، الجزء
         {{ toArabicNumerals(juzOfPage(page)) }}
@@ -363,26 +353,24 @@ onBeforeUnmount(() => {
   place-items: center;
   width: 100%;
   height: 100%;
-  // Room for the notch and home indicator; the bars float over the rest.
   padding: calc(env(safe-area-inset-top, 0px) + 0.75rem) 0.75rem
     calc(env(safe-area-inset-bottom, 0px) + 0.5rem + var(--player-room));
   --player-room: 0px;
 }
 
-/* On desktop a tap doesn't hide the player, so the page stops above it: the pill is 3.25rem tall, 0.75rem up. */
+/* Desktop keeps the player shown: the pill is 3.25rem tall, 0.75rem up. */
 @media (min-width: 992px) {
   .mushaf-page {
     --player-room: 4rem;
   }
 }
 
-/* Across all 604 pages, a line's words come to 16.1em at the median and at most 17.2em for 97 lines in 100; the
-   few wider ones are set smaller to fit (see the watch on data). */
+/* 17.2em fits 97% of lines across the 604 pages (median 16.1em); wider ones are scaled down in the script. */
 .mushaf-sheet {
   --line-width: 17.2em;
   --page-room: calc(100cqh - 96px - var(--player-room));
   --surah-pitch: 2.65em;
-  // The 2.15em frame needs a taller row than the ayat. Reserve those rows before spacing the remaining lines.
+  // Banner rows (2.15em frame) are reserved before spacing the other lines.
   --pitch: clamp(
     1.85em,
     calc((var(--page-room) - var(--surah-lines) * var(--surah-pitch)) / (15 - var(--surah-lines))),
@@ -420,7 +408,7 @@ onBeforeUnmount(() => {
 
 .mushaf-sheet__lines {
   font-family: var(--page-font), 'Thmanyah Sans', sans-serif;
-  // The ayat's tints sit behind the words but in front of everything under the page.
+  // Keeps the ayah tints' z-index: -1 above whatever is under the page.
   isolation: isolate;
 }
 
@@ -430,16 +418,14 @@ onBeforeUnmount(() => {
   text-align: justify;
   text-align-last: justify;
   white-space: nowrap;
-  // The spaces come from the app font (the page fonts have none). They start at a small gap (0.17em) so words never
-  // touch, even on a line that fills the page or was set smaller to fit; justifying widens them from there.
+  // Spaces come from the app font (page fonts have none); this leaves a 0.17em minimum gap before justifying.
   word-spacing: -0.08em;
 
-  // Only the words shrink, so the line and the ayah around them (which the tint is measured from) keep their height.
+  // Only the glyphs shrink, so the line and the ayah box the tint is measured from keep their height.
   .ayah__glyphs {
     font-size: calc(1em * var(--fit, 1));
   }
 
-  // A centred line isn't stretched, so its words get an ordinary gap.
   &.is-centered {
     text-align-last: center;
     word-spacing: -0.05em;
@@ -494,7 +480,7 @@ onBeforeUnmount(() => {
   font-family: 'Thmanyah Sans', sans-serif;
   font-weight: 700;
   color: color-mix(in srgb, var(--bs-primary) 60%, var(--bs-body-color));
-  // Each medallion is about 1.2em of the page across. The centres are measured from the frame glyph's left edge.
+  // Medallions are ~1.2em across; centres measured from the frame glyph's left edge.
 
   &--start {
     --label-at: 79.06%;
@@ -525,8 +511,7 @@ onBeforeUnmount(() => {
   position: relative;
   cursor: default;
 
-  // Exactly one line tall: the ayah's own box comes from the font and is taller than the line, so its background
-  // would run into the lines above and below.
+  // One line tall: the font's ayah box is taller than the line, so its own background would overlap neighbours.
   &::before {
     content: '';
     position: absolute;
@@ -545,8 +530,7 @@ onBeforeUnmount(() => {
     }
   }
 
-  // Two marked ayat side by side stop at the space between them: reaching into each other, their tints would mix
-  // into a stripe of a third colour.
+  // Adjacent marks stop at the shared space, or their overlapping tints would mix into a third colour.
   &:is(.is-selected, .is-playing, .is-bookmarked) + &:is(.is-selected, .is-playing, .is-bookmarked) {
     --reach-before: 0em;
   }

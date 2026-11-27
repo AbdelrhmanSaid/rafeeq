@@ -44,8 +44,7 @@ useScreenWakeLock()
 const routePage = computed(() => clampPage(route.params.page))
 const current = ref(routePage.value)
 
-// Only the page in view and its neighbours are drawn. Page 1 is rightmost and later pages lie to the left, so the
-// next page comes in with a swipe to the right, as a printed Mushaf turns.
+// Page 1 is rightmost and later pages lie to the left, as a printed Mushaf turns.
 const slots = computed(() =>
   [current.value - 1, current.value, current.value + 1].filter((page) => page >= 1 && page <= PAGE_COUNT),
 )
@@ -54,7 +53,7 @@ const slotStyle = (page) => ({ transform: `translateX(${(current.value - page) *
 const pager = useTemplateRef('pager')
 const track = useTemplateRef('track')
 
-// One page per drag, flick or trackpad swipe; native scrolling would let a fast flick fly past several pages.
+// A custom pager, since native scroll snapping lets a fast flick fly past several pages.
 let offset = 0
 let finishTurn = null
 let cancelTurn = null
@@ -77,8 +76,7 @@ function prefetchAround(page) {
 function settleOn(page) {
   current.value = page
   prefetchAround(page)
-  // Reset now, not after the slots re-render (they move before the next paint, so nothing jumps), so a turn that
-  // follows at once slides from here.
+  // Reset now, not after the slots re-render, so a turn that follows at once slides from here.
   moveTrack(0, false)
   quranStore.lastPage = page
   keepPagesNear(page)
@@ -92,7 +90,6 @@ function settleTurn() {
   void track.value?.offsetWidth
 }
 
-// Slides to the next or previous page; any other page is a jump.
 function turnTo(page) {
   settleTurn()
   if (page < 1 || page > PAGE_COUNT || page === current.value) return
@@ -113,7 +110,7 @@ function turnTo(page) {
   cancelTurn = stop
 }
 
-// Counted from where the slide in progress lands, so four quick presses turn four pages.
+// Counted from where the slide in progress lands, so quick presses each turn a page.
 function turnBy(delta) {
   settleTurn()
   turnTo(current.value + delta)
@@ -124,13 +121,12 @@ const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
 let drag = null
 const DRAG_START = 8
 
-// A gesture that dragged, caught a page still sliding in, or pinched is neither a tap nor a hold on an ayah.
 let gestureBusy = false
 // Letting go is heard on the window: a pointer can end outside the pager, or on a page slot replaced under it.
 const pressed = new Set()
 
 function onPointerDown(event) {
-  // A primary pointer starts a fresh gesture, even if a release was missed.
+  // A primary pointer starts a fresh gesture, in case a release was missed.
   if (event.isPrimary) pressed.clear()
   pressed.add(event.pointerId)
   if (pressed.size > 1) {
@@ -168,7 +164,6 @@ function onPointerMove(event) {
 
 function onPointerUp(event) {
   if (!pressed.delete(event.pointerId)) return
-  // The click that follows a drag, a pinch, or catching a sliding page isn't a tap.
   if (gestureBusy) {
     suppressClick = true
     setTimeout(() => (suppressClick = false))
@@ -194,7 +189,7 @@ function onClickCapture(event) {
   event.preventDefault()
 }
 
-// wheel-gestures tells a trackpad swipe from its momentum: each swipe turns at most one page, its momentum none.
+// wheel-gestures tells a trackpad swipe from its momentum, so one swipe turns at most one page.
 const wheelGestures = WheelGestures({ preventWheelAction: 'x', reverseSign: false })
 let gestureTurned = false
 
@@ -202,7 +197,7 @@ wheelGestures.on('wheel', ({ isStart, isMomentum, axisMovement: [x, y] }) => {
   if (isStart) gestureTurned = false
   if (gestureTurned || isMomentum || Math.abs(x) < 30 || Math.abs(x) < Math.abs(y)) return
   gestureTurned = true
-  // Content moves with the fingers: swiping right brings the next page in from the left.
+  // Content follows the fingers: swiping right brings the next page in.
   turnBy(x < 0 ? 1 : -1)
 })
 
@@ -219,19 +214,17 @@ function showPageInAddress(page) {
 onMounted(() => {
   quranStore.lastPage = current.value
   prefetchAround(current.value)
-  // The surah frames' and names' fonts load on first use; asking now means a page's title is never drawn late.
+  // Web fonts load on first use; preloading keeps a page's surah title from being drawn late.
   document.fonts.load("1em 'Mushaf Headings'").catch(() => {})
   document.fonts.load("1em 'Surah Names'").catch(() => {})
 })
 
-// An address past either end (page 0, page 605) is corrected to the nearest page.
 watch(
   () => route.params.page,
   (raw) => raw !== undefined && String(raw) !== String(routePage.value) && showPageInAddress(routePage.value),
   { immediate: true },
 )
 
-// Opening another page from outside (a bookmark, say) while the reader is open.
 watch(routePage, (page) => {
   if (page === current.value) return
   cancelTurn?.()
@@ -246,7 +239,6 @@ onBeforeUnmount(() => {
 
 const sheetOpen = computed(() => Boolean(selected.value || tafseerAyah.value))
 
-// Arrow keys turn pages the way they point on a right-to-left page; not while a sheet is open over the page.
 useEventListener(window, 'keydown', (event) => {
   if (sheetOpen.value || document.querySelector('.sheet-root') || event.target.closest?.('input, textarea')) return
   if (event.key === 'ArrowLeft') turnBy(1)
@@ -274,7 +266,6 @@ watch(
 const selected = ref(null)
 
 function onSelect({ key, text, pointer }) {
-  // A hold or right-click that was part of turning the page selects nothing.
   if (pointer && (gestureBusy || drag?.active)) return
   // The finger that held the ayah no longer drags the page under its menu.
   drag = null
@@ -282,7 +273,6 @@ function onSelect({ key, text, pointer }) {
   selected.value = { key, surah, ayah, text }
 }
 
-// On desktop the top nav stays, so taps leave the bars be.
 const isDesktop = useMediaQuery('(min-width: 992px)')
 function onTap() {
   if (selected.value) selected.value = null
@@ -314,7 +304,6 @@ const previousVerse = ({ surah, ayah }) => {
   return surah > 1 ? { surah: surah - 1, ayah: surahs[surah - 2].numberOfAyahs } : null
 }
 
-// Only the latest step lands, and none after the sheet closes.
 let tafseerStep = 0
 watch(tafseerAyah, (ayah) => !ayah && tafseerStep++)
 
@@ -333,7 +322,6 @@ async function stepTafseer(delta) {
   }
 }
 
-// Play starts from the top of the page in view, or carries on where it was paused if that's on this page.
 async function togglePlayback() {
   if (recitation.playing.value) return recitation.pause()
 
@@ -356,8 +344,7 @@ async function togglePlayback() {
   }
 }
 
-// The page follows the recitation unless the reader has turned away. recitedPage outlives the gaps with no ayah
-// (a Basmala, a pause), so those don't pull the reader back.
+// recitedPage outlives gaps with no ayah (a Basmala, a pause), so those don't pull back a reader who turned away.
 let recitedPage = null
 watch(
   () => recitation.playingKey.value,
@@ -371,13 +358,11 @@ watch(
   },
 )
 
-// Playing from a chosen ayah or page is following it.
 function startRecitation(surah, ayah) {
   recitedPage = null
   recitation.playFrom(surah, ayah)
 }
 
-// Without vowel marks, which read best in a browser tab or a screen reader's heading list.
 const readingSurah = computed(() => plainSurahName(readingSurahOfPage(current.value)))
 const pageTitle = computed(() => `سورة ${readingSurah.value} - صفحة ${toArabicNumerals(current.value)}`)
 
@@ -421,7 +406,6 @@ usePageMeta(() => ({
       </div>
     </div>
 
-    <!-- For keyboard and screen-reader users, who can't drag; shown when focused. -->
     <div class="reader__turns">
       <button
         type="button"
@@ -480,7 +464,6 @@ usePageMeta(() => ({
     top: var(--topnav-height);
   }
 
-  // An embed has no top nav.
   :global(.main-content-embed .reader) {
     top: 0;
   }
@@ -504,10 +487,8 @@ usePageMeta(() => ({
   position: relative;
   height: 100%;
   overflow: hidden;
-  // A mouse drag turns the page rather than selecting text.
   -webkit-user-select: none;
   user-select: none;
-  // The pager handles drags itself; the browser keeps pinch-zoom.
   touch-action: pinch-zoom;
 }
 

@@ -5,8 +5,7 @@ import { calculatePrayerTimes } from '@/features/prayers/lib/prayerTimes'
 import { getNextPrayerKey, getPreviousPrayerKey } from '@/features/prayers/lib/prayerPhase'
 import { isCoordinate } from '@/features/prayers/lib/coordinates'
 
-// The prayer whose time has most recently started (Fajr…Isha, or Sunrise) for the saved location.
-// Before Fajr it's still the previous night's Isha. Null when no location is set.
+// Before Fajr it is still the previous night's Isha.
 export function useCurrentPrayerKey() {
   const store = usePrayersStore()
   const now = useNow({ interval: 60_000 })

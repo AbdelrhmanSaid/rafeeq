@@ -1,6 +1,5 @@
 <script setup>
 defineProps({
-  // Label → value, in the order to list them.
   values: { type: Object, required: true },
 })
 </script>

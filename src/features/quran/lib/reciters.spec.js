@@ -3,7 +3,6 @@ import reciters from '@/features/quran/data/reciters.js'
 import { recordingStyle } from './reciters'
 
 describe('recordingStyle', () => {
-  // Abdul Basit has two recordings under one name; the player has to say which is chosen.
   it('tells apart two recordings by the same reciter', () => {
     const basit = reciters.filter((reciter) => reciter.name === 'عبدالباسط عبدالصمد')
     expect(basit.map(recordingStyle).sort()).toEqual(['', 'مجوّد'])

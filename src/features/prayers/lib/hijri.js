@@ -1,4 +1,3 @@
-// Umm al-Qura date parts for the local calendar day of `date`, with Latin digits.
 // The formatter is built per call so it always uses the device's current timezone.
 export function getHijriDate(date = new Date()) {
   const formatter = new Intl.DateTimeFormat('ar-u-ca-islamic-umalqura-nu-latn', {

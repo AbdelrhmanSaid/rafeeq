@@ -16,14 +16,13 @@ const prayers = [
   { key: 'Isha', name: 'العشاء', before: 0, after: 2, icon: 'isha' },
 ]
 
-// Phones show only the current prayer's sunnah until expanded; the time after sunrise has none, so Dhuhr stands in.
+// The time after sunrise has no sunnah, so Dhuhr stands in.
 const currentPrayerKey = useCurrentPrayerKey()
 const current = computed(() => {
   const key = currentPrayerKey.value === 'Sunrise' ? 'Dhuhr' : currentPrayerKey.value
   return prayers.find((prayer) => prayer.key === key) ?? null
 })
 const expanded = ref(false)
-// Without a location there's no current prayer to pick, so the full list shows.
 const visiblePrayers = computed(() => (expanded.value || !current.value ? prayers : [current.value]))
 
 const formatRakaa = (value) => {
@@ -97,7 +96,6 @@ const formatRakaa = (value) => {
   }
 }
 
-/* The header row already spaces it. */
 .sunnah-header__title {
   margin: 0;
 }

@@ -20,7 +20,7 @@ export function useMushafRecitation() {
 
   const playing = ref(false)
   const loading = ref(false)
-  // The surah loaded and the ayah being recited (0 while the Basmala plays).
+  // `ayah` is 0 while the Basmala plays.
   const surah = ref(null)
   const ayah = ref(null)
   const playingKey = computed(() =>
@@ -54,7 +54,7 @@ export function useMushafRecitation() {
       }),
     ]).finally(() => listening.abort())
     if (id !== loadId) throw new Error('superseded')
-    // Without timings, or for a recording not in Hafs, the surah still plays; only the following stops.
+    // Timings only line up with Hafs recordings; others play without ayah following.
     timings = isHafsRecording(quranStore.reciter) ? loadedTimings.filter((t) => Number.isFinite(t.start_time)) : []
   }
 
@@ -65,10 +65,9 @@ export function useMushafRecitation() {
 
   let playId = 0
   let disposed = false
-  // What was asked for, kept apart from the ayah playing, so a reciter change while loading keeps the right place.
+  // Kept apart from `ayah` so a reciter change while loading resumes at the requested place.
   let requested = null
 
-  // Starts reciting at an ayah; ayah 1 starts with the surah's Basmala.
   async function playFrom(surahNumber, ayahNumber = 1) {
     if (disposed) return
     const id = ++playId
@@ -91,7 +90,6 @@ export function useMushafRecitation() {
     } catch (error) {
       if (id !== playId || error?.message === 'superseded') return
       playing.value = false
-      // A recording that failed to load is tried again next time.
       surah.value = null
       audio.removeAttribute('src')
       if (error?.name !== 'AbortError') toast.error('تعذر تشغيل التلاوة، برجاء المحاولة مرة أخرى')
@@ -143,7 +141,6 @@ export function useMushafRecitation() {
     if (isPlaying && !frame) frame = requestAnimationFrame(track)
   })
 
-  // Paused from outside the app (a call, headphones unplugged, the lock screen) shows as paused here too.
   audio.addEventListener('pause', () => {
     if (playing.value) {
       playing.value = false
@@ -159,7 +156,6 @@ export function useMushafRecitation() {
   watch(
     () => quranStore.currentReciter,
     () => {
-      // Includes a recitation still loading, which must not go on to play the old reciter.
       const wasActive = playing.value || loading.value
       const at = loading.value && requested ? requested : { surah: surah.value, ayah: Math.max(1, ayah.value ?? 1) }
       loadId++
@@ -185,7 +181,7 @@ export function useMushafRecitation() {
     setMediaPlaybackState('playing')
   }
 
-  // Also ends a recitation still loading, which would otherwise start on another screen with nothing to stop it.
+  // Also cancels a load in flight, which would otherwise start playing on another screen.
   onScopeDispose(() => {
     disposed = true
     cancelAnimationFrame(frame)

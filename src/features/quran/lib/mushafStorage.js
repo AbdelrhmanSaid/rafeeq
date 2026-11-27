@@ -3,10 +3,9 @@ import { useLocalStorage } from '@vueuse/core'
 import surahs from '@/features/quran/data/surahs.js'
 import { pageDataUrl, pageFontUrl, surahPages } from '@/features/quran/lib/mushaf'
 
-// Every page read or downloaded stays on the device: its layout and its font, kept together in one cache so a stored
-// page always opens offline. The cache name changes only if the files themselves ever change.
+// Layout and font share one cache so a stored page always opens offline; rename it only if the files change.
 const CACHE_NAME = 'mushaf-v2'
-// Deleted on start: mushaf-v1 held the V2 fonts and layouts, which don't match the V4 ones.
+// Migration for existing users: mushaf-v1 held V2 fonts and layouts that don't match V4, so it's deleted on start.
 const OLD_CACHES = ['mushaf-v1']
 
 const hasCacheStorage = () => typeof caches !== 'undefined'
@@ -31,8 +30,7 @@ export function scanStoredPages() {
   return scanned
 }
 
-// Files are checked before they're kept, so a broken response (a captive portal's page, a cut-off download) is never
-// stored and retried forever: a page's layout must parse, and a font must be a WOFF2 file.
+// Validated before caching so a captive portal's page or a cut-off download is never stored for good.
 const checkLayout = (buffer) => {
   const data = JSON.parse(new TextDecoder().decode(buffer))
   if (!Array.isArray(data?.lines) || typeof data.verses !== 'object') throw new Error('Not a Mushaf page')
@@ -44,8 +42,7 @@ const checkFont = (buffer) => {
   return buffer
 }
 
-// `saved` says whether the file is on the device now: a full disk only costs the offline copy, but then the page
-// mustn't count as downloaded.
+// `saved`: a full disk only costs the offline copy, but the page then mustn't count as downloaded.
 async function fetchStored(url, check, signal) {
   const cache = await openCache()
   const stored = await cache?.match(url)
@@ -87,7 +84,6 @@ export function loadPage(page) {
       try {
         await face.load()
       } catch (error) {
-        // A font the browser can't read is dropped, so the next try fetches it afresh.
         const cache = await openCache()
         await cache?.delete(pageFontUrl(page))
         throw error
@@ -96,7 +92,6 @@ export function loadPage(page) {
         storedPages.add(page)
         recordReadSurahs([page])
       }
-      // Let go while loading: the page is no longer near the reader, so its font isn't registered.
       if (!entry.dropped) {
         entry.face = face
         document.fonts.add(face)
@@ -109,7 +104,7 @@ export function loadPage(page) {
   return loaded.get(page).promise
 }
 
-// Fonts are about 80 KB each, so only the pages around the reader stay registered.
+// Fonts are about 80 KB each, so only pages near the reader stay registered.
 export function keepPagesNear(page, distance = 4) {
   for (const [other, entry] of loaded) {
     if (Math.abs(other - page) <= distance) continue
@@ -119,17 +114,16 @@ export function keepPagesNear(page, distance = 4) {
   }
 }
 
-// Pages a download stored for a surah that hasn't finished downloading. A cancelled download takes them back, while
-// a paused one keeps them for when it resumes. Pages kept from reading are never in here.
+// Pages stored by an unfinished surah download (taken back on cancel); never pages kept from reading.
 const unfinished = new Set()
 
 async function downloadPages(pages, signal) {
   for (const page of pages) {
     signal?.throwIfAborted()
     if (storedPages.has(page)) continue
-    // Marked before fetching, so a page with only one of its files stored is taken back too.
+    // Marked before fetching so a page with only one file stored is taken back too.
     unfinished.add(page)
-    // Both files settle before moving on, so an abort can't leave one of them still writing after it's taken back.
+    // allSettled: an abort mustn't leave one file still writing after the page is taken back.
     const results = await Promise.allSettled([fetchLayout(page, signal), fetchFont(page, signal)])
     const failed = results.find((result) => result.status === 'rejected')
     if (failed) throw failed.reason
@@ -147,8 +141,7 @@ async function removePages(pages) {
   }
 }
 
-// The surahs downloaded on purpose, as opposed to pages kept from reading. A page shared by several surahs stays
-// until the last of them is removed. Kept out of settings backups: it describes this device's storage.
+// Kept out of settings backups: it describes this device's storage.
 const downloaded = useLocalStorage('mushaf-downloaded-surahs', [])
 const downloadedSet = computed(() => new Set(downloaded.value))
 
@@ -163,7 +156,6 @@ function surahsOnPage(page) {
   return surahsByPage.get(page) ?? []
 }
 
-// A surah whose every page reading has stored counts as downloaded, the same as one downloaded on purpose.
 function recordReadSurahs(pages) {
   const complete = new Set()
   for (const page of pages) {
@@ -177,15 +169,12 @@ function recordReadSurahs(pages) {
 const isSurahDownloaded = (surah) =>
   downloadedSet.value.has(surah) && surahPages(surah).every((page) => storedPages.has(page))
 
-// Whether any surah was downloaded on purpose, so the app knows to check those downloads are still whole on start.
 export const hasMushafDownloads = () => downloaded.value.length > 0
 
 export const mushafDownloads = {
-  // Surahs downloaded on purpose whose pages are no longer all stored (new Mushaf files, or the browser evicted some).
   missing: () => downloaded.value.filter((surah) => !isSurahDownloaded(surah)),
   downloadedCount: computed(() => surahs.filter((s) => isSurahDownloaded(s.id)).length),
   isDownloaded: (key) => isSurahDownloaded(Number(key)),
-  // Stops between pages once `signal` aborts, and then the surah isn't recorded as downloaded.
   async download(key, { signal } = {}) {
     const surah = Number(key)
     const pages = surahPages(surah)

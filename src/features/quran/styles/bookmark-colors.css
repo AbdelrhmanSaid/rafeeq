@@ -1,4 +1,3 @@
-/* Bookmark colors: --mark tints the ayah on the page, --mark-solid is the dot in lists and menus. */
 .mark-gold {
   --mark: rgba(234, 179, 8, 0.26);
   --mark-solid: #d29e0c;

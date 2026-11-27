@@ -16,8 +16,7 @@ const emit = defineEmits(['toggle'])
 
 const quranStore = useQuranStore()
 
-// The Mushaf is in Hafs, so the list offers the reciters who recorded the whole Quran in it, plus whoever was picked
-// in Settings, which may be another riwaya: it plays, but the ayah isn't followed.
+// Full-Quran Hafs reciters, plus the Settings pick even if it's another riwaya (it plays without ayah following).
 const choices = computed(() =>
   reciters.filter((r) => (r.soar_count >= 114 && isHafsRecording(r)) || r.id === Number(quranStore.currentReciter)),
 )
@@ -71,7 +70,6 @@ const reciterStyle = computed(() => recordingStyle(quranStore.reciter))
 </template>
 
 <style lang="scss" scoped>
-/* An embed has no tab bar to clear. */
 :global(.main-content-embed .player-pill) {
   bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
 }
@@ -99,7 +97,6 @@ const reciterStyle = computed(() => recordingStyle(quranStore.reciter))
     transform 0.3s var(--app-ease-out),
     opacity 0.2s ease;
 
-  // Hidden from the keyboard and screen readers too, like the bars.
   &.is-hidden {
     transform: translateY(calc(100% + var(--navbar-height) + 1rem));
     opacity: 0;

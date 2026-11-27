@@ -3,11 +3,8 @@ import { computed } from 'vue'
 
 const props = defineProps({
   distance: { type: Number, default: null },
-  // The bearing comes from the location saved for prayer times because a fresh fix failed.
   savedLocation: { type: Boolean, default: false },
-  // A fresh location fix is on its way; until it lands the saved location is in use.
   refreshingLocation: { type: Boolean, default: false },
-  // The fresh fix is too rough for a bearing to rely on.
   impreciseLocation: { type: Boolean, default: false },
 })
 
