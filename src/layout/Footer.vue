@@ -99,7 +99,7 @@ const resources = [
 }
 
 .app-footer__logo {
-  color: var(--bs-primary);
+  color: var(--app-primary-ink);
 }
 
 .app-footer__blurb {
@@ -129,7 +129,7 @@ const resources = [
   transition: color 0.2s;
 
   &:hover {
-    color: var(--bs-primary);
+    color: var(--app-primary-ink);
   }
 }
 

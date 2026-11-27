@@ -3,10 +3,14 @@ import {
   PAGE_COUNT,
   ayahIndex,
   clampPage,
+  juzOfPage,
   nextVerse,
   pageOfAyah,
   parseVerseKey,
+  plainSurahName,
+  readingSurahOfPage,
   surahName,
+  surahOfPage,
   surahPages,
   surahStartPage,
 } from './mushaf'
@@ -71,5 +75,28 @@ describe('mushaf', () => {
   it('names surahs without the "سورة" prefix', () => {
     expect(surahName(1)).not.toMatch(/^سورة/)
     expect(surahName(1).length).toBeGreaterThan(0)
+  })
+
+  it('names the surah being read on a page, which is the one opening there rather than one ending at its top', () => {
+    // Page 293 starts with the end of al-Isra, then al-Kahf opens.
+    expect(surahOfPage(293)).toBe(17)
+    expect(readingSurahOfPage(293)).toBe(18)
+    // A page within a surah, and one whose surah title closes it with the first ayah overleaf.
+    expect(readingSurahOfPage(294)).toBe(18)
+    expect(readingSurahOfPage(76)).toBe(3)
+    // Several surahs open on the last page; the reader ends on an-Nas.
+    expect(readingSurahOfPage(604)).toBe(114)
+    expect(readingSurahOfPage(1)).toBe(1)
+  })
+
+  it('knows the juz a page starts in', () => {
+    expect(juzOfPage(1)).toBe(1)
+    expect(juzOfPage(293)).toBe(15)
+    expect(juzOfPage(604)).toBe(30)
+  })
+
+  it('writes surah names without vowel marks for small print', () => {
+    expect(plainSurahName(18)).toBe('الكهف')
+    expect(plainSurahName(3)).toBe('آل عمران')
   })
 })

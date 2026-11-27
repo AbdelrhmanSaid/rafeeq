@@ -101,7 +101,7 @@ const disabled = computed(
 }
 
 .download-row.downloading .download-row__status {
-  color: var(--bs-primary);
+  color: var(--app-primary-ink);
 }
 
 [data-bs-theme='dark'] .download-row.downloading .download-row__status {
@@ -117,7 +117,7 @@ const disabled = computed(
   border: 0;
   border-radius: 50%;
   background: none;
-  color: var(--bs-primary);
+  color: var(--app-primary-ink);
   transition:
     background-color 0.15s,
     transform 0.15s var(--app-ease);

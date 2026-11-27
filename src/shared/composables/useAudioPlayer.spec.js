@@ -104,4 +104,50 @@ describe('useAudioPlayer', () => {
     expect(player.status.value).toBe('idle')
     expect(instances[0].paused).toBe(true)
   })
+
+  it('reports connecting, not playing, until the audio actually starts', () => {
+    const player = create()
+    player.play('u')
+
+    expect(player.status.value).toBe('connecting')
+    expect(player.isPlaying.value).toBe(false)
+
+    instances[0].emit('playing')
+    expect(player.isPlaying.value).toBe(true)
+  })
+
+  it('stays not playing while retrying after an error', () => {
+    const player = create({ retryDelay: 1000 })
+    player.play('u')
+    instances[0].emit('error')
+
+    expect(player.status.value).toBe('retrying')
+    expect(player.isPlaying.value).toBe(false)
+  })
+
+  it('goes back to connecting while a playing stream buffers', () => {
+    const player = create()
+    player.play('u')
+    const audio = instances[0]
+    audio.emit('playing')
+
+    audio.emit('waiting')
+    expect(player.status.value).toBe('connecting')
+    expect(player.isPlaying.value).toBe(false)
+
+    audio.emit('playing')
+    expect(player.isPlaying.value).toBe(true)
+  })
+
+  it('notices a pause from outside the player', () => {
+    const player = create()
+    player.play('u')
+    const audio = instances[0]
+    audio.emit('playing')
+
+    audio.emit('pause')
+    expect(player.status.value).toBe('paused')
+    expect(player.isPlaying.value).toBe(false)
+    expect(player.src.value).toBe('u')
+  })
 })

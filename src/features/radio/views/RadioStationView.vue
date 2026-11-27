@@ -24,7 +24,10 @@ const { isFavorite, toggleFavorite } = useFavorites(STORAGE_KEYS.radioFavorites)
 
 const stationSlug = computed(() => route.params.slug.toLowerCase())
 const station = computed(() => radiosData[stationSlug.value])
-const isPlaying = computed(() => station.value && store.station === station.value.url)
+// This station is loaded; `isPlaying` only once sound comes out, `isConnecting` while it starts, buffers or retries.
+const isCurrent = computed(() => !!station.value && store.station === station.value.url)
+const isPlaying = computed(() => isCurrent.value && store.status === 'playing')
+const isConnecting = computed(() => isCurrent.value && ['connecting', 'retrying'].includes(store.status))
 const similar = computed(() => getSimilarStations(stationSlug.value, radiosData, 8))
 
 usePageMeta(
@@ -56,9 +59,10 @@ usePageMeta(
       v-else
       :station="station"
       :is-playing="isPlaying"
+      :is-connecting="isConnecting"
       :is-favorite="isFavorite(stationSlug)"
       :similar="similar"
-      @toggle="isPlaying ? store.stop() : store.play(station.url, station)"
+      @toggle="isPlaying || isConnecting ? store.stop() : store.play(station.url, station)"
       @favorite="toggleFavorite(stationSlug)"
       @play-similar="(item) => store.play(item.url, item)"
     />

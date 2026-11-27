@@ -63,19 +63,70 @@ export function getCalculationParameters({ latitude, longitude, method, school, 
   return params
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000
+// How far towards the equator to look for a latitude where Asr still falls inside the afternoon.
+const ASR_SEARCH_STEP = 0.5
+const ASR_SEARCH_LIMIT = 48
+
+const startOfLocalDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate())
+
+const addDays = (date, days) => new Date(date.getFullYear(), date.getMonth(), date.getDate() + days)
+
+const isValidTime = (time) => time instanceof Date && !Number.isNaN(time.getTime())
+
+function adhanTimes(lat, lng, date, settings) {
+  const params = getCalculationParameters({ latitude: lat, longitude: lng, ...settings })
+  return new PrayerTimes(new Coordinates(lat, lng), date, params)
+}
+
+// adhan works out the solar day from the longitude, and its date is the one at that longitude's own solar noon. Where
+// the clock is a whole day off from that (Samoa at UTC+13, Kiritimati at UTC+14), "today" would come back as tomorrow's
+// prayers, so the day is moved until Dhuhr lands on the requested local date.
+function timesForLocalDay(lat, lng, date, settings) {
+  const day = startOfLocalDay(date)
+  const times = adhanTimes(lat, lng, day, settings)
+  if (!isValidTime(times.dhuhr)) return times
+
+  const offset = Math.round((day - startOfLocalDay(times.dhuhr)) / DAY_MS)
+  return offset ? adhanTimes(lat, lng, addDays(day, offset), settings) : times
+}
+
+const asrIsInOrder = (times) => isValidTime(times.asr) && times.asr > times.dhuhr && times.asr < times.maghrib
+
+// Near the polar circle the sun barely clears the horizon, and adhan's Asr can land before Dhuhr or after Maghrib.
+// Like the nearest-city rule for sunrise and sunset, take Asr's share of the afternoon from the nearest latitude where it
+// works out, then apply that share to the local Dhuhr and Maghrib. Halfway through the afternoon if none does.
+function resolveAsr(lat, lng, date, settings, times) {
+  const afternoon = times.maghrib - times.dhuhr
+  let share = 0.5
+
+  for (let step = ASR_SEARCH_STEP; step <= ASR_SEARCH_LIMIT; step += ASR_SEARCH_STEP) {
+    const nearer = lat - Math.sign(lat) * step
+    const reference = timesForLocalDay(nearer, lng, date, settings)
+    if (asrIsInOrder(reference)) {
+      share = (reference.asr - reference.dhuhr) / (reference.maghrib - reference.dhuhr)
+      break
+    }
+  }
+
+  return new Date(times.dhuhr.getTime() + afternoon * share)
+}
+
 // Times are computed for the local calendar day of `date` and returned as absolute instants,
 // so formatting them in the device timezone handles daylight saving automatically.
+// They always come back in order (Fajr … Isha), which the next-prayer and phase logic relies on.
 export function calculatePrayerTimes({ latitude, longitude, date = new Date(), ...settings }) {
   const lat = Number(latitude)
   const lng = Number(longitude)
-  const params = getCalculationParameters({ latitude: lat, longitude: lng, ...settings })
-  const times = new PrayerTimes(new Coordinates(lat, lng), date, params)
+  const times = timesForLocalDay(lat, lng, date, settings)
+  const hasAfternoon = isValidTime(times.dhuhr) && isValidTime(times.maghrib) && times.maghrib > times.dhuhr
+  const asr = hasAfternoon && !asrIsInOrder(times) ? resolveAsr(lat, lng, date, settings, times) : times.asr
 
   return {
     Fajr: times.fajr,
     Sunrise: times.sunrise,
     Dhuhr: times.dhuhr,
-    Asr: times.asr,
+    Asr: asr,
     Maghrib: times.maghrib,
     Isha: times.isha,
   }

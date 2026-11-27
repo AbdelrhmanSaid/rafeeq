@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useFetch, useOnline } from '@vueuse/core'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import { API } from '@/shared/constants/api'
@@ -36,13 +36,19 @@ const url = ref('')
 const { isFetching, data, error, execute } = useFetch(url, { immediate: false }).json().get()
 const tafsir = computed(() => data.value?.data?.[0])
 
-watch([() => props.ayah, edition], ([ayah]) => {
+const scroller = useTemplateRef('scroller')
+
+// While the next tafsir loads, the last one stays in place, dimmed, so the sheet and its buttons don't jump about.
+watch([() => props.ayah, edition], ([ayah], [previous]) => {
   if (!ayah) return
   displayAyah.value = ayah
-  // Offline, the request below doesn't run; the last ayah's tafsir mustn't show under this one.
-  data.value = null
+  // A sheet opened afresh starts from the spinner, not from the tafsir it showed last time.
+  if (!previous) data.value = null
+  if (ayah !== previous) scroller.value?.scrollTo?.({ top: 0 })
   url.value = `${API.quranCloud}/ayah/${ayah.number}/editions/${edition.value}`
   if (online.value) execute()
+  // Offline, the request doesn't run; the last ayah's tafsir mustn't show under this one.
+  else data.value = null
 })
 
 // Opened offline, the tafsir loads once the connection is back.
@@ -53,43 +59,79 @@ watch(online, (isOnline) => {
 
 <template>
   <BottomSheet :show="!!ayah" title="تفسير الآية" @close="emit('close')">
-    <div class="p-4">
-      <template v-if="displayAyah">
-        <p class="fs-3 text-center lh-lg font-quran mb-4">
-          {{ displayAyah.text }}
-          <span class="ayah-number">{{ toArabicNumerals(displayAyah.numberInSurah) }}</span>
-        </p>
+    <!-- A fixed height, like the reciter sheet: the text scrolls, and the buttons stay put from one ayah to the next. -->
+    <div class="tafseer">
+      <div ref="scroller" class="tafseer__scroll p-4" :aria-busy="isFetching">
+        <template v-if="displayAyah">
+          <p class="fs-3 text-center lh-lg font-quran mb-4">
+            {{ displayAyah.text }}
+            <span class="ayah-number">{{ toArabicNumerals(displayAyah.numberInSurah) }}</span>
+          </p>
 
-        <div class="row-group mb-4">
-          <SelectRow v-model="edition" label="التفسير" :options="tafseerOptions" />
-        </div>
-      </template>
+          <div class="row-group mb-4">
+            <SelectRow v-model="edition" label="التفسير" :options="tafseerOptions" />
+          </div>
+        </template>
 
-      <LoadingState v-if="isFetching" message="جاري تحميل التفسير..." />
+        <OfflineState v-if="!online && !tafsir" />
 
-      <OfflineState v-else-if="!online && !tafsir" />
+        <ErrorState
+          v-else-if="error && !isFetching"
+          message="حدث خطأ أثناء تحميل التفسير، برجاء المحاولة مرة أخرى."
+          :retry="execute"
+        />
 
-      <ErrorState v-else-if="error" message="حدث خطأ أثناء تحميل التفسير، برجاء المحاولة مرة أخرى." :retry="execute" />
+        <p v-else-if="tafsir" class="tafseer__text mb-0" :class="{ 'is-stale': isFetching }">{{ tafsir.text }}</p>
 
-      <template v-else-if="displayAyah && tafsir">
-        <p class="mb-0">{{ tafsir.text }}</p>
+        <LoadingState v-else message="جاري تحميل التفسير..." />
+      </div>
 
-        <div class="d-flex justify-content-between gap-2 mt-4 pt-3 border-top">
-          <button class="btn btn-flat d-flex align-items-center gap-1" :disabled="!hasPrev" @click="emit('prev')">
-            <IconChevronRight size="18" />
-            <span>الآية السابقة</span>
-          </button>
+      <div v-if="displayAyah" class="tafseer__nav">
+        <button class="btn btn-flat d-flex align-items-center gap-1" :disabled="!hasPrev" @click="emit('prev')">
+          <IconChevronRight size="18" />
+          <span>الآية السابقة</span>
+        </button>
 
-          <button class="btn btn-flat d-flex align-items-center gap-1" :disabled="!hasNext" @click="emit('next')">
-            <span>الآية التالية</span>
-            <IconChevronLeft size="18" />
-          </button>
-        </div>
-      </template>
+        <button class="btn btn-flat d-flex align-items-center gap-1" :disabled="!hasNext" @click="emit('next')">
+          <span>الآية التالية</span>
+          <IconChevronLeft size="18" />
+        </button>
+      </div>
     </div>
   </BottomSheet>
 </template>
 
 <style lang="scss" scoped>
 @import '@/shared/styles/quran.css';
+
+.tafseer {
+  display: flex;
+  flex-direction: column;
+  height: min(70dvh, 34rem);
+}
+
+.tafseer__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.tafseer__text {
+  transition: opacity 0.2s ease;
+
+  // The last ayah's tafsir, kept while this one's loads.
+  &.is-stale {
+    opacity: 0.4;
+  }
+}
+
+.tafseer__nav {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem 0;
+  border-top: 1px solid var(--app-hairline);
+}
 </style>

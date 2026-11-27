@@ -8,6 +8,7 @@ import Heading from '@/shared/ui/Heading.vue'
 import LoadingState from '@/shared/ui/LoadingState.vue'
 import StatePanel from '@/shared/ui/StatePanel.vue'
 import QiblaCompass from '@/features/qibla/components/QiblaCompass.vue'
+import QiblaLocationNote from '@/features/qibla/components/QiblaLocationNote.vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import { getCurrentPosition } from '@/shared/composables/useGeolocation'
 import { useIsMobile } from '@/shared/composables/useIsMobile'
@@ -75,6 +76,7 @@ const distance = computed(() => (hasLocation.value ? getDistanceToKaaba(latitude
 const {
   heading,
   hasReading,
+  hadReading,
   accuracy,
   sideways,
   error: compassError,
@@ -109,6 +111,8 @@ const problem = computed(() => {
   // iOS with no usable heading never produces a reading, so this comes before the reading checks.
   if (accuracy.value != null && accuracy.value < 0) return 'calibrate'
   if (compassError.value && !canRequestPermission.value) return 'unavailable'
+  // Readings that stopped after arriving mean the sensor paused, not that the phone has no compass.
+  if (!hasReading.value && hadReading.value) return 'paused'
   if (!hasReading.value) return hasSupport.value && readingTimedOut.value ? 'no-reading' : null
   if (!isPortrait.value) return 'sideways'
   if (needsCalibration.value) return 'calibrate'
@@ -123,6 +127,10 @@ const bearingLine = computed(() =>
     ? ''
     : ` القبلة على \u2066${toArabicNumerals(Math.round(qiblaDirection.value) % 360)}°\u2069 من الشمال.`,
 )
+
+// Panels that give the bearing in words also say where it's from, as the compass does: the distance, and the saved
+// location with a way to refresh it.
+const BEARING_PROBLEMS = new Set(['unavailable', 'no-reading', 'paused'])
 
 const problemPanel = computed(() => {
   if (!problem.value || !lastingProblem.value) return null
@@ -141,6 +149,11 @@ const problemPanel = computed(() => {
       icon: IconCompassOff,
       title: 'تعذّرت قراءة البوصلة',
       message: `لا يبدو أن هاتفك يوفّر بوصلة لهذا التطبيق.${bearingLine.value}`,
+    },
+    'paused': {
+      icon: IconCompass,
+      title: 'توقفت قراءة البوصلة',
+      message: `حرّك هاتفك قليلًا لتعود القراءة.${bearingLine.value}`,
     },
     'sideways': {
       icon: IconDeviceMobileRotated,
@@ -197,7 +210,15 @@ onMounted(() => {
         :icon="problemPanel.icon"
         :title="problemPanel.title"
         :message="problemPanel.message"
-      />
+      >
+        <QiblaLocationNote
+          v-if="BEARING_PROBLEMS.has(problem) && qiblaDirection !== null"
+          :distance="distance"
+          :saved-location="usingSavedLocation"
+          :refreshing-location="refreshingLocation"
+          @refresh-location="refreshLocation"
+        />
+      </StatePanel>
 
       <LoadingState v-else-if="startingCompass" message="جاري تشغيل البوصلة..." />
 

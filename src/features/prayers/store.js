@@ -6,6 +6,8 @@ import { useIsMobile } from '@/shared/composables/useIsMobile'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 import { AUTO } from '@/features/prayers/constants/calculationOptions'
 
+const roundCoordinate = (value) => Number(value.toFixed(6))
+
 export const usePrayersStore = defineStore('prayers', function () {
   const longitude = useLocalStorage(STORAGE_KEYS.longitude, 0)
   const latitude = useLocalStorage(STORAGE_KEYS.latitude, 0)
@@ -35,11 +37,12 @@ export const usePrayersStore = defineStore('prayers', function () {
 
     try {
       const position = await getCurrentPosition()
-      longitude.value = position.coords.longitude.toFixed(6)
-      latitude.value = position.coords.latitude.toFixed(6)
+      // Saved as numbers, as they read back after a reload; six decimals is about 10 cm, more than a fix is worth.
+      longitude.value = roundCoordinate(position.coords.longitude)
+      latitude.value = roundCoordinate(position.coords.latitude)
       return { ok: true }
     } catch (error) {
-      clear()
+      // A refused or failed fix says nothing about where you are: keep the location already saved.
       return { ok: false, code: error?.code }
     } finally {
       isDetecting.value = false

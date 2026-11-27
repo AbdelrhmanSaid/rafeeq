@@ -81,6 +81,13 @@ const componentProps = computed(() => ({
       <component :is="component" v-bind="componentProps" />
     </template>
 
-    <ErrorState v-else :icon="IconAlertTriangle" message="خطأ في الإعدادات: المكوّن غير موجود." />
+    <!-- A wrong name in the embed code, not a failed load: say so, with no retry. -->
+    <ErrorState
+      v-else
+      :icon="IconAlertTriangle"
+      :level="1"
+      title="المكوّن غير موجود"
+      :message="`لا يوجد مكوّن باسم «${route.params.component}». تحقق من رابط التضمين.`"
+    />
   </Page>
 </template>

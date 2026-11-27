@@ -76,7 +76,7 @@ export function useMushafRecitation() {
     if (disposed) return
     const id = ++playId
     requested = { surah: surahNumber, ayah: ayahNumber }
-    if (radioStore.isPlaying) radioStore.stop()
+    if (radioStore.station) radioStore.stop()
     loading.value = true
     try {
       if (surah.value !== surahNumber || !audio.src) await loadSurah(surahNumber)
@@ -112,7 +112,7 @@ export function useMushafRecitation() {
 
   function resume() {
     if (!audio.src) return
-    if (radioStore.isPlaying) radioStore.stop()
+    if (radioStore.station) radioStore.stop()
     audio.play().then(
       () => {
         playing.value = true
@@ -202,7 +202,7 @@ export function useMushafRecitation() {
     audio.pause()
     audio.removeAttribute('src')
     audio.load()
-    if (!radioStore.isPlaying) clearMediaSession()
+    if (!radioStore.station) clearMediaSession()
   })
 
   return { playing, loading, surah, ayah, playingKey, playFrom, pause, resume, stop }

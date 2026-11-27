@@ -23,7 +23,7 @@ defineProps({
 <template>
   <section class="home-section">
     <div v-if="title" class="home-section__header">
-      <h2 class="home-section__title">{{ title }}</h2>
+      <h2 class="list-title home-section__title">{{ title }}</h2>
       <RouterLink v-if="to" :to="to" class="home-section__link">
         <span>{{ linkLabel }}</span>
         <IconChevronLeft size="1rem" aria-hidden="true" />
@@ -52,13 +52,10 @@ defineProps({
   margin: 0 0.125rem 0.75rem;
 }
 
-/* Muted so the section content, not its label, carries the screen. */
+/* The app's muted section title (.list-title), so the section content, not its label, carries the screen. The header
+   already spaces it. */
 .home-section__title {
   margin: 0;
-  color: color-mix(in srgb, var(--bs-body-color) 60%, var(--bs-body-bg));
-  font-size: 1rem;
-  font-weight: 700;
-  line-height: 1.3;
 }
 
 .home-section__link {
@@ -70,7 +67,7 @@ defineProps({
   margin: -0.5rem -0.5rem -0.5rem 0;
   padding: 0.5rem;
   border-radius: var(--bs-border-radius);
-  color: var(--bs-primary);
+  color: var(--app-primary-ink);
   font-size: 0.875rem;
   font-weight: 600;
   text-decoration: none;

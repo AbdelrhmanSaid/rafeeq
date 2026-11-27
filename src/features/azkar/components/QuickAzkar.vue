@@ -60,7 +60,7 @@ const azkar = [
   flex-shrink: 0;
   border-radius: 50%;
   background: var(--app-tint);
-  color: var(--bs-primary);
+  color: var(--app-primary-ink);
 }
 
 [data-bs-theme='dark'] .quick-row__icon {

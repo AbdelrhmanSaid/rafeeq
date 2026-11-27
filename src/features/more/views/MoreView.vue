@@ -91,13 +91,15 @@ const links = [
   box-shadow: var(--app-shadow-card);
 }
 
+/* The padding, gaps and icon tile are in px, so at a large text size the extra room goes to the label and the
+   longest ones ("المساهمة في التطوير") still fit on one line on a 320px phone. */
 .more-row {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.875rem;
+  gap: 12px;
   min-height: 3.5rem;
-  padding: 0.625rem 1rem;
+  padding: 0.625rem 16px;
   color: var(--bs-body-color);
   text-decoration: none;
 
@@ -130,9 +132,10 @@ const links = [
 }
 
 .more-row__icon {
-  width: 2.25rem;
-  height: 2.25rem;
-  color: var(--bs-primary);
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  color: var(--app-primary-ink);
 
   svg {
     width: 1.2rem;
@@ -143,7 +146,11 @@ const links = [
 .more-row__label {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
   font-weight: 500;
+  /* One line; the ellipsis is only a last resort for a label longer than any today. */
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .more-row__trail {

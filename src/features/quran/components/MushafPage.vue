@@ -3,7 +3,14 @@ import { computed, onBeforeUnmount, reactive, ref, shallowRef, watch } from 'vue
 import { useOnline } from '@vueuse/core'
 import { IconRefresh } from '@tabler/icons-vue'
 import { loadPage } from '@/features/quran/lib/mushafStorage'
-import { formatAyahCount, parseVerseKey, surahName } from '@/features/quran/lib/mushaf'
+import {
+  formatAyahCount,
+  juzOfPage,
+  parseVerseKey,
+  plainSurahName,
+  surahName,
+  surahOfPage,
+} from '@/features/quran/lib/mushaf'
 import surahs from '@/features/quran/data/surahs.js'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import LoadingState from '@/shared/ui/LoadingState.vue'
@@ -51,9 +58,10 @@ watch(() => props.page, load, { immediate: true })
 // A page that failed offline loads once the connection is back.
 watch(online, (isOnline) => isOnline && failed.value && load())
 
+// The header names the surah at the top of the page, as the printed Mushaf does, without vowel marks at its small size.
 const headerSurah = computed(() => {
   const first = data.value && Object.keys(data.value.verses)[0]
-  return first ? surahName(parseVerseKey(first).surah) : ''
+  return first ? plainSurahName(parseVerseKey(first).surah) : ''
 })
 
 // The first piece of each ayah on the page is the one a keyboard or screen reader lands on.
@@ -125,43 +133,66 @@ watch(
   { immediate: true },
 )
 
-// A tap shows or hides the bars; holding an ayah selects it. Moving the finger (turning the page) cancels the hold.
+// A tap shows or hides the bars; holding an ayah selects it. Moving the finger (turning the page), lifting it, or a
+// second finger cancels the hold. The pager takes the pointer once a drag starts, so the hold listens on the window.
 const HOLD_MS = 450
 let holdTimer = 0
 let holdStart = null
-let held = false
+// Touch selects by holding; the long-press menu a touch browser would open on its own is not a second way in.
+let lastPointerType = 'mouse'
 
 function cancelHold() {
   clearTimeout(holdTimer)
   holdTimer = 0
   holdStart = null
+  window.removeEventListener('pointermove', onHoldMove)
+  window.removeEventListener('pointerup', cancelHold)
+  window.removeEventListener('pointercancel', cancelHold)
+}
+
+// The click that ends a hold isn't a tap. It may not even land on the page: the ayah's menu has opened under the
+// finger, and its backdrop would take the click and close it.
+function swallowNextClick() {
+  const swallow = (event) => {
+    event.stopPropagation()
+    event.preventDefault()
+    stop()
+  }
+  // Some browsers send no click after a long press; the next gesture then starts clean.
+  const stop = () => {
+    window.removeEventListener('click', swallow, true)
+    window.removeEventListener('pointerdown', stop, true)
+  }
+  window.addEventListener('click', swallow, true)
+  window.addEventListener('pointerdown', stop, true)
 }
 
 function onPointerDown(event) {
+  lastPointerType = event.pointerType
+  // A second finger is a pinch, not a hold.
+  if (holdStart && event.pointerId !== holdStart.id) return cancelHold()
   const key = event.target.closest('[data-key]')?.dataset.key
-  held = false
   cancelHold()
   // A mouse selects with a right-click instead.
-  if (!key || event.pointerType === 'mouse') return
-  holdStart = { x: event.clientX, y: event.clientY }
+  if (!key || event.pointerType === 'mouse' || !event.isPrimary) return
+  holdStart = { id: event.pointerId, x: event.clientX, y: event.clientY }
+  window.addEventListener('pointermove', onHoldMove)
+  window.addEventListener('pointerup', cancelHold)
+  window.addEventListener('pointercancel', cancelHold)
   holdTimer = setTimeout(() => {
-    held = true
-    holdTimer = 0
+    cancelHold()
+    swallowNextClick()
     navigator.vibrate?.(10)
-    select(key)
+    select(key, true)
   }, HOLD_MS)
 }
 
-function onPointerMove(event) {
-  if (!holdStart) return
+function onHoldMove(event) {
+  if (!holdStart || event.pointerId !== holdStart.id) return
   if (Math.hypot(event.clientX - holdStart.x, event.clientY - holdStart.y) > 10) cancelHold()
 }
 
 function onClick(event) {
-  if (held) {
-    held = false
-    return
-  }
   // The retry button on a page that failed to load is its own action.
   if (event.target.closest('button')) return
   // A click with no pointer behind it (a screen reader activating an ayah's button) opens the ayah's menu.
@@ -170,11 +201,12 @@ function onClick(event) {
   emit('tap')
 }
 
-// Touch browsers open a menu on a long press, and a mouse on a right-click: on an ayah the page's own menu opens.
+// A right-click on an ayah opens the page's own menu, not the browser's.
 function onContextMenu(event) {
   event.preventDefault()
+  if (lastPointerType !== 'mouse') return
   const key = event.target.closest('[data-key]')?.dataset.key
-  if (key && !held && !holdTimer) select(key)
+  if (key) select(key, true)
 }
 
 function onKeydown(event) {
@@ -184,7 +216,8 @@ function onKeydown(event) {
   select(key)
 }
 
-const select = (key) => emit('select', { key, text: data.value.verses[key] })
+// `pointer`: chosen by a hold or a right-click, which the reader drops if that gesture also turned the page.
+const select = (key, pointer = false) => emit('select', { key, text: data.value.verses[key], pointer })
 
 onBeforeUnmount(() => {
   cancelHold()
@@ -198,18 +231,16 @@ onBeforeUnmount(() => {
     class="mushaf-page"
     :aria-label="`صفحة ${toArabicNumerals(page)}`"
     @pointerdown="onPointerDown"
-    @pointermove="onPointerMove"
-    @pointerup="cancelHold"
-    @pointercancel="cancelHold"
     @click="onClick"
     @keydown="onKeydown"
     @contextmenu="onContextMenu"
   >
     <div v-if="data" class="mushaf-sheet" :class="{ 'is-opening': page <= 2 }" :style="{ '--page-font': fontFamily }">
-      <header class="mushaf-sheet__meta">
+      <!-- Not a <header>: a second banner landmark on the screen would tell a screen reader nothing. -->
+      <div class="mushaf-sheet__meta">
         <span>{{ headerSurah }}</span>
         <span>الجزء {{ toArabicNumerals(data.juz) }}</span>
-      </header>
+      </div>
 
       <div class="mushaf-sheet__lines">
         <template v-for="(line, index) in lines" :key="index">
@@ -258,12 +289,17 @@ onBeforeUnmount(() => {
         </template>
       </div>
 
-      <footer class="mushaf-sheet__number">{{ toArabicNumerals(page) }}</footer>
+      <div class="mushaf-sheet__number">{{ toArabicNumerals(page) }}</div>
     </div>
 
     <LoadingState v-else-if="slow && !failed" message="جاري تحميل الصفحة..." />
 
     <div v-else-if="failed" class="mushaf-page__state">
+      <!-- Which page this is, from the index the app carries, so a page not downloaded still says where it is. -->
+      <p class="mushaf-page__where">
+        صفحة {{ toArabicNumerals(page) }}، {{ plainSurahName(surahOfPage(page)) }}، الجزء
+        {{ toArabicNumerals(juzOfPage(page)) }}
+      </p>
       <p>{{ online ? 'تعذّر تحميل الصفحة' : 'هذه الصفحة غير محمّلة، اتصل بالإنترنت لعرضها' }}</p>
       <button v-if="online" type="button" class="btn btn-soft d-inline-flex align-items-center gap-2" @click="load">
         <IconRefresh size="18" aria-hidden="true" />
@@ -292,7 +328,16 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   // Room for the notch and home indicator; the bars float over the rest.
-  padding: calc(env(safe-area-inset-top, 0px) + 0.75rem) 0.75rem calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
+  padding: calc(env(safe-area-inset-top, 0px) + 0.75rem) 0.75rem
+    calc(env(safe-area-inset-bottom, 0px) + 0.5rem + var(--player-room));
+  --player-room: 0px;
+}
+
+/* On desktop a tap doesn't hide the player, so the page stops above it: the pill is 3.25rem tall, 0.75rem up. */
+@media (min-width: 992px) {
+  .mushaf-page {
+    --player-room: 4rem;
+  }
 }
 
 /* The page is sized to the screen: as wide as a full line allows, unless fifteen lines would then run too tall.
@@ -300,12 +345,12 @@ onBeforeUnmount(() => {
    so a 16.6em line fits every one, with the rest of each line going to the spaces between words. */
 .mushaf-sheet {
   --line-width: 16.6em;
-  --pitch: clamp(1.85em, calc((100cqh - 96px) / 15), 2.5em);
+  --pitch: clamp(1.85em, calc((100cqh - 96px - var(--player-room)) / 15), 2.5em);
 
   display: flex;
   flex-direction: column;
   width: var(--line-width);
-  font-size: min(calc((100cqw - 24px) / 16.6), calc((100cqh - 96px) / 28));
+  font-size: min(calc((100cqw - 24px) / 16.6), calc((100cqh - 96px - var(--player-room)) / 28));
   color: var(--bs-body-color);
   -webkit-user-select: none;
   user-select: none;
@@ -436,11 +481,27 @@ onBeforeUnmount(() => {
   &.is-selected,
   &.is-playing,
   &.is-bookmarked {
+    --reach-before: 0.15em;
+    --reach-after: 0.15em;
+
     background-color: var(--mark);
-    // A little past the words on either side without moving them.
+    // A little past the words on either side without moving them: before the ayah on its right, after it on its left.
+    // Physical sides, so rtlcss leaves them.
+    /*! rtl:begin:ignore */
     box-shadow:
-      0.15em 0 0 var(--mark),
-      -0.15em 0 0 var(--mark);
+      var(--reach-before) 0 0 var(--mark),
+      calc(var(--reach-after) * -1) 0 0 var(--mark);
+    /*! rtl:end:ignore */
+  }
+
+  // Two marked ayat side by side stop at the space between them: reaching into each other, their tints would mix
+  // into a stripe of a third colour.
+  &:is(.is-selected, .is-playing, .is-bookmarked) + &:is(.is-selected, .is-playing, .is-bookmarked) {
+    --reach-before: 0em;
+  }
+
+  &:is(.is-selected, .is-playing, .is-bookmarked):has(+ :is(.is-selected, .is-playing, .is-bookmarked)) {
+    --reach-after: 0em;
   }
 
   &.is-playing {
@@ -468,5 +529,10 @@ onBeforeUnmount(() => {
   p {
     margin: 0;
   }
+}
+
+.mushaf-page__where {
+  font-weight: 600;
+  color: var(--bs-body-color);
 }
 </style>

@@ -73,7 +73,9 @@ const updateSW = registerSW({
     <InstallBanner v-if="!isEmbedRoute" />
   </div>
 
+  <!-- Screen readers announce the region by its label (followed by sonner's alt+T shortcut), so it is Arabic. -->
   <Toaster
+    container-aria-label="الإشعارات"
     :theme="themeStore.mode"
     position="bottom-center"
     :swipe-directions="['left', 'right', 'bottom']"

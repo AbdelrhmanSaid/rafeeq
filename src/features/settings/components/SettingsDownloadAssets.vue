@@ -65,12 +65,21 @@ const countsByType = computed(() =>
   ),
 )
 
-// One line under the progress saying what is happening now.
+// Items still to download, besides the one downloading now.
+const remainingCount = computed(() => {
+  const current = currentItem.value?.id
+  return downloadQueue.value.filter((item) => item.id !== current).length
+})
+
+// One line under the progress saying what is happening now. Paused comes first: pausing stops the item that was
+// downloading, which then waits in the queue with the rest.
 const status = computed(() => {
-  if (!online.value && (isDownloading.value || pendingCount.value)) return 'لا يوجد اتصال، سيكمل التحميل عند عودته'
-  if (isDownloading.value && currentItem.value)
-    return `جاري تحميل ${currentItem.value.name} · ${toArabicNumerals(pendingCount.value)} متبقٍ`
   if (isPaused.value) return `متوقف مؤقتاً · ${toArabicNumerals(pendingCount.value)} متبقٍ`
+  if (!online.value && (isDownloading.value || pendingCount.value)) return 'لا يوجد اتصال، سيكمل التحميل عند عودته'
+  if (isDownloading.value && currentItem.value) {
+    const remaining = remainingCount.value ? ` · ${toArabicNumerals(remainingCount.value)} متبقٍ` : ''
+    return `جاري تحميل ${currentItem.value.name}${remaining}`
+  }
   if (isCompleted.value) return 'كل شيء محمّل ويعمل بدون إنترنت'
   if (!online.value) return 'لا يوجد اتصال بالإنترنت'
   return 'حمّل السور والأذكار لتعمل بدون إنترنت'
@@ -80,9 +89,9 @@ const isBusy = computed(() => isDownloading.value || isPaused.value)
 
 const confirmingRemoveAll = ref(false)
 
+// Cancels the queue first and waits for the item downloading, so it can't come back as downloaded afterwards.
 const removeAll = async () => {
   confirmingRemoveAll.value = false
-  cancelAllDownloads()
   await removeAllAssets()
 }
 
@@ -118,13 +127,14 @@ const handleAssetAction = (asset) => {
 
       <p class="downloads-summary__status" aria-live="polite">{{ status }}</p>
 
-      <div v-if="isBusy" class="btn-group-toggle">
-        <button type="button" class="btn-toggle" @click="isPaused ? resumeDownloads() : pauseDownloads()">
-          <component :is="isPaused ? IconPlayerPlay : IconPlayerPause" :size="18" aria-hidden="true" />
+      <!-- Soft buttons, so they read as actions rather than as another choice like the selector below. -->
+      <div v-if="isBusy" class="downloads-summary__actions">
+        <button type="button" class="btn btn-soft" @click="isPaused ? resumeDownloads() : pauseDownloads()">
+          <component :is="isPaused ? IconPlayerPlay : IconPlayerPause" :size="16" aria-hidden="true" />
           <span>{{ isPaused ? 'استئناف' : 'إيقاف مؤقت' }}</span>
         </button>
-        <button type="button" class="btn-toggle" @click="cancelAllDownloads">
-          <IconX :size="18" aria-hidden="true" />
+        <button type="button" class="btn btn-soft" @click="cancelAllDownloads">
+          <IconX :size="16" aria-hidden="true" />
           <span>إلغاء</span>
         </button>
       </div>
@@ -283,6 +293,28 @@ const handleAssetAction = (asset) => {
   justify-content: center;
   gap: 0.5rem;
   min-height: 2.75rem;
+}
+
+/* Compact pills at the start of the card, so they read as actions on the download rather than as halves of a
+   selector like the السور/الأذكار one below. Each label stays on one line; if both don't fit, the second wraps. */
+.downloads-summary__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 2.75rem;
+    /* px, so a large text size goes to the labels and both still fit a 320px phone. */
+    padding-inline: 14px;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
 }
 
 .downloads-tabs__count {

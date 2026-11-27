@@ -93,7 +93,8 @@ const sections = computed(() => {
     </ul>
   </div>
 
-  <slot v-if="favorites.length && !search && !groups" name="all-title" />
+  <!-- Once favourites sit on top, the full list below them gets its own heading (grouped lists keep their sections). -->
+  <slot v-if="favorites.length && !search" name="all-title" />
   <div v-for="section in sections" :key="section.key" class="fav-section">
     <h2 v-if="section.title" class="list-title">{{ section.title }}</h2>
     <ul class="list-group">
@@ -133,8 +134,10 @@ const sections = computed(() => {
 </template>
 
 <style lang="scss" scoped>
-/* Compact rows: the 44px action buttons set the height. */
+/* Compact rows: the 44px action buttons set the height. The name reads at full strength (list actions default to the
+   muted colour); details inside the row mute themselves. */
 .fav-row {
+  --bs-list-group-action-color: var(--bs-body-color);
   padding-block: 0.375rem;
 }
 

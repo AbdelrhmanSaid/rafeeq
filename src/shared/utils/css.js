@@ -1,6 +1,7 @@
 const PRIMARY_COLOR_VARS = [
   '--bs-primary',
   '--app-on-primary',
+  '--app-primary-ink-light',
   '--bs-primary-rgb',
   '--bs-link-color',
   '--bs-link-hover-color',
@@ -74,14 +75,29 @@ function toRgbValue(color) {
     .join(', ')
 }
 
-// Text and icons on a solid brand fill: white on dark colors, near-black on light ones such as the sand theme, where
-// white falls well short of readable contrast. The switch is at a relative luminance of 0.4.
-function onColor(rgb) {
-  const [r, g, b] = rgb.split(',').map((channel) => {
-    const c = Number(channel) / 255
+const luminance = (channels) => {
+  const [r, g, b] = channels.map((channel) => {
+    const c = channel / 255
     return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
   })
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.4 ? '#1f1b16' : '#fff'
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+
+// Text and icons on a solid brand fill: white on dark colors, near-black on light ones such as the sand theme, where
+// white falls well short of readable contrast. The switch is at a relative luminance of 0.4.
+export function onColor(rgb) {
+  return luminance(rgb.split(',').map(Number)) > 0.4 ? '#1f1b16' : '#fff'
+}
+
+// The brand color as text and icons on the light theme's near-white surfaces: a light color (sand) is darkened until
+// it reads at 4.5:1, and a dark one is left as it is.
+export function inkColor(rgb) {
+  const channels = rgb.split(',').map(Number)
+  for (let keep = 1; keep > 0; keep -= 0.05) {
+    const mixed = channels.map((c) => Math.round(c * keep))
+    if (1.05 / (luminance(mixed) + 0.05) >= 4.6) return `rgb(${mixed.join(', ')})`
+  }
+  return '#000'
 }
 
 function setVars(vars) {
@@ -108,7 +124,7 @@ export function applyPrimaryColor(color) {
   if (fg) {
     const vars = {
       '--bs-primary': fg,
-      '--bs-link-color': 'var(--bs-primary)',
+      '--bs-link-color': 'var(--app-primary-ink)',
       '--bs-link-hover-color': 'color-mix(in srgb, var(--bs-primary) 85%, #000)',
       '--bs-primary-text-emphasis': 'color-mix(in srgb, var(--bs-primary) 85%, #000)',
       '--bs-primary-bg-subtle': 'color-mix(in srgb, var(--bs-primary) 15%, transparent)',
@@ -118,6 +134,7 @@ export function applyPrimaryColor(color) {
     if (rgb) {
       vars['--bs-primary-rgb'] = rgb
       vars['--app-on-primary'] = onColor(rgb)
+      vars['--app-primary-ink-light'] = inkColor(rgb)
     }
     setVars(vars)
   } else {

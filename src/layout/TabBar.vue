@@ -131,7 +131,7 @@ const tabs = navigation.filter((item) => item.menus.includes('primary'))
 
 /* The current tab is marked by color and a firmer stroke alone, like a native tab bar. */
 .tab-item.is-active {
-  color: var(--bs-primary);
+  color: var(--app-primary-ink);
 
   .tab-item__icon {
     stroke-width: 2;

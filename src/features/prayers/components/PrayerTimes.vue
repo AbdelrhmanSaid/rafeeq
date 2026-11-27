@@ -64,11 +64,12 @@ const timingsFor = (date) =>
 
 const timings = computed(() => (hasCoords.value ? timingsFor(todayDate.value) : null))
 
-// The compact strip drops the ص/م suffix and leading zero; which half of the day each prayer falls in is obvious.
+// The compact strip drops the ص/م suffix too; which half of the day each prayer falls in is obvious. No time keeps a
+// leading zero, so the strip, the list and the cards read the same.
 const formatShortTiming = (time) => toArabicNumerals(formatDate(new Date(time), 'h:mm'))
 
 const formatTiming = (time) => {
-  return toArabicNumerals(formatDate(new Date(time), 'hh:mm A').replace('AM', 'ص').replace('PM', 'م'))
+  return toArabicNumerals(formatDate(new Date(time), 'h:mm A').replace('AM', 'ص').replace('PM', 'م'))
 }
 
 const hijri = computed(() => getHijriDate(todayDate.value))
@@ -145,14 +146,13 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
   </div>
 
   <div v-else-if="timings" class="d-flex flex-column gap-2">
-    <div class="prayer-hero text-white">
+    <div class="prayer-hero">
       <div class="prayer-hero__meta">
         <div class="prayer-hero__date">
-          <template v-if="showWeekday && hijriDay">
-            <span>{{ hijriDay }}</span>
-            <span v-if="hijriDate" class="prayer-hero__dot" aria-hidden="true">·</span>
-          </template>
-          <span>{{ hijriDate }}</span>
+          <span class="dot-list">
+            <span v-if="showWeekday && hijriDay">{{ hijriDay }}</span>
+            <span>{{ hijriDate }}</span>
+          </span>
         </div>
         <span class="prayer-hero__badge">الصلاة القادمة</span>
       </div>
@@ -164,9 +164,10 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
         <div class="min-w-0">
           <h3 class="prayer-hero__name font-display">{{ timingsMap[nextPrayerKey]?.label }}</h3>
           <p class="prayer-hero__remain">
-            <span class="prayer-hero__time">{{ nextPrayerTime }}</span>
-            <span class="prayer-hero__dot" aria-hidden="true">·</span>
-            <span>باقي {{ remainingTime }}</span>
+            <span class="dot-list">
+              <span class="prayer-hero__time">{{ nextPrayerTime }}</span>
+              <span>باقي {{ remainingTime }}</span>
+            </span>
           </p>
         </div>
       </div>
@@ -197,23 +198,22 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
       </ol>
     </div>
 
-    <div v-if="!compact && vertical" class="d-flex flex-column gap-1">
-      <div
+    <!-- One inset grouped list, like the rest of the app's lists. -->
+    <ol v-if="!compact && vertical" class="list-group prayer-list" aria-label="مواقيت اليوم">
+      <li
         v-for="(timing, key) in timingsMap"
         :key="key"
-        class="prayer-row d-flex align-items-center justify-content-between px-3 py-2 small"
+        class="list-group-item prayer-row"
         :class="`prayer-row--${phases[key]}`"
         :aria-current="phases[key] === 'next' ? 'true' : undefined"
       >
-        <div class="d-flex align-items-center gap-2">
-          <span class="icon-container" :class="phases[key] === 'next' ? 'text-primary' : 'text-secondary'">
-            <PrayerIcon :name="timing.icon" />
-          </span>
-          <span class="fw-semibold">{{ timing.label }}</span>
-        </div>
-        <span class="fw-semibold">{{ formatTiming(timings[key]) }}</span>
-      </div>
-    </div>
+        <span class="icon-container" :class="phases[key] === 'next' ? 'text-primary' : 'text-secondary'">
+          <PrayerIcon :name="timing.icon" />
+        </span>
+        <span class="prayer-row__label">{{ timing.label }}</span>
+        <span class="prayer-row__time">{{ formatTiming(timings[key]) }}</span>
+      </li>
+    </ol>
 
     <div v-else-if="!compact" class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2">
       <div v-for="(timing, key) in timingsMap" :key="key" class="col">
@@ -246,9 +246,27 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
   padding: 1.35rem 1.35rem 1.25rem;
   border-radius: var(--bs-border-radius-lg);
   box-shadow: var(--app-shadow-card);
+  /* Text and icons take --app-on-primary: white on a dark brand colour, near-black on a light one (sand). */
+  color: var(--app-on-primary);
   background:
     radial-gradient(28rem 14rem at 100% 0, rgba(255, 255, 255, 0.18), transparent 70%),
     linear-gradient(135deg, var(--bs-primary), color-mix(in srgb, var(--bs-primary) 72%, #000));
+
+  /* The gradient deepens away from the text colour: towards black under white text, towards white under dark text, so a
+     light brand colour doesn't darken behind its dark text. */
+  @supports (color: rgb(from red r g b)) {
+    background:
+      radial-gradient(28rem 14rem at 100% 0, rgba(255, 255, 255, 0.18), transparent 70%),
+      linear-gradient(
+        135deg,
+        var(--bs-primary),
+        color-mix(
+          in srgb,
+          var(--bs-primary) 72%,
+          rgb(from var(--app-on-primary) calc(255 - r) calc(255 - g) calc(255 - b))
+        )
+      );
+  }
 
   &::before {
     content: '';
@@ -280,21 +298,47 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
   align-items: center;
   gap: 0.35rem;
   font-size: 0.85rem;
-  color: color-mix(in srgb, #fff 85%, var(--bs-primary));
+  color: color-mix(in srgb, var(--app-on-primary) 85%, var(--bs-primary));
 }
 
 .prayer-hero__badge {
   padding: 0.2rem 0.7rem;
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  border: 1px solid color-mix(in srgb, var(--app-on-primary) 35%, transparent);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
+  background: color-mix(in srgb, var(--app-on-primary) 12%, transparent);
   font-size: 0.75rem;
   font-weight: 600;
   white-space: nowrap;
 }
 
-.prayer-hero__dot {
-  opacity: 0.6;
+/* Items separated by a dot that never dangles: when the line wraps, the dot leading the new line sits in the pulled-in
+   start margin, which the wrapper clips. Clip, not hidden, so the wrapper still won't shrink narrower than its words. */
+.prayer-hero__date,
+.prayer-hero__remain {
+  overflow: clip;
+}
+
+.dot-list {
+  --dot-space: 0.4rem;
+  --dot-width: calc(0.5em + 2 * var(--dot-space));
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-inline-start: calc(-1 * var(--dot-width));
+
+  > * {
+    display: flex;
+    align-items: center;
+  }
+
+  > *::before {
+    content: '·';
+    flex-shrink: 0;
+    width: var(--dot-width);
+    opacity: 0.6;
+    text-align: center;
+  }
 }
 
 .prayer-hero__next {
@@ -305,9 +349,9 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
 }
 
 .prayer-hero__icon {
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.14);
+  color: var(--app-on-primary);
+  border-color: color-mix(in srgb, var(--app-on-primary) 30%, transparent);
+  background: color-mix(in srgb, var(--app-on-primary) 14%, transparent);
 }
 
 .prayer-hero__name,
@@ -322,14 +366,15 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
 }
 
 .prayer-hero__remain {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.4rem;
   margin-top: 0.3rem;
   font-size: 1rem;
   font-weight: 500;
-  color: color-mix(in srgb, #fff 90%, var(--bs-primary));
+  color: color-mix(in srgb, var(--app-on-primary) 90%, var(--bs-primary));
+}
+
+/* The time and the countdown each stay on one line; between them is where the line breaks. */
+.prayer-hero__remain .dot-list > * {
+  white-space: nowrap;
 }
 
 .prayer-hero__time {
@@ -341,7 +386,7 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
   margin-top: 1.25rem;
   height: 0.35rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.2);
+  background: color-mix(in srgb, var(--app-on-primary) 20%, transparent);
   overflow: hidden;
 }
 
@@ -350,18 +395,20 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
   height: 100%;
   width: calc(var(--progress, 0) * 100%);
   border-radius: inherit;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.7), #fff);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--app-on-primary) 70%, transparent), var(--app-on-primary));
   transition: width 1s linear;
 }
 
 .prayer-strip {
+  /* The names and times scale with the strip's width, so a narrow phone at a large text size still fits all six. */
+  container-type: inline-size;
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 0.25rem;
+  gap: 0.125rem;
   /* The divider spans the card edge to edge; the padding keeps the items where they were. */
   margin: 1.125rem -1.35rem -0.375rem;
-  padding: 0.875rem 0.85rem 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 0.875rem 0.5rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--app-on-primary) 16%, transparent);
   list-style: none;
 }
 
@@ -372,17 +419,17 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
   gap: 0.2rem;
   padding: 0.45rem 0.125rem;
   border-radius: var(--bs-border-radius);
-  color: color-mix(in srgb, #fff 85%, var(--bs-primary));
+  color: color-mix(in srgb, var(--app-on-primary) 85%, var(--bs-primary));
   text-align: center;
 }
 
 .prayer-strip__item--past {
-  color: color-mix(in srgb, #fff 50%, var(--bs-primary));
+  color: color-mix(in srgb, var(--app-on-primary) 50%, var(--bs-primary));
 }
 
 .prayer-strip__item--next {
-  background: rgba(255, 255, 255, 0.16);
-  color: #fff;
+  background: color-mix(in srgb, var(--app-on-primary) 16%, transparent);
+  color: var(--app-on-primary);
 }
 
 .prayer-strip__icon {
@@ -390,41 +437,56 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
   height: 1.1rem;
 }
 
+/* The longest name (المغرب) is about three of its own font sizes wide; a sixth of the strip, less the gaps and
+   padding, sets the most each column can give it. */
 .prayer-strip__label {
   max-width: 100%;
   overflow: hidden;
-  font-size: 0.75rem;
+  font-size: min(0.75rem, calc(5.5cqi - 0.125rem));
   font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .prayer-strip__time {
-  font-size: 0.875rem;
+  font-size: min(0.875rem, calc(6cqi - 0.125rem));
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1.2;
+  white-space: nowrap;
+}
+
+.prayer-list {
+  margin: 0;
+  padding: 0;
 }
 
 .prayer-row {
-  border: 1px solid var(--app-hairline);
-  border-radius: var(--bs-border-radius-lg);
-  background-color: var(--app-surface);
-  box-shadow: var(--app-shadow-card);
-  transition:
-    border-color 0.2s ease,
-    background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3rem;
+  transition: background-color 0.2s ease;
+}
+
+.prayer-row__label {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+}
+
+.prayer-row__time {
+  flex-shrink: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .prayer-row--past {
   color: var(--bs-secondary-color);
-  box-shadow: none;
 }
 
 .prayer-row--next {
-  border-color: var(--app-hairline-strong);
   background-color: var(--app-surface-active);
-  box-shadow: none;
 }
 
 .prayer-card {

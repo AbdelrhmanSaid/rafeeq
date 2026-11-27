@@ -9,7 +9,12 @@ const router = useRouter()
 
 <template>
   <Page class="full-height not-found">
-    <StatePanel :icon="IconMapOff" title="الصفحة غير موجودة" message="الصفحة التي تبحث عنها غير موجودة أو تم نقلها.">
+    <StatePanel
+      :icon="IconMapOff"
+      :level="1"
+      title="الصفحة غير موجودة"
+      message="الصفحة التي تبحث عنها غير موجودة أو تم نقلها."
+    >
       <button type="button" class="btn btn-soft" @click="router.push({ name: 'home' })">العودة للرئيسية</button>
     </StatePanel>
   </Page>

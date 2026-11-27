@@ -56,7 +56,7 @@ const { canInstall, install, dismiss } = useInstallPrompt()
   box-shadow: var(--app-shadow-card-hover);
 
   .icon-tile {
-    color: var(--bs-primary);
+    color: var(--app-primary-ink);
   }
 
   &__title,

@@ -5,6 +5,7 @@ import { trackPageview } from '@/shared/utils/analytics'
 import { useMeta } from '@/shared/utils/head'
 import { useThemeStore } from '@/app/stores/theme'
 import { isVerse, pageOfAyah, verseKey } from '@/features/quran/lib/mushaf'
+import { SETTINGS_SECTION_LABELS } from '@/features/settings/lib/sections'
 
 function withEmbedAliases(routes) {
   return routes.map((route) =>
@@ -160,14 +161,14 @@ const router = createRouter({
       },
     },
 
-    // Each settings section is its own screen, opened from the list on /settings.
+    // Each settings section is its own screen, opened from the list on /settings, and titled after itself.
     {
-      path: '/settings/:tab(appearance|prayer|quran|azkar|app|downloads)',
+      path: `/settings/:tab(${Object.keys(SETTINGS_SECTION_LABELS).join('|')})`,
       name: 'settings-section',
       component: () => import('@/features/settings/views/SettingsView.vue'),
       meta: {
         parent: 'settings',
-        title: 'الإعدادات',
+        title: (to) => `${SETTINGS_SECTION_LABELS[to.params.tab]} - الإعدادات`,
         description: 'تخصيص إعدادات تطبيق رفيق بما يناسب احتياجاتك وتفضيلاتك.',
         keywords: ['إعدادات', 'تخصيص', 'خيارات'],
       },
@@ -228,7 +229,9 @@ router.afterEach((to, from) => {
   // Turning a Mushaf page is reading, not a new visit; the reader keeps its own title up to date.
   if (to.meta.pageParam && from.name === to.name) return
 
-  useMeta(to.meta)
+  // A title may depend on the route's params.
+  const { title } = to.meta
+  useMeta({ ...to.meta, title: typeof title === 'function' ? title(to) : title })
 
   trackPageview(to.fullPath)
 })

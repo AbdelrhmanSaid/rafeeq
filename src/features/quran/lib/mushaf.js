@@ -53,7 +53,17 @@ export function pageOfAyah(surah, ayah) {
 
 export const surahStartPage = (surah) => pageOfAyah(surah, 1)
 
+// The surah and juz a page starts in: what the printed page's header names.
 export const surahOfPage = (page) => PAGE_STARTS[page - 1][0]
+export const juzOfPage = (page) => PAGE_STARTS[page - 1][1]
+
+// The last surah whose first ayah is on each page, for the pages a surah opens on.
+const lastOpeningOnPage = new Map(surahs.map((_, i) => [surahStartPage(i + 1), i + 1]))
+
+// The surah someone on a page is reading. A page a surah opens on is that surah's, though the one before may end at
+// its top: opening al-Kahf lands on page 293, which starts with the last ayat of al-Isra. Where several surahs open on
+// one page, the last is the one read to the end of it.
+export const readingSurahOfPage = (page) => lastOpeningOnPage.get(page) ?? surahOfPage(page)
 
 export const nextVerse = (surah, ayah) => {
   if (ayah < surahs[surah - 1].numberOfAyahs) return { surah, ayah: ayah + 1 }
@@ -68,6 +78,9 @@ export const formatAyahCount = (count) => {
 
 // A surah's name without the "سورة" prefix, for headers and lists.
 export const surahName = (surah) => removeSurahPrefix(normalizeQuranicText(surahs[surah - 1].name))
+
+// The name without its vowel marks, for small print where full tashkeel crowds the letters.
+export const plainSurahName = (surah) => surahName(surah).replace(/[\u064b-\u065f\u0670\u06d6-\u06ed]/g, '')
 
 // Every page a surah's ayat are on.
 export function surahPages(surah) {

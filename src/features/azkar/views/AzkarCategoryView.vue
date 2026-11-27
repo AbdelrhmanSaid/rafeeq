@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
-import { useConfirmDialog } from '@vueuse/core'
+import { useConfirmDialog, useOnline } from '@vueuse/core'
 import { useRouteParams } from '@vueuse/router'
 import { IconDoorExit, IconArrowBackUp, IconRestore, IconBookOff } from '@tabler/icons-vue'
 
@@ -18,6 +18,7 @@ import { useAsyncData } from '@/shared/composables/useAsyncData'
 import { usePageMeta } from '@/shared/composables/usePageMeta'
 import { useAzkarProgress } from '@/features/azkar/composables/useAzkarProgress'
 import { useScreenWakeLock } from '@/shared/composables/useScreenWakeLock'
+import { useReconnectExecute } from '@/shared/composables/useReconnectExecute'
 import { fetchCategory } from '@/features/azkar/api'
 
 const router = useRouter()
@@ -33,14 +34,20 @@ const {
   execute: reloadCategory,
 } = useAsyncData(() => fetchCategory(slug.value))
 
-usePageMeta(
-  () =>
-    category.value && {
+// A category opened offline failed to load; fetch it again once the connection is back. A loaded one stays as it is.
+useReconnectExecute(useOnline(), () => error.value && reloadCategory())
+
+usePageMeta(() => {
+  if (category.value) {
+    return {
       title: category.value.meta.name,
       description: category.value.meta.description,
       keywords: ['أذكار', 'دعاء', category.value.meta.name, 'رفيق'],
-    },
-)
+    }
+  }
+  // Loaded, but there is no such category.
+  if (!isFetching.value && !error.value) return { title: 'الباب غير موجود' }
+})
 
 const totalRepeats = computed(() => category.value?.content?.reduce((sum, z) => sum + (z.repeat || 1), 0) || 0)
 const totalClicked = computed(
@@ -87,7 +94,7 @@ onBeforeRouteLeave(async () => {
       </div>
     </Page>
 
-    <!-- An unknown category loads empty rather than failing, so it gets its own state instead of a blank screen. -->
+    <!-- An unknown category resolves to nothing rather than failing, so it gets its own state, not a retry. -->
     <Page v-else class="full-height missing-category">
       <StatePanel :icon="IconBookOff" title="الباب غير موجود" message="لم نعثر على هذا الباب من الأذكار.">
         <button type="button" class="btn btn-soft" @click="router.push({ name: 'azkar' })">كل الأذكار</button>
@@ -95,7 +102,7 @@ onBeforeRouteLeave(async () => {
     </Page>
   </AsyncContent>
 
-  <BottomSheet :show="isRevealed" title="لم تنتهِ بعد" @close="cancel">
+  <BottomSheet :show="isRevealed" title="لم تنتهِ بعد" :close-on-back="false" @close="cancel">
     <p class="px-4 pt-1 mb-2 lh-lg text-secondary">لم تنتهِ من جميع الأذكار بعد، هل تريد المغادرة؟</p>
     <ul class="bottom-sheet-list">
       <li>

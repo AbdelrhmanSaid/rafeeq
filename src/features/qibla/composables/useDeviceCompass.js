@@ -11,6 +11,8 @@ export function useDeviceCompass() {
   const hasSupport = ref(false)
   // Desktop browsers expose the orientation API without ever firing it, so only a real reading means a live compass.
   const hasReading = ref(false)
+  // Whether any reading has arrived: a compass that went quiet is paused, not missing.
+  const hadReading = ref(false)
   // iOS reports how far off its heading may be, in degrees (negative when it can't tell). Null where unknown.
   const accuracy = ref(null)
   // Held on its side (landscape, even with rotation lock): the heading isn't reliable then.
@@ -28,6 +30,7 @@ export function useDeviceCompass() {
     // The first reading jumps straight to the heading instead of sweeping there from north.
     heading.value = hasReading.value ? smoothAngle(heading.value, rawHeading, SMOOTHING) : normalizeAngle(rawHeading)
     hasReading.value = true
+    hadReading.value = true
     clearTimeout(staleTimer)
     staleTimer = setTimeout(() => (hasReading.value = false), STALE_MS)
   }
@@ -107,5 +110,15 @@ export function useDeviceCompass() {
     window.removeEventListener('deviceorientationabsolute', handleAbsoluteOrientation, true)
   })
 
-  return { heading, hasSupport, hasReading, accuracy, sideways, error, canRequestPermission, requestPermission }
+  return {
+    heading,
+    hasSupport,
+    hasReading,
+    hadReading,
+    accuracy,
+    sideways,
+    error,
+    canRequestPermission,
+    requestPermission,
+  }
 }

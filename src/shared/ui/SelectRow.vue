@@ -51,13 +51,16 @@ function onChange(event) {
   outline-offset: 2px;
 }
 
+/* The value keeps its full width up to 60% of the row, and the label wraps beside it, so a large text size doesn't
+   squeeze a short value like "تلقائي" down to a couple of letters. Only a long value is cut short. */
 .select-row__label {
-  flex-shrink: 0;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .select-row__value {
-  flex: 1;
-  min-width: 0;
+  flex: 0 0 auto;
+  max-width: 60%;
   overflow: hidden;
   color: var(--bs-secondary-color);
   text-align: end;

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent } from 'vue'
 import { useDeviceCompass } from './useDeviceCompass'
@@ -57,6 +57,20 @@ describe('useDeviceCompass', () => {
 
     expect(compass.hasReading.value).toBe(true)
     expect(compass.heading.value).toBeCloseTo(270)
+  })
+
+  it('remembers a reading after the readings stop, so the screen can say the compass paused', () => {
+    vi.useFakeTimers()
+    asAndroid()
+    const compass = mountCompass()
+    expect(compass.hadReading.value).toBe(false)
+
+    fire('deviceorientationabsolute', { alpha: 90, beta: 0, gamma: 0, absolute: true })
+    vi.advanceTimersByTime(2500)
+
+    expect(compass.hasReading.value).toBe(false)
+    expect(compass.hadReading.value).toBe(true)
+    vi.useRealTimers()
   })
 
   it('ignores a relative orientation, which is not measured from north', () => {

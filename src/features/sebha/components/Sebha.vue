@@ -8,7 +8,12 @@ import { BEADS, beadPositions, litBeads } from '@/features/sebha/lib/beads'
 
 // Open-ended counting with no target. The count is saved, so leaving the screen doesn't lose it.
 const count = useLocalStorage(STORAGE_KEYS.sebhaCount, 0)
+// A hand-edited backup can leave anything there; what isn't a whole, non-negative count starts over at 0, not NaN.
+if (!Number.isSafeInteger(count.value) || count.value < 0) count.value = 0
 const countId = useId()
+
+// Long counts shrink to stay inside the ring (see .sebha__count).
+const digits = computed(() => String(count.value).length)
 
 const BEAD_POSITIONS = beadPositions(120, 104)
 const lit = computed(() => litBeads(count.value))
@@ -49,7 +54,7 @@ function reset() {
       </svg>
 
       <span class="sebha__center">
-        <span class="sebha__count">{{ toArabicNumerals(count) }}</span>
+        <span class="sebha__count" :style="{ '--digits': digits }">{{ toArabicNumerals(count) }}</span>
       </span>
     </button>
 
@@ -64,6 +69,10 @@ function reset() {
 
 <style lang="scss" scoped>
 .sebha {
+  /* The ring's size: as wide as a phone allows, and short enough in a short frame (a banner-shaped embed, a phone on
+     its side) that the reset button stays in view below it. */
+  --sebha-ring: min(18rem, 80vw, 100dvh - 9rem);
+
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -88,8 +97,14 @@ function reset() {
 
 .sebha__ring {
   grid-area: 1 / 1;
-  width: min(18rem, 80vw);
+  width: var(--sebha-ring);
   height: auto;
+}
+
+@media (max-height: 30rem) {
+  .sebha__tap {
+    padding-block: 0.5rem;
+  }
 }
 
 .sebha__string {
@@ -115,10 +130,11 @@ function reset() {
     stroke: color-mix(in srgb, var(--bs-primary) 70%, var(--bs-body-bg));
   }
 
-  /* The latest bead is the full brand colour, so you can see where you are on the ring. */
+  /* The latest bead is the brand colour at full strength, so you can see where you are on the ring. The ink colour is
+     the brand colour darkened for a light one (sand), which would otherwise barely stand out from the lit beads. */
   &.is-current {
-    fill: var(--bs-primary);
-    stroke: var(--bs-primary);
+    fill: var(--app-primary-ink);
+    stroke: var(--app-primary-ink);
     transform: scale(1.2);
   }
 }
@@ -154,8 +170,9 @@ function reset() {
   pointer-events: none;
 }
 
+/* Each digit is a little over half the font size wide; past four or so, the number shrinks to fit within the beads. */
 .sebha__count {
-  font-size: 3.5rem;
+  font-size: min(3.5rem, var(--sebha-ring) * 0.62 / (var(--digits, 1) * 0.6));
   font-weight: 700;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;

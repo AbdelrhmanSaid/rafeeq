@@ -1,5 +1,5 @@
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useEventListener, useMediaQuery, useOnline } from '@vueuse/core'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
@@ -21,8 +21,9 @@ import {
   nextVerse,
   pageOfAyah,
   parseVerseKey,
+  plainSurahName,
+  readingSurahOfPage,
   surahName,
-  surahOfPage,
   verseKey,
 } from '@/features/quran/lib/mushaf'
 import { chrome, useImmersiveChrome } from '@/layout/chrome'
@@ -80,16 +81,26 @@ function prefetchAround(page) {
 function settleOn(page) {
   current.value = page
   prefetchAround(page)
-  // The slots move to their new places on the next render; the track resets with them, so nothing jumps.
-  nextTick(() => moveTrack(0, false))
+  // The slots move to their new places when Vue renders, before the next paint, so the track resets with them and
+  // nothing jumps. It resets now rather than after that render, so a turn that follows at once slides from here.
+  moveTrack(0, false)
   quranStore.lastPage = page
   keepPagesNear(page)
   if (page !== routePage.value) showPageInAddress(page)
 }
 
+// Lands the slide in progress, if any, at once.
+function settleTurn() {
+  if (!finishTurn) return
+  finishTurn()
+  // The track's reset to the settled page has to take effect before another slide starts, or that slide would run on
+  // from where this one was cut off.
+  void track.value?.offsetWidth
+}
+
 // Slides to the next or previous page; any other page is a jump.
 function turnTo(page) {
-  finishTurn?.()
+  settleTurn()
   if (page < 1 || page > PAGE_COUNT || page === current.value) return
   if (Math.abs(page - current.value) !== 1 || reducedMotion.value) return settleOn(page)
   moveTrack((page - current.value) * pageWidth(), true)
@@ -108,6 +119,13 @@ function turnTo(page) {
   cancelTurn = stop
 }
 
+// A page on from the one in view, counted from where the slide in progress lands: four quick presses turn four pages,
+// though each comes before the last slide has finished.
+function turnBy(delta) {
+  settleTurn()
+  turnTo(current.value + delta)
+}
+
 const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
 
 // Dragging: the page follows the finger, then turns if it went a fifth of the way or was flicked; otherwise it
@@ -115,10 +133,32 @@ const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
 let drag = null
 const DRAG_START = 8
 
+// A gesture that did more than rest on the page (dragged it, caught a page still sliding in, or brought a second
+// finger for a pinch) is neither a tap nor a hold on an ayah.
+let gestureBusy = false
+// The pointers down on the pager. Letting go is heard on the window: a pointer can end outside the pager, or on a
+// page slot that was replaced under it.
+const pressed = new Set()
+
 function onPointerDown(event) {
+  // The first pointer of a gesture: nothing else is down, whatever was missed letting go.
+  if (event.isPrimary) pressed.clear()
+  pressed.add(event.pointerId)
+  if (pressed.size > 1) {
+    // A second finger: a pinch, so any drag lets go and the page settles back.
+    gestureBusy = true
+    if (drag?.active) moveTrack(0, true)
+    drag = null
+    return
+  }
+  gestureBusy = false
+  drag = null
   if (event.button > 0) return
   // A new drag doesn't wait for the last page to finish sliding in.
-  finishTurn?.()
+  if (finishTurn) {
+    gestureBusy = true
+    finishTurn()
+  }
   drag = { id: event.pointerId, x: event.clientX, y: event.clientY, t: event.timeStamp, active: false, vx: 0 }
 }
 
@@ -128,6 +168,7 @@ function onPointerMove(event) {
   if (!drag.active) {
     if (Math.abs(dx) < DRAG_START || Math.abs(dx) < Math.abs(event.clientY - drag.y)) return
     drag.active = true
+    gestureBusy = true
     pager.value.setPointerCapture(event.pointerId)
   }
   const target = dx > 0 ? current.value + 1 : current.value - 1
@@ -139,19 +180,25 @@ function onPointerMove(event) {
 }
 
 function onPointerUp(event) {
+  if (!pressed.delete(event.pointerId)) return
+  // The click that follows a drag, a pinch, or catching a sliding page isn't a tap.
+  if (gestureBusy) {
+    suppressClick = true
+    setTimeout(() => (suppressClick = false))
+  }
   if (!drag || event.pointerId !== drag.id) return
   const { active, vx } = drag
   drag = null
   if (!active) return
-  // The click that follows a drag isn't a tap.
-  suppressClick = true
-  setTimeout(() => (suppressClick = false))
   const width = pageWidth()
   const far = Math.abs(offset) > width / 5 || (Math.abs(vx) > 0.4 && Math.sign(vx) === Math.sign(offset))
   const target = offset > 0 ? current.value + 1 : current.value - 1
   if (far && target >= 1 && target <= PAGE_COUNT) turnTo(target)
   else moveTrack(0, true)
 }
+
+useEventListener(window, 'pointerup', onPointerUp)
+useEventListener(window, 'pointercancel', onPointerUp)
 
 let suppressClick = false
 function onClickCapture(event) {
@@ -170,7 +217,7 @@ wheelGestures.on('wheel', ({ isStart, isMomentum, axisMovement: [x, y] }) => {
   if (gestureTurned || isMomentum || Math.abs(x) < 30 || Math.abs(x) < Math.abs(y)) return
   gestureTurned = true
   // Content moves with the fingers: swiping right brings the next page in from the left.
-  turnTo(x < 0 ? current.value + 1 : current.value - 1)
+  turnBy(x < 0 ? 1 : -1)
 })
 
 onMounted(() => wheelGestures.observe(pager.value))
@@ -192,6 +239,13 @@ onMounted(() => {
   document.fonts.load("1em 'Surah Names'").catch(() => {})
 })
 
+// An address past either end (page 0, page 605) opens the nearest page, and the address says so.
+watch(
+  () => route.params.page,
+  (raw) => raw !== undefined && String(raw) !== String(routePage.value) && showPageInAddress(routePage.value),
+  { immediate: true },
+)
+
 // Opening another page from outside (a bookmark, say) while the reader is open.
 watch(routePage, (page) => {
   if (page === current.value) return
@@ -210,8 +264,8 @@ const sheetOpen = computed(() => Boolean(selected.value || tafseerAyah.value))
 // Arrow keys turn pages the way they point on a right-to-left page; not while a sheet is open over the page.
 useEventListener(window, 'keydown', (event) => {
   if (sheetOpen.value || document.querySelector('.sheet-root') || event.target.closest?.('input, textarea')) return
-  if (event.key === 'ArrowLeft') turnTo(current.value + 1)
-  else if (event.key === 'ArrowRight') turnTo(current.value - 1)
+  if (event.key === 'ArrowLeft') turnBy(1)
+  else if (event.key === 'ArrowRight') turnBy(-1)
   else return
   event.preventDefault()
 })
@@ -235,7 +289,11 @@ watch(
 
 const selected = ref(null)
 
-function onSelect({ key, text }) {
+function onSelect({ key, text, pointer }) {
+  // A hold or right-click that was part of turning the page selects nothing.
+  if (pointer && (gestureBusy || drag?.active)) return
+  // The finger that held the ayah no longer drags the page under its menu.
+  drag = null
   const { surah, ayah } = parseVerseKey(key)
   selected.value = { key, surah, ayah, text }
 }
@@ -337,22 +395,27 @@ function startRecitation(surah, ayah) {
   recitation.playFrom(surah, ayah)
 }
 
+// The title names the surah being read, which on a page a surah opens on is that surah, not the one ending above it,
+// without vowel marks, as a browser tab or a screen reader's heading list shows it best.
+const readingSurah = computed(() => plainSurahName(readingSurahOfPage(current.value)))
+const pageTitle = computed(() => `سورة ${readingSurah.value} - صفحة ${toArabicNumerals(current.value)}`)
+
 usePageMeta(() => ({
-  title: `سورة ${surahName(surahOfPage(routePage.value))} - صفحة ${toArabicNumerals(routePage.value)}`,
-  description: `قراءة القرآن الكريم في مصحف المدينة المنورة - صفحة ${toArabicNumerals(routePage.value)}`,
-  keywords: ['قرآن', 'مصحف', 'مصحف المدينة', surahName(surahOfPage(routePage.value)), 'رفيق'],
+  title: pageTitle.value,
+  description: `قراءة القرآن الكريم في مصحف المدينة المنورة - صفحة ${toArabicNumerals(current.value)}`,
+  keywords: ['قرآن', 'مصحف', 'مصحف المدينة', readingSurah.value, 'رفيق'],
 }))
 </script>
 
 <template>
-  <div class="reader">
+  <main class="reader">
+    <h1 class="visually-hidden">{{ pageTitle }}</h1>
+
     <div
       ref="pager"
       class="reader__pager"
       @pointerdown="onPointerDown"
       @pointermove="onPointerMove"
-      @pointerup="onPointerUp"
-      @pointercancel="onPointerUp"
       @click.capture="onClickCapture"
       @dragstart.prevent
     >
@@ -383,16 +446,11 @@ usePageMeta(() => ({
         type="button"
         class="btn btn-soft visually-hidden-focusable"
         :disabled="current >= PAGE_COUNT"
-        @click="turnTo(current + 1)"
+        @click="turnBy(1)"
       >
         الصفحة التالية
       </button>
-      <button
-        type="button"
-        class="btn btn-soft visually-hidden-focusable"
-        :disabled="current <= 1"
-        @click="turnTo(current - 1)"
-      >
+      <button type="button" class="btn btn-soft visually-hidden-focusable" :disabled="current <= 1" @click="turnBy(-1)">
         الصفحة السابقة
       </button>
     </div>
@@ -426,7 +484,7 @@ usePageMeta(() => ({
       @next="stepTafseer(1)"
       @close="tafseerAyah = null"
     />
-  </div>
+  </main>
 </template>
 
 <style lang="scss" scoped>

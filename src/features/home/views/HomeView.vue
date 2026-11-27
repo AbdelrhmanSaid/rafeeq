@@ -76,7 +76,7 @@ const today = computed(() =>
   height: 2.75rem;
   border-radius: 50%;
   background: var(--app-tint);
-  color: var(--bs-primary);
+  color: var(--app-primary-ink);
 
   svg {
     width: 1.5rem;

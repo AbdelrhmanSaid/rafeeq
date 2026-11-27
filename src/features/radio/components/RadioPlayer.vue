@@ -1,7 +1,7 @@
 <script setup>
 import { useTemplateRef } from 'vue'
 import { RouterLink } from 'vue-router'
-import { IconHeart, IconHeartFilled, IconPlayerPause, IconPlayerPlay } from '@tabler/icons-vue'
+import { IconHeart, IconHeartFilled, IconLoader2, IconPlayerPause, IconPlayerPlay } from '@tabler/icons-vue'
 import { usePageHeader } from '@/layout/pageHeader'
 import { stationTitle } from '@/features/radio/lib/stationLabel'
 import { toArabicNumerals } from '@/shared/utils/arabic'
@@ -9,6 +9,8 @@ import { toArabicNumerals } from '@/shared/utils/arabic'
 const props = defineProps({
   station: { type: Object, required: true },
   isPlaying: { type: Boolean, default: false },
+  // Started but not heard yet (connecting, buffering or retrying); the button then cancels it.
+  isConnecting: { type: Boolean, default: false },
   isFavorite: { type: Boolean, default: false },
   // Other stations to suggest under the player, each with its `slug`.
   similar: { type: Array, default: () => [] },
@@ -47,9 +49,11 @@ const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shift
 
 <template>
   <div class="station">
-    <!-- A night sky over a mosque skyline: crescent, stars, domes and minarets in silhouette. -->
+    <!-- A night sky over a mosque skyline: crescent, stars, domes and minarets in silhouette.
+         The scene fits whole and sits on the bottom edge (slicing it to fill a wide card cut off the crescent); the
+         ground runs far past the viewBox on both sides, so the skyline still spans any width. -->
     <section class="sky">
-      <svg class="sky__scene" viewBox="0 0 360 240" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+      <svg class="sky__scene" viewBox="0 0 360 240" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
         <defs>
           <mask id="sky-crescent">
             <circle cx="104" cy="74" r="20" fill="#fff" />
@@ -69,7 +73,7 @@ const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shift
         </g>
         <path
           class="sky__skyline"
-          d="M0 240V214H30V142L35 128L40 142V214H70Q70 180 95 172Q120 180 120 214H130V188Q130 140 180 128Q230 140 230 188V214H240Q240 180 265 172Q290 180 290 214H310V138L315 124L320 138V214H360V240Z"
+          d="M-2000 240V214H30V142L35 128L40 142V214H70Q70 180 95 172Q120 180 120 214H130V188Q130 140 180 128Q230 140 230 188V214H240Q240 180 265 172Q290 180 290 214H310V138L315 124L320 138V214H2360V240Z"
         />
         <rect x="179" y="112" width="2" height="16" class="sky__skyline" />
       </svg>
@@ -79,9 +83,9 @@ const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shift
           <h1 ref="title" class="sky__title">{{ stationTitle(station) }}</h1>
           <p class="sky__meta">
             <span v-if="station.description">{{ station.description }}</span>
-            <span class="sky__status">
+            <span class="sky__status" role="status">
               <span class="sky__dot" :class="{ 'is-live': isPlaying }"></span>
-              {{ isPlaying ? 'بث مباشر' : 'جاهز للتشغيل' }}
+              {{ isPlaying ? 'بث مباشر' : isConnecting ? 'جاري الاتصال...' : 'جاهز للتشغيل' }}
             </span>
           </p>
         </div>
@@ -105,10 +109,11 @@ const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shift
       <button
         class="station__play"
         type="button"
-        :aria-label="isPlaying ? `إيقاف ${stationTitle(station)}` : `تشغيل ${stationTitle(station)}`"
+        :aria-label="isPlaying || isConnecting ? `إيقاف ${stationTitle(station)}` : `تشغيل ${stationTitle(station)}`"
         @click="$emit('toggle')"
       >
-        <IconPlayerPause v-if="isPlaying" />
+        <IconLoader2 v-if="isConnecting" class="is-spinning" />
+        <IconPlayerPause v-else-if="isPlaying" />
         <IconPlayerPlay v-else />
       </button>
     </div>
@@ -124,9 +129,9 @@ const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shift
           @click="(event) => !isModifiedClick(event) && $emit('play-similar', item)"
         >
           <span class="list-index">{{ toArabicNumerals(index + 1) }}</span>
-          <span class="fw-medium text-truncate">
-            {{ stationTitle(item) }}
-            <span v-if="item.description" class="text-body-secondary">{{ item.description }}</span>
+          <span class="station-name">
+            <span class="fw-medium">{{ stationTitle(item) }}</span>
+            <span v-if="item.description" class="station-name__detail">{{ item.description }}</span>
           </span>
         </RouterLink>
       </div>
@@ -158,6 +163,8 @@ const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shift
   inset: 0;
   width: 100%;
   height: 100%;
+  /* Let the ground run past the viewBox; the rounded sky clips it. */
+  overflow: visible;
 }
 
 .sky__moon {
@@ -274,6 +281,16 @@ const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shift
   }
 }
 
+.is-spinning {
+  animation: station-spin 0.9s linear infinite;
+}
+
+@keyframes station-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .station__similar {
   margin-top: 1.25rem;
 }
@@ -282,5 +299,20 @@ const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shift
   min-height: 3.5rem;
   /* List actions default to the muted text colour; the name stays full strength and only the detail is muted. */
   color: var(--bs-body-color);
+}
+
+/* Name, then the muted detail on the same line while it fits; at large text sizes the detail drops below and the
+   name wraps instead of being cut to one word. */
+.station-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.375em;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.station-name__detail {
+  color: var(--bs-secondary-color);
 }
 </style>

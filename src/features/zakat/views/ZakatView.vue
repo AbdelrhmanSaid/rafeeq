@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
@@ -17,6 +17,7 @@ import {
   cropsZakat,
   businessZakat,
   livestockZakat,
+  formatLivestockDue,
 } from '@/features/zakat/lib/zakat'
 
 const route = useRoute()
@@ -42,6 +43,21 @@ const businessResult = computed(() => businessZakat(businessAmount.value, busine
 const livestockResult = computed(() =>
   livestockZakat({ cows: livestockCows.value, sheep: livestockSheep.value, camels: livestockCamels.value }),
 )
+
+// Each kind of animal pays its own due, in the order the counts are asked for.
+const LIVESTOCK_KINDS = [
+  { key: 'cows', label: 'عن الأبقار', count: livestockCows },
+  { key: 'sheep', label: 'عن الأغنام', count: livestockSheep },
+  { key: 'camels', label: 'عن الإبل', count: livestockCamels },
+]
+
+const livestockItems = computed(() =>
+  LIVESTOCK_KINDS.filter(({ key }) => livestockResult.value[key].length).map(({ key, label }) => ({
+    label,
+    value: formatLivestockDue(livestockResult.value[key], toArabicNumerals),
+  })),
+)
+const hasLivestock = computed(() => LIVESTOCK_KINDS.some(({ count }) => hasValue(count.value)))
 
 // Amounts are written as a plain number plus unit; Intl's currency format scrambles in RTL.
 const money = (value) => `${formatNumber(value)} ج.م`
@@ -71,11 +87,11 @@ const results = computed(() => ({
     status: hasValue(silverWeight.value) ? statusOf(parseFloat(silverWeight.value) >= NISAB.silver) : null,
   },
   livestock: {
-    value: `${toArabicNumerals(livestockResult.value)} رأس`,
+    // Animals, named for each kind (حقة عن الإبل), rather than one count of heads across kinds.
+    items: livestockItems.value,
+    value: hasLivestock.value ? 'لا شيء' : '—',
     hint: 'حسب الأنصبة الشرعية لكل نوع',
-    status: [livestockCows, livestockSheep, livestockCamels].some((count) => hasValue(count.value))
-      ? statusOf(livestockResult.value > 0)
-      : null,
+    status: hasLivestock.value ? statusOf(livestockItems.value.length > 0) : null,
   },
   crops: {
     value: `${formatNumber(cropsResult.value)} ~ ${formatNumber(cropsResult.value * 2)} كجم`,
@@ -104,6 +120,14 @@ const tabs = [
 ]
 
 const activeTab = computed(() => (tabs.some((tab) => tab.id === route.params.tab) ? route.params.tab : 'money'))
+
+// Opened from a link to a later tab, the row of tabs scrolls to show which one is open. After the fonts load, since
+// they change how wide the tabs are.
+const nav = ref(null)
+onMounted(async () => {
+  await document.fonts?.ready
+  nav.value?.querySelector('.active')?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'instant' })
+})
 
 const recipients = [
   'الفقراء والمساكين',
@@ -171,7 +195,7 @@ const conditions = {
     />
 
     <div class="zakat-layout">
-      <nav class="zakat-nav tab-pills" aria-label="أنواع الزكاة">
+      <nav ref="nav" class="zakat-nav tab-pills" aria-label="أنواع الزكاة">
         <!-- Avoid stacking tab changes in browser history. -->
         <RouterLink
           v-for="tab in tabs"
@@ -202,9 +226,9 @@ const conditions = {
         <ZakatInputRow v-else-if="activeTab === 'silver'" v-model="silverWeight" label="وزن الفضة" unit="جرام" />
 
         <template v-else-if="activeTab === 'livestock'">
-          <ZakatInputRow v-model="livestockCows" label="عدد الأبقار" unit="رأس" step="1" />
-          <ZakatInputRow v-model="livestockSheep" label="عدد الأغنام" unit="رأس" step="1" />
-          <ZakatInputRow v-model="livestockCamels" label="عدد الإبل" unit="رأس" step="1" />
+          <ZakatInputRow v-model="livestockCows" label="عدد الأبقار" unit="رأس" integer />
+          <ZakatInputRow v-model="livestockSheep" label="عدد الأغنام" unit="رأس" integer />
+          <ZakatInputRow v-model="livestockCamels" label="عدد الإبل" unit="رأس" integer />
         </template>
 
         <ZakatInputRow v-else-if="activeTab === 'crops'" v-model="cropsAmount" label="كمية المحصول" unit="كجم" />
@@ -229,10 +253,11 @@ const conditions = {
 </template>
 
 <style scoped>
-/* One column with a scrollable row of tabs on every screen size; pages are capped at 40rem. */
+/* One column with a scrollable row of tabs on every screen size; pages are capped at 40rem. minmax(0, …) so the tab
+   row scrolls inside the column instead of widening it past a narrow phone. */
 .zakat-layout {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
   align-items: start;
 }

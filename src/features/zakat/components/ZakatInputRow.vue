@@ -1,11 +1,32 @@
 <script setup>
-defineProps({
+import { computed } from 'vue'
+import { normalizeNumberInput, toInputDisplay } from '@/features/zakat/lib/numberInput'
+
+const props = defineProps({
   label: { type: String, required: true },
   unit: { type: String, default: '' },
-  step: { type: [String, Number], default: 'any' },
+  // Head counts: whole numbers only, so the keyboard drops its decimal key.
+  integer: { type: Boolean, default: false },
 })
 
+// The model is a plain number string ("1234.5") for the calculations; the field shows it in Arabic-Indic digits.
 const model = defineModel({ type: [String, Number], default: '' })
+const display = computed(() => toInputDisplay(model.value))
+
+// A text field, not type="number", which would silently drop digits typed on an Arabic keyboard. Every keystroke is
+// read back as a plain number and shown again in Arabic-Indic digits, with the caret kept where it was.
+function onInput(event) {
+  const input = event.target
+  const caret = input.selectionStart ?? input.value.length
+  const { value, caret: nextCaret } = normalizeNumberInput(input.value, caret, { integer: props.integer })
+  model.value = value
+
+  const shown = toInputDisplay(value)
+  if (input.value !== shown) {
+    input.value = shown
+    input.setSelectionRange(nextCaret, nextCaret)
+  }
+}
 </script>
 
 <template>
@@ -13,13 +34,15 @@ const model = defineModel({ type: [String, Number], default: '' })
   <label class="list-group-item zakat-row">
     <span class="zakat-row__label">{{ label }}</span>
     <input
-      v-model="model"
+      :value="display"
       class="zakat-row__input"
-      type="number"
-      inputmode="decimal"
-      min="0"
-      :step="step"
+      type="text"
+      dir="ltr"
+      :inputmode="integer ? 'numeric' : 'decimal'"
+      autocomplete="off"
       placeholder="—"
+      :style="{ '--chars': display.length }"
+      @input="onInput"
     />
     <span v-if="unit" class="zakat-row__unit">{{ unit }}</span>
   </label>
@@ -40,8 +63,12 @@ const model = defineModel({ type: [String, Number], default: '' })
 }
 
 .zakat-row__input {
-  /* Narrow enough to leave the label room; an Arabic zero would look like a stray dot as placeholder, so "—" stands in. */
-  width: 6.5rem;
+  /* Narrow enough to leave the label room, and wider as a long amount is typed so it isn't cut off once the field
+     loses focus; a narrow phone at a large text size gets a narrower field. An Arabic zero would look like a stray dot
+     as placeholder, so "—" stands in. */
+  flex-shrink: 0;
+  width: clamp(min(6.5rem, 40%), calc((var(--chars, 0) + 1) * 1ch), 60%);
+  min-width: 0;
   padding: 0.25rem 0;
   border: 0;
   outline: none;

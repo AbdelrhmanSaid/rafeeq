@@ -44,7 +44,8 @@ const checkFont = (buffer) => {
 
 // A file from the device if it's there and sound, else from the network, kept for next time. `saved` says whether
 // it's on the device now: a full disk only costs the offline copy, but then the page mustn't count as downloaded.
-async function fetchStored(url, check) {
+// An aborted download stops fetching and stores nothing more.
+async function fetchStored(url, check, signal) {
   const cache = await openCache()
   const stored = await cache?.match(url)
   if (stored) {
@@ -55,10 +56,11 @@ async function fetchStored(url, check) {
     }
   }
 
-  const response = await fetch(url)
+  const response = await fetch(url, { signal })
   if (!response.ok) throw new Error(`Failed to fetch ${url}: ${response.status}`)
   const buffer = await response.arrayBuffer()
   const value = check(buffer)
+  signal?.throwIfAborted()
   const saved = cache
     ? await cache.put(url, new Response(buffer, { headers: response.headers })).then(
         () => true,
@@ -68,8 +70,8 @@ async function fetchStored(url, check) {
   return { value, saved }
 }
 
-const fetchLayout = (page) => fetchStored(pageDataUrl(page), checkLayout)
-const fetchFont = (page) => fetchStored(pageFontUrl(page), checkFont)
+const fetchLayout = (page, signal) => fetchStored(pageDataUrl(page), checkLayout, signal)
+const fetchFont = (page, signal) => fetchStored(pageFontUrl(page), checkFont, signal)
 
 const fontFamily = (page) => `mushaf-p${page}`
 
@@ -115,11 +117,21 @@ export function keepPagesNear(page, distance = 4) {
   }
 }
 
-async function downloadPages(pages) {
+// Pages a download stored for a surah that hasn't finished downloading. A cancelled download takes them back, while
+// a paused one keeps them for when it resumes. Pages kept from reading are never in here.
+const unfinished = new Set()
+
+async function downloadPages(pages, signal) {
   for (const page of pages) {
+    signal?.throwIfAborted()
     if (storedPages.has(page)) continue
-    const files = await Promise.all([fetchLayout(page), fetchFont(page)])
-    if (!files.every((file) => file.saved)) throw new Error(`Could not store page ${page}`)
+    // Marked before fetching, so a page with only one of its files stored is taken back too.
+    unfinished.add(page)
+    // Both files settle before moving on, so an abort can't leave one of them still writing after it's taken back.
+    const results = await Promise.allSettled([fetchLayout(page, signal), fetchFont(page, signal)])
+    const failed = results.find((result) => result.status === 'rejected')
+    if (failed) throw failed.reason
+    if (!results.every((result) => result.value.saved)) throw new Error(`Could not store page ${page}`)
     storedPages.add(page)
   }
 }
@@ -145,10 +157,21 @@ const isSurahDownloaded = (surah) =>
 export const mushafDownloads = {
   downloadedCount: computed(() => surahs.filter((s) => isSurahDownloaded(s.id)).length),
   isDownloaded: (key) => isSurahDownloaded(Number(key)),
-  async download(key) {
+  // Stops between pages once `signal` aborts, and then the surah isn't recorded as downloaded.
+  async download(key, { signal } = {}) {
     const surah = Number(key)
-    await downloadPages(surahPages(surah))
+    const pages = surahPages(surah)
+    await downloadPages(pages, signal)
+    signal?.throwIfAborted()
     if (!downloadedSet.value.has(surah)) downloaded.value = [...downloaded.value, surah]
+    for (const page of pages) unfinished.delete(page)
+  },
+  // Takes back what a cancelled download of the surah stored, except pages a downloaded surah owns.
+  async discard(key) {
+    const pages = surahPages(Number(key)).filter((page) => unfinished.has(page))
+    const kept = new Set(downloaded.value.flatMap((id) => surahPages(id)))
+    for (const page of pages) unfinished.delete(page)
+    await removePages(pages.filter((page) => !kept.has(page)))
   },
   async remove(key) {
     const surah = Number(key)
@@ -158,6 +181,7 @@ export const mushafDownloads = {
   },
   async removeAll() {
     downloaded.value = []
+    unfinished.clear()
     if (hasCacheStorage()) await caches.delete(CACHE_NAME)
     storedPages.clear()
   },

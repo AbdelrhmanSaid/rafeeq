@@ -1,5 +1,5 @@
 <script setup>
-import { computed, nextTick, ref, useTemplateRef } from 'vue'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import {
   IconCheck,
   IconChevronDown,
@@ -10,7 +10,8 @@ import {
 } from '@tabler/icons-vue'
 import reciters from '@/features/quran/data/reciters.js'
 import { useQuranStore } from '@/features/quran/store'
-import { isHafsRecording } from '@/features/quran/lib/reciters'
+import { isHafsRecording, recordingStyle } from '@/features/quran/lib/reciters'
+import { rovingTarget } from '@/features/quran/lib/rovingFocus'
 import { useSearch } from '@/shared/composables/useSearch'
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
 
@@ -46,7 +47,24 @@ function choose(id) {
   showReciters.value = false
 }
 
+const isChosen = (reciter) => reciter.id === Number(quranStore.currentReciter)
+
+// The list is one Tab stop, on the chosen reciter (or the first, when a search hides them); the arrows move between
+// reciters without choosing one, since choosing closes the sheet. Space or Enter chooses.
+const focusIndex = ref(0)
+watch(filtered, (list) => (focusIndex.value = Math.max(0, list.findIndex(isChosen))), { immediate: true })
+
+function onListKeydown(event) {
+  const to = rovingTarget(event.key, focusIndex.value, filtered.value.length)
+  if (to === null) return
+  event.preventDefault()
+  focusIndex.value = to
+  list.value?.querySelectorAll('[role="radio"]')[to]?.focus()
+}
+
 const reciterName = computed(() => quranStore.reciter?.name ?? 'اختر القارئ')
+// Two recordings can share a reciter's name, so the player says which one is playing.
+const reciterStyle = computed(() => recordingStyle(quranStore.reciter))
 </script>
 
 <template>
@@ -63,8 +81,14 @@ const reciterName = computed(() => quranStore.reciter?.name ?? 'اختر الق�
       <IconPlayerPlayFilled v-else size="16" aria-hidden="true" />
     </button>
 
-    <button type="button" class="player-pill__reciter" :aria-label="`القارئ: ${reciterName}`" @click="openReciters">
+    <button
+      type="button"
+      class="player-pill__reciter"
+      :aria-label="`القارئ: ${reciterName}${reciterStyle ? `، ${reciterStyle}` : ''}`"
+      @click="openReciters"
+    >
       <span class="text-truncate">{{ reciterName }}</span>
+      <small v-if="reciterStyle" class="player-pill__style">{{ reciterStyle }}</small>
       <IconChevronDown size="16" aria-hidden="true" />
     </button>
 
@@ -83,19 +107,20 @@ const reciterName = computed(() => quranStore.reciter?.name ?? 'اختر الق�
           </div>
         </div>
 
-        <ul ref="list" class="bottom-sheet-list" role="radiogroup" aria-label="القارئ">
-          <li v-for="reciter in filtered" :key="reciter.id">
+        <ul ref="list" class="bottom-sheet-list" role="radiogroup" aria-label="القارئ" @keydown="onListKeydown">
+          <li v-for="(reciter, index) in filtered" :key="reciter.id">
             <button
               type="button"
               class="bottom-sheet-item"
               role="radio"
-              :aria-checked="reciter.id === Number(quranStore.currentReciter)"
+              :aria-checked="isChosen(reciter)"
+              :tabindex="index === focusIndex ? 0 : -1"
+              @focus="focusIndex = index"
               @click="choose(reciter.id)"
             >
               <span class="flex-grow-1 text-truncate">{{ reciter.name }}</span>
-              <small v-if="reciter.rewaya.includes('المجود')" class="reciters__style">مجوّد</small>
-              <small v-else-if="!isHafsRecording(reciter)" class="reciters__style">{{ reciter.rewaya }}</small>
-              <IconCheck v-if="reciter.id === Number(quranStore.currentReciter)" size="20" class="reciters__check" />
+              <small v-if="recordingStyle(reciter)" class="reciters__style">{{ recordingStyle(reciter) }}</small>
+              <IconCheck v-if="isChosen(reciter)" size="20" class="reciters__check" />
             </button>
           </li>
           <li v-if="!filtered.length" class="reciters__empty">لا يوجد قارئ بهذا الاسم</li>
@@ -221,13 +246,19 @@ const reciterName = computed(() => quranStore.reciter?.name ?? 'اختر الق�
   padding-bottom: 0.5rem;
 }
 
-.reciters__style {
+.reciters__style,
+.player-pill__style {
   flex-shrink: 0;
   color: var(--bs-secondary-color);
 }
 
+.player-pill__style {
+  font-size: 0.8125rem;
+  font-weight: 400;
+}
+
 .reciters__check {
-  color: var(--bs-primary) !important;
+  color: var(--app-primary-ink) !important;
 }
 
 .reciters__empty {

@@ -2,6 +2,7 @@
 import { computed, ref, watchEffect } from 'vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import { getShortestRotation, getTapeTicks, normalizeAngle } from '@/features/qibla/lib/qibla'
+import QiblaLocationNote from '@/features/qibla/components/QiblaLocationNote.vue'
 
 // Within this many degrees either side, you're facing the qibla.
 const FACING_TOLERANCE = 5
@@ -56,9 +57,6 @@ const arrowX = computed(() => CENTER + Math.sign(turn.value) * EDGE_OFFSET * PX_
 
 // Rounded after wrapping, so 359.6° reads 0° rather than 360°.
 const degrees = (value) => `${toArabicNumerals(Math.round(normalizeAngle(value)) % 360)}°`
-const distanceLabel = computed(() =>
-  props.distance == null ? '' : `${Math.round(props.distance).toLocaleString('ar-EG')} كم إلى مكة`,
-)
 
 // The instruction under the tape: which way to turn, and by how much.
 const turnSide = computed(() => (turn.value > 0 ? 'يمينًا' : 'يسارًا'))
@@ -111,17 +109,18 @@ const turnAmount = computed(() => `${toArabicNumerals(Math.round(Math.abs(turn.v
       </template>
     </p>
     <span class="visually-hidden" role="status">{{ announcement }}</span>
-    <p v-if="distanceLabel" class="qibla__distance">{{ distanceLabel }}</p>
-    <p v-if="savedLocation && refreshingLocation" class="qibla__distance">حسب موقعك المحفوظ · جاري تحديث الموقع…</p>
-    <button v-else-if="savedLocation" type="button" class="qibla__location" @click="$emit('refresh-location')">
-      حسب موقعك المحفوظ · تحديث الموقع
-    </button>
+    <QiblaLocationNote
+      :distance="distance"
+      :saved-location="savedLocation"
+      :refreshing-location="refreshingLocation"
+      @refresh-location="$emit('refresh-location')"
+    />
   </div>
 </template>
 
 <style lang="scss" scoped>
 .qibla {
-  --qibla-accent: var(--bs-primary);
+  --qibla-accent: var(--app-primary-ink);
 
   display: flex;
   flex-direction: column;
@@ -129,8 +128,13 @@ const turnAmount = computed(() => `${toArabicNumerals(Math.round(Math.abs(turn.v
   text-align: center;
 }
 
-/* Facing the qibla: the centre line and the hint turn gold, the Kaaba's own colour. */
+/* Facing the qibla: the centre line and the hint turn gold, the Kaaba's own colour; a deep gold on the light theme so
+   the hint still reads (4.5:1) on the page. */
 .qibla.is-facing {
+  --qibla-accent: #7f6224;
+}
+
+[data-bs-theme='dark'] .qibla.is-facing {
   --qibla-accent: #b8913f;
 }
 
@@ -147,18 +151,7 @@ const turnAmount = computed(() => `${toArabicNumerals(Math.round(Math.abs(turn.v
   font-variant-numeric: tabular-nums;
 }
 
-.qibla__location {
-  min-height: 2.75rem;
-  margin-top: 0.5rem;
-  padding: 0.25rem 0.5rem;
-  border: 0;
-  background: none;
-  color: var(--qibla-accent);
-  font-size: 0.875rem;
-}
-
-.qibla__caption,
-.qibla__distance {
+.qibla__caption {
   margin: 0;
   color: var(--bs-secondary-color);
   font-size: 0.875rem;

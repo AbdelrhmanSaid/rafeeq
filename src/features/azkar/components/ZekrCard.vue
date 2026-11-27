@@ -84,7 +84,9 @@ const onPressStart = () => {
 
 // A click anywhere on the card counts, on phones and desktop alike, unless it ends a scroll.
 // (The card can't be text-selected, so a page-wide selection check only blocked real taps.)
-const onCardClick = () => {
+// The actions don't count, but their clicks still bubble: Bootstrap closes the open dropdown on a document click.
+const onCardClick = (e) => {
+  if (e.target.closest?.('.card-actions')) return
   if (!longPressed && !touchMoved) increment()
   longPressed = false
   touchMoved = false
@@ -116,20 +118,20 @@ const exportAsImage = () => {
   )
 }
 
-const shareZekr = () => {
+// Native share sheet where available, otherwise copy the text. Closing the sheet without sharing isn't an error.
+const shareZekr = async () => {
+  if (!navigator.share) return copyZekr()
+
   showActions.value = false
-  const canShare = !!navigator.share
-  toast.promise(
-    () => (canShare ? navigator.share({ title: 'رفيق', text: props.text }) : navigator.clipboard.writeText(props.text)),
-    {
-      loading: 'جاري المشاركة...',
-      success: canShare ? 'تم مشاركة الذكر بنجاح' : 'تعذرت المشاركة، تم نسخ الذكر بدلاً من ذلك',
-      error: 'حدث خطأ أثناء مشاركة الذكر',
-    },
-  )
+  try {
+    await navigator.share({ title: 'رفيق', text: props.text })
+    toast.success('تم مشاركة الذكر بنجاح')
+  } catch (e) {
+    if (e?.name !== 'AbortError') toast.error('حدث خطأ أثناء مشاركة الذكر')
+  }
 }
 
-const copyZekr = () => {
+function copyZekr() {
   showActions.value = false
   toast.promise(() => navigator.clipboard.writeText(props.text), {
     loading: 'جاري النسخ...',
@@ -167,7 +169,7 @@ const copyZekr = () => {
       <span class="zekr-footer__repeat">{{ repeatLabel }}</span>
       <span class="visually-hidden" role="status">{{ toArabicNumerals(count) }} من {{ toArabicNumerals(repeat) }}</span>
 
-      <div class="card-actions" @click.stop>
+      <div class="card-actions">
         <button type="button" aria-label="تصفير" :disabled="count === 0" @click="reset">
           <IconRestore size="18" />
         </button>
@@ -256,13 +258,20 @@ const copyZekr = () => {
 
 .zekr-body {
   padding: 1.25rem 1.25rem 1rem;
+  container-type: inline-size;
 }
 
+/* Justified text only reads well with about ten words' width to spread over; on narrow cards or large text the few
+   words per line would be pulled apart, so those lines start-align instead. */
 .zekr-text {
   margin: 0;
   font-size: 1.625rem;
   line-height: 2;
-  text-align: justify;
+  text-align: start;
+
+  @container (min-width: 17em) {
+    text-align: justify;
+  }
 }
 
 .zekr-note {
@@ -276,9 +285,9 @@ const copyZekr = () => {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.625rem;
+  gap: 0.5rem;
   padding-block: 0.375rem;
-  padding-inline: 1rem 0.375rem;
+  padding-inline: 0.75rem 0.375rem;
   border-top: 1px solid var(--app-hairline);
 
   /* The progress line rides the footer's top edge. */
@@ -295,7 +304,7 @@ const copyZekr = () => {
 }
 
 .btn-counter {
-  min-width: 4.5rem;
+  min-width: 4rem;
   padding: 0.25rem 0.75rem;
   border: 0;
   border-radius: 999px;
@@ -311,8 +320,12 @@ const copyZekr = () => {
 }
 
 .zekr-footer__repeat {
+  min-width: 0;
+  overflow: hidden;
   color: var(--bs-secondary-color);
   font-size: 0.8125rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .card-actions {
@@ -324,8 +337,9 @@ const copyZekr = () => {
   [data-bs-toggle='dropdown'] {
     display: grid;
     place-items: center;
-    width: 2.75rem;
-    height: 2.75rem;
+    /* A 44px target with a fixed-size icon; growing it with the text would push the repeat label off a narrow card. */
+    width: 44px;
+    height: 44px;
     padding: 0;
     border: 0;
     border-radius: 50%;
@@ -335,7 +349,7 @@ const copyZekr = () => {
     @media (hover: hover) and (pointer: fine) {
       &:hover:not(:disabled) {
         background-color: var(--app-tint);
-        color: var(--bs-primary);
+        color: var(--app-primary-ink);
       }
     }
 

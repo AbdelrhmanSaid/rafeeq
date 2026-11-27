@@ -37,7 +37,8 @@ export function serializeSettingsBackup(storage = localStorage) {
   return `${JSON.stringify(createSettingsBackup(storage), null, 2)}\n`
 }
 
-function parseSettingsBackup(fileContents) {
+// Throws unless the file is a Rafeeq backup; returns its entries. Checked before asking to replace anything.
+export function parseSettingsBackup(fileContents) {
   let backup
 
   try {

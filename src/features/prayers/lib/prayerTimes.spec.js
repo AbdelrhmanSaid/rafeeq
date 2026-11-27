@@ -88,6 +88,58 @@ describe('calculatePrayerTimes', () => {
   })
 })
 
+describe('calculatePrayerTimes across the date line', () => {
+  it.each([
+    ['Pacific/Apia', -13.8333, -171.7667],
+    ['Pacific/Kiritimati', 1.8721, -157.4278],
+  ])("returns the local day's prayers in %s, not tomorrow's", (tz, latitude, longitude) => {
+    process.env.TZ = tz
+    const date = new Date(2026, 10, 27)
+    const times = calculatePrayerTimes({ latitude, longitude, date })
+
+    for (const time of Object.values(times)) expect(time.getDate()).toBe(27)
+    expect(times.Dhuhr.getHours()).toBe(12)
+  })
+
+  it('leaves places near their solar time alone', () => {
+    process.env.TZ = 'Pacific/Honolulu'
+    const times = calculatePrayerTimes({ latitude: 21.3069, longitude: -157.8583, date: new Date(2026, 10, 27) })
+
+    expect(times.Dhuhr.getDate()).toBe(27)
+    expect(times.Dhuhr.getHours()).toBe(12)
+  })
+})
+
+describe('calculatePrayerTimes near the poles', () => {
+  const KEYS = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']
+  const inOrder = (times) =>
+    KEYS.every((key, i) => !Number.isNaN(times[key].getTime()) && (!i || times[key] > times[KEYS[i - 1]]))
+
+  it.each([
+    ['Tromsø', 'Europe/Oslo', 69.6492, 18.9553],
+    ['Longyearbyen', 'Arctic/Longyearbyen', 78.2232, 15.6267],
+    ['McMurdo', 'Pacific/Auckland', -77.8419, 166.6863],
+  ])('keeps the six times in order every day of the year in %s', (_, tz, latitude, longitude) => {
+    process.env.TZ = tz
+    const outOfOrder = []
+
+    for (let day = 0; day < 365; day++) {
+      const date = new Date(2026, 0, 1 + day)
+      if (!inOrder(calculatePrayerTimes({ latitude, longitude, date }))) outOfOrder.push(date.toDateString())
+    }
+
+    expect(outOfOrder).toEqual([])
+  })
+
+  it('puts Tromsø Asr between Dhuhr and Maghrib in late November', () => {
+    process.env.TZ = 'Europe/Oslo'
+    const times = calculatePrayerTimes({ latitude: 69.6492, longitude: 18.9553, date: new Date(2026, 10, 20) })
+
+    expect(times.Asr > times.Dhuhr).toBe(true)
+    expect(times.Asr < times.Maghrib).toBe(true)
+  })
+})
+
 describe('resolveAutoMethod', () => {
   it.each([
     ['Cairo', 30.0444, 31.2357, '5'],

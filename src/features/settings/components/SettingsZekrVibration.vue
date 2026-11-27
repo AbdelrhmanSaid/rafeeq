@@ -30,15 +30,16 @@ const switchId = useId()
       </div>
     </template>
 
-    <div v-if="zekrVibrationEnabled" class="p-3 border rounded">
-      <div class="d-flex justify-content-between align-items-center gap-3 mb-2">
+    <!-- Flush in the row, under its switch: a label with the value, then a full-width slider. -->
+    <div v-if="zekrVibrationEnabled">
+      <div class="d-flex justify-content-between align-items-baseline gap-3 mb-1">
         <span>قوة الاهتزاز</span>
-        <small class="text-muted">{{ vibrationValueLabel }} مللي ثانية</small>
+        <small class="text-muted text-nowrap">{{ vibrationValueLabel }} مللي ثانية</small>
       </div>
 
       <input
         v-model.number="zekrVibrationIntensity"
-        class="form-range"
+        class="form-range d-block"
         type="range"
         min="20"
         max="250"

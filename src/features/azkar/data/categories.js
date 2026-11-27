@@ -417,7 +417,7 @@ export default [
   },
   {
     slug: 'stopping-at-place',
-    name: 'الدعاء إذا نزل مترلا في سفر أو غيره',
+    name: 'الدعاء إذا نزل منزلا في سفر أو غيره',
   },
   {
     slug: 'returning-from-travel',

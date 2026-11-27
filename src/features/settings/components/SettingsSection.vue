@@ -1,7 +1,8 @@
 <script setup>
-import { Comment, Text, computed, useSlots } from 'vue'
+import { Comment, Text, computed, inject, useSlots } from 'vue'
+import { SETTINGS_PAGE_TITLE } from '../lib/sections'
 
-defineProps({
+const props = defineProps({
   title: { type: String, default: '' },
   description: { type: String, default: '' },
   // The id of the switch in the actions slot; the header then becomes its label, so tapping the title toggles it.
@@ -9,6 +10,11 @@ defineProps({
 })
 
 const slots = useSlots()
+
+// On a screen with the same title (المظهر › المظهر) the row doesn't repeat it; its description still introduces it.
+const pageTitle = inject(SETTINGS_PAGE_TITLE, null)
+const shownTitle = computed(() => (props.title && props.title === pageTitle?.value ? '' : props.title))
+const hasHeader = computed(() => !!(shownTitle.value || props.description || slots.actions))
 
 const hasBody = computed(() => {
   const nodes = slots.default?.() ?? []
@@ -25,13 +31,15 @@ const hasBody = computed(() => {
   <section class="settings-section">
     <component
       :is="controlId ? 'label' : 'header'"
-      v-if="title || $slots.actions"
+      v-if="hasHeader"
       :for="controlId || undefined"
       class="settings-section-header"
     >
       <div class="settings-section-heading">
-        <h2 class="settings-section-title">{{ title }}</h2>
-        <p v-if="description" class="settings-section-description">{{ description }}</p>
+        <h2 v-if="shownTitle" class="settings-section-title">{{ shownTitle }}</h2>
+        <p v-if="description" class="settings-section-description" :class="{ 'is-intro': !shownTitle }">
+          {{ description }}
+        </p>
       </div>
 
       <div v-if="$slots.actions" class="settings-section-actions">
@@ -39,7 +47,7 @@ const hasBody = computed(() => {
       </div>
     </component>
 
-    <div v-if="hasBody" class="settings-section-body" :class="{ 'has-header': title || $slots.actions }">
+    <div v-if="hasBody" class="settings-section-body" :class="{ 'has-header': hasHeader }">
       <slot />
     </div>
   </section>
@@ -74,6 +82,10 @@ const hasBody = computed(() => {
   color: var(--bs-secondary-color);
   font-size: 0.8125rem;
   line-height: 1.6;
+}
+
+.settings-section-description.is-intro {
+  margin-top: 0;
 }
 
 .settings-section-actions {

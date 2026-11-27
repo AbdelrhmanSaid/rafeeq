@@ -215,7 +215,7 @@ body {
   padding: 0.2rem 0.65rem;
   border-radius: 999px;
   background: var(--app-tint);
-  color: var(--bs-primary);
+  color: var(--app-primary-ink);
   font-size: 0.78rem;
   font-weight: 600;
   line-height: 1.4;
@@ -385,7 +385,7 @@ body {
 .tab-pill.active {
   background: var(--app-tint);
   border-color: transparent;
-  color: var(--bs-primary);
+  color: var(--app-primary-ink);
 }
 
 [data-bs-theme='dark'] .tab-pill.active {
@@ -481,7 +481,7 @@ body {
 
   &.router-link-active {
     background-color: var(--app-tint);
-    color: var(--bs-primary);
+    color: var(--app-primary-ink);
   }
 
   &:focus-visible {
@@ -508,14 +508,18 @@ body {
 
 .btn-group-toggle .btn-toggle {
   flex: 1;
+  /* Three choices still fit a narrow phone at a large text size: a long label wraps rather than pushing the row wider. */
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   min-height: 2.75rem;
-  padding: 0.6rem;
+  padding: 0.6rem 0.4rem;
   border: 0;
   border-radius: var(--bs-border-radius);
+  line-height: 1.25;
+  text-align: center;
   /* Filled, not outlined: a quiet fill for the choices, the soft brand tint for the one chosen. */
   background: color-mix(in srgb, var(--bs-body-color) 6%, transparent);
   color: var(--bs-body-color);
@@ -533,13 +537,47 @@ body {
 
   &.active {
     background: var(--app-tint-strong);
-    color: var(--bs-primary);
+    color: var(--app-primary-ink);
     font-weight: 600;
   }
 }
 
 [data-bs-theme='dark'] .btn-group-toggle .btn-toggle.active {
   color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
+}
+
+/* The brand color as text and icons. On the light theme a light brand color (sand) is darkened until it reads (see
+   inkColor in css.js); the dark theme draws it as it is, or lighter where a rule says so. */
+body {
+  --app-primary-ink: var(--app-primary-ink-light, var(--bs-primary));
+}
+
+body[data-bs-theme='dark'] {
+  --app-primary-ink: var(--bs-primary);
+}
+
+.text-primary {
+  color: var(--app-primary-ink) !important;
+}
+
+/* Keyboard focus shows on every control. Bootstrap draws a ring only for buttons that set their own focus colour,
+   which left flat and soft buttons with none. A component's own focus style still wins where it has one. */
+.btn:focus-visible,
+button:focus-visible,
+[role='button']:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--app-primary-ink);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+[data-bs-theme='dark'] {
+  .btn:focus-visible,
+  button:focus-visible,
+  [role='button']:focus-visible,
+  a:focus-visible {
+    outline-color: color-mix(in srgb, var(--bs-primary) 45%, #fff);
+  }
 }
 
 /* Screens only fade in: nothing slides, so the layout holds still between pages. */

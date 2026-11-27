@@ -67,7 +67,7 @@ const formatRakaa = (value) => {
 <template>
   <div>
     <div class="d-flex align-items-center px-3 pb-2">
-      <h2 v-if="title" class="sunnah-header__title">{{ title }}</h2>
+      <h2 v-if="title" class="list-title sunnah-header__title">{{ title }}</h2>
       <div class="d-flex small text-body-secondary ms-auto">
         <span class="rakaa-col">قبل</span>
         <span class="rakaa-col">بعد</span>
@@ -128,16 +128,14 @@ const formatRakaa = (value) => {
   }
 }
 
+/* Muted like the other Home section titles (.list-title); the row already spaces it. */
 .sunnah-header__title {
   margin: 0;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 700;
 }
 
 .sunnah-toggle {
   padding-block: 0.625rem;
-  color: var(--bs-primary);
+  color: var(--app-primary-ink);
   font-size: 0.875rem;
   font-weight: 600;
   text-align: center;

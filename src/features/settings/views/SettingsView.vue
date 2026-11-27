@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, provide } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import {
   IconChevronLeft,
@@ -13,6 +13,7 @@ import {
 
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
+import { SETTINGS_PAGE_TITLE, SETTINGS_SECTION_LABELS } from '../lib/sections'
 
 import SettingsTheme from '../components/SettingsTheme.vue'
 import SettingsFontSize from '../components/SettingsFontSize.vue'
@@ -31,37 +32,37 @@ import SettingsZekrVibration from '../components/SettingsZekrVibration.vue'
 const tabs = [
   {
     id: 'appearance',
-    label: 'المظهر',
+    label: SETTINGS_SECTION_LABELS.appearance,
     icon: IconPalette,
     sections: [SettingsTheme, SettingsFontSize],
   },
   {
     id: 'prayer',
-    label: 'مواقيت الصلاة',
+    label: SETTINGS_SECTION_LABELS.prayer,
     icon: IconClockHour4,
     sections: [SettingsPrayerTimes],
   },
   {
     id: 'quran',
-    label: 'القرآن',
+    label: SETTINGS_SECTION_LABELS.quran,
     icon: IconBook2,
     sections: [SettingsReciter, SettingsTafseer],
   },
   {
     id: 'azkar',
-    label: 'الأذكار',
+    label: SETTINGS_SECTION_LABELS.azkar,
     icon: IconSparkles,
     sections: [SettingsZekrMoveNext, SettingsZekrProgress, SettingsZekrLeaveConfirmation, SettingsZekrVibration],
   },
   {
     id: 'app',
-    label: 'التطبيق',
+    label: SETTINGS_SECTION_LABELS.app,
     icon: IconDeviceMobile,
     sections: [SettingsAutoUpdate, SettingsNotifications, SettingsImportExport],
   },
   {
     id: 'downloads',
-    label: 'التنزيلات',
+    label: SETTINGS_SECTION_LABELS.downloads,
     icon: IconCloudDownload,
     sections: [SettingsDownloadAssets],
     // Lays out its own grouped lists.
@@ -72,6 +73,12 @@ const tabs = [
 const route = useRoute()
 // /settings lists the sections; /settings/<section> shows one of them on its own screen.
 const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab) ?? null)
+
+// A section titled like the screen (المظهر on المظهر) drops the repeated title; see SettingsSection.
+provide(
+  SETTINGS_PAGE_TITLE,
+  computed(() => activeTab.value?.label ?? null),
+)
 </script>
 
 <template>
@@ -119,13 +126,14 @@ const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab)
   border-top: 1px solid var(--app-hairline);
 }
 
+/* Sized like the More screen's rows: px chrome, so a large text size goes to the label. */
 .settings-row {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.875rem;
+  gap: 12px;
   min-height: 3.5rem;
-  padding: 0.625rem 1rem;
+  padding: 0.625rem 16px;
   color: var(--bs-body-color);
   text-decoration: none;
 
@@ -145,9 +153,10 @@ const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab)
 }
 
 .settings-row__icon {
-  width: 2.25rem;
-  height: 2.25rem;
-  color: var(--bs-primary);
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  color: var(--app-primary-ink);
 
   svg {
     width: 1.2rem;
@@ -162,7 +171,10 @@ const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab)
 .settings-row__label {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
   font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .settings-row__chevron {

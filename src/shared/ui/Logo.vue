@@ -32,7 +32,7 @@ defineProps({
 
 <style scoped>
 svg {
-  color: var(--bs-primary);
+  color: var(--app-primary-ink);
 }
 
 [data-bs-theme='dark'] svg {

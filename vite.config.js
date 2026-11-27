@@ -36,8 +36,9 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,woff,woff2}'],
-        // Store screenshots are for the store listings, not something the app needs offline.
-        globIgnores: ['push/onesignal/**/*', 'screenshots/**/*'],
+        // Store screenshots are for the store listings, not something the app needs offline. The iOS splash images
+        // are only read by iOS when the app is added to the home screen, so they aren't precached either.
+        globIgnores: ['push/onesignal/**/*', 'screenshots/**/*', 'splash/**/*'],
         runtimeCaching: [
           {
             // Mushaf page fonts keep their own cache (see src/features/quran/lib/mushafStorage.js), so they aren't

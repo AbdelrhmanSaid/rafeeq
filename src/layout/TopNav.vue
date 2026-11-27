@@ -158,7 +158,7 @@ const destinations = navigation.filter((item) => item.menus.includes('primary'))
 
   /* A hairline under the current destination, sitting on the bar's bottom edge. */
   &.is-active {
-    color: var(--bs-primary);
+    color: var(--app-primary-ink);
     font-weight: 700;
 
     &::after {

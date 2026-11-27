@@ -69,7 +69,7 @@ html[dir='rtl'],
   &:focus svg,
   &.active svg,
   &:active svg {
-    color: var(--bs-primary);
+    color: var(--app-primary-ink);
   }
 }
 
@@ -213,16 +213,16 @@ html[dir='rtl'] input[type='number']::placeholder {
 /* Soft tinted button for secondary actions: a light brand fill, brand text, no border.
    Solid btn-primary is kept for the one main action on a screen. */
 .btn-soft {
-  --bs-btn-color: var(--bs-primary);
+  --bs-btn-color: var(--app-primary-ink);
   --bs-btn-bg: var(--app-tint);
   --bs-btn-border-color: transparent;
-  --bs-btn-hover-color: var(--bs-primary);
+  --bs-btn-hover-color: var(--app-primary-ink);
   --bs-btn-hover-bg: var(--app-tint-strong);
   --bs-btn-hover-border-color: transparent;
-  --bs-btn-active-color: var(--bs-primary);
+  --bs-btn-active-color: var(--app-primary-ink);
   --bs-btn-active-bg: color-mix(in srgb, var(--bs-primary) 22%, transparent);
   --bs-btn-active-border-color: transparent;
-  --bs-btn-disabled-color: var(--bs-primary);
+  --bs-btn-disabled-color: var(--app-primary-ink);
   --bs-btn-disabled-bg: var(--app-tint);
   --bs-btn-disabled-border-color: transparent;
 }
