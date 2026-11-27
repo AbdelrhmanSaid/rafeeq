@@ -6,6 +6,7 @@ import { loadPage } from '@/features/quran/lib/mushafStorage'
 import { formatAyahCount, parseVerseKey, surahName } from '@/features/quran/lib/mushaf'
 import surahs from '@/features/quran/data/surahs.js'
 import { toArabicNumerals } from '@/shared/utils/arabic'
+import LoadingState from '@/shared/ui/LoadingState.vue'
 
 const props = defineProps({
   page: { type: Number, required: true },
@@ -19,6 +20,9 @@ const emit = defineEmits(['tap', 'select'])
 
 const online = useOnline()
 const data = shallowRef(null)
+// A spinner only for a page that takes a moment (a first visit on a slow connection); a quick load shows nothing.
+const slow = ref(false)
+let slowTimer = 0
 const fontFamily = ref('')
 const failed = ref(false)
 
@@ -26,6 +30,8 @@ let loadId = 0
 async function load() {
   const id = ++loadId
   failed.value = false
+  clearTimeout(slowTimer)
+  slowTimer = setTimeout(() => (slow.value = true), 250)
   try {
     const page = await loadPage(props.page)
     if (id !== loadId) return
@@ -33,6 +39,11 @@ async function load() {
     fontFamily.value = page.fontFamily
   } catch {
     if (id === loadId) failed.value = true
+  } finally {
+    if (id === loadId) {
+      clearTimeout(slowTimer)
+      slow.value = false
+    }
   }
 }
 
@@ -172,7 +183,10 @@ function onKeydown(event) {
 
 const select = (key) => emit('select', { key, text: data.value.verses[key] })
 
-onBeforeUnmount(cancelHold)
+onBeforeUnmount(() => {
+  cancelHold()
+  clearTimeout(slowTimer)
+})
 </script>
 
 <template>
@@ -243,6 +257,8 @@ onBeforeUnmount(cancelHold)
 
       <footer class="mushaf-sheet__number">{{ toArabicNumerals(page) }}</footer>
     </div>
+
+    <LoadingState v-else-if="slow && !failed" message="جاري تحميل الصفحة..." />
 
     <div v-else-if="failed" class="mushaf-page__state">
       <p>{{ online ? 'تعذّر تحميل الصفحة' : 'هذه الصفحة غير محمّلة، اتصل بالإنترنت لعرضها' }}</p>

@@ -1,8 +1,9 @@
 <script setup>
-import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useEventListener, useMediaQuery, useOnline } from '@vueuse/core'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
+import { WheelGestures } from 'wheel-gestures'
 
 import MushafPage from '@/features/quran/components/MushafPage.vue'
 import QuranPlayerPill from '@/features/quran/components/QuranPlayerPill.vue'
@@ -67,8 +68,16 @@ function moveTrack(x, animate) {
 
 const pageWidth = () => pager.value?.getBoundingClientRect().width || window.innerWidth
 
+// The pages a turn or two away load in the background, so turning shows them at once.
+function prefetchAround(page) {
+  for (const near of [page + 1, page - 1, page + 2, page - 2]) {
+    if (near >= 1 && near <= PAGE_COUNT) loadPage(near).catch(() => {})
+  }
+}
+
 function settleOn(page) {
   current.value = page
+  prefetchAround(page)
   // The slots move to their new places on the next render; the track resets with them, so nothing jumps.
   nextTick(() => moveTrack(0, false))
   quranStore.lastPage = page
@@ -145,25 +154,21 @@ function onClickCapture(event) {
   event.preventDefault()
 }
 
-// A trackpad swipe turns one page, then waits for the swipe's momentum to die down before another can.
-let wheelSum = 0
-let wheelIdle = 0
-let wheelLocked = false
-function onWheel(event) {
-  if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return
-  event.preventDefault()
-  clearTimeout(wheelIdle)
-  wheelIdle = setTimeout(() => {
-    wheelSum = 0
-    wheelLocked = false
-  }, 200)
-  if (wheelLocked) return
-  wheelSum += event.deltaX
-  if (Math.abs(wheelSum) < 40) return
-  wheelLocked = true
-  // Content scrolls with the fingers: swiping right (negative deltaX) brings the next page in from the left.
-  turnTo(wheelSum < 0 ? current.value + 1 : current.value - 1)
-}
+// A trackpad swipe turns one page. Telling a swipe from the momentum that follows it is left to wheel-gestures (the
+// library Embla Carousel uses): each gesture turns at most once, and its momentum never does.
+const wheelGestures = WheelGestures({ preventWheelAction: 'x', reverseSign: false })
+let gestureTurned = false
+
+wheelGestures.on('wheel', ({ isStart, isMomentum, axisMovement: [x, y] }) => {
+  if (isStart) gestureTurned = false
+  if (gestureTurned || isMomentum || Math.abs(x) < 30 || Math.abs(x) < Math.abs(y)) return
+  gestureTurned = true
+  // Content moves with the fingers: swiping right brings the next page in from the left.
+  turnTo(x < 0 ? current.value + 1 : current.value - 1)
+})
+
+onMounted(() => wheelGestures.observe(pager.value))
+onBeforeUnmount(() => wheelGestures.disconnect())
 
 // The address follows the page in view. An embed keeps its /embed address and its theme query, which a named route
 // would drop.
@@ -173,7 +178,13 @@ function showPageInAddress(page) {
   router.replace({ path: `${base}/quran/page/${page}`, query })
 }
 
-onMounted(() => (quranStore.lastPage = current.value))
+onMounted(() => {
+  quranStore.lastPage = current.value
+  prefetchAround(current.value)
+  // The surah frames' and names' fonts load on first use; asking now means a page's title is never drawn late.
+  document.fonts.load("1em 'Mushaf Headings'").catch(() => {})
+  document.fonts.load("1em 'Surah Names'").catch(() => {})
+})
 
 // Opening another page from outside (a bookmark, say) while the reader is open.
 watch(routePage, (page) => {
@@ -321,7 +332,6 @@ usePageMeta(() => ({
       @pointerup="onPointerUp"
       @pointercancel="onPointerUp"
       @click.capture="onClickCapture"
-      @wheel="onWheel"
       @dragstart.prevent
     >
       <div ref="track" class="reader__track">
