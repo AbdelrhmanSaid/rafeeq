@@ -9,7 +9,6 @@ describe('quranVerses', () => {
     const verses = readVerses()
 
     expect(verses).toHaveLength(surahs.reduce((total, surah) => total + surah.numberOfAyahs, 0))
-    // NFC, as a mark's place among a letter's other marks isn't something to assert on.
     expect(verses[0].normalize('NFC')).toBe('بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ'.normalize('NFC'))
     expect(verses[ayahIndex(112, 1) - 1].normalize('NFC')).toBe('قُلْ هُوَ ٱللَّهُ أَحَدٌ'.normalize('NFC'))
     expect(verses.at(-1).normalize('NFC')).toBe('مِنَ ٱلْجِنَّةِ وَٱلنَّاسِ'.normalize('NFC'))

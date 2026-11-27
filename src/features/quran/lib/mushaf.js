@@ -32,7 +32,6 @@ const ayahsBefore = surahs.reduce((offsets, surah) => [...offsets, offsets.at(-1
 
 export const ayahIndex = (surah, ayah) => ayahsBefore[surah - 1] + ayah
 
-// The other way round: the verse an ayahIndex counts up to.
 export function verseAt(index) {
   const surah = ayahsBefore.findIndex((before) => before >= index)
   return { surah, ayah: index - ayahsBefore[surah - 1] }

@@ -17,7 +17,6 @@ const isLetter = (char) => (char >= '\u0621' && char <= '\u063a') || (char >= '\
 const isMark = (char) =>
   (char >= '\u064b' && char <= '\u0655') || char === DAGGER_ALEF || (char >= '\u06d6' && char <= '\u06ed')
 
-// A letter with the marks written on it. A tatweel only carries marks, so it is a cluster with no letter.
 function clusters(word) {
   const list = []
   for (const char of word) {
@@ -33,7 +32,6 @@ const has = (cluster, mark) => cluster.marks.includes(mark)
 const isSeatlessHamza = (cluster) => cluster.base === 'ء' || (cluster.base === TATWEEL && has(cluster, HAMZA_ABOVE))
 const isLongAlef = (cluster) => cluster.base === 'ا' || cluster.base === 'آ' || has(cluster, DAGGER_ALEF)
 
-// Today's spelling seats a hamza the mushaf writes on the line: on the letter of the strongest vowel around it.
 function seat(list, index) {
   const hamza = list[index]
   const before = list[index - 1]
@@ -41,7 +39,6 @@ function seat(list, index) {
 
   if (!before) return 'ا'
   if (!after) return 'ء'
-  // أَءِذَا is أإذا: a second hamza after the one that asks.
   if (index === 1 && before.base === 'أ') return 'ا'
   if (before.base === 'ي' || before.base === 'ى') return 'ي'
   if (after.base === 'ا' || has(hamza, DAGGER_ALEF)) return ''
@@ -75,7 +72,6 @@ function read(list, index) {
   return letter
 }
 
-// Words today's spelling writes without the alef they are read with, and a few names spelled both ways.
 const CONVENTIONS = [
   [/هاذ(?=ا|ه|ان|ين)/g, 'هذ'],
   [/ذال(?=ك)/g, 'ذل'],
@@ -91,14 +87,12 @@ const CONVENTIONS = [
 export function foldWord(word) {
   const list = clusters(word)
   const key = list.map((_, index) => read(list, index)).join('')
-  // آمنوا and يدعوا: the alef after the waw is silent, and often left out.
   return CONVENTIONS.reduce(
     (text, [pattern, spelling]) => text.replace(pattern, spelling),
     key.replace(/وا$/, 'و').replace(/ا+/g, 'ا'),
   )
 }
 
-// What is left when spelling is uncertain: no long vowels or hamzas, and the letters often typed for one another merged.
 const SOUND_ALIKE = { ظ: 'ض', ذ: 'ز', ث: 'س', ص: 'س', ط: 'ت' }
 
 export const skeleton = (key) => key.replace(/[اويء]/g, '').replace(/[ظذثصط]/g, (letter) => SOUND_ALIKE[letter])

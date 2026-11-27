@@ -6,7 +6,6 @@ import { toArabicNumerals } from '@/shared/utils/arabic'
 
 const PAGE_SIZE = 50
 
-// Shared, so coming back to the list finds the index built and draws its results at once.
 const index = shallowRef(null)
 let loading = null
 
@@ -22,7 +21,6 @@ function loadIndex() {
   return loading
 }
 
-// `shown` is how many results are listed; a caller keeps it to bring a list back as it was left.
 export function useAyahSearch(search, shown = ref(PAGE_SIZE)) {
   const failed = ref(false)
   const query = computed(() => parseQuery(toValue(search)))
@@ -35,7 +33,6 @@ export function useAyahSearch(search, shown = ref(PAGE_SIZE)) {
     query,
     () => {
       if (!isActive.value || index.value) return
-      // Every keystroke asks again, so a failed load is retried without a button.
       failed.value = false
       loadIndex().catch(() => (failed.value = true))
     },
@@ -76,7 +73,6 @@ export function useAyahSearch(search, shown = ref(PAGE_SIZE)) {
   }
 }
 
-// Tests start from an app that hasn't searched yet.
 export function resetAyahSearchForTests() {
   index.value = null
   loading = null

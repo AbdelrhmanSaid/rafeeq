@@ -16,7 +16,6 @@ const props = defineProps({
   itemClass: { type: Function, default: () => ({}) },
   groups: { type: Array, default: null },
   itemLabel: { type: Function, required: true },
-  // For a parent that lists more results of its own in `after-list`.
   hideEmpty: { type: Boolean, default: false },
 })
 

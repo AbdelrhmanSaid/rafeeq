@@ -1,9 +1,7 @@
 import { foldWord, skeleton } from '@/features/quran/lib/fold'
 import spellings from '@/features/quran/data/search-spellings.js'
 
-// Anything shorter is in most of the Quran.
 const MIN_LETTERS = 3
-// An ayah can run to a page, so a result shows the words around its match.
 const WORDS_BEFORE = 3
 const WORDS_SHOWN = 18
 
@@ -14,9 +12,6 @@ const append = (text, key) => text + (text.endsWith('ا') && key.startsWith('ا'
 
 const skeletons = (keys) => keys.map(skeleton).filter(Boolean)
 
-// `text` is the whole Quran as it is read, in one line, with `ends` marking where each ayah stops in it: a remembered
-// passage often runs over the end of an ayah. `close` holds each ayah's words as skeletons, for another spelling.
-// Folding 82,000 words takes long enough to be felt, so each is folded once and the loop lets the page breathe.
 export async function buildIndex(verses, pause = () => new Promise((resolve) => setTimeout(resolve))) {
   // Collected in pieces: asking a string this long how it ends, 82,000 times, is what would make this slow.
   const pieces = []
@@ -53,7 +48,6 @@ export function parseQuery(text) {
   return {
     exact: exact.length >= MIN_LETTERS ? exact : '',
     close: close.join('').length >= MIN_LETTERS ? close : [],
-    // One word can't be a passage, so it only matches inside an ayah.
     isPhrase: keys.length > 1,
   }
 }
@@ -73,7 +67,6 @@ function ayahAt(index, offset) {
   return low
 }
 
-// Every place the query is read between two offsets of the text, as [start, end, first ayah, last ayah].
 function* occurrences(index, query, from = 0, to = index.text.length) {
   const { length } = query.exact
   for (
@@ -87,7 +80,6 @@ function* occurrences(index, query, from = 0, to = index.text.length) {
   }
 }
 
-// Ayah positions in Mushaf order: the exact matches, then the ones that only match closely.
 export function searchAyat(index, query) {
   const exact = new Set()
   if (query.exact) {
@@ -96,7 +88,6 @@ export function searchAyat(index, query) {
     }
   }
 
-  // Whole words in a row, but the first may carry a prefix (فإنّ for إنّ) and the last may still be being typed.
   const words = query.close.join(' ')
   const close = []
   if (words) {
@@ -107,7 +98,6 @@ export function searchAyat(index, query) {
   return { exact: [...exact], close }
 }
 
-// Whole words: a highlight that starts inside a word breaks the joins between its letters.
 function matchedWords(index, position, keys, query, isClose) {
   const hits = keys.map(() => false)
 
@@ -143,7 +133,6 @@ function matchedWords(index, position, keys, query, isClose) {
   return hits
 }
 
-// The part of an ayah to show for a query, as runs of words that are or aren't matched; joined, they are its text.
 export function excerpt(index, position, query, isClose = false) {
   const words = index.verses[position].split(' ')
   const hits = matchedWords(index, position, words.map(wordKey), query, isClose)
@@ -151,11 +140,9 @@ export function excerpt(index, position, query, isClose = false) {
   let start = Math.max(0, hits.indexOf(true) - WORDS_BEFORE)
   let end = Math.min(words.length, start + WORDS_SHOWN)
   start = Math.max(0, Math.min(start, end - WORDS_SHOWN))
-  // A word or two left out isn't worth an ellipsis.
   if (start <= 2) start = 0
   if (words.length - end <= 2) end = words.length
 
-  // The space between a matched run and its neighbour belongs to the neighbour, so a highlight has no ragged edge.
   const segments = []
   for (let word = start; word < end; word++) {
     const segment = segments.at(-1)

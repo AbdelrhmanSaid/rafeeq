@@ -21,7 +21,6 @@ const find = (text) => {
   return { exact: keys(found.exact), close: keys(found.close) }
 }
 const textOf = (surah, ayah) => verses[ayahIndex(surah, ayah) - 1]
-// Typed here without tashkeel: a mark's place among a letter's other marks isn't something to assert on.
 const bare = (text) => text.replace(/[\u064b-\u0655\u0670\u0640\u06d6-\u06ed]/g, '').replace(/ +/g, ' ')
 const shown = (surah, ayah, query, isClose) => excerpt(index, ayahIndex(surah, ayah) - 1, parseQuery(query), isClose)
 const marked = (surah, ayah, query, isClose) =>

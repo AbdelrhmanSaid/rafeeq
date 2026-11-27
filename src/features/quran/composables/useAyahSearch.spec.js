@@ -4,7 +4,6 @@ import { flushPromises } from '@vue/test-utils'
 import { surahName } from '@/features/quran/lib/mushaf'
 import { resetAyahSearchForTests, useAyahSearch } from './useAyahSearch'
 
-// The opening of the Quran is enough to search; an index is built from whatever text is served.
 const verses = ['بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ', 'ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَـٰلَمِينَ', 'ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ', 'مَـٰلِكِ يَوْمِ ٱلدِّينِ']
 const serve = () => Promise.resolve(new Response(JSON.stringify(verses), { status: 200 }))
 const settle = () => vi.waitFor(flushPromises)

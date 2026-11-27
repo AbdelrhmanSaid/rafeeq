@@ -38,7 +38,6 @@ function sitemap() {
   }
 }
 
-// The Quran's text for the ayah search, joined from the page layouts so the repository keeps it once.
 function quranText() {
   const readPage = (page) =>
     JSON.parse(readFileSync(new URL(`./public/data/mushaf/${page}.json`, import.meta.url), 'utf8'))
@@ -70,7 +69,6 @@ export default defineConfig({
         enabled: false,
       },
       workbox: {
-        // The Quran's text is the one data file installed with the app, so ayah search works offline from the start.
         globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,woff,woff2}', QURAN_TEXT_PATH],
         // Not precached: screenshots, iOS splash images, and ~48 MB of Mushaf fonts the reader caches itself.
         globIgnores: ['push/onesignal/**/*', 'screenshots/**/*', 'splash/**/*', 'fonts/mushaf/**/*'],

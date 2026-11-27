@@ -5,7 +5,6 @@ import { formatAyahCount } from '@/features/quran/lib/mushaf'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 
 const props = defineProps({
-  // What useAyahSearch returns, made reactive.
   results: { type: Object, required: true },
 })
 
@@ -94,7 +93,6 @@ const groups = computed(() =>
     border-radius: 0.3rem;
     background: color-mix(in srgb, var(--bs-primary) 20%, transparent);
     color: inherit;
-    // A match that wraps keeps its rounded ends on both lines.
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
   }

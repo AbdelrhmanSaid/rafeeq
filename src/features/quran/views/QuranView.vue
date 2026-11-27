@@ -24,7 +24,6 @@ import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 const quranStore = useQuranStore()
 const { bookmarks, removeBookmark } = useQuranBookmarks()
 
-// Kept on this history entry, so coming back from an ayah finds the search and its results as they were left.
 const saved = history.state?.quranSearch
 const search = ref(saved?.text ?? '')
 const shown = ref(saved?.shown)
