@@ -71,8 +71,9 @@ export default defineConfig({
         // pins the system bars to one color instead of following the chosen theme. It's set to undefined, not
         // left out, because vite-plugin-pwa merges in a default (Vue green); JSON.stringify then drops the key.
         theme_color: undefined,
-        // The app's light background, so the splash screen blends into the first page.
-        background_color: '#faf8f8',
+        // The maskable icon's flat fill. Android 12+ draws the splash as that icon, cropped to a circle, on this
+        // color, so matching them hides the circle and leaves only the mark.
+        background_color: '#f2ebe2',
         display: 'standalone',
         start_url: '/',
         scope: '/',
