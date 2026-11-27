@@ -35,7 +35,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,woff,woff2}'],
-        globIgnores: ['push/onesignal/**/*'],
+        // Store screenshots are for the store listings, not something the app needs offline.
+        globIgnores: ['push/onesignal/**/*', 'screenshots/**/*'],
         runtimeCaching: [
           {
             // Mushaf page fonts keep their own cache (see src/features/quran/lib/mushafStorage.js), so they aren't
