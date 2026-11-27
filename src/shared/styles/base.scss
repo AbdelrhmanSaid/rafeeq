@@ -16,14 +16,9 @@
 @import 'bootstrap/scss/buttons';
 @import 'bootstrap/scss/transitions';
 @import 'bootstrap/scss/dropdown';
-@import 'bootstrap/scss/nav';
-@import 'bootstrap/scss/navbar';
 @import 'bootstrap/scss/card';
 @import 'bootstrap/scss/badge';
-@import 'bootstrap/scss/progress';
 @import 'bootstrap/scss/list-group';
-@import 'bootstrap/scss/close';
-@import 'bootstrap/scss/spinners';
 
 @import 'bootstrap/scss/helpers/color-bg';
 @import 'bootstrap/scss/helpers/position';
@@ -35,11 +30,14 @@
 
 @import 'fonts';
 
-@import 'nprogress/nprogress';
 @import 'overrides';
 
 :root {
-  --navbar-height: 70px;
+  --navbar-height: 64px;
+  --appbar-height: 3.5rem;
+  --topnav-height: 4rem;
+  /* Height of whatever sticks to the top: the app bar on phones and tablets, the top nav on desktop. */
+  --header-offset: var(--appbar-height);
   --app-body-bg-base: #fff;
   --bs-body-bg: color-mix(in srgb, var(--app-body-bg-base) 96%, var(--bs-primary));
   --bs-secondary-color: rgba(33, 37, 41, 0.85);
@@ -51,17 +49,20 @@
   --app-hairline-strong: color-mix(in srgb, var(--bs-primary) 30%, var(--bs-border-color));
   --app-tint: color-mix(in srgb, var(--bs-primary) 10%, transparent);
   --app-tint-strong: color-mix(in srgb, var(--bs-primary) 18%, transparent);
+  /* On a solid brand fill; a light theme color gets dark text instead (see applyPrimaryColor). */
+  --app-on-primary: #fff;
   --app-glass: color-mix(in srgb, var(--bs-body-bg) 78%, transparent);
   --app-shadow-card: 0 1px 2px rgba(18, 18, 18, 0.04), 0 6px 20px -8px rgba(18, 18, 18, 0.08);
   --app-shadow-card-hover: 0 2px 4px rgba(18, 18, 18, 0.05), 0 16px 32px -12px rgba(18, 18, 18, 0.16);
-  --app-shadow-bar: 0 -8px 24px -12px rgba(18, 18, 18, 0.12);
   --app-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --app-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   /* The curve iOS sheets rise and settle on. */
   --app-ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 
-  @media screen and (min-width: 768px) {
-    --navbar-height: 85px;
+  /* Desktop navigates from the top nav, so nothing sits at the bottom. */
+  @media screen and (min-width: 992px) {
+    --navbar-height: 0px;
+    --header-offset: var(--topnav-height);
   }
 }
 
@@ -77,7 +78,6 @@
   --app-glass: color-mix(in srgb, var(--bs-body-bg) 72%, transparent);
   --app-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.25), 0 8px 24px -10px rgba(0, 0, 0, 0.45);
   --app-shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.3), 0 18px 36px -14px rgba(0, 0, 0, 0.6);
-  --app-shadow-bar: 0 -8px 24px -12px rgba(0, 0, 0, 0.5);
 }
 
 /* Keep glass surfaces opaque when backdrop filtering is unavailable. */
@@ -86,6 +86,13 @@
   [data-bs-theme='dark'] {
     --app-glass: var(--bs-body-bg);
   }
+}
+
+/* A full-screen reader is open: the page behind it must not scroll or bounce. */
+html.is-immersive,
+html.is-immersive body {
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 html {
@@ -141,6 +148,11 @@ body {
 
   background-color: var(--app-page-bg-color);
   background-image: var(--app-page-bg-image);
+
+  &.is-embed {
+    --app-page-bg-image: none;
+  }
+
   background-repeat: no-repeat;
   background-attachment: fixed;
   /* Disable native pull-to-refresh and top-edge scroll glow. */
@@ -161,43 +173,6 @@ body {
   background: var(--app-glass);
   /* Lightning CSS mishandles a paired -webkit-backdrop-filter declaration. */
   backdrop-filter: blur(18px) saturate(1.4);
-}
-
-.card-interactive {
-  transition:
-    transform 0.25s var(--app-ease),
-    box-shadow 0.25s var(--app-ease),
-    border-color 0.2s ease,
-    background-color 0.2s ease;
-
-  @media (hover: hover) and (pointer: fine) {
-    &:hover {
-      transform: translateY(-2px);
-      border-color: var(--app-hairline-strong);
-      background-color: var(--app-surface-hover);
-      box-shadow: var(--app-shadow-card-hover);
-    }
-  }
-
-  /* Touch gets feedback the moment the finger lands. */
-  &:active {
-    transform: scale(0.985);
-    background-color: var(--app-surface-active);
-    transition-duration: 0.1s;
-  }
-
-  /* Only keyboard focus rings the card; a tapped link keeps focus on Android and would leave it lit. */
-  &:has(:focus-visible) {
-    border-color: var(--app-hairline-strong);
-    background-color: var(--app-surface-hover);
-    box-shadow:
-      var(--app-shadow-card-hover),
-      0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
-  }
-
-  .stretched-link:focus {
-    outline: none;
-  }
 }
 
 .list-group {
@@ -233,11 +208,6 @@ body {
   }
 }
 
-.form-floating > .form-control:not(:placeholder-shown) ~ label::after,
-.form-floating > .form-control:focus ~ label::after {
-  background-color: transparent;
-}
-
 .chip {
   display: inline-flex;
   align-items: center;
@@ -245,7 +215,7 @@ body {
   padding: 0.2rem 0.65rem;
   border-radius: 999px;
   background: var(--app-tint);
-  color: var(--bs-primary);
+  color: var(--app-primary-ink);
   font-size: 0.78rem;
   font-weight: 600;
   line-height: 1.4;
@@ -260,28 +230,6 @@ body {
 .chip-muted {
   background: rgba(var(--bs-secondary-rgb), 0.1);
   color: var(--bs-secondary-color);
-}
-
-.btn-soft {
-  --bs-btn-color: var(--bs-primary);
-  --bs-btn-bg: var(--app-tint);
-  --bs-btn-border-color: transparent;
-  --bs-btn-hover-color: var(--bs-primary);
-  --bs-btn-hover-bg: var(--app-tint-strong);
-  --bs-btn-hover-border-color: transparent;
-  --bs-btn-active-color: #fff;
-  --bs-btn-active-bg: var(--bs-primary);
-  --bs-btn-active-border-color: var(--bs-primary);
-  --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
-}
-
-[data-bs-theme='dark'] .btn-soft {
-  --bs-btn-color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
-  --bs-btn-hover-color: #fff;
-}
-
-.spinner-border {
-  color: var(--bs-primary);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -302,10 +250,6 @@ body {
 
 .min-w-0 {
   min-width: 0;
-}
-
-.cursor-pointer {
-  cursor: pointer;
 }
 
 .tabler-icon {
@@ -378,18 +322,19 @@ body {
   display: none !important;
 }
 
-.main-content-embed .embed-invisible {
-  visibility: hidden !important;
-}
-
 .main-content-embed .main-content > * {
   width: 100%;
 }
 
 .full-height {
-  min-height: calc(100vh - var(--navbar-height));
-  /* Use the visible mobile viewport and reserved home-indicator inset. */
-  min-height: calc(100dvh - var(--navbar-height) - env(safe-area-inset-bottom, 0px));
+  min-height: calc(100vh - var(--navbar-height) - var(--header-offset));
+  /* The visible viewport, minus the app bar above and the tab bar (if any) below, with their safe-area insets. */
+  min-height: calc(
+    100dvh - var(--navbar-height) - var(--header-offset) - env(safe-area-inset-top, 0px) - env(
+        safe-area-inset-bottom,
+        0px
+      )
+  );
 }
 
 .tab-pills {
@@ -412,7 +357,7 @@ body {
   gap: 0.75rem;
   flex-shrink: 0;
   padding: 0.5rem 0.9rem;
-  border: 1px solid var(--bs-border-color);
+  border: 1px solid var(--app-hairline);
   border-radius: var(--bs-border-radius);
   background: transparent;
   color: var(--bs-secondary-color);
@@ -440,7 +385,7 @@ body {
 .tab-pill.active {
   background: var(--app-tint);
   border-color: transparent;
-  color: var(--bs-primary);
+  color: var(--app-primary-ink);
 }
 
 [data-bs-theme='dark'] .tab-pill.active {
@@ -449,6 +394,39 @@ body {
 
 .tab-pill svg {
   flex-shrink: 0;
+}
+
+/* A short filled bar, like a native search field, instead of a tall floating-label input. */
+.search-field {
+  position: relative;
+}
+
+.search-field__input {
+  height: 2.5rem;
+  padding-block: 0;
+  padding-inline: 2.5rem 0.875rem;
+  border-color: var(--app-hairline);
+  border-radius: var(--bs-border-radius);
+  background-color: color-mix(in srgb, var(--bs-body-color) 6%, transparent);
+
+  &::placeholder {
+    color: var(--bs-secondary-color);
+  }
+
+  &:focus {
+    border-color: var(--app-hairline);
+    background-color: color-mix(in srgb, var(--bs-body-color) 6%, transparent);
+  }
+}
+
+.search-field__icon {
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 0.875rem;
+  z-index: 1;
+  transform: translateY(-50%);
+  color: var(--bs-secondary-color);
+  pointer-events: none;
 }
 
 /* Rows in a bottom sheet: inset, rounded, and tall enough for a thumb. */
@@ -503,7 +481,7 @@ body {
 
   &.router-link-active {
     background-color: var(--app-tint);
-    color: var(--bs-primary);
+    color: var(--app-primary-ink);
   }
 
   &:focus-visible {
@@ -530,41 +508,145 @@ body {
 
 .btn-group-toggle .btn-toggle {
   flex: 1;
+  /* Three choices still fit a narrow phone at a large text size: a long label wraps rather than pushing the row wider. */
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.6rem;
-  border: 1px solid var(--bs-border-color);
+  min-height: 2.75rem;
+  padding: 0.6rem 0.4rem;
+  border: 0;
   border-radius: var(--bs-border-radius);
-  background: none;
-  color: var(--bs-secondary-color);
+  line-height: 1.25;
+  text-align: center;
+  /* Filled, not outlined: a quiet fill for the choices, the soft brand tint for the one chosen. */
+  background: color-mix(in srgb, var(--bs-body-color) 6%, transparent);
+  color: var(--bs-body-color);
   font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover {
-      background: rgba(var(--bs-secondary-rgb), 0.1);
+    &:hover:not(.active) {
+      background: color-mix(in srgb, var(--bs-body-color) 10%, transparent);
     }
   }
 
   &.active {
-    background: var(--bs-primary);
-    border-color: var(--bs-primary);
-    color: #fff;
-    box-shadow: 0 6px 16px -6px rgba(var(--bs-primary-rgb), 0.55);
+    background: var(--app-tint-strong);
+    color: var(--app-primary-ink);
+    font-weight: 600;
   }
 }
 
+[data-bs-theme='dark'] .btn-group-toggle .btn-toggle.active {
+  color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
+}
+
+/* The brand color as text and icons. On the light theme a light brand color (sand) is darkened until it reads (see
+   inkColor in css.js); the dark theme draws it as it is, or lighter where a rule says so. */
+body {
+  --app-primary-ink: var(--app-primary-ink-light, var(--bs-primary));
+}
+
+body[data-bs-theme='dark'] {
+  --app-primary-ink: var(--bs-primary);
+}
+
+.text-primary {
+  color: var(--app-primary-ink) !important;
+}
+
+/* Keyboard focus shows on every control. Bootstrap draws a ring only for buttons that set their own focus colour,
+   which left flat and soft buttons with none. A component's own focus style still wins where it has one. */
+.btn:focus-visible,
+button:focus-visible,
+[role='button']:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--app-primary-ink);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+[data-bs-theme='dark'] {
+  .btn:focus-visible,
+  button:focus-visible,
+  [role='button']:focus-visible,
+  a:focus-visible {
+    outline-color: color-mix(in srgb, var(--bs-primary) 45%, #fff);
+  }
+}
+
+/* Screens only fade in: nothing slides, so the layout holds still between pages. */
 @keyframes page-enter {
   from {
     opacity: 0;
-    transform: translateY(10px);
   }
 
   to {
     opacity: 1;
-    transform: none;
   }
+}
+
+/* Toasts read as a native snackbar: an inverted surface in both themes, in the app's palette. */
+html [data-sonner-toaster][data-sonner-theme] {
+  --normal-bg: color-mix(in srgb, var(--bs-primary) 16%, #171310);
+  --normal-border: transparent;
+  --normal-text: #fff;
+  --border-radius: var(--bs-border-radius-lg);
+}
+
+[data-bs-theme='dark'] [data-sonner-toaster][data-sonner-theme] {
+  --normal-bg: color-mix(in srgb, var(--bs-primary) 12%, #f4f1ee);
+  --normal-text: #171310;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-styled='true'] {
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.45);
+  font-weight: 500;
+}
+
+/* Muted list and section titles, like the Home section titles, so the rows carry the screen. */
+.list-title {
+  margin: 0 0.125rem 0.75rem;
+  color: color-mix(in srgb, var(--bs-body-color) 68%, var(--bs-body-bg));
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* Number fields are plain boxes: no browser spinner arrows; phones still open the numeric keyboard. */
+input[type='number'] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
+  }
+}
+
+/* Rows of label-and-value controls (iOS-style), separated by hairlines.
+   Flush groups sit edge to edge inside an already padded surface, like a settings section. */
+.row-group {
+  padding-inline: 1rem;
+  border: 1px solid var(--app-hairline);
+  border-radius: var(--bs-border-radius-lg);
+  background: var(--app-surface);
+
+  > * + * {
+    border-top: 1px solid var(--app-hairline);
+  }
+}
+
+.row-group--flush {
+  margin-inline: -1rem;
+  border: 0;
+  border-radius: 0;
+  background: none;
 }

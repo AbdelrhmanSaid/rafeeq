@@ -1,7 +1,7 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { onLongPress } from '@vueuse/core'
-import { IconDownload, IconShare3, IconCopy, IconHeartShare, IconRestore } from '@tabler/icons-vue'
+import { IconDownload, IconShare3, IconCopy, IconRestore } from '@tabler/icons-vue'
 import { exportComponent } from '@/shared/utils/export'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals } from '@/shared/utils/arabic'
@@ -30,6 +30,15 @@ const props = defineProps({
 })
 
 const count = defineModel('count', { type: Number, default: 0 })
+
+// How many times to say it, in words: مرة واحدة، مرتان، ٣ مرات، ١٠٠ مرة.
+const repeatLabel = computed(() => {
+  const n = props.repeat
+  if (n === 1) return 'مرة واحدة'
+  if (n === 2) return 'مرتان'
+  const lastTwo = n % 100
+  return `${toArabicNumerals(n)} ${lastTwo >= 3 && lastTwo <= 10 ? 'مرات' : 'مرة'}`
+})
 const card = ref(null)
 const showActions = ref(false)
 const isMobile = useIsMobile()
@@ -67,8 +76,18 @@ const onTouchEnd = (e) => {
   touchStartY = null
 }
 
-const onCardClick = () => {
-  if (isMobile.value && !longPressed && !touchMoved) increment()
+// Every new press starts clean. A long press counts by itself and flags the click that follows so it doesn't count
+// twice; that flag used to clear only on pointer-up, which iOS sometimes skips, and then it swallowed the next tap.
+const onPressStart = () => {
+  longPressed = false
+}
+
+// A click anywhere on the card counts, on phones and desktop alike, unless it ends a scroll.
+// (The card can't be text-selected, so a page-wide selection check only blocked real taps.)
+// The actions don't count, but their clicks still bubble: Bootstrap closes the open dropdown on a document click.
+const onCardClick = (e) => {
+  if (e.target.closest?.('.card-actions')) return
+  if (!longPressed && !touchMoved) increment()
   longPressed = false
   touchMoved = false
 }
@@ -99,20 +118,20 @@ const exportAsImage = () => {
   )
 }
 
-const shareZekr = () => {
+// Native share sheet where available, otherwise copy the text. Closing the sheet without sharing isn't an error.
+const shareZekr = async () => {
+  if (!navigator.share) return copyZekr()
+
   showActions.value = false
-  const canShare = !!navigator.share
-  toast.promise(
-    () => (canShare ? navigator.share({ title: 'رفيق', text: props.text }) : navigator.clipboard.writeText(props.text)),
-    {
-      loading: 'جاري المشاركة...',
-      success: canShare ? 'تم مشاركة الذكر بنجاح' : 'تعذرت المشاركة، تم نسخ الذكر بدلاً من ذلك',
-      error: 'حدث خطأ أثناء مشاركة الذكر',
-    },
-  )
+  try {
+    await navigator.share({ title: 'رفيق', text: props.text })
+    toast.success('تم مشاركة الذكر بنجاح')
+  } catch (e) {
+    if (e?.name !== 'AbortError') toast.error('حدث خطأ أثناء مشاركة الذكر')
+  }
 }
 
-const copyZekr = () => {
+function copyZekr() {
   showActions.value = false
   toast.promise(() => navigator.clipboard.writeText(props.text), {
     loading: 'جاري النسخ...',
@@ -128,37 +147,48 @@ const copyZekr = () => {
     class="card zekr-card-root"
     :class="{ completed: count >= repeat }"
     @click="onCardClick"
+    @pointerdown="onPressStart"
     @touchstart.passive="onTouchStart"
     @touchend.passive="onTouchEnd"
   >
-    <div class="card-body zekr-card">
-      <div class="card-actions" @click.stop>
-        <button
-          class="btn p-0 bg-transparent border-0"
-          type="button"
-          aria-label="تصفير"
-          :disabled="count === 0"
-          @click="reset"
-        >
+    <div class="zekr-body">
+      <p class="zekr-text font-quran">{{ text }}</p>
+
+      <p v-if="benefit || reference" class="zekr-note">
+        <span v-if="reference">{{ reference }}</span>
+        <span v-if="benefit && reference"> - </span>
+        <span v-if="benefit">{{ benefit }}</span>
+      </p>
+    </div>
+
+    <!-- The footer carries the count: a progress line along its top edge, the count, and the card's actions. -->
+    <div class="zekr-footer" :style="{ '--progress': count / repeat }">
+      <button class="btn-counter" type="button" aria-label="تسجيل تكرار الذكر" @click.stop="increment">
+        {{ toArabicNumerals(`${count} / ${repeat}`) }}
+      </button>
+      <span class="zekr-footer__repeat">{{ repeatLabel }}</span>
+      <span class="visually-hidden" role="status">{{ toArabicNumerals(count) }} من {{ toArabicNumerals(repeat) }}</span>
+
+      <div class="card-actions">
+        <button type="button" aria-label="تصفير" :disabled="count === 0" @click="reset">
           <IconRestore size="18" />
         </button>
 
         <!-- Phones get the actions in a bottom sheet, larger screens in a dropdown. -->
         <button
           v-if="isMobile"
-          class="btn p-0 bg-transparent border-0"
           type="button"
           aria-label="خيارات الذكر"
           aria-haspopup="dialog"
           :aria-expanded="showActions"
           @click="showActions = true"
         >
-          <IconHeartShare size="18" />
+          <IconShare3 size="18" />
         </button>
 
         <div v-else class="dropdown">
-          <button class="btn p-0 bg-transparent" type="button" data-bs-toggle="dropdown" aria-label="خيارات الذكر">
-            <IconHeartShare size="18" />
+          <button type="button" data-bs-toggle="dropdown" aria-label="خيارات الذكر">
+            <IconShare3 size="18" />
           </button>
 
           <ul class="dropdown-menu dropdown-menu-end">
@@ -206,131 +236,133 @@ const copyZekr = () => {
           </ul>
         </BottomSheet>
       </div>
-
-      <div class="row align-items-center g-4 text-center text-lg-start">
-        <div class="col-12 col-lg-auto">
-          <button
-            class="btn btn-counter border-flat"
-            type="button"
-            aria-label="تسجيل تكرار الذكر"
-            @click.stop="increment"
-            :style="{ '--progress': count / repeat }"
-            :data-content="toArabicNumerals(`${count}/${repeat}`)"
-          ></button>
-          <span class="visually-hidden" role="status"
-            >{{ toArabicNumerals(count) }} من {{ toArabicNumerals(repeat) }}</span
-          >
-        </div>
-
-        <div class="col-12 col-lg">
-          <p class="zekr-text font-quran m-0">{{ text }}</p>
-
-          <p class="text-muted m-0 pe-2" v-if="benefit || reference">
-            <small v-if="reference">{{ reference }}</small>
-            <small v-if="benefit && reference"> - </small>
-            <small v-if="benefit">{{ benefit }}</small>
-          </p>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-/* Card opacity would trap its dropdown in a lower stacking context. */
+/* Card opacity would trap its dropdown in a lower stacking context, so only the text dims when done. */
 .completed {
-  border-color: var(--app-hairline-strong);
   background-color: color-mix(in srgb, var(--bs-primary) 4%, var(--app-surface));
 
   .zekr-text,
-  .text-muted,
-  .btn-counter {
-    opacity: 0.7;
+  .zekr-note {
+    opacity: 0.6;
+  }
+
+  /* A finished zekr keeps a full but soft line, so it reads as done rather than calling for attention. */
+  .zekr-footer::before {
+    background: color-mix(in srgb, var(--bs-primary) 30%, var(--app-surface));
   }
 }
 
-.zekr-card {
-  position: relative;
+.zekr-body {
+  padding: 1.25rem 1.25rem 1rem;
+  container-type: inline-size;
+}
 
-  .btn-counter {
-    position: relative;
-    border-radius: 50%;
-    /* Scale the circle with the user's font setting. */
-    width: 7.5rem;
-    height: 7.5rem;
-    font-size: 1.25rem;
-    border: none;
+/* Justified text only reads well with about ten words' width to spread over; on narrow cards or large text the few
+   words per line would be pulled apart, so those lines start-align instead. */
+.zekr-text {
+  margin: 0;
+  font-size: 1.625rem;
+  line-height: 2;
+  text-align: start;
 
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    color: var(--bs-body-color);
-    background:
-      radial-gradient(closest-side, var(--app-surface) 79%, transparent 80% 100%),
-      conic-gradient(var(--bs-primary) calc(var(--progress) * 100%), var(--app-tint) 0);
-    transition: transform 0.15s var(--app-ease);
-
-    &:active {
-      transform: scale(0.96);
-    }
-
-    &::before {
-      content: attr(data-content);
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-  }
-
-  .zekr-text {
+  @container (min-width: 17em) {
     text-align: justify;
-    font-size: 1.625rem;
-    line-height: 2;
   }
+}
 
-  .card-actions {
+.zekr-note {
+  margin: 0.5rem 0 0;
+  color: var(--bs-secondary-color);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+}
+
+.zekr-footer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-block: 0.375rem;
+  padding-inline: 0.75rem 0.375rem;
+  border-top: 1px solid var(--app-hairline);
+
+  /* The progress line rides the footer's top edge. */
+  &::before {
+    content: '';
     position: absolute;
-    inset-inline-end: 0.25rem;
-    inset-block-end: 0.25rem;
-    display: flex;
-    align-items: center;
+    inset-block-start: -1px;
+    inset-inline-start: 0;
+    width: calc(var(--progress) * 100%);
+    height: 3px;
+    background: var(--bs-primary);
+    transition: width 0.2s var(--app-ease);
+  }
+}
 
-    > button,
-    [data-bs-toggle='dropdown'] {
-      width: 2.75rem;
-      height: 2.75rem;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      color: var(--bs-secondary-color);
-      transition:
-        background-color 0.2s ease,
-        color 0.2s ease;
+.btn-counter {
+  min-width: 4rem;
+  padding: 0.25rem 0.75rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--bs-primary);
+  color: var(--app-on-primary);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 
-      @media (hover: hover) and (pointer: fine) {
-        &:hover:not(:disabled) {
-          background-color: var(--app-tint);
-          color: var(--bs-primary);
-        }
+  &:active {
+    opacity: 0.85;
+  }
+}
+
+.zekr-footer__repeat {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--bs-secondary-color);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  margin-inline-start: auto;
+
+  > button,
+  [data-bs-toggle='dropdown'] {
+    display: grid;
+    place-items: center;
+    /* A 44px target with a fixed-size icon; growing it with the text would push the repeat label off a narrow card. */
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--bs-secondary-color);
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) {
+        background-color: var(--app-tint);
+        color: var(--app-primary-ink);
       }
+    }
 
-      &:disabled {
-        opacity: 0.35;
-        background: transparent;
-      }
+    &:disabled {
+      opacity: 0.35;
     }
   }
 }
 
-@media screen and (max-width: 992px) {
-  .zekr-card {
-    cursor: pointer;
-    user-select: none;
-    touch-action: manipulation;
-
-    > .row {
-      flex-direction: column-reverse;
-    }
-  }
+/* The whole card is the counter. */
+.zekr-card-root {
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
 }
 </style>

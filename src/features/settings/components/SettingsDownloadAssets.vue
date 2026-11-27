@@ -1,23 +1,10 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import {
-  IconDownload,
-  IconTrash,
-  IconPlayerPause,
-  IconPlayerPlay,
-  IconX,
-  IconCheck,
-  IconLoader2,
-  IconWifiOff,
-  IconBook2,
-  IconSparkles,
-  IconCloudDownload,
-} from '@tabler/icons-vue'
+import { IconDownload, IconPlayerPause, IconPlayerPlay, IconX, IconTrash, IconArrowBackUp } from '@tabler/icons-vue'
 import { useDownloadStore } from '@/features/downloads/store.js'
 import DownloadAssetItem from '@/features/downloads/components/DownloadAssetItem.vue'
-import CircleProgress from '@/shared/ui/CircleProgress.vue'
-import { toast } from 'vue-sonner'
+import BottomSheet from '@/shared/ui/BottomSheet.vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 
 const downloadStore = useDownloadStore()
@@ -48,170 +35,142 @@ const {
   removeFromQueue,
 } = downloadStore
 
-const filterType = ref('all')
+const TYPES = [
+  { id: 'surah', label: 'السور' },
+  { id: 'azkar', label: 'الأذكار' },
+]
+const activeType = ref('surah')
 
 const assetsWithStatus = computed(() => {
-  const queue = downloadQueue.value
-  const current = currentItem.value
+  const queued = new Set(downloadQueue.value.map((item) => item.id))
+  const current = currentItem.value?.id
 
   return allAssets.value.map((asset) => {
-    let status
-    if (isDownloaded(asset)) {
-      status = 'downloaded'
-    } else if (current?.id === asset.id) {
-      status = 'downloading'
-    } else if (queue.some((item) => item.id === asset.id)) {
-      status = 'queued'
-    } else {
-      status = 'not-downloaded'
-    }
-
+    let status = 'not-downloaded'
+    if (isDownloaded(asset)) status = 'downloaded'
+    else if (current === asset.id) status = 'downloading'
+    else if (queued.has(asset.id)) status = 'queued'
     return { ...asset, status }
   })
 })
 
-const filteredAssets = computed(() => {
-  if (filterType.value === 'all') return assetsWithStatus.value
-  return assetsWithStatus.value.filter((asset) => asset.type === filterType.value)
+const visibleAssets = computed(() => assetsWithStatus.value.filter((asset) => asset.type === activeType.value))
+
+const countsByType = computed(() =>
+  Object.fromEntries(
+    TYPES.map(({ id }) => {
+      const assets = assetsWithStatus.value.filter((asset) => asset.type === id)
+      return [id, { total: assets.length, done: assets.filter((a) => a.status === 'downloaded').length }]
+    }),
+  ),
+)
+
+// Items still to download, besides the one downloading now.
+const remainingCount = computed(() => {
+  const current = currentItem.value?.id
+  return downloadQueue.value.filter((item) => item.id !== current).length
 })
 
-const surahCount = computed(() => allAssets.value.filter((a) => a.type === 'surah').length)
-const azkarCount = computed(() => allAssets.value.filter((a) => a.type === 'azkar').length)
+// One line under the progress saying what is happening now. Paused comes first: pausing stops the item that was
+// downloading, which then waits in the queue with the rest.
+const status = computed(() => {
+  if (isPaused.value) return `متوقف مؤقتاً · ${toArabicNumerals(pendingCount.value)} متبقٍ`
+  if (!online.value && (isDownloading.value || pendingCount.value)) return 'لا يوجد اتصال، سيكمل التحميل عند عودته'
+  if (isDownloading.value && currentItem.value) {
+    const remaining = remainingCount.value ? ` · ${toArabicNumerals(remainingCount.value)} متبقٍ` : ''
+    return `جاري تحميل ${currentItem.value.name}${remaining}`
+  }
+  if (isCompleted.value) return 'كل شيء محمّل ويعمل بدون إنترنت'
+  if (!online.value) return 'لا يوجد اتصال بالإنترنت'
+  return 'حمّل السور والأذكار لتعمل بدون إنترنت'
+})
 
-const handleRemoveAll = () => {
-  cancelAllDownloads()
+const isBusy = computed(() => isDownloading.value || isPaused.value)
 
-  toast.warning('سيتم حذف جميع الملفات، متأكد؟', {
-    position: 'bottom-center',
-    duration: Infinity,
-    action: {
-      label: 'تأكيد الحذف',
-      onClick: () => removeAllAssets(),
-    },
-  })
+const confirmingRemoveAll = ref(false)
+
+// Cancels the queue first and waits for the item downloading, so it can't come back as downloaded afterwards.
+const removeAll = async () => {
+  confirmingRemoveAll.value = false
+  await removeAllAssets()
 }
 
 const handleAssetAction = (asset) => {
-  if (asset.status === 'downloaded') {
-    removeAsset(asset)
-  } else if (asset.status === 'queued') {
-    removeFromQueue(asset)
-  } else if (asset.status === 'not-downloaded') {
-    queueAsset(asset)
-  }
+  if (asset.status === 'downloaded') removeAsset(asset)
+  else if (asset.status === 'queued') removeFromQueue(asset)
+  else if (asset.status === 'not-downloaded') queueAsset(asset)
 }
 </script>
 
 <template>
-  <div class="download-manager card">
-    <div class="dm-header">
-      <div class="dm-header-content">
-        <div class="dm-title">
-          <span class="icon-tile dm-title-icon">
-            <IconCloudDownload :size="20" />
-          </span>
-          <div>
-            <h3>التنزيلات</h3>
-            <p>للاستخدام بدون إنترنت</p>
-          </div>
-        </div>
-
-        <div class="dm-stats">
-          <div class="dm-stats-text">
-            <span class="dm-stats-count"
-              >{{ toArabicNumerals(downloadedCount) }}/{{ toArabicNumerals(totalAssets) }}</span
-            >
-            <span class="dm-stats-label">ملف محمّل</span>
-          </div>
-          <CircleProgress class="d-none d-md-block" :percentage="progressPercentage" />
-        </div>
+  <div class="downloads">
+    <!-- What is saved, what is happening, and the one action that matters. -->
+    <section class="downloads-group downloads-summary" aria-labelledby="downloads-count">
+      <div class="downloads-summary__head">
+        <h2 id="downloads-count" class="downloads-summary__count">
+          {{ toArabicNumerals(downloadedCount) }}
+          <span class="downloads-summary__total">من {{ toArabicNumerals(totalAssets) }} محمّل</span>
+        </h2>
+        <span class="downloads-summary__percent">{{ toArabicNumerals(progressPercentage) }}٪</span>
       </div>
 
-      <div v-if="isDownloading || isPaused || !online" class="dm-status-bar">
-        <template v-if="!online">
-          <IconWifiOff :size="16" />
-          <span>لا يوجد اتصال بالإنترنت</span>
-        </template>
-        <template v-else-if="isDownloading && currentItem">
-          <IconLoader2 :size="16" class="spin" />
-          <span>جاري تحميل: {{ currentItem.name }}</span>
-          <span class="dm-status-remaining">{{ toArabicNumerals(pendingCount) }} متبقي</span>
-        </template>
-        <template v-else-if="isPaused">
-          <IconPlayerPause :size="16" />
-          <span>التحميل متوقف مؤقتاً</span>
-        </template>
+      <div
+        class="downloads-progress"
+        role="progressbar"
+        aria-labelledby="downloads-count"
+        :aria-valuenow="progressPercentage"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      >
+        <span class="downloads-progress__fill" :style="{ transform: `scaleX(${progressPercentage / 100})` }"></span>
       </div>
+
+      <p class="downloads-summary__status" aria-live="polite">{{ status }}</p>
+
+      <!-- Soft buttons, so they read as actions rather than as another choice like the selector below. -->
+      <div v-if="isBusy" class="downloads-summary__actions">
+        <button type="button" class="btn btn-soft" @click="isPaused ? resumeDownloads() : pauseDownloads()">
+          <component :is="isPaused ? IconPlayerPlay : IconPlayerPause" :size="16" aria-hidden="true" />
+          <span>{{ isPaused ? 'استئناف' : 'إيقاف مؤقت' }}</span>
+        </button>
+        <button type="button" class="btn btn-soft" @click="cancelAllDownloads">
+          <IconX :size="16" aria-hidden="true" />
+          <span>إلغاء</span>
+        </button>
+      </div>
+
+      <button
+        v-else-if="!isCompleted"
+        type="button"
+        class="btn btn-primary downloads-summary__cta"
+        :disabled="!online"
+        @click="queueAllAssets"
+      >
+        <IconDownload :size="18" aria-hidden="true" />
+        <span>تحميل الكل</span>
+      </button>
+    </section>
+
+    <div class="btn-group-toggle downloads-tabs" role="group" aria-label="نوع التنزيلات">
+      <button
+        v-for="type in TYPES"
+        :key="type.id"
+        type="button"
+        class="btn-toggle"
+        :class="{ active: activeType === type.id }"
+        :aria-pressed="activeType === type.id"
+        @click="activeType = type.id"
+      >
+        <span>{{ type.label }}</span>
+        <span class="downloads-tabs__count">
+          {{ toArabicNumerals(countsByType[type.id].done) }}/{{ toArabicNumerals(countsByType[type.id].total) }}
+        </span>
+      </button>
     </div>
 
-    <div class="dm-toolbar">
-      <div class="tab-pills dm-filters">
-        <button class="tab-pill dm-filter-btn" :class="{ active: filterType === 'all' }" @click="filterType = 'all'">
-          <span>الكل</span>
-          <span class="chip chip-muted dm-filter-count">{{ toArabicNumerals(totalAssets) }}</span>
-        </button>
-        <button
-          class="tab-pill dm-filter-btn"
-          :class="{ active: filterType === 'surah' }"
-          @click="filterType = 'surah'"
-        >
-          <IconBook2 :size="16" />
-          <span>السور</span>
-          <span class="chip chip-muted dm-filter-count">{{ toArabicNumerals(surahCount) }}</span>
-        </button>
-        <button
-          class="tab-pill dm-filter-btn"
-          :class="{ active: filterType === 'azkar' }"
-          @click="filterType = 'azkar'"
-        >
-          <IconSparkles :size="16" />
-          <span>الأذكار</span>
-          <span class="chip chip-muted dm-filter-count">{{ toArabicNumerals(azkarCount) }}</span>
-        </button>
-      </div>
-
-      <div class="dm-actions">
-        <button
-          v-if="isDownloading || isPaused"
-          class="btn btn-soft btn-icon dm-action-btn"
-          @click="isPaused ? resumeDownloads() : pauseDownloads()"
-          :title="isPaused ? 'استئناف' : 'إيقاف مؤقت'"
-        >
-          <component :is="isPaused ? IconPlayerPlay : IconPlayerPause" :size="16" />
-        </button>
-
-        <button
-          v-if="pendingCount > 0"
-          class="btn btn-soft btn-icon dm-action-btn"
-          @click="cancelAllDownloads"
-          title="إلغاء"
-        >
-          <IconX :size="16" />
-        </button>
-
-        <button
-          class="btn btn-soft btn-icon dm-action-btn dm-action-btn--danger"
-          @click="handleRemoveAll"
-          :disabled="isDownloading || downloadedCount === 0"
-          title="حذف الكل"
-        >
-          <IconTrash :size="16" />
-        </button>
-
-        <button
-          class="btn btn-primary d-inline-flex align-items-center gap-2 dm-action-btn"
-          @click="queueAllAssets"
-          :disabled="isDownloading || !online || isCompleted"
-        >
-          <IconDownload :size="16" />
-          <span>تحميل الكل</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="dm-list">
+    <div class="downloads-group">
       <DownloadAssetItem
-        v-for="asset in filteredAssets"
+        v-for="asset in visibleAssets"
         :key="asset.id"
         :asset="asset"
         :online="online"
@@ -219,189 +178,183 @@ const handleAssetAction = (asset) => {
       />
     </div>
 
-    <div v-if="isCompleted" class="dm-completed">
-      <IconCheck :size="20" />
-      <span>تم تحميل جميع الملفات بنجاح!</span>
+    <div class="downloads-group">
+      <button
+        type="button"
+        class="downloads-danger"
+        :disabled="downloadedCount === 0"
+        @click="confirmingRemoveAll = true"
+      >
+        <IconTrash :size="20" aria-hidden="true" />
+        <span>حذف جميع التنزيلات</span>
+      </button>
     </div>
+
+    <BottomSheet :show="confirmingRemoveAll" title="حذف جميع التنزيلات" @close="confirmingRemoveAll = false">
+      <p class="px-4 pt-1 mb-2 lh-lg text-secondary">
+        ستُحذف السور والأذكار المحمّلة، ولن تعمل بدون إنترنت حتى تحمّلها من جديد.
+      </p>
+      <ul class="bottom-sheet-list">
+        <li>
+          <button type="button" class="bottom-sheet-item" @click="confirmingRemoveAll = false">
+            <IconArrowBackUp size="20" />
+            <span>الإبقاء عليها</span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="bottom-sheet-item text-danger" @click="removeAll">
+            <IconTrash size="20" />
+            <span>حذف الكل</span>
+          </button>
+        </li>
+      </ul>
+    </BottomSheet>
   </div>
 </template>
 
-<style scoped>
-.download-manager {
-  overflow: hidden;
-  contain: layout style;
-}
-
-.dm-header {
-  padding: 1.25rem;
-  border-bottom: 1px solid var(--app-hairline);
-}
-
-.dm-header-content {
+<style lang="scss" scoped>
+.downloads {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   gap: 1rem;
 }
 
-.dm-title {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
+/* An inset grouped list, like the other settings screens. */
+.downloads-group {
+  overflow: hidden;
+  border: 1px solid var(--app-hairline);
+  border-radius: var(--bs-border-radius-lg);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-card);
 }
 
-.dm-title-icon {
-  color: var(--bs-primary);
-}
-
-[data-bs-theme='dark'] .dm-title-icon {
-  color: color-mix(in srgb, var(--bs-primary) 28%, #fff);
-}
-
-.dm-title h3 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.dm-title p {
-  margin: 0.15rem 0 0;
-  font-size: 0.85rem;
-  color: var(--bs-secondary-color);
-}
-
-.dm-stats {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.dm-stats-text {
+.downloads-summary {
   display: flex;
   flex-direction: column;
-  text-align: start;
+  gap: 0.75rem;
+  padding: 1rem;
 }
 
-.dm-stats-count {
-  font-size: 1.25rem;
+.downloads-summary__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.downloads-summary__count {
+  margin: 0;
+  font-family: inherit;
+  font-size: 1.5rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
-.dm-stats-label {
-  font-size: 0.75rem;
+.downloads-summary__total,
+.downloads-summary__percent {
   color: var(--bs-secondary-color);
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
-.dm-status-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  padding: 0.55rem 0.85rem;
-  background: var(--app-tint);
-  color: var(--bs-body-color);
-  border-radius: var(--bs-border-radius);
-  font-size: 0.85rem;
+.downloads-progress {
+  height: 0.375rem;
   overflow: hidden;
-  min-width: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bs-body-color) 8%, transparent);
 }
 
-.dm-status-bar > span {
-  white-space: nowrap;
+.downloads-progress__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--bs-primary);
+  transform-origin: right;
+  transition: transform 0.4s var(--app-ease-out);
+}
+
+[dir='ltr'] .downloads-progress__fill {
+  transform-origin: left;
+}
+
+.downloads-summary__status {
+  margin: 0;
   overflow: hidden;
+  color: var(--bs-secondary-color);
+  font-size: 0.8125rem;
   text-overflow: ellipsis;
-  min-width: 0;
+  white-space: nowrap;
 }
 
-.dm-status-remaining {
-  margin-inline-start: auto;
-  opacity: 0.7;
-}
-
-.dm-toolbar {
-  display: flex;
-  justify-content: space-between;
+.downloads-summary__cta {
+  display: inline-flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0.85rem 1.25rem;
-  border-bottom: 1px solid var(--app-hairline);
-  flex-wrap: wrap;
-}
-
-.dm-filters {
-  padding-bottom: 0;
-  margin-inline: 0;
-  padding-inline: 0;
-}
-
-.dm-filter-btn {
-  gap: 0.4rem;
-  padding: 0.4rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-}
-
-.dm-filter-count {
-  padding-block: 0.05rem;
-  font-size: 0.72rem;
-}
-
-.dm-filter-btn.active .dm-filter-count {
-  background: var(--app-tint-strong);
-  color: inherit;
-}
-
-.dm-actions {
-  display: flex;
+  justify-content: center;
   gap: 0.5rem;
+  min-height: 2.75rem;
 }
 
-.dm-action-btn {
-  border-radius: 999px;
-}
+/* Compact pills at the start of the card, so they read as actions on the download rather than as halves of a
+   selector like the السور/الأذكار one below. Each label stays on one line; if both don't fit, the second wraps. */
+.downloads-summary__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 
-.dm-action-btn.btn-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .dm-action-btn--danger:hover:not(:disabled) {
-    --bs-btn-hover-bg: var(--bs-danger);
-    --bs-btn-hover-color: #fff;
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 2.75rem;
+    /* px, so a large text size goes to the labels and both still fit a 320px phone. */
+    padding-inline: 14px;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
   }
 }
 
-.dm-list {
-  max-height: 300px;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--app-hairline-strong) transparent;
+.downloads-tabs__count {
+  color: var(--bs-secondary-color);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
 }
 
-.dm-completed {
+/* A destructive action as its own row, like the end of a native settings screen. */
+.downloads-danger {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem;
-  background: color-mix(in srgb, var(--bs-success) 14%, transparent);
-  color: var(--bs-success-text-emphasis);
-  font-size: 0.85rem;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.625rem 1rem;
+  border: 0;
+  background: none;
+  color: var(--bs-danger);
   font-weight: 500;
-}
 
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
+  &:active:not(:disabled) {
+    background: var(--app-surface-active);
   }
-  to {
-    transform: rotate(360deg);
+
+  &:disabled {
+    color: var(--bs-secondary-color);
+    opacity: 0.6;
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(var(--bs-primary-rgb), 0.5);
+    outline-offset: -2px;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .downloads-danger:hover:not(:disabled) {
+    background: var(--app-surface-hover);
   }
 }
 </style>

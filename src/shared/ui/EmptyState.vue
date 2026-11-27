@@ -1,16 +1,13 @@
 <script setup>
-import { IconMoodEmpty } from '@tabler/icons-vue'
+import { IconSearch } from '@tabler/icons-vue'
+import StatePanel from '@/shared/ui/StatePanel.vue'
 
 defineProps({
-  message: { type: String, default: 'لا توجد نتائج مطابقة لعملية البحث' },
+  title: { type: String, default: 'لا توجد نتائج' },
+  message: { type: String, default: 'جرّب كلمة أخرى.' },
 })
 </script>
 
 <template>
-  <div class="py-5 text-center">
-    <span class="icon-circle icon-circle--lg text-secondary mx-auto mb-3">
-      <IconMoodEmpty />
-    </span>
-    <p class="mb-0 text-body-secondary">{{ message }}</p>
-  </div>
+  <StatePanel :icon="IconSearch" :title="title" :message="message" />
 </template>

@@ -6,13 +6,28 @@
 
 <style lang="scss" scoped>
 .page-container {
-  padding-block: 2rem;
-  animation: page-enter 0.35s var(--app-ease) both;
+  /* The app bar above already gives the page its top breathing room. */
+  padding-block: 0.25rem 2rem;
+  animation: page-enter 0.2s ease-out both;
 }
 
 @media (min-width: 768px) {
   .page-container {
-    padding-block: 2.5rem 3.5rem;
+    padding-block: 0.5rem 3.5rem;
+  }
+}
+
+/* Desktop: no app bar above, so the page brings its own space under the top nav. */
+@media (min-width: 992px) {
+  .page-container {
+    padding-top: 1.5rem;
+  }
+}
+
+/* Every screen reads as one capped column from tablets up, the same width as More. */
+@media (min-width: 768px) {
+  .page-container {
+    max-width: 40rem;
   }
 }
 </style>

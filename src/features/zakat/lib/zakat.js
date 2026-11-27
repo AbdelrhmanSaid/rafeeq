@@ -45,28 +45,87 @@ export function businessZakat(amount, nisab) {
   return value < nisab ? 0 : value * ZAKAT_RATE
 }
 
+// What's due on livestock is animals, not a share: a sheep or a camel or calf of a given age, named here in Arabic with
+// the dual and plural (3–10) forms Arabic counts them with.
+export const LIVESTOCK_DUES = {
+  shah: { one: 'شاة', two: 'شاتان', few: 'شياه' },
+  bintMakhad: { one: 'بنت مخاض', two: 'بنتا مخاض', few: 'بنات مخاض' },
+  bintLabun: { one: 'بنت لبون', two: 'بنتا لبون', few: 'بنات لبون' },
+  hiqqa: { one: 'حقة', two: 'حقتان', few: 'حقاق' },
+  jadhaa: { one: 'جذعة', two: 'جذعتان', few: 'جذاع' },
+  tabi: { one: 'تبيع', two: 'تبيعان', few: 'أتبعة' },
+  musinna: { one: 'مسنة', two: 'مسنتان', few: 'مسنات' },
+}
+
+// The fixed bands of Abu Bakr's letter (Sahih al-Bukhari 1454), up to 120 camels.
+const CAMEL_BANDS = [
+  [5, 'shah', 1],
+  [10, 'shah', 2],
+  [15, 'shah', 3],
+  [20, 'shah', 4],
+  [25, 'bintMakhad', 1],
+  [36, 'bintLabun', 1],
+  [46, 'hiqqa', 1],
+  [61, 'jadhaa', 1],
+  [76, 'bintLabun', 2],
+  [91, 'hiqqa', 2],
+]
+
+const due = (kind, count) => (count > 0 ? [{ kind, count }] : [])
+
+// Past the fixed bands the herd is covered in blocks: one `small` animal per `smallSize` head and one `large` per
+// `largeSize`, using as many of the larger blocks as still cover the herd to its last full ten. Where two mixes cover it
+// alike (200 camels: four ḥiqqa or five bint labūn), the one with more of the older animal is given.
+function coverInBlocks(total, small, smallSize, large, largeSize) {
+  const covered = Math.floor(total / 10) * 10
+
+  for (let larges = Math.floor(covered / largeSize); larges >= 0; larges--) {
+    const rest = covered - larges * largeSize
+    if (rest % smallSize === 0) return [...due(large, larges), ...due(small, rest / smallSize)]
+  }
+
+  return []
+}
+
+export function camelsZakat(count) {
+  const n = toInt(count)
+  if (n > 120) return coverInBlocks(n, 'bintLabun', 40, 'hiqqa', 50)
+
+  const band = CAMEL_BANDS.findLast(([from]) => n >= from)
+  return band ? due(band[1], band[2]) : []
+}
+
+export function cowsZakat(count) {
+  const n = toInt(count)
+  if (n < NISAB.cows) return []
+  if (n < 40) return due('tabi', 1)
+  if (n < 60) return due('musinna', 1)
+  return coverInBlocks(n, 'tabi', 30, 'musinna', 40)
+}
+
+export function sheepZakat(count) {
+  const n = toInt(count)
+  if (n < NISAB.sheep) return []
+  if (n <= 120) return due('shah', 1)
+  if (n <= 200) return due('shah', 2)
+  if (n < 400) return due('shah', 3)
+  return due('shah', Math.floor(n / 100))
+}
+
+// What's due for each kind of animal, kept apart: a camel herd and a flock of sheep are judged on their own nisab and
+// paid in different animals.
 export function livestockZakat({ cows, sheep, camels }) {
-  const c = toInt(cows)
-  const s = toInt(sheep)
-  const m = toInt(camels)
-  let heads = 0
+  return { camels: camelsZakat(camels), cows: cowsZakat(cows), sheep: sheepZakat(sheep) }
+}
 
-  if (c >= NISAB.cows) heads += Math.floor(c / 30)
-
-  if (s >= NISAB.sheep) {
-    if (s <= 120) heads += 1
-    else if (s <= 200) heads += 2
-    else if (s <= 399) heads += 3
-    else heads += Math.floor(s / 100)
-  }
-
-  if (m >= NISAB.camels) {
-    if (m <= 9) heads += 1
-    else if (m <= 14) heads += 2
-    else if (m <= 19) heads += 3
-    else if (m <= 24) heads += 4
-    else heads += Math.floor(m / 25)
-  }
-
-  return heads
+// "حقة", "حقتان", "٣ حقاق", "١٢ شاة"; a mix is joined with "و": "حقة وبنتا لبون".
+export function formatLivestockDue(dues, numerals = String) {
+  return dues
+    .map(({ kind, count }) => {
+      const names = LIVESTOCK_DUES[kind]
+      if (count === 1) return names.one
+      if (count === 2) return names.two
+      return `${numerals(count)} ${count <= 10 ? names.few : names.one}`
+    })
+    .join(' و')
 }

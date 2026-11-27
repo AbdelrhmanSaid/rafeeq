@@ -1,6 +1,7 @@
 import { watch } from 'vue'
 import { defineStore } from 'pinia'
 import { useAudioPlayer } from '@/shared/composables/useAudioPlayer'
+import { stationTitle } from '@/features/radio/lib/stationLabel'
 import {
   setMediaMetadata,
   setMediaHandlers,
@@ -13,7 +14,7 @@ export const useRadioStore = defineStore('radio', () => {
 
   function play(url, meta = null) {
     playStream(url)
-    setMediaMetadata({ title: meta?.name || 'الإذاعة', artist: 'بث مباشر' })
+    setMediaMetadata({ title: stationTitle(meta) || 'الإذاعة', artist: meta?.description || 'بث مباشر' })
     setMediaHandlers({
       play: () => play(url, meta),
       pause: stop,

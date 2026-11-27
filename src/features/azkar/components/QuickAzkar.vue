@@ -1,6 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router'
-import { IconSun, IconMoon, IconShield, IconDots, IconChevronLeft } from '@tabler/icons-vue'
+import { IconSun, IconMoon, IconShield, IconChevronLeft } from '@tabler/icons-vue'
 
 const azkar = [
   {
@@ -41,17 +41,6 @@ const azkar = [
       </div>
       <IconChevronLeft class="quick-row__chevron" size="1rem" aria-hidden="true" />
     </RouterLink>
-
-    <RouterLink :to="{ name: 'azkar' }" class="list-group-item list-group-item-action quick-row">
-      <span class="quick-row__icon">
-        <IconDots size="1.25rem" />
-      </span>
-      <div class="min-w-0 flex-grow-1">
-        <h3 class="quick-row__title">كل الأذكار</h3>
-        <small class="text-body-secondary d-block">تصفح جميع الأبواب المتاحة</small>
-      </div>
-      <IconChevronLeft class="quick-row__chevron" size="1rem" aria-hidden="true" />
-    </RouterLink>
   </div>
 </template>
 
@@ -71,7 +60,7 @@ const azkar = [
   flex-shrink: 0;
   border-radius: 50%;
   background: var(--app-tint);
-  color: var(--bs-primary);
+  color: var(--app-primary-ink);
 }
 
 [data-bs-theme='dark'] .quick-row__icon {
@@ -92,18 +81,5 @@ const azkar = [
 
 [dir='ltr'] .quick-row__chevron {
   transform: scaleX(-1);
-}
-
-@media screen and (min-width: 768px) {
-  .list-group {
-    flex-direction: row;
-    gap: 0.75rem;
-    box-shadow: none;
-
-    .list-group-item {
-      border: 1px solid var(--app-hairline);
-      border-radius: var(--bs-list-group-border-radius);
-    }
-  }
 }
 </style>

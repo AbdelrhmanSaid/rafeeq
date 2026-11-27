@@ -1,6 +1,6 @@
 <script setup>
-import { IconShare3 } from '@tabler/icons-vue'
-import { toast } from 'vue-sonner'
+import { useTemplateRef } from 'vue'
+import { usePageHeader } from '@/layout/pageHeader'
 
 const props = defineProps({
   title: {
@@ -18,60 +18,44 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  // List screens drop the subtitle on phones so the list starts higher.
+  subtitleDesktopOnly: {
+    type: Boolean,
+    default: false,
+  },
 })
 
-const sharePage = async () => {
-  const data = {
-    title: props.title,
-    text: props.title,
-    url: window.location.href,
-  }
+const heading = useTemplateRef('heading')
 
-  if (navigator.share) {
-    try {
-      await navigator.share(data)
-    } catch {}
-  } else {
-    try {
-      await navigator.clipboard.writeText(data.url)
-      toast.success('تم نسخ الرابط')
-    } catch {
-      toast.error('حدث خطأ أثناء نسخ الرابط')
-    }
-  }
+// A page's h1 is its large title; the app bar picks it up once it scrolls under the bar, and carries its share action.
+if (props.size === 1) {
+  usePageHeader({
+    title: () => props.title,
+    share: () => props.share,
+    el: heading,
+  })
 }
 </script>
 
 <template>
   <div>
-    <component :is="`h${size}`" class="d-flex align-items-end justify-content-between">
+    <component ref="heading" :is="`h${size}`" :class="{ 'heading--solo-mobile': subtitleDesktopOnly }">
       {{ title }}
-      <button
-        v-if="share"
-        class="btn btn-soft btn-icon heading-share"
-        type="button"
-        title="مشاركة الصفحة"
-        aria-label="مشاركة الصفحة"
-        @click="sharePage"
-      >
-        <IconShare3 size="18" />
-      </button>
     </component>
 
-    <p class="lead" v-if="subtitle">{{ subtitle }}</p>
+    <p v-if="subtitle" class="lead" :class="{ 'd-none d-lg-block': subtitleDesktopOnly }">{{ subtitle }}</p>
   </div>
 </template>
 
 <style scoped>
-.heading-share {
-  width: 2.25rem;
-  height: 2.25rem;
-  flex-shrink: 0;
-  border-radius: 50%;
-}
-
 .lead {
   color: var(--bs-secondary-color);
   font-size: 1.05rem;
+}
+
+@media (max-width: 991.98px) {
+  .heading--solo-mobile {
+    margin-bottom: 1rem;
+  }
 }
 </style>

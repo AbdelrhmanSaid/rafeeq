@@ -1,5 +1,5 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { normalizeAngle, smoothAngle } from '@/features/qibla/lib/qibla'
+import { headingFromOrientation, isHeldSideways, normalizeAngle, smoothAngle } from '@/features/qibla/lib/qibla'
 
 const SMOOTHING = 0.15
 
@@ -9,59 +9,116 @@ const needsPermissionPrompt = () =>
 export function useDeviceCompass() {
   const heading = ref(0)
   const hasSupport = ref(false)
+  // Desktop browsers expose the orientation API without ever firing it, so only a real reading means a live compass.
+  const hasReading = ref(false)
+  // Whether any reading has arrived: a compass that went quiet is paused, not missing.
+  const hadReading = ref(false)
+  // iOS reports how far off its heading may be, in degrees (negative when it can't tell). Null where unknown.
+  const accuracy = ref(null)
+  // Held on its side (landscape, even with rotation lock): the heading isn't reliable then.
+  const sideways = ref(false)
   const error = ref(null)
 
   const canRequestPermission = computed(() => !hasSupport.value && needsPermissionPrompt())
 
+  // Readings arrive many times a second; if they stop (the sensor goes quiet or loses north), the last heading is no
+  // longer live and mustn't keep saying the phone faces the qibla.
+  let staleTimer = 0
+  const STALE_MS = 2000
+
   function update(rawHeading) {
-    heading.value = smoothAngle(heading.value, rawHeading, SMOOTHING)
+    // The first reading jumps straight to the heading instead of sweeping there from north.
+    heading.value = hasReading.value ? smoothAngle(heading.value, rawHeading, SMOOTHING) : normalizeAngle(rawHeading)
+    hasReading.value = true
+    hadReading.value = true
+    clearTimeout(staleTimer)
+    staleTimer = setTimeout(() => (hasReading.value = false), STALE_MS)
+  }
+
+  function trackPose(event) {
+    if (event.beta != null && event.gamma != null) sideways.value = isHeldSideways(event.beta, event.gamma)
   }
 
   function handleOrientation(event) {
-    let raw = 0
-    if (event.webkitCompassHeading !== undefined) {
-      raw = event.webkitCompassHeading
-    } else if (event.alpha !== null) {
-      raw = normalizeAngle(360 - event.alpha)
+    trackPose(event)
+
+    // iOS reports a ready-made compass heading (from magnetic north) and its accuracy. With no heading available it
+    // sends 0 with an accuracy of -1, which must not count as a reading of north.
+    if (event.webkitCompassHeading != null) {
+      accuracy.value = event.webkitCompassAccuracy ?? null
+      if (accuracy.value != null && accuracy.value < 0) return
+      update(event.webkitCompassHeading)
+      return
     }
-    update(raw)
+
+    // Elsewhere only an absolute reading is measured from north; a relative one starts wherever the phone was
+    // when the page opened, and would point the compass anywhere.
+    if (event.absolute && event.alpha !== null) {
+      update(headingFromOrientation(event.alpha, event.beta ?? 0, event.gamma ?? 0))
+    }
   }
 
   function handleAbsoluteOrientation(event) {
-    if (event.alpha !== null) update(normalizeAngle(360 - event.alpha))
+    trackPose(event)
+    if (event.alpha !== null) update(headingFromOrientation(event.alpha, event.beta ?? 0, event.gamma ?? 0))
   }
 
-  async function requestPermission() {
+  // Listen where the heading is measured from north. Chrome (Android included) now has the iOS permission prompt too,
+  // so the prompt doesn't mean iOS: pick the event by what the browser offers, not by whether it asked first.
+  let active = true
+
+  function listen() {
+    // The permission answer can land after the screen has closed.
+    if (!active) return
+    hasSupport.value = true
+    // A refusal from an earlier tap no longer applies.
+    error.value = null
+    if ('ondeviceorientationabsolute' in window) {
+      window.addEventListener('deviceorientationabsolute', handleAbsoluteOrientation, true)
+    } else {
+      window.addEventListener('deviceorientation', handleOrientation, true)
+    }
+  }
+
+  // Quiet: the try on opening the screen. Browsers that grant it without a tap (or remember an earlier yes) start at
+  // once; the rest refuse until a tap, which isn't an error worth showing.
+  async function ask(quiet) {
     if (needsPermissionPrompt()) {
       try {
         const permission = await DeviceOrientationEvent.requestPermission()
-        if (permission === 'granted') {
-          hasSupport.value = true
-          window.addEventListener('deviceorientation', handleOrientation, true)
-        } else {
-          error.value = 'تم رفض إذن الوصول للبوصلة'
-        }
+        if (permission === 'granted') listen()
+        else if (!quiet) error.value = 'تم رفض إذن الوصول للبوصلة'
       } catch (err) {
+        if (quiet) return
         console.error('Compass permission error:', err)
         error.value = 'فشل في طلب إذن البوصلة'
       }
     } else if (window.DeviceOrientationEvent) {
-      hasSupport.value = true
-      if ('ondeviceorientationabsolute' in window) {
-        window.addEventListener('deviceorientationabsolute', handleAbsoluteOrientation, true)
-      } else {
-        window.addEventListener('deviceorientation', handleOrientation, true)
-      }
+      listen()
     } else {
       error.value = 'البوصلة غير مدعومة في هذا الجهاز'
     }
   }
 
-  onMounted(requestPermission)
+  const requestPermission = () => ask(false)
+
+  onMounted(() => ask(true))
   onUnmounted(() => {
+    active = false
+    clearTimeout(staleTimer)
     window.removeEventListener('deviceorientation', handleOrientation, true)
     window.removeEventListener('deviceorientationabsolute', handleAbsoluteOrientation, true)
   })
 
-  return { heading, hasSupport, error, canRequestPermission, requestPermission }
+  return {
+    heading,
+    hasSupport,
+    hasReading,
+    hadReading,
+    accuracy,
+    sideways,
+    error,
+    canRequestPermission,
+    requestPermission,
+  }
 }

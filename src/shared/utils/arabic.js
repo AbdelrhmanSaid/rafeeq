@@ -10,7 +10,8 @@ export const normalize = (text) => {
     text = text.replaceAll(String.fromCharCode(0x660 + i), String.fromCharCode(48 + i))
   }
 
-  return text.toLowerCase()
+  // Stray, doubled or edge spaces (and those left where punctuation was dropped) shouldn't change what matches.
+  return text.replace(/\s+/g, ' ').trim().toLowerCase()
 }
 
 // Normalize unsupported Quranic glyphs in UI metadata, not Quran text.

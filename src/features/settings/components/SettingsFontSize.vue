@@ -4,7 +4,7 @@ import { storeToRefs } from 'pinia'
 import { useThemeStore } from '@/app/stores/theme'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import { MIN_FONT_SCALE, MAX_FONT_SCALE, DEFAULT_FONT_SCALE, FONT_SCALE_STEP } from '@/shared/utils/css'
-import { IconTextSize, IconRotate } from '@tabler/icons-vue'
+import { IconRotate } from '@tabler/icons-vue'
 import SettingsSection from './SettingsSection.vue'
 
 const theme = useThemeStore()
@@ -27,12 +27,12 @@ function increase() {
 </script>
 
 <template>
-  <SettingsSection title="حجم الخط" description="تحكم في حجم النصوص في جميع أنحاء التطبيق" :icon="IconTextSize">
+  <SettingsSection title="حجم الخط" description="تحكم في حجم النصوص في جميع أنحاء التطبيق">
     <template #actions>
       <button
         v-if="!isDefault"
         type="button"
-        class="btn btn-sm btn-flat d-inline-flex align-items-center gap-1"
+        class="btn btn-sm btn-flat d-inline-flex align-items-center justify-content-center gap-1 font-reset"
         aria-label="إعادة تعيين حجم الخط"
         @click="theme.resetFontScale()"
       >
@@ -41,58 +41,75 @@ function increase() {
       </button>
     </template>
 
-    <div class="p-3 border rounded">
-      <div class="d-flex align-items-center gap-3">
-        <button type="button" class="font-step" :disabled="fontScale <= min" aria-label="تصغير الخط" @click="decrease">
-          <span class="font-step-small">أ</span>
-        </button>
+    <!-- Flush in the row: the slider takes the full width, the steps and the value sit under it. -->
+    <input
+      v-model.number="fontScale"
+      class="form-range d-block"
+      type="range"
+      :min="min"
+      :max="max"
+      :step="step"
+      aria-label="حجم الخط"
+      :aria-valuetext="scaleLabel"
+    />
 
-        <input
-          v-model.number="fontScale"
-          class="form-range flex-grow-1"
-          type="range"
-          :min="min"
-          :max="max"
-          :step="step"
-          aria-label="حجم الخط"
-        />
-
-        <button type="button" class="font-step" :disabled="fontScale >= max" aria-label="تكبير الخط" @click="increase">
-          <span class="font-step-large">أ</span>
-        </button>
-      </div>
-
-      <div class="d-flex justify-content-between align-items-center mt-2">
-        <small class="text-muted">صغير</small>
-        <small class="fw-medium">{{ scaleLabel }}</small>
-        <small class="text-muted">كبير</small>
-      </div>
-
-      <p class="font-preview mb-0 mt-3">إِنَّ مَعَ ٱلْعُسْرِ يُسْرًا</p>
+    <div class="font-steps">
+      <button type="button" class="font-step" :disabled="fontScale <= min" aria-label="تصغير الخط" @click="decrease">
+        <span class="font-step-small">أ</span>
+      </button>
+      <span class="font-scale-value">{{ scaleLabel }}</span>
+      <button type="button" class="font-step" :disabled="fontScale >= max" aria-label="تكبير الخط" @click="increase">
+        <span class="font-step-large">أ</span>
+      </button>
     </div>
+
+    <p class="font-preview">إِنَّ مَعَ ٱلْعُسْرِ يُسْرًا</p>
   </SettingsSection>
 </template>
 
 <style scoped>
+.font-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.font-scale-value {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Filled, not outlined, like the app's other quiet controls. */
 .font-step {
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius-sm);
-  background: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--bs-body-color) 6%, transparent);
   color: var(--bs-body-color);
   cursor: pointer;
   transition: background 0.15s;
 }
 
+.font-reset {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .font-step:hover:not(:disabled) {
-    background: rgba(var(--bs-secondary-rgb), 0.1);
+    background: color-mix(in srgb, var(--bs-body-color) 10%, transparent);
   }
+}
+
+.font-step:active:not(:disabled) {
+  background: var(--app-surface-active);
 }
 
 .font-step:disabled {
@@ -111,9 +128,8 @@ function increase() {
 }
 
 .font-preview {
-  text-align: center;
+  margin: 0.75rem 0 0;
   color: var(--bs-secondary-color);
-  border-top: 1px solid var(--bs-border-color);
-  padding-top: 0.75rem;
+  text-align: center;
 }
 </style>

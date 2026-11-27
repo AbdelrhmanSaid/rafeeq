@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 import { mount } from '@vue/test-utils'
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
@@ -119,5 +119,93 @@ describe('BottomSheet', () => {
 
     await wrapper.setProps({ show: false })
     expect(document.body.style.overflow).not.toBe('hidden')
+  })
+
+  it('hands focus back to the opener when it closes from inside', async () => {
+    const opener = document.createElement('button')
+    document.body.appendChild(opener)
+    opener.focus()
+    const wrapper = mountSheet({ show: false })
+    await wrapper.setProps({ show: true })
+    await nextTick()
+    document.querySelector('.inside').focus()
+
+    // As Escape does: the panel, still leaving, holds focus when the sheet closes.
+    await wrapper.setProps({ show: false })
+
+    expect(document.activeElement).toBe(opener)
+  })
+
+  it('leaves focus where the user moved it outside the sheet', async () => {
+    const opener = document.createElement('button')
+    const elsewhere = document.createElement('input')
+    document.body.append(opener, elsewhere)
+    opener.focus()
+    const wrapper = mountSheet({ show: false })
+    await wrapper.setProps({ show: true })
+    await nextTick()
+    elsewhere.focus()
+
+    await wrapper.setProps({ show: false })
+
+    expect(document.activeElement).toBe(elsewhere)
+  })
+
+  describe('Tab', () => {
+    // jsdom lays nothing out, so every element counts as visible.
+    beforeEach(() => {
+      HTMLElement.prototype.checkVisibility = () => true
+    })
+    afterEach(() => {
+      delete HTMLElement.prototype.checkVisibility
+    })
+
+    const mountRoving = () => {
+      const wrapper = mount(BottomSheet, {
+        props: { show: true, title: 'القارئ' },
+        slots: {
+          default: `<div role="radiogroup">
+            <button class="opt" tabindex="-1">أ</button>
+            <button class="opt checked" tabindex="0">ب</button>
+            <button class="opt" tabindex="-1">ج</button>
+          </div>`,
+        },
+        attachTo: document.body,
+      })
+      wrappers.push(wrapper)
+      return wrapper
+    }
+
+    const tab = (shiftKey = false) => {
+      const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey, cancelable: true })
+      document.dispatchEvent(event)
+      return event
+    }
+
+    it('skips options at tabindex -1 and wraps inside the sheet', async () => {
+      mountRoving()
+      await nextTick()
+      const close = document.querySelector('.sheet-close')
+      const checked = document.querySelector('.checked')
+      checked.focus()
+
+      expect(tab().defaultPrevented).toBe(true)
+      expect(document.activeElement).toBe(close)
+      tab()
+      expect(document.activeElement).toBe(checked)
+      tab(true)
+      expect(document.activeElement).toBe(close)
+    })
+
+    it('steps from an option at tabindex -1 without leaving the sheet', async () => {
+      mountRoving()
+      await nextTick()
+      document.querySelectorAll('.opt')[2].focus()
+
+      tab()
+
+      expect(document.querySelector('.sheet').contains(document.activeElement)).toBe(true)
+      expect(document.activeElement).toBe(document.querySelector('.sheet-close'))
+    })
   })
 })

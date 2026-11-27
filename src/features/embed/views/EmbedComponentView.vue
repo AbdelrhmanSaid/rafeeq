@@ -26,6 +26,8 @@ const components = {
   },
   'sunnah-prayers': {
     component: SunnahPrayers,
+    // Its title shares a row with the قبل / بعد column labels, so it goes to the component, not above it.
+    ownsTitle: true,
   },
   'sebha': {
     component: Sebha,
@@ -60,16 +62,32 @@ const entry = computed(() => components[route.params.component])
 const component = computed(() => entry.value?.component)
 
 const props = computed(() => resolveProps(schema, route.query))
-const componentProps = computed(() => resolveProps(entry.value?.schema ?? {}, route.query))
+const componentProps = computed(() => ({
+  ...resolveProps(entry.value?.schema ?? {}, route.query),
+  ...(entry.value?.ownsTitle && props.value.title ? { title: props.value.title } : {}),
+}))
 </script>
 
 <template>
   <Page>
     <template v-if="component">
-      <Heading v-if="props.title" :size="2" class="mb-4" :title="props.title" :subtitle="props.subtitle" />
+      <Heading
+        v-if="props.title && !entry.ownsTitle"
+        :size="2"
+        class="mb-4"
+        :title="props.title"
+        :subtitle="props.subtitle"
+      />
       <component :is="component" v-bind="componentProps" />
     </template>
 
-    <ErrorState v-else :icon="IconAlertTriangle" message="خطأ في الإعدادات: المكوّن غير موجود." />
+    <!-- A wrong name in the embed code, not a failed load: say so, with no retry. -->
+    <ErrorState
+      v-else
+      :icon="IconAlertTriangle"
+      :level="1"
+      title="المكوّن غير موجود"
+      :message="`لا يوجد مكوّن باسم «${route.params.component}». تحقق من رابط التضمين.`"
+    />
   </Page>
 </template>

@@ -1,16 +1,16 @@
 <script setup>
 import { IconWifiOff } from '@tabler/icons-vue'
+import StatePanel from '@/shared/ui/StatePanel.vue'
 
 defineProps({
-  message: { type: String, default: 'لا يوجد اتصال بالإنترنت' },
+  message: { type: String, default: 'تحقق من اتصالك بالإنترنت وحاول مجددًا.' },
+  // Shows a "try again" button when given.
+  retry: { type: Function, default: null },
 })
 </script>
 
 <template>
-  <div class="d-flex flex-column align-items-center justify-content-center gap-3">
-    <span class="icon-circle icon-circle--lg text-secondary">
-      <IconWifiOff />
-    </span>
-    <p class="mb-0 text-body-secondary">{{ message }}</p>
-  </div>
+  <StatePanel :icon="IconWifiOff" title="لا يوجد اتصال" :message="message">
+    <button v-if="retry" type="button" class="btn btn-soft" @click="retry">إعادة المحاولة</button>
+  </StatePanel>
 </template>

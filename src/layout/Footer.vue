@@ -1,5 +1,6 @@
 <script setup>
 import Logo from '@/shared/ui/Logo.vue'
+import { supportLinks as support } from '@/layout/links'
 import { IconBrandGithub, IconBrandTelegram, IconHeart } from '@tabler/icons-vue'
 
 const resources = [
@@ -14,25 +15,6 @@ const resources = [
   {
     title: 'إذاعات القرآن الكريم',
     link: 'https://api.mp3quran.net/radios/radio_arabic.json',
-  },
-]
-
-const support = [
-  {
-    title: 'المساهمة في التطوير',
-    link: 'https://github.com/AbdelrhmanSaid/rafeeq',
-  },
-  {
-    title: 'الإبلاغ عن مشكلة',
-    link: 'https://github.com/AbdelrhmanSaid/rafeeq/issues',
-  },
-  {
-    title: 'دعم المطور',
-    link: 'https://buymeacoffee.com/abdelrhmansaid',
-  },
-  {
-    title: 'سياسة الخصوصية',
-    link: '/privacy',
   },
 ]
 </script>
@@ -117,7 +99,7 @@ const support = [
 }
 
 .app-footer__logo {
-  color: var(--bs-primary);
+  color: var(--app-primary-ink);
 }
 
 .app-footer__blurb {
@@ -147,7 +129,7 @@ const support = [
   transition: color 0.2s;
 
   &:hover {
-    color: var(--bs-primary);
+    color: var(--app-primary-ink);
   }
 }
 

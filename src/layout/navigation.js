@@ -1,61 +1,62 @@
 import {
-  IconHome,
+  IconSmartHome,
   IconBook,
   IconSparkles,
-  IconRadio,
+  IconBroadcast,
   IconCompass,
   IconCoins,
   IconAbacus,
-  IconSettings,
+  IconLayoutGrid,
 } from '@tabler/icons-vue'
 
+// `primary` items are the tab bar destinations; `more` items are the tools on the More screen.
 export const navigation = [
   {
     name: 'home',
     label: 'الرئيسية',
-    icon: IconHome,
-    menus: ['navbar', 'tabbar'],
+    icon: IconSmartHome,
+    menus: ['primary'],
   },
   {
     name: 'quran',
     label: 'القرآن',
     icon: IconBook,
-    menus: ['navbar', 'tabbar'],
+    menus: ['primary'],
   },
   {
     name: 'azkar',
     label: 'الأذكار',
     icon: IconSparkles,
-    menus: ['navbar', 'tabbar'],
+    menus: ['primary'],
   },
   {
     name: 'radio',
     label: 'الإذاعة',
-    icon: IconRadio,
-    menus: ['navbar', 'tabbar'],
+    icon: IconBroadcast,
+    menus: ['primary'],
+  },
+  {
+    name: 'more',
+    label: 'المزيد',
+    icon: IconLayoutGrid,
+    menus: ['primary'],
   },
   {
     name: 'qibla',
     label: 'اتجاه القبلة',
     icon: IconCompass,
-    menus: ['tabbar-more'],
+    menus: ['more'],
   },
   {
     name: 'zakat',
     label: 'حاسبة الزكاة',
     icon: IconCoins,
-    menus: ['navbar-more', 'tabbar-more'],
+    menus: ['more'],
   },
   {
     name: 'sebha',
     label: 'السبحة الإلكترونية',
     icon: IconAbacus,
-    menus: ['navbar-more', 'tabbar-more'],
-  },
-  {
-    name: 'settings',
-    label: 'الإعدادات',
-    icon: IconSettings,
-    menus: ['navbar-more', 'tabbar-more'],
+    menus: ['more'],
   },
 ]

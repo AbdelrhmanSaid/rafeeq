@@ -9,10 +9,13 @@ import { nextTick, onBeforeUnmount, useTemplateRef, watch } from 'vue'
 import { useEventListener, useScrollLock } from '@vueuse/core'
 import { IconX } from '@tabler/icons-vue'
 import { useIsMobile } from '@/shared/composables/useIsMobile'
+import { trackSheet } from '@/shared/ui/sheetHistory'
 
 const props = defineProps({
   show: { type: Boolean, default: false },
   title: { type: String, default: '' },
+  // Back closes the sheet rather than leaving the screen. Off for a sheet that asks whether to leave the screen.
+  closeOnBack: { type: Boolean, default: true },
 })
 
 const emit = defineEmits(['close'])
@@ -26,6 +29,7 @@ const close = () => emit('close')
 
 const bodyLock = useScrollLock(typeof document !== 'undefined' ? document.body : null)
 let returnFocus = null
+let untrack = null
 
 watch(
   () => props.show,
@@ -34,15 +38,20 @@ watch(
 
     if (open) {
       openSheets.push(id)
+      if (props.closeOnBack) untrack = trackSheet(close)
       returnFocus = document.activeElement
       await nextTick()
       panel.value?.focus({ preventScroll: true })
     } else {
       forget()
-      // Hand focus back to whatever opened the sheet, unless the user already moved it elsewhere.
-      if (returnFocus?.isConnected && (!document.activeElement || document.activeElement === document.body)) {
-        returnFocus.focus({ preventScroll: true })
-      }
+      untrack?.()
+      untrack = null
+      // Hand focus back to whatever opened the sheet, unless the user already moved it elsewhere. The panel stays in
+      // the page through its exit transition, so focus still inside it counts as not moved: left there, it would
+      // drop to <body> once the panel goes.
+      const active = document.activeElement
+      const stillInside = !active || active === document.body || panel.value?.contains(active)
+      if (returnFocus?.isConnected && stillInside) returnFocus.focus({ preventScroll: true })
       returnFocus = null
     }
   },
@@ -57,6 +66,7 @@ function forget() {
 onBeforeUnmount(() => {
   bodyLock.value = false
   forget()
+  untrack?.()
 })
 
 useEventListener(document, 'keydown', (event) => {
@@ -70,27 +80,34 @@ useEventListener(document, 'keydown', (event) => {
   }
 })
 
-// Keep Tab cycling inside the sheet while it is open.
+// Keep Tab cycling inside the sheet while it is open. The next stop is chosen here rather than left to the browser:
+// a list with a roving tabindex (one option at 0, the rest at -1) could otherwise send Tab past the sheet's end.
+const TABBABLE =
+  'a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]'
+
+const isTabbable = (el) =>
+  el.tabIndex >= 0 &&
+  !el.closest('[inert]') &&
+  (el.checkVisibility ? el.checkVisibility({ visibilityProperty: true }) : el.getClientRects().length > 0)
+
 function trapFocus(event) {
-  const focusables = [
-    ...panel.value.querySelectorAll(
-      'a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
-    ),
-  ].filter((el) => el.offsetParent !== null || el.getClientRects().length)
+  event.preventDefault()
+  const stops = [...panel.value.querySelectorAll(TABBABLE)].filter(isTabbable)
+  if (!stops.length) return panel.value.focus({ preventScroll: true })
 
-  if (!focusables.length) return event.preventDefault()
-
-  const first = focusables[0]
-  const last = focusables.at(-1)
   const active = document.activeElement
-
-  if (event.shiftKey && (active === first || active === panel.value)) {
-    event.preventDefault()
-    last.focus()
-  } else if (!event.shiftKey && active === last) {
-    event.preventDefault()
-    first.focus()
+  let index = stops.indexOf(active)
+  // Focus on something that isn't a stop (the panel, an option at -1): step from where it sits in the sheet.
+  if (index === -1) {
+    const after = stops.findIndex((el) => active?.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)
+    const inside = panel.value.contains(active) && active !== panel.value
+    if (!inside) index = event.shiftKey ? 0 : -1
+    else if (event.shiftKey) index = after === -1 ? stops.length : after
+    else index = after === -1 ? stops.length - 1 : after - 1
   }
+
+  const next = (index + (event.shiftKey ? -1 : 1) + stops.length) % stops.length
+  stops[next].focus()
 }
 
 /*
@@ -315,14 +332,17 @@ useEventListener(panel, 'transitionend', onTransitionEnd)
   --bs-btn-hover-color: var(--bs-body-color);
   --bs-btn-active-color: var(--bs-body-color);
 
+  /* A 32px circle inside a 44px target. */
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: -0.375rem;
   margin-inline-start: auto;
-  padding: 0;
+  padding: 0.375rem;
   border-radius: 50%;
+  background-clip: content-box;
 }
 
 .sheet-body {
@@ -346,8 +366,8 @@ useEventListener(panel, 'transitionend', onTransitionEnd)
 
     &:focus-visible {
       position: static;
-      width: 2rem;
-      height: 2rem;
+      width: 2.75rem;
+      height: 2.75rem;
       clip: auto;
     }
   }

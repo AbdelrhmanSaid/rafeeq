@@ -50,13 +50,13 @@ const { canInstall, install, dismiss } = useInstallPrompt()
   margin-inline: auto;
   padding: 0.75rem 0.9rem;
   border: 1px solid var(--app-hairline);
-  border-radius: 1rem;
+  border-radius: var(--bs-border-radius-lg);
   background: var(--app-glass);
   backdrop-filter: blur(18px) saturate(1.4);
   box-shadow: var(--app-shadow-card-hover);
 
   .icon-tile {
-    color: var(--bs-primary);
+    color: var(--app-primary-ink);
   }
 
   &__title,
@@ -79,7 +79,6 @@ const { canInstall, install, dismiss } = useInstallPrompt()
 
 @media (min-width: 768px) {
   .install-banner {
-    bottom: 1.25rem;
     inset-inline: auto 1.25rem;
     margin-inline: 0;
     width: 26rem;

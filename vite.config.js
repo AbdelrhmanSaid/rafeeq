@@ -6,6 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 import rtlcss from 'rtlcss'
 
 import { manifestIcons } from './src/app/pwa/manifest-icons.js'
+import { manifestScreenshots } from './src/app/pwa/manifest-screenshots.js'
 
 // These packages are already RTL-safe.
 const rtlcssExcludePatterns = [/vue-sonner/]
@@ -35,10 +36,15 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,woff,woff2}'],
-        globIgnores: ['push/onesignal/**/*'],
+        // Store screenshots are for the store listings, not something the app needs offline. The iOS splash images
+        // are only read by iOS when the app is added to the home screen, so they aren't precached either. The 604
+        // Mushaf page fonts (about 48 MB) are stored as pages are read or downloaded, by the reader itself.
+        globIgnores: ['push/onesignal/**/*', 'screenshots/**/*', 'splash/**/*', 'fonts/mushaf/**/*'],
         runtimeCaching: [
           {
-            urlPattern: /^.*\.(ttf|woff|woff2)$/,
+            // Mushaf page fonts keep their own cache (see src/features/quran/lib/mushafStorage.js), so they aren't
+            // stored twice.
+            urlPattern: ({ url }) => !url.pathname.startsWith('/fonts/mushaf/') && /\.(ttf|woff2?)$/.test(url.pathname),
             handler: 'CacheFirst',
             options: {
               cacheName: 'fonts-cache',
@@ -57,36 +63,40 @@ export default defineConfig({
         name: 'رفيق - زادك في الطريق',
         short_name: 'رفيق',
         description: 'تطبيق إسلامي شامل للأذكار والقرآن الكريم ومواقيت الصلاة',
+        // A stable identity, so a future change to start_url doesn't install as a new app.
+        id: '/',
         lang: 'ar',
         dir: 'rtl',
-        // Explicitly unset: vite-plugin-pwa otherwise defaults theme_color to #42b883 (Vue green),
-        // which Android uses to paint the status and navigation bars.
-        theme_color: undefined,
-        background_color: '#ffffff',
+        // The app's light background, so the status bar and splash screen blend into the first page.
+        // (Left unset, vite-plugin-pwa defaults theme_color to Vue green.) At runtime the page's theme-color
+        // meta follows the chosen theme.
+        theme_color: '#faf8f8',
+        background_color: '#faf8f8',
         display: 'standalone',
         start_url: '/',
         scope: '/',
         icons: manifestIcons,
+        screenshots: manifestScreenshots,
         shortcuts: [
           {
             name: 'القرآن الكريم',
             url: '/quran',
-            icons: [{ src: 'icons/android/android-launchericon-96-96.png', sizes: '96x96' }],
+            icons: [{ src: 'icons/shortcut-quran.png', sizes: '96x96', type: 'image/png' }],
           },
           {
             name: 'الأذكار',
             url: '/azkar',
-            icons: [{ src: 'icons/android/android-launchericon-96-96.png', sizes: '96x96' }],
+            icons: [{ src: 'icons/shortcut-azkar.png', sizes: '96x96', type: 'image/png' }],
           },
           {
             name: 'الإذاعة',
             url: '/radio',
-            icons: [{ src: 'icons/android/android-launchericon-96-96.png', sizes: '96x96' }],
+            icons: [{ src: 'icons/shortcut-radio.png', sizes: '96x96', type: 'image/png' }],
           },
           {
             name: 'اتجاه القبلة',
             url: '/qibla',
-            icons: [{ src: 'icons/android/android-launchericon-96-96.png', sizes: '96x96' }],
+            icons: [{ src: 'icons/shortcut-qibla.png', sizes: '96x96', type: 'image/png' }],
           },
         ],
       },

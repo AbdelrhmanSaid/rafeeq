@@ -34,6 +34,12 @@ describe('normalize', () => {
     expect(normalize('٠١٢٣')).toBe('0123')
     expect(normalize('Hello World 123')).toBe('hello world 123')
   })
+
+  it('trims and collapses spaces, including those left by dropped punctuation', () => {
+    expect(normalize('  أذكار   الصباح ')).toBe('اذكار الصباح')
+    expect(normalize('السلام ، عليكم')).toBe('السلام عليكم')
+    expect(normalize('   ')).toBe('')
+  })
 })
 
 describe('removeSurahPrefix', () => {

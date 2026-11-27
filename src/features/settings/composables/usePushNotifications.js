@@ -1,38 +1,85 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useOnline } from '@vueuse/core'
 import { toast } from 'vue-sonner'
 import { useOneSignal } from '@onesignal/onesignal-vue3'
 
+const BLOCKED_MESSAGE = 'الإشعارات محظورة في المتصفح، اسمح بها لهذا الموقع من إعدادات المتصفح ثم حاول مجددًا'
+
+const browserPermission = () => (typeof Notification === 'undefined' ? 'unsupported' : Notification.permission)
+
 export function usePushNotifications() {
   const instance = useOneSignal()
+  const online = useOnline()
 
   const enabled = ref(false)
   const loading = ref(true)
+  const busy = ref(false)
+  const permission = ref(browserPermission())
+  const supported = instance.Notifications.isPushSupported() && permission.value !== 'unsupported'
 
-  const state = computed(() => {
-    if (loading.value) return 'جاري التحميل...'
-    return enabled.value ? 'مفعلة' : 'غير مفعلة'
+  const blocked = computed(() => permission.value === 'denied')
+
+  // Why the switch can't be used right now, if it can't; null when it can.
+  const unavailableReason = computed(() => {
+    if (!supported) return 'هذا المتصفح لا يدعم الإشعارات'
+    if (blocked.value) return BLOCKED_MESSAGE
+    // OneSignal loads only online (see main.js), so offline it may not be there yet.
+    if (loading.value && !online.value) return 'يتطلب اتصالاً بالإنترنت'
+    return null
   })
 
-  async function toggle() {
-    if (instance.User.PushSubscription.optedIn === true) {
-      await instance.User.PushSubscription.optOut()
-      toast.success('تم إيقاف الإشعارات')
-    } else {
-      await instance.Notifications.requestPermission()
-      await instance.User.PushSubscription.optIn()
-      toast.success('تم تفعيل الإشعارات')
-    }
+  const disabled = computed(() => !supported || blocked.value || loading.value || busy.value)
 
-    enabled.value = instance.User.PushSubscription.optedIn === true
+  // Success is reported only once the subscription says so: a blocked or dismissed prompt changes nothing.
+  async function toggle() {
+    if (disabled.value) return
+    busy.value = true
+
+    try {
+      if (instance.User.PushSubscription.optedIn === true) {
+        await instance.User.PushSubscription.optOut()
+        if (instance.User.PushSubscription.optedIn !== true) toast.success('تم إيقاف الإشعارات')
+      } else {
+        await instance.Notifications.requestPermission()
+        permission.value = browserPermission()
+
+        if (permission.value === 'denied') {
+          toast.error(BLOCKED_MESSAGE)
+        } else if (permission.value === 'granted') {
+          await instance.User.PushSubscription.optIn()
+          if (instance.User.PushSubscription.optedIn === true) toast.success('تم تفعيل الإشعارات')
+          else toast.error('تعذر تفعيل الإشعارات، حاول مجددًا')
+        }
+      }
+    } catch {
+      toast.error('تعذر تغيير إعداد الإشعارات، حاول مجددًا')
+    } finally {
+      enabled.value = instance.User.PushSubscription.optedIn === true
+      busy.value = false
+    }
   }
 
   let cleanup = null
+  let permissionStatus = null
 
   function onSubscriptionChange(event) {
     enabled.value = event.current.optedIn === true
   }
 
+  // Allowing or blocking from the browser's own settings shows here without a reload.
+  function onPermissionChange() {
+    permission.value = browserPermission()
+  }
+
   onMounted(() => {
+    navigator.permissions
+      ?.query({ name: 'notifications' })
+      .then((status) => {
+        permissionStatus = status
+        status.addEventListener('change', onPermissionChange)
+      })
+      .catch(() => {})
+
     // OneSignal replaces PushSubscription during initialization, so poll the live
     // singleton before binding; the initial deferred object never emits changes.
     window.OneSignalDeferred = window.OneSignalDeferred || []
@@ -57,7 +104,8 @@ export function usePushNotifications() {
 
   onUnmounted(() => {
     if (cleanup) cleanup()
+    permissionStatus?.removeEventListener('change', onPermissionChange)
   })
 
-  return { enabled, loading, state, toggle }
+  return { enabled, loading, disabled, unavailableReason, toggle }
 }

@@ -1,13 +1,3 @@
-.navbar-toggler {
-  border: none;
-
-  &:focus,
-  &:active {
-    outline: none;
-    box-shadow: none;
-  }
-}
-
 html[dir='rtl'],
 [data-sonner-toaster][dir='rtl'] {
   --toast-button-margin-start: auto !important;
@@ -19,33 +9,18 @@ html[dir='rtl'],
 }
 
 .btn-primary {
-  --bs-btn-color: #fff;
+  --bs-btn-color: var(--app-on-primary);
   --bs-btn-bg: var(--bs-primary);
   --bs-btn-border-color: var(--bs-primary);
-  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-color: var(--app-on-primary);
   --bs-btn-hover-bg: color-mix(in srgb, var(--bs-primary) 88%, #000);
   --bs-btn-hover-border-color: color-mix(in srgb, var(--bs-primary) 80%, #000);
   --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
-  --bs-btn-active-color: #fff;
+  --bs-btn-active-color: var(--app-on-primary);
   --bs-btn-active-bg: color-mix(in srgb, var(--bs-primary) 78%, #000);
   --bs-btn-active-border-color: color-mix(in srgb, var(--bs-primary) 70%, #000);
-  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-color: var(--app-on-primary);
   --bs-btn-disabled-bg: var(--bs-primary);
-  --bs-btn-disabled-border-color: var(--bs-primary);
-}
-
-.btn-outline-primary {
-  --bs-btn-color: var(--bs-primary);
-  --bs-btn-border-color: var(--bs-primary);
-  --bs-btn-hover-color: #fff;
-  --bs-btn-hover-bg: var(--bs-primary);
-  --bs-btn-hover-border-color: var(--bs-primary);
-  --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
-  --bs-btn-active-color: #fff;
-  --bs-btn-active-bg: color-mix(in srgb, var(--bs-primary) 88%, #000);
-  --bs-btn-active-border-color: color-mix(in srgb, var(--bs-primary) 80%, #000);
-  --bs-btn-disabled-color: var(--bs-primary);
-  --bs-btn-disabled-bg: transparent;
   --bs-btn-disabled-border-color: var(--bs-primary);
 }
 
@@ -94,7 +69,7 @@ html[dir='rtl'],
   &:focus svg,
   &.active svg,
   &:active svg {
-    color: var(--bs-primary);
+    color: var(--app-primary-ink);
   }
 }
 
@@ -167,11 +142,25 @@ html[dir='rtl'],
   border-color: var(--bs-primary);
 }
 
-.form-check-input:focus,
+/* Inputs show no focus ring or border change in any state; the caret and the field itself mark focus. */
+.form-check-input,
+.form-control,
+.form-select {
+  &:focus,
+  &:focus-visible,
+  &:active {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
 .form-control:focus,
 .form-select:focus {
-  border-color: color-mix(in srgb, var(--bs-primary) 65%, #fff);
-  box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+  border-color: var(--app-hairline);
+}
+
+.form-check-input:not(:checked):focus {
+  border-color: var(--bs-border-color);
 }
 
 /* Keep numeric input alignment from being flipped by rtlcss. */
@@ -183,6 +172,64 @@ html[dir='rtl'] input[type='number']::placeholder {
 }
 /*! rtl:end:ignore */
 
-.card {
-  --bs-card-border-color: var(--bs-border-color);
+/* iOS-style switches: a pill track, a white knob, the brand colour when on. */
+.form-switch {
+  min-height: 0;
+  padding-inline-start: 0;
+
+  .form-check-input {
+    --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3.25' fill='%23fff' stroke='rgba(0,0,0,.06)' stroke-width='.15'/%3e%3c/svg%3e");
+
+    float: none;
+    width: 3.125rem;
+    height: 1.875rem;
+    margin: 0;
+    border: 0;
+    border-radius: 999px;
+    background-color: color-mix(in srgb, var(--bs-body-color) 18%, var(--bs-body-bg));
+    cursor: pointer;
+    transition:
+      background-position 0.2s ease,
+      background-color 0.2s ease;
+
+    &:checked {
+      background-color: var(--bs-primary);
+    }
+  }
+}
+
+/* Switches are buttons, not text fields, so keyboard users still get the app's focus ring. */
+.form-switch .form-check-input:focus-visible {
+  outline: 2px solid rgba(var(--bs-primary-rgb), 0.5);
+  outline-offset: 2px;
+}
+
+/* Bootstrap greys the off knob in dark mode; keep it white like the light theme. */
+[data-bs-theme='dark'] .form-switch .form-check-input:not(:checked):not(:focus),
+.form-switch .form-check-input:not(:checked):focus {
+  --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3.25' fill='%23fff' stroke='rgba(0,0,0,.06)' stroke-width='.15'/%3e%3c/svg%3e");
+}
+
+/* Soft tinted button for secondary actions: a light brand fill, brand text, no border.
+   Solid btn-primary is kept for the one main action on a screen. */
+.btn-soft {
+  --bs-btn-color: var(--app-primary-ink);
+  --bs-btn-bg: var(--app-tint);
+  --bs-btn-border-color: transparent;
+  --bs-btn-hover-color: var(--app-primary-ink);
+  --bs-btn-hover-bg: var(--app-tint-strong);
+  --bs-btn-hover-border-color: transparent;
+  --bs-btn-active-color: var(--app-primary-ink);
+  --bs-btn-active-bg: color-mix(in srgb, var(--bs-primary) 22%, transparent);
+  --bs-btn-active-border-color: transparent;
+  --bs-btn-disabled-color: var(--app-primary-ink);
+  --bs-btn-disabled-bg: var(--app-tint);
+  --bs-btn-disabled-border-color: transparent;
+}
+
+[data-bs-theme='dark'] .btn-soft {
+  --bs-btn-color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
+  --bs-btn-hover-color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
+  --bs-btn-active-color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
+  --bs-btn-disabled-color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
 }

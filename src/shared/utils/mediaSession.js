@@ -1,6 +1,6 @@
 const ARTWORK = [
-  { src: '/icons/android/android-launchericon-192-192.png', sizes: '192x192', type: 'image/png' },
-  { src: '/icons/android/android-launchericon-512-512.png', sizes: '512x512', type: 'image/png' },
+  { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+  { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
 ]
 
 function session() {
@@ -29,13 +29,6 @@ export function setMediaHandlers(handlers = {}) {
 export function setMediaPlaybackState(state) {
   const s = session()
   if (s) s.playbackState = state
-}
-
-export function setMediaPositionState({ duration, position, playbackRate = 1 } = {}) {
-  const s = session()
-  if (!s || typeof s.setPositionState !== 'function') return
-  if (!Number.isFinite(duration) || !Number.isFinite(position)) return
-  s.setPositionState({ duration, position: Math.min(position, duration), playbackRate })
 }
 
 export function clearMediaSession() {

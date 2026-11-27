@@ -1,5 +1,7 @@
 const PRIMARY_COLOR_VARS = [
   '--bs-primary',
+  '--app-on-primary',
+  '--app-primary-ink-light',
   '--bs-primary-rgb',
   '--bs-link-color',
   '--bs-link-hover-color',
@@ -14,6 +16,8 @@ const BG_COLOR_VARS = [
   '--bs-body-bg-rgb',
   '--bs-secondary-bg',
   '--bs-tertiary-bg',
+  '--app-page-bg-color',
+  '--app-page-bg-image',
 ]
 
 // The rem-based UI scales from the root font size; 100 is the browser default.
@@ -71,6 +75,31 @@ function toRgbValue(color) {
     .join(', ')
 }
 
+const luminance = (channels) => {
+  const [r, g, b] = channels.map((channel) => {
+    const c = channel / 255
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+  })
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+
+// Text and icons on a solid brand fill: white on dark colors, near-black on light ones such as the sand theme, where
+// white falls well short of readable contrast. The switch is at a relative luminance of 0.4.
+export function onColor(rgb) {
+  return luminance(rgb.split(',').map(Number)) > 0.4 ? '#1f1b16' : '#fff'
+}
+
+// The brand color as text and icons on the light theme's near-white surfaces: a light color (sand) is darkened until
+// it reads at 4.5:1, and a dark one is left as it is.
+export function inkColor(rgb) {
+  const channels = rgb.split(',').map(Number)
+  for (let keep = 1; keep > 0; keep -= 0.05) {
+    const mixed = channels.map((c) => Math.round(c * keep))
+    if (1.05 / (luminance(mixed) + 0.05) >= 4.6) return `rgb(${mixed.join(', ')})`
+  }
+  return '#000'
+}
+
 function setVars(vars) {
   const targets = [document.documentElement, document.body]
   for (const el of targets) {
@@ -95,14 +124,18 @@ export function applyPrimaryColor(color) {
   if (fg) {
     const vars = {
       '--bs-primary': fg,
-      '--bs-link-color': 'var(--bs-primary)',
+      '--bs-link-color': 'var(--app-primary-ink)',
       '--bs-link-hover-color': 'color-mix(in srgb, var(--bs-primary) 85%, #000)',
       '--bs-primary-text-emphasis': 'color-mix(in srgb, var(--bs-primary) 85%, #000)',
       '--bs-primary-bg-subtle': 'color-mix(in srgb, var(--bs-primary) 15%, transparent)',
       '--bs-primary-border-subtle': 'color-mix(in srgb, var(--bs-primary) 35%, transparent)',
     }
     const rgb = toRgbValue(fg)
-    if (rgb) vars['--bs-primary-rgb'] = rgb
+    if (rgb) {
+      vars['--bs-primary-rgb'] = rgb
+      vars['--app-on-primary'] = onColor(rgb)
+      vars['--app-primary-ink-light'] = inkColor(rgb)
+    }
     setVars(vars)
   } else {
     removeVars(PRIMARY_COLOR_VARS)
@@ -116,6 +149,18 @@ export function syncMetaThemeColor() {
 
   ensureMeta('msapplication-TileColor').setAttribute('content', bg)
 
+  // The status bar and browser UI take this colour; match the page so they blend in both themes.
+  // index.html ships light and dark first-paint tags keyed to the system theme; once the app knows its own theme,
+  // every tag carries that colour and drops its media query, so a manual theme wins over the system one.
+  const rgb = toRgbValue(bg)
+  if (rgb) {
+    ensureMeta('theme-color')
+    for (const meta of document.querySelectorAll('meta[name="theme-color"]')) {
+      meta.setAttribute('content', `rgb(${rgb})`)
+      meta.removeAttribute('media')
+    }
+  }
+
   const colorScheme = document.body.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light'
   ensureMeta('color-scheme').setAttribute('content', colorScheme)
   document.documentElement.style.colorScheme = colorScheme
@@ -125,16 +170,17 @@ export function applyBgColor(color) {
   const bg = normalizeColor(color)
 
   if (bg) {
-    const tintedBg = `color-mix(in srgb, ${bg} 96%, var(--bs-primary))`
-
+    // Only embeds set a background, to sit on the host page, so it's used exactly: no brand tint, no glow.
     const vars = {
       '--app-body-bg-base': bg,
-      '--bs-body-bg': tintedBg,
+      '--bs-body-bg': bg,
       '--bs-secondary-bg': 'color-mix(in srgb, var(--bs-body-bg) 92%, #fff)',
       '--bs-tertiary-bg': 'color-mix(in srgb, var(--bs-body-bg) 84%, #fff)',
+      '--app-page-bg-color': bg,
+      '--app-page-bg-image': 'none',
     }
 
-    const rgb = toRgbValue(tintedBg)
+    const rgb = toRgbValue(bg)
     if (rgb) vars['--bs-body-bg-rgb'] = rgb
     setVars(vars)
   } else {

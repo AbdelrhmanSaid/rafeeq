@@ -11,27 +11,25 @@ import {
   IconPlayerPlay,
   IconPlayerPause,
   IconBookmark,
+  IconBook2,
 } from '@tabler/icons-vue'
 import { useReconnectExecute } from '@/shared/composables/useReconnectExecute'
-import { useQuranStore } from '@/features/quran/store'
 
 import LoadingState from '@/shared/ui/LoadingState.vue'
 import ErrorState from '@/shared/ui/ErrorState.vue'
 import OfflineState from '@/shared/ui/OfflineState.vue'
+import TafseerSheet from '@/features/quran/components/TafseerSheet.vue'
 
 const online = useOnline()
 
-const quranStore = useQuranStore()
-
 const TOTAL_AYAHS = 6236
 const current = ref(Math.floor(Math.random() * TOTAL_AYAHS) + 1)
-const editions = computed(() => ['quran-uthmani', quranStore.currentTafseer, 'ar.alafasy'])
-const endpoint = computed(() => `${API.quranCloud}/ayah/${current.value}/editions/${editions.value.join(',')}`)
+// The tafsir is fetched by the sheet on demand, so the card stays short and loads only the text and recitation.
+const endpoint = computed(() => `${API.quranCloud}/ayah/${current.value}/editions/quran-uthmani,ar.alafasy`)
 
 const { isFetching, data, error, execute } = useFetch(endpoint, { refetch: true }).json().get()
 const ayah = computed(() => data.value?.data?.[0])
-const tafsir = computed(() => data.value?.data?.[1])
-const recitation = computed(() => data.value?.data?.[2])
+const recitation = computed(() => data.value?.data?.[1])
 const { isRecoveringOnReconnect } = useReconnectExecute(online, execute)
 
 const audio = new Audio()
@@ -59,6 +57,14 @@ const displayText = computed(() => {
 
   return ayah.value.text.trim()
 })
+
+// The sheet follows the card: its prev/next move the card's ayah, and it shows whichever ayah is loaded.
+const showTafseer = ref(false)
+const tafseerAyah = computed(() =>
+  showTafseer.value && ayah.value
+    ? { number: ayah.value.number, numberInSurah: ayah.value.numberInSurah, text: displayText.value }
+    : null,
+)
 
 function fetchRandomAyah() {
   current.value = Math.floor(Math.random() * TOTAL_AYAHS) + 1
@@ -96,8 +102,8 @@ async function toggleAyahPlayback() {
     </div>
 
     <div v-else-if="error" class="card-body p-5">
-      <OfflineState v-if="!online" />
-      <ErrorState :code="500" message="حدث خطأ أثناء تحميل الآية، برجاء المحاولة مرة أخرى." v-else />
+      <OfflineState v-if="!online" :retry="execute" />
+      <ErrorState v-else message="حدث خطأ أثناء تحميل الآية، برجاء المحاولة مرة أخرى." :retry="execute" />
     </div>
 
     <template v-else-if="ayah">
@@ -114,11 +120,6 @@ async function toggleAyahPlayback() {
         <p class="ayah-text font-quran">
           {{ displayText }} <span class="ayah-number">{{ toArabicNumerals(ayah.numberInSurah) }}</span>
         </p>
-
-        <div v-if="tafsir" class="ayah-tafsir">
-          <span class="ayah-tafsir__label">{{ tafsir.edition.name }}</span>
-          <p class="mb-0">{{ tafsir.text }}</p>
-        </div>
       </div>
 
       <div class="ayah-footer card-footer">
@@ -143,12 +144,25 @@ async function toggleAyahPlayback() {
             <IconPlayerPlay v-else size="18" />
           </button>
 
+          <button class="btn btn-flat btn-icon" @click="showTafseer = true" title="التفسير" aria-label="عرض التفسير">
+            <IconBook2 size="18" />
+          </button>
+
           <button class="btn btn-flat btn-icon" @click="fetchRandomAyah" title="آية جديدة" aria-label="تحميل آية جديدة">
             <IconRefresh size="18" />
           </button>
         </div>
       </div>
     </template>
+
+    <TafseerSheet
+      :ayah="tafseerAyah"
+      has-prev
+      has-next
+      @prev="prevAyah"
+      @next="nextAyah"
+      @close="showTafseer = false"
+    />
   </div>
 </template>
 
@@ -216,23 +230,5 @@ async function toggleAyahPlayback() {
   font-size: clamp(1.5rem, 3vw, 2rem);
   line-height: 2;
   text-align: center;
-}
-
-.ayah-tafsir {
-  margin-top: 1.25rem;
-  padding: 1rem 1.15rem;
-  border-radius: var(--bs-border-radius);
-  background: color-mix(in srgb, var(--bs-primary) 5%, var(--bs-body-bg));
-  border: 1px solid var(--app-hairline);
-  font-size: 0.9rem;
-  line-height: 1.9;
-}
-
-.ayah-tafsir__label {
-  display: inline-block;
-  margin-bottom: 0.5rem;
-  color: var(--bs-primary);
-  font-size: 0.8rem;
-  font-weight: 700;
 }
 </style>

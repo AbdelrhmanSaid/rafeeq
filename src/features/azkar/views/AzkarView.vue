@@ -11,7 +11,12 @@ const items = categories.map((category, index) => ({ ...category, id: index + 1 
 
 <template>
   <Page>
-    <Heading title="الأذكار" subtitle="اختر الباب الذي ترغب في البحث عن الأذكار المتعلقة به" :share="true" />
+    <Heading
+      subtitle-desktop-only
+      title="الأذكار"
+      subtitle="اختر الباب الذي ترغب في البحث عن الأذكار المتعلقة به"
+      :share="true"
+    />
 
     <SearchableFavoritesList
       :items="items"
@@ -19,13 +24,14 @@ const items = categories.map((category, index) => ({ ...category, id: index + 1 
       :favorites-key="STORAGE_KEYS.azkarFavorites"
       placeholder="ابحث عن الباب"
       label="تبحث عن باب معين؟"
+      :item-label="(item) => item.name"
     >
       <template #favorites-title>
-        <h5 class="mb-3">الأبواب المفضلة</h5>
+        <h2 class="list-title">الأبواب المفضلة</h2>
       </template>
 
       <template #all-title>
-        <h5 class="mb-3">كل الأبواب</h5>
+        <h2 class="list-title">كل الأبواب</h2>
       </template>
 
       <template #default="{ item }">
