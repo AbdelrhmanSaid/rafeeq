@@ -297,7 +297,8 @@ onBeforeUnmount(() => {
                 :tabindex="segment.first ? 0 : undefined"
                 :aria-label="segment.first ? ayahLabel(segment.key) : undefined"
                 :aria-hidden="segment.first ? undefined : 'true'"
-                >{{ segment.glyphs }}</span>{{ i < line.segments.length - 1 ? ' ' : '' }}
+                ><span class="ayah__glyphs">{{ segment.glyphs }}</span></span
+              >{{ i < line.segments.length - 1 ? ' ' : '' }}
             </template>
           </div>
         </template>
@@ -392,6 +393,8 @@ onBeforeUnmount(() => {
 
 .mushaf-sheet__lines {
   font-family: var(--page-font), 'Thmanyah Sans', sans-serif;
+  // The ayat's tints sit behind the words but in front of everything under the page.
+  isolation: isolate;
 }
 
 .mushaf-line {
@@ -405,8 +408,9 @@ onBeforeUnmount(() => {
   // touch, even on a line that fills the page or was set smaller to fit; justifying widens them from there.
   word-spacing: -0.08em;
 
-  // A line wider than the page is drawn smaller to fit. Only its words shrink, so the line keeps its height.
-  > .ayah {
+  // A line wider than the page is drawn smaller to fit. Only its words shrink, so the line keeps its height, and so
+  // does the ayah around them, which the tint is measured from.
+  .ayah__glyphs {
     font-size: calc(1em * var(--fit, 1));
   }
 
@@ -493,26 +497,31 @@ onBeforeUnmount(() => {
 }
 
 .ayah {
-  border-radius: 0.35em;
+  --reach-before: 0.15em;
+  --reach-after: 0.15em;
+
+  position: relative;
   cursor: default;
-  transition: background-color 0.2s ease;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
+
+  // The tint is exactly one line tall, so an ayah's lines meet without overlapping. The ayah's own box comes from the
+  // font and is taller than the line, so its background would run into the lines above and below it.
+  // It reaches a little past the words on either side without moving them.
+  &::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: calc(50% - var(--pitch) / 2);
+    height: var(--pitch);
+    inset-inline: calc(var(--reach-before) * -1) calc(var(--reach-after) * -1);
+    transition: background-color 0.2s ease;
+  }
 
   &.is-selected,
   &.is-playing,
   &.is-bookmarked {
-    --reach-before: 0.15em;
-    --reach-after: 0.15em;
-
-    background-color: var(--mark);
-    // A little past the words on either side without moving them: before the ayah on its right, after it on its left.
-    // Physical sides, so rtlcss leaves them.
-    /*! rtl:begin:ignore */
-    box-shadow:
-      var(--reach-before) 0 0 var(--mark),
-      calc(var(--reach-after) * -1) 0 0 var(--mark);
-    /*! rtl:end:ignore */
+    &::before {
+      background-color: var(--mark);
+    }
   }
 
   // Two marked ayat side by side stop at the space between them: reaching into each other, their tints would mix
