@@ -17,7 +17,6 @@ export const useDownloadStore = defineStore('download', () => {
 
   const azkarOffline = useOfflineData('azkar')
 
-  // `fetch` honours the signal so pause/cancel stop the running item; `discard` drops what a cancelled one stored.
   const assetTypes = {
     surah: {
       offline: mushafDownloads,
@@ -28,7 +27,6 @@ export const useDownloadStore = defineStore('download', () => {
     azkar: {
       offline: azkarOffline,
       assets: azkarCategories.map((c) => ({ id: `azkar-${c.slug}`, type: 'azkar', name: c.name, key: c.slug })),
-      // A category is one small file that can't be stopped halfway; an abort while it loads still counts as one.
       fetch: async (asset, signal) => {
         await fetchCategory(asset.key)
         signal.throwIfAborted()
@@ -59,9 +57,7 @@ export const useDownloadStore = defineStore('download', () => {
     return downloadQueue.value.some((item) => item.id === asset.id)
   }
 
-  // The running item: its abort controller and its run (which never rejects), to await after aborting.
   let active = null
-  // Started but unfinished items, so a cancel can discard what they stored.
   const started = new Map()
 
   const failures = new Map()
@@ -94,14 +90,12 @@ export const useDownloadStore = defineStore('download', () => {
         await sleep(100)
       } catch (error) {
         currentItem.value = null
-        // Paused or cancelled: a paused item stays first in the queue, a cancelled one is already out of it.
         if (controller.signal.aborted) continue
         console.error(`Failed to download ${asset.name}:`, error)
         if (!isInQueue(asset)) continue
-        // The connection dropped: it waits in its place for the connection, without counting as a try.
         if (!online.value) continue
         dropFromQueue(asset)
-        // Three tries, then it's left out rather than retried forever (a full disk would never succeed).
+        // Three tries, not forever: a full disk would never succeed.
         const tries = (failures.get(asset.id) ?? 0) + 1
         failures.set(asset.id, tries)
         if (tries < 3) downloadQueue.value.push(asset)
@@ -131,7 +125,7 @@ export const useDownloadStore = defineStore('download', () => {
     await Promise.all(cancelled.map((asset) => assetTypes[asset.type].discard(asset)))
   }
 
-  // The old reader stored surahs as text the Mushaf can't draw: download them again as pages, then delete the old.
+  // Migration: surahs saved by the old reader as text the Mushaf can't draw are downloaded again as pages.
   async function replaceOldSurahDownloads() {
     await scanStoredPages()
     // Surahs recorded as downloaded whose pages are gone (replaced by the V4 fonts) are queued again.
@@ -175,7 +169,6 @@ export const useDownloadStore = defineStore('download', () => {
     await Promise.all(types.map((t) => t.offline.removeAll()))
   }
 
-  // Pausing stops the item downloading now, which stays first in the queue; what it stored is kept for the resume.
   function pauseDownloads() {
     isPaused.value = true
     active?.controller.abort()

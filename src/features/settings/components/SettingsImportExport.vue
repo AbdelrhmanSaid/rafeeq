@@ -14,7 +14,6 @@ import { ITEM_FORMS, countLabel } from '../lib/countLabel.js'
 
 const fileInput = ref(null)
 const isImporting = ref(false)
-// The checked backup waiting for confirmation; picking another file replaces it rather than asking twice.
 const pending = ref(null)
 
 function exportSettings() {
@@ -55,7 +54,6 @@ async function importSettings(event) {
     const contents = await file.text()
     try {
       const entries = parseSettingsBackup(contents)
-      // An earlier file's error would otherwise sit over the confirmation.
       toast.dismiss('settings-import')
       pending.value = { contents, count: entries.length }
     } catch {

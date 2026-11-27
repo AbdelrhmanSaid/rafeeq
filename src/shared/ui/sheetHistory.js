@@ -1,13 +1,11 @@
-// Back closes the top bottom sheet instead of leaving the screen: while sheets are open, one extra history entry sits
-// over the screen's own, and going back off it never reaches the router. The popstate listener must run before the
-// router's, so this module is imported before the router is created.
+// While sheets are open one extra history entry sits over the screen's, so Back closes the top sheet.
+// The popstate listener must run before the router's, so this module is imported before the router is created.
 
 const KEY = 'bottomSheet'
 
 const sheets = []
 let router = null
 let token = null
-// Going back off the entry ourselves, after a sheet closed some other way.
 let goingBack = false
 let pushAfterBack = false
 
@@ -19,8 +17,7 @@ function push() {
   history.pushState({ ...history.state, [KEY]: token }, '')
 }
 
-// The address under the entry is the one from when the first sheet opened. The router may have changed the address
-// since (a page turned while the tafsir was open), so the router's own address and state go back, without telling it.
+// The router may have changed the address since the first sheet opened, so restore its address and state silently.
 function restoreAddress() {
   if (!router) return
   const { state, location: path } = router.options.history
@@ -45,7 +42,6 @@ function onPopState(event) {
   event.stopImmediatePropagation()
   restoreAddress()
   sheets.at(-1)?.close()
-  // Sheets still open under it get an entry of their own.
   setTimeout(() => {
     if (sheets.length && token === null) push()
   })

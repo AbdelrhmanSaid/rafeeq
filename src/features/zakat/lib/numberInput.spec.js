@@ -26,7 +26,6 @@ describe('normalizeNumberInput', () => {
   })
 
   it('keeps the caret after the same characters', () => {
-    // Typed "x" between ١ and ٢: dropped, so the caret goes back to just after ١.
     expect(normalizeNumberInput('١x٢٣', 2)).toEqual({ value: '123', caret: 1 })
     expect(normalizeNumberInput('١٢٣', 2)).toEqual({ value: '123', caret: 2 })
     expect(normalizeNumberInput('١٬٢٣٤', 5)).toEqual({ value: '1234', caret: 4 })

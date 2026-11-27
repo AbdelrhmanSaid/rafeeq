@@ -4,10 +4,8 @@ import { IconCheck, IconSearch } from '@tabler/icons-vue'
 import { useSearch } from '@/shared/composables/useSearch'
 import { rovingTarget } from '@/shared/utils/rovingFocus'
 
-// The radio list behind OptionsSheet (phones) and OptionsMenu (desktop), which mount it as they open.
 const props = defineProps({
   label: { type: String, required: true },
-  // [{ value, label, hint? }]; the hint sits muted beside the label.
   options: { type: Array, required: true },
   searchPlaceholder: { type: String, default: 'ابحث' },
   emptyMessage: { type: String, default: 'لا توجد نتائج' },
@@ -28,7 +26,7 @@ const isChosen = (option) => String(option.value) === String(model.value)
 
 const radios = () => list.value?.querySelectorAll('[role="radio"]') ?? []
 
-// The chosen option starts in the middle of the list. Scrolled by hand: scrollIntoView would scroll the page too.
+// Scrolled by hand: scrollIntoView would scroll the page too.
 onMounted(async () => {
   await nextTick()
   const chosen = list.value?.querySelector('[aria-checked="true"]')
@@ -40,8 +38,6 @@ function choose(option) {
   emit('choose', option.value)
 }
 
-// The list is one Tab stop, on the chosen option (or the first, when a search hides it); the arrows move between
-// options without choosing one, since choosing closes the list. Space or Enter chooses.
 const focusIndex = ref(0)
 watch(filtered, (options) => (focusIndex.value = Math.max(0, options.findIndex(isChosen))), { immediate: true })
 
@@ -113,7 +109,6 @@ defineExpose({ focus })
   min-height: 0;
 }
 
-/* A fixed height, so the list doesn't jump as the search narrows it. */
 .options--search {
   height: var(--options-search-height, min(70dvh, 36rem));
 }

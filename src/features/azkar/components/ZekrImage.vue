@@ -26,7 +26,6 @@ const primaryColor = rootStyles.getPropertyValue('--bs-primary').trim() || '#795
 const primaryRgb = rootStyles.getPropertyValue('--bs-primary-rgb').trim() || '121, 85, 71'
 const primary = (alpha) => `rgba(${primaryRgb}, ${alpha})`
 
-// Keep exports independent of the user's font scale.
 const textSize = computed(() => {
   const len = props.text.length
   if (len <= 60) return { fontSize: '30px', lineHeight: 2.1 }

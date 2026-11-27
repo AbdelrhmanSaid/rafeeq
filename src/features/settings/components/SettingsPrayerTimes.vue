@@ -54,7 +54,6 @@ const location = computed(() => {
   min-height: 3rem;
 }
 
-/* Wraps rather than cutting off: at a large text size the two coordinates sit one above the other. */
 .location-row__value {
   flex: 1;
   min-width: 0;
@@ -64,7 +63,6 @@ const location = computed(() => {
   text-align: end;
 }
 
-/* A thumb-sized target that stops growing past 44px at a large text size, leaving the coordinates room. */
 .location-row__action {
   display: grid;
   flex-shrink: 0;

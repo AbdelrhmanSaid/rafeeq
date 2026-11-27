@@ -1,6 +1,5 @@
 <script setup>
 defineProps({
-  // { value, hint, status: 'reached' | 'below' | null, items?: [{ value, label }] }
   result: { type: Object, required: true },
   conditions: { type: Array, required: true },
 })
@@ -48,10 +47,8 @@ defineProps({
   background:
     radial-gradient(28rem 14rem at 100% 0, rgba(255, 255, 255, 0.18), transparent 70%),
     linear-gradient(135deg, var(--bs-primary), color-mix(in srgb, var(--bs-primary) 72%, #000));
-  /* White on a dark brand colour, near-black on a light one (sand); see the prayer card. */
   color: var(--app-on-primary);
 
-  /* Deepen away from the text colour, so a light brand colour doesn't darken behind its dark text. */
   @supports (color: rgb(from red r g b)) {
     background:
       radial-gradient(28rem 14rem at 100% 0, rgba(255, 255, 255, 0.18), transparent 70%),

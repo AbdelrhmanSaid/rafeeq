@@ -59,7 +59,6 @@ defineProps({
   flex-shrink: 0;
   align-items: center;
   gap: 0.125rem;
-  /* A thumb-sized target without growing the header. */
   margin: -0.5rem -0.5rem -0.5rem 0;
   padding: 0.5rem;
   border-radius: var(--bs-border-radius);

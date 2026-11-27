@@ -23,7 +23,6 @@ usePageHeader({
   el: useTemplateRef('title'),
 })
 
-// [x, y, radius] in the scene's 360×240 viewBox.
 const STARS = [
   [32, 138, 1.2],
   [104, 150, 1],
@@ -39,14 +38,12 @@ const STARS = [
   [214, 84, 1],
 ]
 
-// Modified or middle clicks open the station elsewhere; only a plain click plays it here.
 const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button > 0
 </script>
 
 <template>
   <div class="station">
-    <!-- "meet", not "slice", so a wide card doesn't cut off the crescent; the ground runs far past the viewBox to span
-         any width. -->
+    <!-- "meet", not "slice", so a wide card doesn't cut off the crescent. -->
     <section class="sky">
       <svg class="sky__scene" viewBox="0 0 360 240" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
         <defs>
@@ -186,7 +183,6 @@ const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shift
   flex-shrink: 0;
   width: 2.75rem;
   height: 2.75rem;
-  /* Line the icon up with the title's corner while keeping a 44px target. */
   margin-top: -0.5rem;
   margin-inline-end: -0.625rem;
   padding: 0;
@@ -262,7 +258,6 @@ const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shift
     height: 2rem;
   }
 
-  /* Darken instead of fading, so the sky behind the button never shows through. */
   &:active {
     background: color-mix(in srgb, var(--bs-primary) 85%, #000);
   }
@@ -274,7 +269,6 @@ const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shift
 
 .station__row {
   min-height: 3.5rem;
-  /* List actions default to the muted text colour; the name stays full strength and only the detail is muted. */
   color: var(--bs-body-color);
 }
 </style>

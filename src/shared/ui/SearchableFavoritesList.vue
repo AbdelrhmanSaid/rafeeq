@@ -14,7 +14,6 @@ const props = defineProps({
   label: { type: String, default: 'تبحث عن شيء معين؟' },
   searchType: { type: String, default: 'text' },
   itemClass: { type: Function, default: () => ({}) },
-  // Optional sections, as [{ key, title }]; each item goes in the section named by its `category`.
   groups: { type: Array, default: null },
   itemLabel: { type: Function, required: true },
 })
@@ -57,7 +56,6 @@ const clearSearch = () => {
       :placeholder="placeholder"
       :aria-label="label"
     />
-    <!-- Replaces the browser's own clear button on type="search", hidden below. -->
     <button v-if="search" type="button" class="search-field__clear" aria-label="مسح البحث" @click="clearSearch">
       <IconX size="1rem" aria-hidden="true" />
     </button>
@@ -160,7 +158,6 @@ const clearSearch = () => {
   color: var(--bs-secondary-color);
   transform: translateY(-50%);
 
-  /* A small filled disc behind the ✕, like the system clear button, in a thumb-sized target. */
   &::before {
     content: '';
     position: absolute;
@@ -181,7 +178,6 @@ const clearSearch = () => {
   }
 }
 
-/* The 44px action buttons set the row height; list actions default to the muted colour, the name reads in full. */
 .fav-row {
   --bs-list-group-action-color: var(--bs-body-color);
   padding-block: 0.375rem;

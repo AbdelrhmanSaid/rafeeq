@@ -65,7 +65,6 @@ const tabs = [
     label: SETTINGS_SECTION_LABELS.downloads,
     icon: IconCloudDownload,
     sections: [SettingsDownloadAssets],
-    // Lays out its own grouped lists.
     ungrouped: true,
   },
 ]
@@ -73,7 +72,6 @@ const tabs = [
 const route = useRoute()
 const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab) ?? null)
 
-// A section titled like the screen (المظهر on المظهر) drops the repeated title; see SettingsSection.
 provide(
   SETTINGS_PAGE_TITLE,
   computed(() => activeTab.value?.label ?? null),

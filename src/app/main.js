@@ -29,8 +29,7 @@ const oneSignalOptions = {
   allowLocalhostAsSecureOrigin: true,
 }
 
-// Embeds never ask for notifications. Offline the script can't load, so it waits for the connection; Settings ›
-// Notifications waits for it through OneSignalDeferred either way.
+// Offline the script can't load, so it waits for the connection.
 function initOneSignal() {
   // Rejects in browsers without web push.
   useOneSignal()

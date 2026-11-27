@@ -1,4 +1,3 @@
-// The same reciter's other recitations first, then the nearest stations in the same section.
 export function getSimilarStations(slug, radios, limit = 4) {
   const entries = Object.entries(radios).map(([key, station]) => ({ slug: key, ...station }))
   const current = entries.find((station) => station.slug === slug)

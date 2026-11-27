@@ -13,8 +13,6 @@ defineProps({
 </template>
 
 <style scoped>
-/* At large text sizes the detail drops below and the name wraps instead of being cut to one word (several stations
-   share a reciter's name). */
 .station-name {
   display: flex;
   flex-wrap: wrap;

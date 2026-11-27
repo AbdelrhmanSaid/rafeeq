@@ -69,7 +69,6 @@ const isPhone = useIsMobile()
   }
 }
 
-/* The value keeps its width up to 60% and the label wraps, so a large text size doesn't squeeze a short value. */
 .select-row__label {
   flex: 1 1 auto;
   min-width: 0;

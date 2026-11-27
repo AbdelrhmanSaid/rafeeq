@@ -81,7 +81,6 @@ describe('download store', () => {
     expect(store.currentItem?.id).toBe(fatiha.id)
 
     await store.cancelAllDownloads()
-    // The network finishing late changes nothing.
     mushafDownloads.running[0].finish()
     await flush()
 
@@ -168,7 +167,6 @@ describe('download store', () => {
     store.queueAsset(category)
     await flush()
     mushafDownloads.running[0].finish()
-    // The category starts after the surah; cancel straight away.
     await new Promise((resolve) => setTimeout(resolve, 1))
     await store.cancelAllDownloads()
     await flush()

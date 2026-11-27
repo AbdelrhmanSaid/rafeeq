@@ -3,7 +3,6 @@ defineProps({
   icon: { type: [Object, Function], default: null },
   title: { type: String, required: true },
   message: { type: String, default: '' },
-  // 1 where the state is the whole screen, like the 404.
   level: { type: Number, default: 2 },
 })
 </script>

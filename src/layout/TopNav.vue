@@ -18,7 +18,6 @@ const destinations = navigation.filter((item) => item.menus.includes('primary'))
 <template>
   <header class="top-nav">
     <div class="top-nav__inner container">
-      <!-- Always in the layout so the logo and tabs never shift between pages. -->
       <button
         type="button"
         class="top-nav__action top-nav__back"
@@ -184,7 +183,6 @@ const destinations = navigation.filter((item) => item.menus.includes('primary'))
   color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
 }
 
-/* Reserve the bold width so the current tab never nudges its neighbours. */
 .top-nav-item__label {
   display: inline-flex;
   flex-direction: column;

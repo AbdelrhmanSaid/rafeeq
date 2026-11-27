@@ -114,7 +114,6 @@ const tabs = [
 
 const activeTab = computed(() => (tabs.some((tab) => tab.id === route.params.tab) ? route.params.tab : 'money'))
 
-// Scroll a deep-linked tab into view once the fonts, which set the tabs' widths, have loaded.
 const nav = ref(null)
 onMounted(async () => {
   await document.fonts?.ready
@@ -188,7 +187,6 @@ const conditions = {
 
     <div class="zakat-layout">
       <nav ref="nav" class="zakat-nav tab-pills" aria-label="أنواع الزكاة">
-        <!-- Avoid stacking tab changes in browser history. -->
         <RouterLink
           v-for="tab in tabs"
           :key="tab.id"
@@ -241,7 +239,6 @@ const conditions = {
 </template>
 
 <style scoped>
-/* minmax(0, …) makes the tab row scroll inside the column instead of widening it past a narrow phone. */
 .zakat-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

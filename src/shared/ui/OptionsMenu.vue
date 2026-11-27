@@ -5,7 +5,6 @@ import OptionsList from '@/shared/ui/OptionsList.vue'
 
 const props = defineProps({
   show: { type: Boolean, default: false },
-  // The row that opens it: the menu lines up with it, and focus goes back to it on close.
   anchor: { type: Object, default: null },
   title: { type: String, required: true },
   options: { type: Array, required: true },
@@ -26,7 +25,6 @@ const ROW_HEIGHT = 40
 const style = ref({})
 const up = ref(false)
 
-// All of MAX_HEIGHT once the list is long enough for a search field (OptionsList's threshold).
 const wantedHeight = () => (props.options.length > 10 ? MAX_HEIGHT : props.options.length * ROW_HEIGHT + 16)
 
 function place() {
@@ -40,7 +38,6 @@ function place() {
   up.value = below < Math.min(wantedHeight(), MAX_HEIGHT) && above > below
   const height = Math.max(0, Math.min(MAX_HEIGHT, up.value ? above : below))
 
-  // Lined up with the row's end, where its value is: the left edge on a right-to-left page.
   const width = Math.min(WIDTH, vw - 2 * MARGIN)
   const rtl = getComputedStyle(anchor).direction === 'rtl'
   const left = Math.min(Math.max(rtl ? rect.left : rect.right - width, MARGIN), vw - MARGIN - width)
@@ -64,7 +61,6 @@ watch(
   { immediate: true },
 )
 
-// Follows the row as the page, or a dialog around the row, scrolls.
 useEventListener(window, 'resize', () => props.show && place())
 useEventListener(window, 'scroll', () => props.show && place(), { capture: true, passive: true })
 
@@ -112,7 +108,6 @@ function onKeydown(event) {
   display: flex;
   flex-direction: column;
   max-height: var(--menu-height);
-  /* A searchable list fills the height it's given (less the border), so it doesn't jump as the search narrows it. */
   --options-search-height: calc(var(--menu-height) - 2px);
   border: 1px solid var(--app-hairline);
   border-radius: var(--bs-border-radius-lg);

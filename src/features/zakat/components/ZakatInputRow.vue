@@ -8,7 +8,6 @@ const props = defineProps({
   integer: { type: Boolean, default: false },
 })
 
-// The model is a plain number string ("1234.5") for the calculations; the field shows it in Arabic-Indic digits.
 const model = defineModel({ type: [String, Number], default: '' })
 const display = computed(() => toInputDisplay(model.value))
 
@@ -60,7 +59,7 @@ function onInput(event) {
 }
 
 .zakat-row__input {
-  /* Grows with the amount so it isn't cut off after blur. The placeholder is "—": an Arabic zero looks like a dot. */
+  /* The placeholder is "—": an Arabic zero looks like a dot. */
   flex-shrink: 0;
   width: clamp(min(6.5rem, 40%), calc((var(--chars, 0) + 1) * 1ch), 60%);
   min-width: 0;

@@ -36,12 +36,10 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,woff,woff2}'],
-        // Not needed offline: store screenshots, iOS splash images (read only on add-to-home-screen), and the ~48 MB
-        // of Mushaf page fonts, which the reader stores itself as pages are read or downloaded.
+        // Not precached: screenshots, iOS splash images, and ~48 MB of Mushaf fonts the reader caches itself.
         globIgnores: ['push/onesignal/**/*', 'screenshots/**/*', 'splash/**/*', 'fonts/mushaf/**/*'],
         runtimeCaching: [
           {
-            // Mushaf page fonts have their own cache (src/features/quran/lib/mushafStorage.js).
             urlPattern: ({ url }) => !url.pathname.startsWith('/fonts/mushaf/') && /\.(ttf|woff2?)$/.test(url.pathname),
             handler: 'CacheFirst',
             options: {
@@ -65,8 +63,7 @@ export default defineConfig({
         id: '/',
         lang: 'ar',
         dir: 'rtl',
-        // No theme_color, so the installed app's bars follow the page's theme-color meta. Explicitly undefined because
-        // vite-plugin-pwa otherwise merges in a default; JSON.stringify drops the key.
+        // Explicitly undefined: vite-plugin-pwa merges in a default theme_color, which would override the page's meta.
         theme_color: undefined,
         // Matches the maskable icon's fill, so Android 12+'s circle-cropped splash icon shows only the mark.
         background_color: '#f2ebe2',

@@ -24,7 +24,6 @@ const groups = [
 
 const isConnecting = (item) => store.station === item.url && ['connecting', 'retrying'].includes(store.status)
 
-// `title` spells out translation stations, so searching "ترجمة" still finds them.
 const radiosList = Object.entries(radiosData).map(([slug, station]) => ({
   slug,
   ...station,
@@ -132,7 +131,6 @@ const radiosList = Object.entries(radiosData).map(([slug, station]) => ({
     }
   }
 
-  /* Large text on a narrow screen: drop the row number to leave the name room (em follows the font scale). */
   @container (max-width: 17em) {
     .list-index {
       display: none;

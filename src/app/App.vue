@@ -33,7 +33,6 @@ watch(online, (isOnline) => {
 const isEmbedRoute = computed(() => route.path.startsWith('/embed'))
 watch(isEmbedRoute, (embed) => document.body.classList.toggle('is-embed', embed), { immediate: true })
 
-// A service-worker update may reload only once per page load.
 let hasReloadedForUpdate = false
 
 // Starting the downloads store re-downloads any offline surah whose pages were evicted.
@@ -104,7 +103,6 @@ const updateSW = registerSW({
   flex-direction: column;
   min-height: 100vh;
   min-height: 100dvh;
-  /* Physical safe-area sides must not be flipped by rtlcss. */
   /*! rtl:begin:ignore */
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);

@@ -75,8 +75,7 @@ const onTouchEnd = (e) => {
   touchStartY = null
 }
 
-// A long press flags the click that follows so it doesn't count twice. Clear it on every new press: iOS sometimes
-// skips pointer-up, and a stale flag would swallow the next tap.
+// Cleared on every press: iOS sometimes skips pointerup, and a stale flag would swallow the next tap.
 const onPressStart = () => {
   longPressed = false
 }
@@ -115,7 +114,6 @@ const exportAsImage = () => {
   )
 }
 
-// Closing the share sheet without sharing isn't an error.
 const shareZekr = async () => {
   if (!navigator.share) return copyZekr()
 
@@ -255,7 +253,6 @@ function copyZekr() {
   container-type: inline-size;
 }
 
-/* Justify only when a line fits ~10 words; narrow cards or large text would get gaping word spaces. */
 .zekr-text {
   margin: 0;
   font-size: 1.625rem;
@@ -329,7 +326,6 @@ function copyZekr() {
   [data-bs-toggle='dropdown'] {
     display: grid;
     place-items: center;
-    /* A 44px target with a fixed-size icon; growing it with the text would push the repeat label off a narrow card. */
     width: 44px;
     height: 44px;
     padding: 0;

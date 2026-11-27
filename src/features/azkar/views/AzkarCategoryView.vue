@@ -34,7 +34,6 @@ const {
   execute: reloadCategory,
 } = useAsyncData(() => fetchCategory(slug.value))
 
-// Only a failed load is retried on reconnect.
 useReconnectExecute(useOnline(), () => error.value && reloadCategory())
 
 usePageMeta(() => {
@@ -45,7 +44,6 @@ usePageMeta(() => {
       keywords: ['أذكار', 'دعاء', category.value.meta.name, 'رفيق'],
     }
   }
-  // Loaded, but there is no such category.
   if (!isFetching.value && !error.value) return { title: 'الباب غير موجود' }
 })
 

@@ -3,7 +3,6 @@ import { createApp, nextTick } from 'vue'
 // iOS Safari can return a blank canvas above ~16.7M pixels.
 const MAX_CANVAS_AREA = 16000000
 
-// Downsample and require enough non-white pixels to reject failed rasterizations.
 function isCanvasBlank(canvas) {
   if (!canvas || !canvas.width || !canvas.height) return true
 
@@ -29,7 +28,6 @@ function isCanvasBlank(canvas) {
 }
 
 export async function exportComponent(component, props, filePrefix, { expectedWidth } = {}) {
-  // html2canvas-pro supports the theme's color() and color-mix() values.
   const { default: html2canvas } = await import('html2canvas-pro')
 
   // Fixed positioning avoids expanding the RTL document's scroll area.
@@ -63,7 +61,6 @@ export async function exportComponent(component, props, filePrefix, { expectedWi
     const actualWidth = element.clientWidth || 512
     const actualHeight = element.clientHeight || actualWidth
 
-    // Long azkar must stay below the iOS canvas-area ceiling.
     const scale = Math.min(
       Math.max(minimumWidth / actualWidth, 1),
       Math.sqrt(MAX_CANVAS_AREA / (actualWidth * actualHeight)),
@@ -80,7 +77,6 @@ export async function exportComponent(component, props, filePrefix, { expectedWi
       scrollY: 0,
     }
 
-    // Retry once when font or clone timing produces a blank rasterization.
     let canvas = await html2canvas(element, canvasOptions)
     if (isCanvasBlank(canvas)) {
       await new Promise((resolve) => setTimeout(resolve, 300))

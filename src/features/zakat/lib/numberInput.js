@@ -1,5 +1,3 @@
-// Accepts Western, Arabic-Indic (٠–٩) and Persian (۰–۹) digits, with "." or "٫" as the decimal point.
-
 const ARABIC_ZERO = 0x0660
 const PERSIAN_ZERO = 0x06f0
 const DECIMAL_SIGNS = new Set(['.', '٫'])
@@ -12,7 +10,6 @@ function toDigit(char) {
   return null
 }
 
-// Returns a plain number string ("1234.5") and the caret mapped into it, so dropped characters don't move it to the end.
 export function normalizeNumberInput(text, caret = text.length, { integer = false } = {}) {
   let value = ''
   let newCaret = 0

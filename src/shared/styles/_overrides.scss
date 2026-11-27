@@ -126,7 +126,6 @@ html[dir='rtl'],
   border-color: var(--bs-primary);
 }
 
-/* Inputs show no focus ring or border change in any state; the caret and the field itself mark focus. */
 .form-check-input,
 .form-control {
   &:focus,
@@ -170,7 +169,6 @@ html[dir='rtl'],
   }
 }
 
-/* Switches are buttons, not text fields, so keyboard users still get the app's focus ring. */
 .form-switch .form-check-input:focus-visible {
   outline: 2px solid rgba(var(--bs-primary-rgb), 0.5);
   outline-offset: 2px;
@@ -182,7 +180,6 @@ html[dir='rtl'],
   --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3.25' fill='%23fff' stroke='rgba(0,0,0,.06)' stroke-width='.15'/%3e%3c/svg%3e");
 }
 
-/* Secondary actions; solid btn-primary is kept for the one main action on a screen. */
 .btn-soft {
   --bs-btn-color: var(--app-primary-ink);
   --bs-btn-bg: var(--app-tint);

@@ -70,7 +70,6 @@ const remainingCount = computed(() => {
   return downloadQueue.value.filter((item) => item.id !== current).length
 })
 
-// Paused comes first: pausing stops the current item, which then waits in the queue with the rest.
 const status = computed(() => {
   if (isPaused.value) return `متوقف مؤقتاً · ${toArabicNumerals(pendingCount.value)} متبقٍ`
   if (!online.value && (isDownloading.value || pendingCount.value)) return 'لا يوجد اتصال، سيكمل التحميل عند عودته'

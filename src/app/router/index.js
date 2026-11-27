@@ -17,7 +17,6 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) return savedPosition
-    // Param tabs and Mushaf pages are in-page state changes; keep the scroll position.
     if (to.name === from.name && (to.meta.paramTabs || to.meta.pageParam)) return
     // 'instant' overrides Bootstrap's smooth scrolling, which flashed the app bar's title and glass on the way up.
     return { top: 0, behavior: 'instant' }
@@ -224,7 +223,6 @@ router.afterEach((to, from) => {
     themeStore.clearQueryOverrides()
   }
 
-  // Turning a Mushaf page is reading, not a new visit; the reader keeps its own title up to date.
   if (to.meta.pageParam && from.name === to.name) return
 
   const { title } = to.meta

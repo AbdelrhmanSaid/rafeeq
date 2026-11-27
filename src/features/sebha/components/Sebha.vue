@@ -7,7 +7,6 @@ import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 import { BEADS, beadPositions, litBeads } from '@/features/sebha/lib/beads'
 
 const count = useLocalStorage(STORAGE_KEYS.sebhaCount, 0)
-// A hand-edited backup can hold anything; anything but a non-negative integer starts over at 0.
 if (!Number.isSafeInteger(count.value) || count.value < 0) count.value = 0
 const countId = useId()
 
@@ -16,7 +15,6 @@ const digits = computed(() => String(count.value).length)
 const BEAD_POSITIONS = beadPositions(120, 104)
 const lit = computed(() => litBeads(count.value))
 
-// When the ring starts over, all beads fade out slowly together while the first one lights.
 const wrapping = ref(false)
 const { start: endWrapping } = useTimeoutFn(() => (wrapping.value = false), 600, { immediate: false })
 
@@ -66,7 +64,6 @@ function reset() {
 
 <style lang="scss" scoped>
 .sebha {
-  /* Short frames (banner embed, landscape phone) must keep the reset button in view below the ring. */
   --sebha-ring: min(18rem, 80vw, 100dvh - 9rem);
 
   display: flex;
@@ -125,7 +122,6 @@ function reset() {
     stroke: color-mix(in srgb, var(--bs-primary) 70%, var(--bs-body-bg));
   }
 
-  /* Ink, not primary: a light brand colour (sand) would barely stand out from the lit beads. */
   &.is-current {
     fill: var(--app-primary-ink);
     stroke: var(--app-primary-ink);

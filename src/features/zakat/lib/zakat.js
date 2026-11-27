@@ -58,8 +58,7 @@ const CAMEL_BANDS = [
 
 const due = (kind, count) => (count > 0 ? [{ kind, count }] : [])
 
-// Past the fixed bands the herd, down to its last full ten, is covered in `smallSize`/`largeSize` blocks. Where two
-// mixes fit (200 camels: four ḥiqqa or five bint labūn), the one with more of the older animal is given.
+// Past 120, the herd's full tens go in smallSize/largeSize blocks; of two fitting mixes, give more older animals.
 function coverInBlocks(total, small, smallSize, large, largeSize) {
   const covered = Math.floor(total / 10) * 10
 
@@ -101,7 +100,6 @@ export function livestockZakat({ cows, sheep, camels }) {
   return { camels: camelsZakat(camels), cows: cowsZakat(cows), sheep: sheepZakat(sheep) }
 }
 
-// "حقة", "حقتان", "٣ حقاق", "١٢ شاة"; a mix is joined with "و": "حقة وبنتا لبون".
 export function formatLivestockDue(dues, numerals = String) {
   return dues
     .map(({ kind, count }) => {

@@ -1,5 +1,4 @@
 <script>
-// Open sheets, newest last, so Escape closes only the topmost one.
 const openSheets = []
 let sheetId = 0
 </script>
@@ -14,7 +13,6 @@ import { trackSheet } from '@/shared/ui/sheetHistory'
 const props = defineProps({
   show: { type: Boolean, default: false },
   title: { type: String, default: '' },
-  // Back closes the sheet rather than leaving the screen. Off for a sheet that asks whether to leave the screen.
   closeOnBack: { type: Boolean, default: true },
 })
 
@@ -46,8 +44,7 @@ watch(
       forget()
       untrack?.()
       untrack = null
-      // Return focus to the opener unless the user moved it. Focus still in the leaving panel counts as not moved:
-      // left there, it would drop to <body> once the panel goes.
+      // Focus still in the leaving panel counts as not moved: left there, it would drop to <body> once the panel goes.
       const active = document.activeElement
       const stillInside = !active || active === document.body || panel.value?.contains(active)
       if (returnFocus?.isConnected && stillInside) returnFocus.focus({ preventScroll: true })
@@ -79,8 +76,7 @@ useEventListener(document, 'keydown', (event) => {
   }
 })
 
-// Tab cycles inside the sheet. The next stop is chosen here: with a roving tabindex (one option at 0, the rest at -1)
-// the browser could send Tab past the sheet's end.
+// Chosen by hand: with a roving tabindex the browser could send Tab past the sheet's end.
 const TABBABLE =
   'a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]'
 
@@ -96,7 +92,6 @@ function trapFocus(event) {
 
   const active = document.activeElement
   let index = stops.indexOf(active)
-  // Focus on something that isn't a stop (the panel, an option at -1): step from where it sits in the sheet.
   if (index === -1) {
     const after = stops.findIndex((el) => active?.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)
     const inside = panel.value.contains(active) && active !== panel.value
@@ -109,8 +104,6 @@ function trapFocus(event) {
   stops[next].focus()
 }
 
-// Drag to dismiss on phones. A gesture drags the sheet when nothing under the finger can scroll, or the content is at
-// its top and the finger moves down. Letting go past a quarter of the sheet, or a flick, closes it.
 const scrolls = (node) => node.scrollHeight > node.clientHeight && /auto|scroll/.test(getComputedStyle(node).overflowY)
 
 let start = null
@@ -138,7 +131,6 @@ function settle() {
 
 function onTouchStart(event) {
   if (!isPhone.value || event.touches.length > 1) return
-  // Sliders own their horizontal drags.
   if (event.target.closest?.('input[type="range"]')) return
 
   start = lastY = event.touches[0].clientY
@@ -163,7 +155,6 @@ function onTouchMove(event) {
   velocity = (y - lastY) / Math.max(event.timeStamp - lastTime, 1)
   lastY = y
   lastTime = event.timeStamp
-  // Pulling up rubber-bands toward a 24px limit, giving less the further it goes.
   offset = y < start ? -24 * (1 - 1 / (1 + (start - y) / 120)) : y - start
 
   const sheet = panel.value
@@ -258,7 +249,6 @@ useEventListener(panel, 'transitionend', onTransitionEnd)
   position: absolute;
   inset: 0;
   background-color: rgba(0, 0, 0, 0.45);
-  /* The finger owns this area while a sheet is open; nothing behind it should scroll. */
   touch-action: none;
 }
 
@@ -274,7 +264,6 @@ useEventListener(panel, 'transitionend', onTransitionEnd)
   box-shadow: 0 -12px 40px -12px rgba(0, 0, 0, 0.25);
   outline: none;
 
-  /* Fills in below the sheet while it rubber-bands up off the bottom edge. */
   &::after {
     content: '';
     position: absolute;
@@ -327,7 +316,6 @@ useEventListener(panel, 'transitionend', onTransitionEnd)
   --bs-btn-hover-color: var(--bs-body-color);
   --bs-btn-active-color: var(--bs-body-color);
 
-  /* A 32px circle inside a 44px target. */
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -344,11 +332,9 @@ useEventListener(panel, 'transitionend', onTransitionEnd)
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  /* Clear the home indicator. */
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
 }
 
-/* Phones close it by swipe, Escape or a tap outside; the close button stays for screen readers. */
 @media (max-width: 991.98px) {
   .sheet-close {
     position: absolute;

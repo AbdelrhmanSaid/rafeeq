@@ -41,7 +41,6 @@ const tabs = navigation.filter((item) => item.menus.includes('primary'))
   bottom: 0;
   z-index: 1020;
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  /* Physical safe-area sides must not be flipped by rtlcss. */
   /*! rtl:begin:ignore */
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);
@@ -70,7 +69,6 @@ const tabs = navigation.filter((item) => item.menus.includes('primary'))
   grid-auto-columns: minmax(0, 1fr);
   grid-auto-flow: column;
   max-width: 32rem;
-  /* Allow large font scales to grow the bar. */
   min-height: var(--navbar-height);
   margin-inline: auto;
   padding-inline: 0.25rem;

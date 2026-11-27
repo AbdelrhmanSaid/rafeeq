@@ -1,6 +1,5 @@
 <script setup>
 defineProps({
-  // Read out to screen readers; the screen itself shows only the spinner.
   message: {
     type: String,
     default: 'جاري التحميل...',

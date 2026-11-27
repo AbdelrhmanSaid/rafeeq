@@ -5,13 +5,11 @@ import { SETTINGS_PAGE_TITLE } from '../lib/sections'
 const props = defineProps({
   title: { type: String, default: '' },
   description: { type: String, default: '' },
-  // The id of the switch in the actions slot; the header then becomes its label, so tapping the title toggles it.
   controlId: { type: String, default: null },
 })
 
 const slots = useSlots()
 
-// On a screen with the same title (المظهر › المظهر) the row doesn't repeat it; its description still introduces it.
 const pageTitle = inject(SETTINGS_PAGE_TITLE, null)
 const shownTitle = computed(() => (props.title && props.title === pageTitle?.value ? '' : props.title))
 const hasHeader = computed(() => !!(shownTitle.value || props.description || slots.actions))

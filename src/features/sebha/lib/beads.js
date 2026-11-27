@@ -6,7 +6,6 @@ export function litBeads(count) {
   return ((count - 1) % BEADS) + 1
 }
 
-// Starts at the top and runs counter-clockwise so the beads fill right-to-left.
 export function beadPositions(center, radius) {
   return Array.from({ length: BEADS }, (_, index) => {
     const angle = -Math.PI / 2 - (index * 2 * Math.PI) / BEADS

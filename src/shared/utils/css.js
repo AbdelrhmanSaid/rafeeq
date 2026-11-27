@@ -64,7 +64,6 @@ function toRgbValue(color) {
   const rgb = getComputedStyle(probe).color
   probe.remove()
 
-  // color(srgb) and rgb() may both contain fractional channels.
   const channels = rgb.match(/-?\d*\.?\d+/g)?.map(Number)
   if (!channels || channels.length < 3) return null
 
@@ -84,12 +83,10 @@ const luminance = (channels) => {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b
 }
 
-// Text on a solid brand fill: white, or near-black on light colors (sand) where white fails contrast.
 export function onColor(rgb) {
   return luminance(rgb.split(',').map(Number)) > 0.4 ? '#1f1b16' : '#fff'
 }
 
-// The brand color as text on near-white surfaces: a light color (sand) is darkened until it reads at 4.5:1.
 export function inkColor(rgb) {
   const channels = rgb.split(',').map(Number)
   for (let keep = 1; keep > 0; keep -= 0.05) {
@@ -168,8 +165,7 @@ export function syncMetaThemeColor({ systemMode } = {}) {
 
   const colorScheme = document.body.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light'
 
-  // The bar takes the page's top edge, glow included, so it blends into the header. index.html's first-paint tags are
-  // keyed to the system theme; each gets the app's colour and drops its media query, so a manual theme wins.
+  // index.html's first-paint tags are keyed to the system theme; dropping their media query lets a manual theme win.
   const barMode = statusBarMode({ appMode: colorScheme, systemMode })
   const top =
     barMode === colorScheme ? normalizeColor(styles.getPropertyValue('--app-page-top-color')) : topColorInMode(barMode)
