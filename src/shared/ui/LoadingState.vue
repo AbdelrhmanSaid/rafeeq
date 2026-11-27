@@ -9,7 +9,7 @@ defineProps({
 
 <template>
   <div class="loading-state" role="status">
-    <span class="loading-state__spinner" aria-hidden="true"></span>
+    <span class="loading-state__spinner is-spinning" aria-hidden="true"></span>
     <span class="visually-hidden">{{ message }}</span>
   </div>
 </template>
@@ -27,12 +27,5 @@ defineProps({
   border: 0.2rem solid color-mix(in srgb, var(--bs-primary) 20%, transparent);
   border-top-color: var(--bs-primary);
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .loading-state__spinner {
-    animation-duration: 2s;
-  }
 }
 </style>

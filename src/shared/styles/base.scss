@@ -555,7 +555,15 @@ a:focus-visible {
 }
 
 .is-spinning {
-  animation: spin 0.9s linear infinite;
+  animation: spin 0.8s linear infinite;
+}
+
+/* A stopped spinner reads as a frozen screen, so reduced motion slows it instead (overriding the rule above). */
+@media (prefers-reduced-motion: reduce) {
+  .is-spinning {
+    animation-duration: 2s !important;
+    animation-iteration-count: infinite !important;
+  }
 }
 
 @keyframes spin {
