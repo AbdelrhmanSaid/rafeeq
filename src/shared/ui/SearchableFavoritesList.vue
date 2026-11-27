@@ -16,9 +16,11 @@ const props = defineProps({
   itemClass: { type: Function, default: () => ({}) },
   groups: { type: Array, default: null },
   itemLabel: { type: Function, required: true },
+  hideEmpty: { type: Boolean, default: false },
 })
 
-const { search, filtered } = useSearch(() => props.items, props.searchKeys)
+const search = defineModel('search', { type: String, default: '' })
+const { filtered } = useSearch(() => props.items, props.searchKeys, search)
 const { isFavorite, toggleFavorite, filterFavorites } = useFavorites(props.favoritesKey)
 const input = useTemplateRef('input')
 
@@ -124,7 +126,9 @@ const clearSearch = () => {
     </ul>
   </div>
 
-  <ul v-if="filtered.length === 0" class="list-group">
+  <slot name="after-list" :search="search" />
+
+  <ul v-if="filtered.length === 0 && !hideEmpty" class="list-group">
     <li class="list-group-item">
       <StatePanel :icon="IconSearch" title="لا توجد نتائج" message="جرّب كلمة أخرى." />
     </li>

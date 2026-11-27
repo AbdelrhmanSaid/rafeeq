@@ -15,7 +15,7 @@ const isMorning = computed(() => {
   const hour = now.value.getHours()
   return hour >= 4 && hour < 12
 })
-const greeting = computed(() => (isMorning.value ? 'صباح الخير' : 'مساء الخير'))
+const greeting = computed(() => (isMorning.value ? 'صبحكم الله بالخير' : 'مساكم الله بالخير'))
 
 const today = computed(() =>
   new Intl.DateTimeFormat('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' }).format(now.value),

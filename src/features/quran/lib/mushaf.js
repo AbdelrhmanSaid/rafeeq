@@ -32,6 +32,11 @@ const ayahsBefore = surahs.reduce((offsets, surah) => [...offsets, offsets.at(-1
 
 export const ayahIndex = (surah, ayah) => ayahsBefore[surah - 1] + ayah
 
+export function verseAt(index) {
+  const surah = ayahsBefore.findIndex((before) => before >= index)
+  return { surah, ayah: index - ayahsBefore[surah - 1] }
+}
+
 const lastAyahByPage = AYAHS_STARTING.reduce((ends, count) => [...ends, (ends.at(-1) ?? 0) + count], [])
 
 export function pageOfAyah(surah, ayah) {
