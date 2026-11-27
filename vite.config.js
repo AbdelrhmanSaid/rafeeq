@@ -7,6 +7,7 @@ import rtlcss from 'rtlcss'
 
 import { manifestIcons } from './src/app/pwa/manifest-icons.js'
 import { manifestScreenshots } from './src/app/pwa/manifest-screenshots.js'
+import { sitemapXml } from './src/app/sitemap.js'
 
 // These packages are already RTL-safe.
 const rtlcssExcludePatterns = [/vue-sonner/]
@@ -25,9 +26,20 @@ function rtlcssWithExclude(options) {
 
 rtlcssWithExclude.postcss = true
 
+function sitemap() {
+  return {
+    name: 'sitemap',
+    apply: 'build',
+    generateBundle() {
+      this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: sitemapXml() })
+    },
+  }
+}
+
 export default defineConfig({
   plugins: [
     vue(),
+    sitemap(),
     VitePWA({
       registerType: 'prompt',
       cleanupOutdatedCaches: true,
