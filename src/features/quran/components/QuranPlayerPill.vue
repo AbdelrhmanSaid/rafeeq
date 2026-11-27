@@ -41,7 +41,7 @@ const reciterStyle = computed(() => recordingStyle(quranStore.reciter))
       :disabled="loading"
       @click="emit('toggle')"
     >
-      <IconLoader2 v-if="loading" size="16" class="spin" aria-hidden="true" />
+      <IconLoader2 v-if="loading" size="16" class="is-spinning" aria-hidden="true" />
       <IconPlayerPauseFilled v-else-if="playing" size="16" aria-hidden="true" />
       <IconPlayerPlayFilled v-else size="16" aria-hidden="true" />
     </button>
@@ -170,15 +170,5 @@ const reciterStyle = computed(() => recordingStyle(quranStore.reciter))
   color: var(--bs-secondary-color);
   font-size: 0.8125rem;
   font-weight: 400;
-}
-
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 </style>

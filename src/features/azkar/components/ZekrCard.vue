@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { onLongPress } from '@vueuse/core'
 import { IconDownload, IconShare3, IconCopy, IconRestore } from '@tabler/icons-vue'
-import { exportComponent } from '@/shared/utils/export'
+import { exportComponent } from '@/features/azkar/lib/exportImage'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import { useIsMobile } from '@/shared/composables/useIsMobile'

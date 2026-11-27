@@ -268,16 +268,6 @@ const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shift
   }
 }
 
-.is-spinning {
-  animation: station-spin 0.9s linear infinite;
-}
-
-@keyframes station-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .station__similar {
   margin-top: 1.25rem;
 }

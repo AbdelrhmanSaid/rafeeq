@@ -165,7 +165,7 @@ async function toggleAyahPlayback() {
 </template>
 
 <style lang="scss" scoped>
-@import '@/shared/styles/quran.css';
+@import '@/features/quran/styles/ayah-number.css';
 
 .ayah-card {
   position: relative;

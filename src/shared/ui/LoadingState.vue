@@ -28,13 +28,7 @@ defineProps({
   border: 0.2rem solid color-mix(in srgb, var(--bs-primary) 20%, transparent);
   border-top-color: var(--bs-primary);
   border-radius: 50%;
-  animation: loading-spin 0.8s linear infinite;
-}
-
-@keyframes loading-spin {
-  to {
-    transform: rotate(360deg);
-  }
+  animation: spin 0.8s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

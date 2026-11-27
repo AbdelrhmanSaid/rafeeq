@@ -46,7 +46,7 @@ const disabled = computed(
       @click="$emit('action', asset)"
     >
       <IconTrash v-if="asset.status === 'downloaded'" :size="18" />
-      <IconLoader2 v-else-if="asset.status === 'downloading'" :size="18" class="spin" />
+      <IconLoader2 v-else-if="asset.status === 'downloading'" :size="18" class="is-spinning" />
       <IconX v-else-if="asset.status === 'queued'" :size="18" />
       <IconDownload v-else :size="18" />
     </button>
@@ -155,16 +155,6 @@ const disabled = computed(
 
   .download-row.downloaded .download-row__action:hover {
     color: var(--bs-danger);
-  }
-}
-
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
   }
 }
 </style>

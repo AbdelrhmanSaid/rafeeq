@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { useLocalStorage } from '@vueuse/core'
 import { computed, ref } from 'vue'
-import { getCurrentPosition } from '@/shared/composables/useGeolocation'
+import { getCurrentPosition } from '@/shared/utils/geolocation'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 import { AUTO } from '@/features/prayers/constants/calculationOptions'
 

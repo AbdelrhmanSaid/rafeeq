@@ -1,13 +1,11 @@
 import { storeToRefs } from 'pinia'
 import { useAppStore } from '@/app/stores/app'
-import { useVibration } from '@/shared/composables/useVibration'
 
 export function useZekrVibration() {
   const { zekrVibrationEnabled, zekrVibrationIntensity } = storeToRefs(useAppStore())
-  const { vibrate } = useVibration()
 
   function vibrateOnFinish() {
-    if (zekrVibrationEnabled.value) vibrate(zekrVibrationIntensity.value)
+    if (zekrVibrationEnabled.value && 'vibrate' in navigator) navigator.vibrate(zekrVibrationIntensity.value)
   }
 
   return { vibrateOnFinish }

@@ -9,7 +9,7 @@ import { fetchCategory } from '@/features/azkar/api'
 import { progressPercent } from '@/features/downloads/lib/progress'
 import surahs from '@/features/quran/data/surahs.js'
 import azkarCategories from '@/features/azkar/data/categories.js'
-import { sleep } from '@/shared/utils/async'
+import { sleep } from '@/features/downloads/lib/sleep'
 import { toast } from 'vue-sonner'
 
 export const useDownloadStore = defineStore('download', () => {

@@ -7,7 +7,6 @@ import ZakatCalculatorCard from '@/features/zakat/components/ZakatCalculatorCard
 import ZakatInputRow from '@/features/zakat/components/ZakatInputRow.vue'
 import { IconCoins, IconGift, IconBuildingStore, IconDiamond, IconPlant2, IconUsersGroup } from '@tabler/icons-vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
-import { formatNumber } from '@/shared/utils/format'
 import {
   NISAB,
   goldPriceNisab,
@@ -54,6 +53,8 @@ const livestockItems = computed(() =>
 const hasLivestock = computed(() => LIVESTOCK_KINDS.some(({ count }) => hasValue(count.value)))
 
 // Amounts are written as a plain number plus unit; Intl's currency format scrambles in RTL.
+const numberFormat = new Intl.NumberFormat('ar-EG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const formatNumber = (value) => numberFormat.format(value)
 const money = (value) => `${formatNumber(value)} ج.م`
 const hasValue = (value) => parseFloat(value) > 0
 const statusOf = (reached) => (reached ? 'reached' : 'below')

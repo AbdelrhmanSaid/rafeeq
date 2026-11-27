@@ -9,7 +9,7 @@ const online = vi.hoisted(() => ({ value: true }))
 vi.mock('@vueuse/core', async (importOriginal) => ({ ...(await importOriginal()), useOnline: () => online }))
 vi.mock('vue-sonner', () => ({ toast: { error: vi.fn() } }))
 vi.mock('idb-keyval', () => ({ keys: async () => [], delMany: async () => {} }))
-vi.mock('@/shared/utils/async', () => ({ sleep: () => new Promise((resolve) => setTimeout(resolve, 0)) }))
+vi.mock('@/features/downloads/lib/sleep', () => ({ sleep: () => new Promise((resolve) => setTimeout(resolve, 0)) }))
 
 vi.mock('@/shared/offline/useOfflineData', async () => {
   const { computed, reactive } = await import('vue')

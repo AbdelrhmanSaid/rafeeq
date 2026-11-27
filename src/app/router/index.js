@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/features/home/views/HomeView.vue'
 import NotFoundView from '@/app/views/NotFoundView.vue'
-import { trackPageview } from '@/shared/utils/analytics'
+import { trackPageview } from '@/app/analytics'
 import { useMeta } from '@/shared/utils/head'
 import { useThemeStore } from '@/app/stores/theme'
 import { isVerse, pageOfAyah, verseKey } from '@/features/quran/lib/mushaf'

@@ -101,7 +101,7 @@ watch(online, (isOnline) => {
 </template>
 
 <style lang="scss" scoped>
-@import '@/shared/styles/quran.css';
+@import '@/features/quran/styles/ayah-number.css';
 
 .tafseer {
   display: flex;

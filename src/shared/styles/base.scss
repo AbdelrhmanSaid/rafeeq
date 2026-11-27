@@ -563,6 +563,16 @@ a:focus-visible {
   }
 }
 
+.is-spinning {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes page-enter {
   from {
     opacity: 0;

@@ -6,7 +6,6 @@ import { IconRadio } from '@tabler/icons-vue'
 import { usePageMeta } from '@/shared/composables/usePageMeta'
 
 import Page from '@/layout/Page.vue'
-import BackButton from '@/shared/ui/BackButton.vue'
 import OfflineState from '@/shared/ui/OfflineState.vue'
 import StatePanel from '@/shared/ui/StatePanel.vue'
 import RadioPlayer from '@/features/radio/components/RadioPlayer.vue'
@@ -51,7 +50,7 @@ usePageMeta(
       title="لم يتم العثور على الإذاعة"
       message="يمكنك العودة لقائمة الإذاعات المتاحة."
     >
-      <BackButton :to="{ name: 'radio' }" label="العودة إلى الإذاعات" button-class="btn-soft" />
+      <RouterLink :to="{ name: 'radio' }" class="btn btn-soft embed-hidden">العودة إلى الإذاعات</RouterLink>
     </StatePanel>
 
     <RadioPlayer

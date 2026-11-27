@@ -2,7 +2,7 @@
 import { RouterLink } from 'vue-router'
 import { useRadioStore } from '@/features/radio/store'
 import { useActiveNav } from '@/layout/useActiveNav'
-import { useVirtualKeyboard } from '@/shared/composables/useVirtualKeyboard'
+import { useVirtualKeyboard } from '@/layout/useVirtualKeyboard'
 import { navigation } from '@/layout/navigation'
 import { chrome } from '@/layout/chrome'
 

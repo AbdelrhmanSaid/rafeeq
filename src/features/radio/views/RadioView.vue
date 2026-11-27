@@ -107,16 +107,6 @@ const radiosList = Object.entries(radiosData).map(([slug, station]) => ({
   text-decoration: none;
 }
 
-.is-spinning {
-  animation: radio-spin 0.9s linear infinite;
-}
-
-@keyframes radio-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 :deep(.list-group-item) {
   container-type: inline-size;
   transition:
