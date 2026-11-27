@@ -14,7 +14,6 @@ function onChange(event) {
 </script>
 
 <template>
-  <!-- A switch row like the other on/off settings; when it can't be used, the description says why. -->
   <SettingsSection
     title="إشعارات التطبيق"
     :description="unavailableReason ?? 'تفعيل أو إيقاف إشعارات المتصفح لهذا الجهاز'"

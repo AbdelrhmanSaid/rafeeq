@@ -10,7 +10,6 @@ import SunnahPrayers from '@/features/prayers/components/SunnahPrayers.vue'
 import Sebha from '@/features/sebha/components/Sebha.vue'
 import RandomAyah from '@/features/quran/components/RandomAyah.vue'
 
-// Each embed looks as it does in the app; the query only picks a location and adds a heading above it.
 const components = {
   'prayer-times': {
     component: PrayerTimes,
@@ -18,7 +17,7 @@ const components = {
   },
   'sunnah-prayers': {
     component: SunnahPrayers,
-    // Its title shares a row with the قبل / بعد column labels, so it goes to the component, not above it.
+    // Its title shares a row with the قبل / بعد labels, so it is passed as a prop instead of a heading.
     ownsTitle: true,
   },
   'sebha': {
@@ -50,7 +49,6 @@ const componentProps = computed(() => ({
 <template>
   <Page>
     <section v-if="entry">
-      <!-- Embeds only: a heading the host page sets, which the app's own sections don't have. -->
       <Heading
         v-if="title && !entry.ownsTitle"
         :size="2"
@@ -61,7 +59,6 @@ const componentProps = computed(() => ({
       <component :is="entry.component" v-bind="componentProps" />
     </section>
 
-    <!-- A wrong name in the embed code, not a failed load: say so, with no retry. -->
     <ErrorState
       v-else
       :icon="IconAlertTriangle"

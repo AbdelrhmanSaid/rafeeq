@@ -17,28 +17,20 @@ export const useDownloadStore = defineStore('download', () => {
 
   const azkarOffline = useOfflineData('azkar')
 
-  // Each type fetches with an AbortSignal, so cancelling or pausing stops the item that is downloading, and `discard`
-  // takes back what a cancelled item already stored.
+  // `fetch` honours the signal so pause/cancel stop the running item; `discard` drops what a cancelled one stored.
   const assetTypes = {
-    // Each surah downloads its Mushaf pages, layout and font.
     surah: {
       offline: mushafDownloads,
-      assets: surahs.map((s) => ({ id: `surah-${s.id}`, type: 'surah', name: s.name, key: String(s.id), data: s })),
+      assets: surahs.map((s) => ({ id: `surah-${s.id}`, type: 'surah', name: s.name, key: String(s.id) })),
       fetch: (asset, signal) => mushafDownloads.download(asset.key, { signal }),
       discard: (asset) => mushafDownloads.discard(asset.key),
     },
     azkar: {
       offline: azkarOffline,
-      assets: azkarCategories.map((c) => ({
-        id: `azkar-${c.slug}`,
-        type: 'azkar',
-        name: c.name,
-        key: c.slug,
-        data: c,
-      })),
+      assets: azkarCategories.map((c) => ({ id: `azkar-${c.slug}`, type: 'azkar', name: c.name, key: c.slug })),
       // A category is one small file that can't be stopped halfway; an abort while it loads still counts as one.
       fetch: async (asset, signal) => {
-        await fetchCategory(asset.data.slug)
+        await fetchCategory(asset.key)
         signal.throwIfAborted()
       },
       discard: (asset) => azkarOffline.remove(asset.key),
@@ -67,9 +59,9 @@ export const useDownloadStore = defineStore('download', () => {
     return downloadQueue.value.some((item) => item.id === asset.id)
   }
 
-  // The item downloading now: its abort controller and its run, which never rejects, to wait on after aborting.
+  // The running item: its abort controller and its run (which never rejects), to await after aborting.
   let active = null
-  // Items that started downloading and haven't finished, so a cancel can take back what they stored.
+  // Started but unfinished items, so a cancel can discard what they stored.
   const started = new Map()
 
   const failures = new Map()
@@ -82,7 +74,6 @@ export const useDownloadStore = defineStore('download', () => {
 
     while (downloadQueue.value.length > 0 && !isPaused.value) {
       if (!online.value) {
-        // Nothing is downloading while it waits for the connection.
         currentItem.value = null
         await sleep(1000)
         continue
@@ -95,7 +86,7 @@ export const useDownloadStore = defineStore('download', () => {
       currentItem.value = asset
       started.set(asset.id, asset)
 
-      // Done or failed, the asset is taken out by its id: the queue may have been cancelled or refilled meanwhile.
+      // Removed by id, not index: the queue may have been cancelled or refilled meanwhile.
       try {
         await run
         started.delete(asset.id)
@@ -127,14 +118,12 @@ export const useDownloadStore = defineStore('download', () => {
     if (failed) toast.error('تعذر تحميل بعض الملفات، تأكد من الاتصال ومساحة التخزين ثم حاول مرة أخرى')
   }
 
-  // Stops the item downloading now, if it is one of `assets`, and waits until it has stopped.
   async function stopActive(assets) {
     if (!active || !assets.some((asset) => asset.id === active.asset.id)) return
     active.controller.abort()
     await active.run
   }
 
-  // Takes back whatever the cancelled items had already stored, so none is left half downloaded or recorded.
   async function discard(assets) {
     const ids = new Set(assets.map((asset) => asset.id))
     const cancelled = [...started.values()].filter((asset) => ids.has(asset.id))
@@ -142,11 +131,10 @@ export const useDownloadStore = defineStore('download', () => {
     await Promise.all(cancelled.map((asset) => assetTypes[asset.type].discard(asset)))
   }
 
-  // The old reader kept downloaded surahs as text, which the Mushaf can't draw. Those surahs are downloaded again as
-  // Mushaf pages, then the old copies go.
+  // The old reader stored surahs as text the Mushaf can't draw: download them again as pages, then delete the old.
   async function replaceOldSurahDownloads() {
     await scanStoredPages()
-    // Surahs downloaded before whose pages are gone (the move to the V4 Mushaf fonts replaced them) come back.
+    // Surahs recorded as downloaded whose pages are gone (replaced by the V4 fonts) are queued again.
     const missing = new Set(mushafDownloads.missing().map(String))
     if (missing.size) {
       downloadQueue.value.push(...assetTypes.surah.assets.filter((a) => missing.has(a.key) && !isInQueue(a)))

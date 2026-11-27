@@ -27,7 +27,6 @@ const hasBody = computed(() => {
 </script>
 
 <template>
-  <!-- One row in a settings group: the title and a muted description, the control at the end, any body below. -->
   <section class="settings-section">
     <component
       :is="controlId ? 'label' : 'header'"

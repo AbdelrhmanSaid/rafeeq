@@ -44,7 +44,6 @@ function applyImport() {
   }
 }
 
-// The file is checked first, so only a real backup asks to replace what is saved.
 async function importSettings(event) {
   const [file] = event.target.files ?? []
   event.target.value = ''
@@ -75,7 +74,6 @@ async function importSettings(event) {
     title="الاستيراد والتصدير"
     description="احتفظ بنسخة احتياطية من الإعدادات أو قم باستيراد الإعدادات المحفوظة على هذا الجهاز"
   >
-    <!-- Short labels, since the row's title says what they move; each stays on one line. -->
     <div class="backup-actions">
       <button type="button" class="btn btn-sm btn-soft" @click="exportSettings">
         <IconFileExport size="18" aria-hidden="true" />

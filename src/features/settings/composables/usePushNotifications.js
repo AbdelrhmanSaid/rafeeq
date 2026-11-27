@@ -19,7 +19,6 @@ export function usePushNotifications() {
 
   const blocked = computed(() => permission.value === 'denied')
 
-  // Why the switch can't be used right now, if it can't; null when it can.
   const unavailableReason = computed(() => {
     if (!supported) return 'هذا المتصفح لا يدعم الإشعارات'
     if (blocked.value) return BLOCKED_MESSAGE
@@ -107,5 +106,5 @@ export function usePushNotifications() {
     permissionStatus?.removeEventListener('change', onPermissionChange)
   })
 
-  return { enabled, loading, disabled, unavailableReason, toggle }
+  return { enabled, disabled, unavailableReason, toggle }
 }

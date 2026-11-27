@@ -82,7 +82,6 @@ const links = [
   margin-bottom: 1.5rem;
 }
 
-/* An inset grouped list, like a native settings screen. */
 .more-list {
   overflow: hidden;
   border: 1px solid var(--app-hairline);
@@ -91,8 +90,7 @@ const links = [
   box-shadow: var(--app-shadow-card);
 }
 
-/* The padding, gaps and icon tile are in px, so at a large text size the extra room goes to the label and the
-   longest ones ("المساهمة في التطوير") still fit on one line on a 320px phone. */
+/* px chrome, so at a large text size the longest label still fits one line on a 320px phone. */
 .more-row {
   position: relative;
   display: flex;
@@ -103,7 +101,6 @@ const links = [
   color: var(--bs-body-color);
   text-decoration: none;
 
-  /* Full-width separators between rows. */
   & + & {
     &::before {
       content: '';
@@ -148,7 +145,6 @@ const links = [
   min-width: 0;
   overflow: hidden;
   font-weight: 500;
-  /* One line; the ellipsis is only a last resort for a label longer than any today. */
   text-overflow: ellipsis;
   white-space: nowrap;
 }

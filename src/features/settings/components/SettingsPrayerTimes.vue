@@ -9,12 +9,11 @@ import { CALCULATION_FIELDS } from '@/features/prayers/constants/calculationOpti
 
 const store = usePrayersStore()
 
-const calculationFields = CALCULATION_FIELDS
 const { detect } = usePrayerLocation()
 
 const isCoordinate = (value) => Number.isFinite(Number(value)) && Number(value) !== 0
 
-// Four decimals (about 10 m) whether the location was just detected or read back after a reload. Null when there's none.
+// Four decimals, about 10 m.
 const location = computed(() => {
   if (!isCoordinate(store.latitude) || !isCoordinate(store.longitude)) return null
   return [store.latitude, store.longitude].map((value) => Number(value).toFixed(4)).join(', ')
@@ -24,7 +23,6 @@ const location = computed(() => {
 <template>
   <SettingsSection title="مواقيت الصلاة" description="حدّد موقعك وطريقة حساب المواقيت">
     <div class="row-group row-group--flush">
-      <!-- The saved location, with buttons to detect it again or clear it. -->
       <div class="location-row">
         <span>الموقع</span>
         <bdi v-if="location" class="location-row__value" dir="ltr">{{ location }}</bdi>
@@ -38,7 +36,7 @@ const location = computed(() => {
       </div>
 
       <SelectRow
-        v-for="field in calculationFields"
+        v-for="field in CALCULATION_FIELDS"
         :key="field.key"
         v-model="store[field.key]"
         :label="field.label"

@@ -30,8 +30,7 @@ vi.mock('@/features/azkar/api', async () => {
   return { fetchCategory: async (slug) => useOfflineData('azkar').save(slug) }
 })
 
-// A Mushaf download that finishes only when the test says so, and, like the real one, stops when its signal aborts
-// and records nothing after that.
+// A Mushaf download that finishes when the test says so and, like the real one, records nothing once aborted.
 vi.mock('@/features/quran/lib/mushafStorage', async () => {
   const { computed, reactive } = await import('vue')
   const downloaded = reactive(new Set())

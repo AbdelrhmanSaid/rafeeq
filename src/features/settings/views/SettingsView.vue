@@ -71,7 +71,6 @@ const tabs = [
 ]
 
 const route = useRoute()
-// /settings lists the sections; /settings/<section> shows one of them on its own screen.
 const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab) ?? null)
 
 // A section titled like the screen (المظهر on المظهر) drops the repeated title; see SettingsSection.
@@ -85,7 +84,6 @@ provide(
   <Page v-if="activeTab">
     <Heading class="mb-4" :title="activeTab.label" />
 
-    <!-- One grouped list per section: each setting is a row, separated by hairlines. -->
     <div :class="{ 'settings-group': !activeTab.ungrouped }">
       <component v-for="(section, index) in activeTab.sections" :key="index" :is="section" />
     </div>
@@ -94,7 +92,6 @@ provide(
   <Page v-else>
     <Heading class="mb-4" subtitle-desktop-only title="الإعدادات" subtitle="تعديل الإعدادات المختلفة للتطبيق" />
 
-    <!-- The sections, as rows like the More screen. -->
     <nav class="settings-list" aria-label="أقسام الإعدادات">
       <RouterLink
         v-for="tab in tabs"
@@ -111,7 +108,6 @@ provide(
 </template>
 
 <style lang="scss" scoped>
-/* An inset grouped list, matching the More screen. */
 .settings-list,
 .settings-group {
   overflow: hidden;
@@ -121,12 +117,11 @@ provide(
   box-shadow: var(--app-shadow-card);
 }
 
-/* Settings inside a section sit as rows with full-width hairlines between them. */
 .settings-group > :deep(* + *) {
   border-top: 1px solid var(--app-hairline);
 }
 
-/* Sized like the More screen's rows: px chrome, so a large text size goes to the label. */
+/* px chrome, so a large text size goes to the label. */
 .settings-row {
   position: relative;
   display: flex;

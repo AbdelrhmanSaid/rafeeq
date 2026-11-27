@@ -3,12 +3,10 @@ import { RouterLink } from 'vue-router'
 import { IconChevronLeft } from '@tabler/icons-vue'
 
 defineProps({
-  // Optional: cards that carry their own title (or need none) skip the header.
   title: {
     type: String,
     default: '',
   },
-  // Where the section's full screen lives; shows a "see all" link beside the title.
   to: {
     type: [String, Object],
     default: null,
@@ -52,8 +50,6 @@ defineProps({
   margin: 0 0.125rem 0.75rem;
 }
 
-/* The app's muted section title (.list-title), so the section content, not its label, carries the screen. The header
-   already spaces it. */
 .home-section__title {
   margin: 0;
 }
