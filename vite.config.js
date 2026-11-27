@@ -67,10 +67,11 @@ export default defineConfig({
         id: '/',
         lang: 'ar',
         dir: 'rtl',
-        // The app's light background, so the status bar and splash screen blend into the first page.
-        // (Left unset, vite-plugin-pwa defaults theme_color to Vue green.) At runtime the page's theme-color
-        // meta follows the chosen theme.
-        theme_color: '#faf8f8',
+        // No theme_color: an installed app lets the manifest's value override the page's theme-color meta, which
+        // pins the system bars to one color instead of following the chosen theme. It's set to undefined, not
+        // left out, because vite-plugin-pwa merges in a default (Vue green); JSON.stringify then drops the key.
+        theme_color: undefined,
+        // The app's light background, so the splash screen blends into the first page.
         background_color: '#faf8f8',
         display: 'standalone',
         start_url: '/',
