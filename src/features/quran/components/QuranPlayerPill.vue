@@ -1,19 +1,10 @@
 <script setup>
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
-import {
-  IconCheck,
-  IconChevronDown,
-  IconSearch,
-  IconLoader2,
-  IconPlayerPauseFilled,
-  IconPlayerPlayFilled,
-} from '@tabler/icons-vue'
+import { computed, ref } from 'vue'
+import { IconChevronDown, IconLoader2, IconPlayerPauseFilled, IconPlayerPlayFilled } from '@tabler/icons-vue'
 import reciters from '@/features/quran/data/reciters.js'
 import { useQuranStore } from '@/features/quran/store'
 import { isHafsRecording, recordingStyle } from '@/features/quran/lib/reciters'
-import { rovingTarget } from '@/features/quran/lib/rovingFocus'
-import { useSearch } from '@/shared/composables/useSearch'
-import BottomSheet from '@/shared/ui/BottomSheet.vue'
+import OptionsSheet from '@/shared/ui/OptionsSheet.vue'
 
 defineProps({
   playing: { type: Boolean, default: false },
@@ -31,36 +22,11 @@ const choices = computed(() =>
   reciters.filter((r) => (r.soar_count >= 114 && isHafsRecording(r)) || r.id === Number(quranStore.currentReciter)),
 )
 
+const reciterOptions = computed(() =>
+  choices.value.map((reciter) => ({ value: reciter.id, label: reciter.name, hint: recordingStyle(reciter) })),
+)
+
 const showReciters = ref(false)
-const { search, filtered } = useSearch(choices, ['name'])
-const list = useTemplateRef('list')
-
-async function openReciters() {
-  search.value = ''
-  showReciters.value = true
-  await nextTick()
-  list.value?.querySelector('[aria-checked="true"]')?.scrollIntoView({ block: 'center' })
-}
-
-function choose(id) {
-  quranStore.changeReciter(id)
-  showReciters.value = false
-}
-
-const isChosen = (reciter) => reciter.id === Number(quranStore.currentReciter)
-
-// The list is one Tab stop, on the chosen reciter (or the first, when a search hides them); the arrows move between
-// reciters without choosing one, since choosing closes the sheet. Space or Enter chooses.
-const focusIndex = ref(0)
-watch(filtered, (list) => (focusIndex.value = Math.max(0, list.findIndex(isChosen))), { immediate: true })
-
-function onListKeydown(event) {
-  const to = rovingTarget(event.key, focusIndex.value, filtered.value.length)
-  if (to === null) return
-  event.preventDefault()
-  focusIndex.value = to
-  list.value?.querySelectorAll('[role="radio"]')[to]?.focus()
-}
 
 const reciterName = computed(() => quranStore.reciter?.name ?? 'اختر القارئ')
 // Two recordings can share a reciter's name, so the player says which one is playing.
@@ -85,48 +51,23 @@ const reciterStyle = computed(() => recordingStyle(quranStore.reciter))
       type="button"
       class="player-pill__reciter"
       :aria-label="`القارئ: ${reciterName}${reciterStyle ? `، ${reciterStyle}` : ''}`"
-      @click="openReciters"
+      @click="showReciters = true"
     >
       <span class="text-truncate">{{ reciterName }}</span>
       <small v-if="reciterStyle" class="player-pill__style">{{ reciterStyle }}</small>
       <IconChevronDown size="16" aria-hidden="true" />
     </button>
 
-    <BottomSheet :show="showReciters" title="القارئ" @close="showReciters = false">
-      <div class="reciters">
-        <div class="reciters__search">
-          <div class="search-field">
-            <IconSearch class="search-field__icon" size="1.15rem" aria-hidden="true" />
-            <input
-              v-model="search"
-              type="text"
-              class="form-control search-field__input"
-              placeholder="ابحث عن قارئ"
-              aria-label="ابحث عن قارئ"
-            />
-          </div>
-        </div>
-
-        <ul ref="list" class="bottom-sheet-list" role="radiogroup" aria-label="القارئ" @keydown="onListKeydown">
-          <li v-for="(reciter, index) in filtered" :key="reciter.id">
-            <button
-              type="button"
-              class="bottom-sheet-item"
-              role="radio"
-              :aria-checked="isChosen(reciter)"
-              :tabindex="index === focusIndex ? 0 : -1"
-              @focus="focusIndex = index"
-              @click="choose(reciter.id)"
-            >
-              <span class="flex-grow-1 text-truncate">{{ reciter.name }}</span>
-              <small v-if="recordingStyle(reciter)" class="reciters__style">{{ recordingStyle(reciter) }}</small>
-              <IconCheck v-if="isChosen(reciter)" size="20" class="reciters__check" />
-            </button>
-          </li>
-          <li v-if="!filtered.length" class="reciters__empty">لا يوجد قارئ بهذا الاسم</li>
-        </ul>
-      </div>
-    </BottomSheet>
+    <OptionsSheet
+      :model-value="Number(quranStore.currentReciter)"
+      :show="showReciters"
+      title="القارئ"
+      :options="reciterOptions"
+      search-placeholder="ابحث عن قارئ"
+      empty-message="لا يوجد قارئ بهذا الاسم"
+      @update:model-value="quranStore.changeReciter"
+      @close="showReciters = false"
+    />
   </div>
 </template>
 
@@ -226,45 +167,11 @@ const reciterStyle = computed(() => recordingStyle(quranStore.reciter))
   }
 }
 
-.reciters {
-  // A fixed height, so the sheet doesn't jump as the search narrows the list; the list scrolls inside it.
-  display: flex;
-  flex-direction: column;
-  height: min(70dvh, 36rem);
-}
-
-.reciters__search {
-  flex-shrink: 0;
-  padding: 0.25rem 1rem 0.5rem;
-}
-
-.reciters .bottom-sheet-list {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-bottom: 0.5rem;
-}
-
-.reciters__style,
 .player-pill__style {
   flex-shrink: 0;
   color: var(--bs-secondary-color);
-}
-
-.player-pill__style {
   font-size: 0.8125rem;
   font-weight: 400;
-}
-
-.reciters__check {
-  color: var(--app-primary-ink) !important;
-}
-
-.reciters__empty {
-  padding: 1rem;
-  text-align: center;
-  color: var(--bs-secondary-color);
 }
 
 .spin {

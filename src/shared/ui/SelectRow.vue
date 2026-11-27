@@ -1,54 +1,52 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { IconSelector } from '@tabler/icons-vue'
+import OptionsSheet from '@/shared/ui/OptionsSheet.vue'
 
 const props = defineProps({
   label: { type: String, required: true },
-  // [{ value, label }]
+  // [{ value, label, hint? }]
   options: { type: Array, required: true },
 })
 
 const model = defineModel({ type: [String, Number], default: '' })
 
 const selected = computed(() => props.options.find((option) => String(option.value) === String(model.value)))
-
-// A native select hands back strings; return the option's own value so numbers stay numbers.
-function onChange(event) {
-  const option = props.options.find((item) => String(item.value) === event.target.value)
-  if (option) model.value = option.value
-}
+const open = ref(false)
 </script>
 
 <template>
-  <!-- An iOS-style row: the label on one side, the current choice and a chevron on the other.
-       The native select covers the row invisibly, so a tap opens the phone's own picker. -->
-  <label class="select-row">
+  <!-- An iOS-style row: the label on one side, the current choice and a chevron on the other. A tap opens the
+       choices in a sheet. -->
+  <button type="button" class="select-row" aria-haspopup="dialog" @click="open = true">
     <span class="select-row__label">{{ label }}</span>
     <span class="select-row__value">{{ selected?.label }}</span>
     <IconSelector class="select-row__chevron" aria-hidden="true" />
-    <select class="select-row__select" :value="String(model)" :aria-label="label" @change="onChange">
-      <option v-for="option in options" :key="option.value" :value="String(option.value)">
-        {{ option.label }}
-      </option>
-    </select>
-  </label>
+  </button>
+
+  <OptionsSheet v-model="model" :show="open" :title="label" :options="options" @close="open = false" />
 </template>
 
 <style lang="scss" scoped>
 .select-row {
-  position: relative;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  width: 100%;
   min-height: 3rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
   cursor: pointer;
-}
 
-/* The select itself is invisible, so the row shows its keyboard focus. */
-.select-row:has(.select-row__select:focus-visible) {
-  border-radius: var(--bs-border-radius);
-  outline: 2px solid rgba(var(--bs-primary-rgb), 0.5);
-  outline-offset: 2px;
+  &:focus-visible {
+    border-radius: var(--bs-border-radius);
+    outline: 2px solid rgba(var(--bs-primary-rgb), 0.5);
+    outline-offset: 2px;
+  }
 }
 
 /* The value keeps its full width up to 60% of the row, and the label wraps beside it, so a large text size doesn't
@@ -73,15 +71,5 @@ function onChange(event) {
   width: 1rem;
   height: 1rem;
   color: var(--bs-secondary-color);
-}
-
-.select-row__select {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  opacity: 0;
-  cursor: pointer;
-  /* 16px keeps iOS from zooming when the picker opens. */
-  font-size: 16px;
 }
 </style>
