@@ -72,7 +72,9 @@ export const useThemeStore = defineStore('theme', () => {
     applyPrimaryColor(theme.fg)
     applyBgColor(theme.bg)
 
-    nextTick(syncMetaThemeColor)
+    // Read here, not in the callback, so a change of the phone's theme re-syncs the bar even with a manual app theme.
+    const systemMode = prefersDark.value ? 'dark' : 'light'
+    nextTick(() => syncMetaThemeColor({ systemMode }))
   })
 
   watchEffect(() => {

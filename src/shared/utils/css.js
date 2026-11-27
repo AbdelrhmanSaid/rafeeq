@@ -18,6 +18,7 @@ const BG_COLOR_VARS = [
   '--bs-tertiary-bg',
   '--app-page-bg-color',
   '--app-page-bg-image',
+  '--app-page-top-color',
 ]
 
 // The rem-based UI scales from the root font size; 100 is the browser default.
@@ -142,17 +143,44 @@ export function applyPrimaryColor(color) {
   }
 }
 
-export function syncMetaThemeColor() {
+// Some Chrome versions on Android (154 on Android 15, at least) draw the status-bar icons in the phone's theme, not
+// the page's; only the bar's colour comes from theme-color. A light app on a dark phone then gets white icons on a
+// light bar. So on Android, when the two themes differ, the bar takes the phone's theme: its icons read on it
+// whichever way Chrome picks them. iOS picks the text colour from the bar's own colour, so it keeps the app's.
+export function statusBarMode({ appMode, systemMode, userAgent = navigator.userAgent }) {
+  if (!systemMode || systemMode === appMode) return appMode
+  return /Android/i.test(userAgent) ? systemMode : appMode
+}
+
+// The top-of-page colour as it would be in the given theme, with the current primary colour.
+function topColorInMode(mode) {
+  const probe = document.createElement('div')
+  probe.className = 'app-theme-probe'
+  probe.setAttribute('data-bs-theme', mode)
+  probe.hidden = true
+  document.body.appendChild(probe)
+  const color = normalizeColor(getComputedStyle(probe).getPropertyValue('--app-page-top-color'))
+  probe.remove()
+  return color
+}
+
+export function syncMetaThemeColor({ systemMode } = {}) {
   const styles = getComputedStyle(document.body)
   const bg = normalizeColor(styles.backgroundColor || styles.getPropertyValue('--bs-body-bg'))
   if (!bg) return
 
   ensureMeta('msapplication-TileColor').setAttribute('content', bg)
 
-  // The status bar and browser UI take this colour; match the page so they blend in both themes.
+  const colorScheme = document.body.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light'
+
+  // The status bar and browser UI take this colour. It's the page's top edge, glow included, rather than the flat
+  // background, so the bar blends into the header (in the phone's theme instead, where statusBarMode says so).
   // index.html ships light and dark first-paint tags keyed to the system theme; once the app knows its own theme,
   // every tag carries that colour and drops its media query, so a manual theme wins over the system one.
-  const rgb = toRgbValue(bg)
+  const barMode = statusBarMode({ appMode: colorScheme, systemMode })
+  const top =
+    barMode === colorScheme ? normalizeColor(styles.getPropertyValue('--app-page-top-color')) : topColorInMode(barMode)
+  const rgb = (top && toRgbValue(top)) || toRgbValue(bg)
   if (rgb) {
     ensureMeta('theme-color')
     for (const meta of document.querySelectorAll('meta[name="theme-color"]')) {
@@ -161,7 +189,6 @@ export function syncMetaThemeColor() {
     }
   }
 
-  const colorScheme = document.body.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light'
   ensureMeta('color-scheme').setAttribute('content', colorScheme)
   document.documentElement.style.colorScheme = colorScheme
 }
@@ -178,6 +205,7 @@ export function applyBgColor(color) {
       '--bs-tertiary-bg': 'color-mix(in srgb, var(--bs-body-bg) 84%, #fff)',
       '--app-page-bg-color': bg,
       '--app-page-bg-image': 'none',
+      '--app-page-top-color': bg,
     }
 
     const rgb = toRgbValue(bg)

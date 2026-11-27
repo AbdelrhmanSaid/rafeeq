@@ -140,8 +140,21 @@ button,
   }
 }
 
-body {
+// The page colour, and about what the glows below paint along its top edge, where the page meets the status bar.
+// theme-color takes the top colour so the bar blends into the header; keep its mix in step with the gradients.
+// syncMetaThemeColor also resolves them in the other theme on a hidden probe, so they're declared there too.
+body,
+.app-theme-probe {
   --app-page-bg-color: color-mix(in srgb, var(--bs-body-bg) 96%, var(--bs-primary));
+  --app-page-top-color: color-mix(in srgb, var(--app-page-bg-color) 91%, var(--bs-primary));
+}
+
+// Bootstrap's light-theme rule resets the primary colour on the probe; keep the one the app chose.
+.app-theme-probe[data-bs-theme] {
+  --bs-primary: inherit;
+}
+
+body {
   --app-page-bg-image:
     radial-gradient(60rem 22rem at 50% -8rem, color-mix(in srgb, var(--bs-primary) 14%, transparent), transparent 70%),
     radial-gradient(40rem 18rem at 100% 0, color-mix(in srgb, var(--bs-primary) 6%, transparent), transparent 70%);
@@ -151,6 +164,7 @@ body {
 
   &.is-embed {
     --app-page-bg-image: none;
+    --app-page-top-color: var(--app-page-bg-color);
   }
 
   background-repeat: no-repeat;
