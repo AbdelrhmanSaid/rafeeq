@@ -16,8 +16,6 @@ import PrayerIcon from '@/features/prayers/components/icons/PrayerIcon.vue'
 const props = defineProps({
   lat: { type: [Number, String], default: null },
   long: { type: [Number, String], default: null },
-  // 'auto' folds the six times into the next-prayer card; 'list' and 'cards' list them below it instead.
-  layout: { type: String, default: 'auto' },
   // Home shows the weekday in its greeting, so the card can leave it out.
   showWeekday: { type: Boolean, default: true },
 })
@@ -63,8 +61,8 @@ const timingsFor = (date) =>
 
 const timings = computed(() => (hasCoords.value ? timingsFor(todayDate.value) : null))
 
-// The compact strip drops the ص/م suffix too; which half of the day each prayer falls in is obvious. No time keeps a
-// leading zero, so the strip, the list and the cards read the same.
+// The strip drops the ص/م suffix; which half of the day each prayer falls in is obvious. No time keeps a leading
+// zero.
 const formatShortTiming = (time) => toArabicNumerals(formatDate(new Date(time), 'h:mm'))
 
 const formatTiming = (time) => {
@@ -144,97 +142,56 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
     <button type="button" class="btn btn-primary rounded-pill px-4" @click="detect">تحديد موقعي</button>
   </div>
 
-  <div v-else-if="timings" class="d-flex flex-column gap-2">
-    <div class="prayer-hero">
-      <div class="prayer-hero__meta">
-        <div class="prayer-hero__date">
-          <span class="dot-list">
-            <span v-if="showWeekday && hijriDay">{{ hijriDay }}</span>
-            <span>{{ hijriDate }}</span>
-          </span>
-        </div>
-        <span class="prayer-hero__badge">الصلاة القادمة</span>
-      </div>
-
-      <div v-if="nextPrayerKey" class="prayer-hero__next">
-        <span class="icon-circle icon-circle--lg prayer-hero__icon">
-          <PrayerIcon :name="timingsMap[nextPrayerKey]?.icon" />
+  <div v-else-if="timings" class="prayer-hero">
+    <div class="prayer-hero__meta">
+      <div class="prayer-hero__date">
+        <span class="dot-list">
+          <span v-if="showWeekday && hijriDay">{{ hijriDay }}</span>
+          <span>{{ hijriDate }}</span>
         </span>
-        <div class="min-w-0">
-          <h3 class="prayer-hero__name font-display">{{ timingsMap[nextPrayerKey]?.label }}</h3>
-          <p class="prayer-hero__remain">
-            <span class="dot-list">
-              <span class="prayer-hero__time">{{ nextPrayerTime }}</span>
-              <span>باقي {{ remainingTime }}</span>
-            </span>
-          </p>
-        </div>
       </div>
-
-      <div
-        class="prayer-hero__progress"
-        role="progressbar"
-        aria-label="الوقت المنقضي حتى الصلاة القادمة"
-        :aria-valuenow="Math.round(progress * 100)"
-        aria-valuemin="0"
-        aria-valuemax="100"
-      >
-        <span class="prayer-hero__bar" :style="{ '--progress': progress }"></span>
-      </div>
-
-      <ol v-if="layout === 'auto'" class="prayer-strip" aria-label="مواقيت اليوم">
-        <li
-          v-for="(timing, key) in timingsMap"
-          :key="key"
-          class="prayer-strip__item"
-          :class="`prayer-strip__item--${phases[key]}`"
-          :aria-current="phases[key] === 'next' ? 'true' : undefined"
-        >
-          <PrayerIcon :name="timing.icon" class="prayer-strip__icon" />
-          <span class="prayer-strip__label">{{ timing.label }}</span>
-          <span class="prayer-strip__time">{{ formatShortTiming(timings[key]) }}</span>
-        </li>
-      </ol>
+      <span class="prayer-hero__badge">الصلاة القادمة</span>
     </div>
 
-    <!-- One inset grouped list, like the rest of the app's lists. -->
-    <ol v-if="layout === 'list'" class="list-group prayer-list" aria-label="مواقيت اليوم">
+    <div v-if="nextPrayerKey" class="prayer-hero__next">
+      <span class="icon-circle icon-circle--lg prayer-hero__icon">
+        <PrayerIcon :name="timingsMap[nextPrayerKey]?.icon" />
+      </span>
+      <div class="min-w-0">
+        <h3 class="prayer-hero__name font-display">{{ timingsMap[nextPrayerKey]?.label }}</h3>
+        <p class="prayer-hero__remain">
+          <span class="dot-list">
+            <span class="prayer-hero__time">{{ nextPrayerTime }}</span>
+            <span>باقي {{ remainingTime }}</span>
+          </span>
+        </p>
+      </div>
+    </div>
+
+    <div
+      class="prayer-hero__progress"
+      role="progressbar"
+      aria-label="الوقت المنقضي حتى الصلاة القادمة"
+      :aria-valuenow="Math.round(progress * 100)"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
+      <span class="prayer-hero__bar" :style="{ '--progress': progress }"></span>
+    </div>
+
+    <ol class="prayer-strip" aria-label="مواقيت اليوم">
       <li
         v-for="(timing, key) in timingsMap"
         :key="key"
-        class="list-group-item prayer-row"
-        :class="`prayer-row--${phases[key]}`"
+        class="prayer-strip__item"
+        :class="`prayer-strip__item--${phases[key]}`"
         :aria-current="phases[key] === 'next' ? 'true' : undefined"
       >
-        <span class="icon-container" :class="phases[key] === 'next' ? 'text-primary' : 'text-secondary'">
-          <PrayerIcon :name="timing.icon" />
-        </span>
-        <span class="prayer-row__label">{{ timing.label }}</span>
-        <span class="prayer-row__time">{{ formatTiming(timings[key]) }}</span>
+        <PrayerIcon :name="timing.icon" class="prayer-strip__icon" />
+        <span class="prayer-strip__label">{{ timing.label }}</span>
+        <span class="prayer-strip__time">{{ formatShortTiming(timings[key]) }}</span>
       </li>
     </ol>
-
-    <div v-else-if="layout === 'cards'" class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2">
-      <div v-for="(timing, key) in timingsMap" :key="key" class="col">
-        <div
-          class="card h-100 prayer-card"
-          :class="`prayer-card--${phases[key]}`"
-          :aria-current="phases[key] === 'next' ? 'true' : undefined"
-        >
-          <div class="card-body d-flex flex-column align-items-center justify-content-center text-center gap-2 p-3">
-            <span class="icon-circle" :class="phases[key] === 'next' ? 'text-primary' : 'text-secondary'">
-              <PrayerIcon :name="timing.icon" />
-            </span>
-            <div>
-              <div class="small fw-semibold mb-1" :class="{ 'text-body-secondary': phases[key] !== 'next' }">
-                {{ timing.label }}
-              </div>
-              <div class="fs-5 fw-bold lh-1">{{ formatTiming(timings[key]) }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -455,57 +412,6 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
   white-space: nowrap;
 }
 
-.prayer-list {
-  margin: 0;
-  padding: 0;
-}
-
-.prayer-row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  min-height: 3rem;
-  transition: background-color 0.2s ease;
-}
-
-.prayer-row__label {
-  flex: 1;
-  min-width: 0;
-  font-weight: 600;
-}
-
-.prayer-row__time {
-  flex-shrink: 0;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-.prayer-row--past {
-  color: var(--bs-secondary-color);
-}
-
-.prayer-row--next {
-  background-color: var(--app-surface-active);
-}
-
-.prayer-card {
-  transition:
-    border-color 0.15s ease,
-    background-color 0.15s ease,
-    color 0.15s ease;
-}
-
-.prayer-card--past {
-  color: var(--bs-secondary-color);
-  box-shadow: none;
-}
-
-.prayer-card--next {
-  border-color: var(--app-hairline-strong);
-  background-color: var(--app-surface-active);
-  box-shadow: none;
-}
-
 /* Prevent layout shift while state content changes. */
 .prayer-state {
   display: grid;
@@ -534,18 +440,5 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
 .prayer-detect__hint {
   max-width: 28rem;
   font-size: 0.925rem;
-}
-
-.icon-container {
-  display: grid;
-  place-items: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  flex-shrink: 0;
-
-  :deep(svg) {
-    width: 1.15rem;
-    height: 1.15rem;
-  }
 }
 </style>

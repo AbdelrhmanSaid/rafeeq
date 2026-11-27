@@ -13,6 +13,7 @@ export const STORAGE_KEYS = {
 
   longitude: 'longitude',
   latitude: 'latitude',
+  // No longer set (prayer times have one layout); kept so backups that include it still import.
   prayerTimesLayout: 'prayer-times-layout',
   prayerCalcMethod: 'prayer-calc-method',
   prayerCalcSchool: 'prayer-calc-school',

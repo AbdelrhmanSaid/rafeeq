@@ -11,8 +11,6 @@ export const usePrayersStore = defineStore('prayers', function () {
   const longitude = useLocalStorage(STORAGE_KEYS.longitude, 0)
   const latitude = useLocalStorage(STORAGE_KEYS.latitude, 0)
 
-  const layout = useLocalStorage(STORAGE_KEYS.prayerTimesLayout, 'auto')
-
   const calcMethod = useLocalStorage(STORAGE_KEYS.prayerCalcMethod, AUTO)
   const calcSchool = useLocalStorage(STORAGE_KEYS.prayerCalcSchool, AUTO)
   const calcLatitudeAdjustment = useLocalStorage(STORAGE_KEYS.prayerCalcLatitudeAdjustment, AUTO)
@@ -45,7 +43,6 @@ export const usePrayersStore = defineStore('prayers', function () {
   return {
     longitude,
     latitude,
-    layout,
     calcMethod,
     calcSchool,
     calcLatitudeAdjustment,
