@@ -94,6 +94,7 @@ const lines = computed(() => {
     }
   })
 })
+const bannerSurahs = computed(() => lines.value.filter((line) => line.surah).map((line) => line.surah))
 
 // The glyphs mean nothing to a screen reader, so each ayah is read out from its text.
 const ayahLabel = (key) => {
@@ -117,35 +118,53 @@ const surahInfo = (surah) => {
   return { place: isMeccan ? 'مكية' : 'مدنية', ayahs: numberOfAyahs }
 }
 
-// The name glyphs have uneven side bearings, so centring their boxes leaves the ink off-centre (by 4px on Al-Kahf).
-// Each title is shifted by how far its ink sits from the middle, measured once per surah in em, and down to the
-// cartouche's middle, which sits 0.079em (at the title's size) below the frame box's.
-const titleOffsets = reactive(new Map())
-
-async function centreTitles(surahIds) {
-  const pending = surahIds.filter((id) => !titleOffsets.has(id))
-  if (!pending.length || typeof document === 'undefined') return
-  await document.fonts.load("100px 'Surah Names'")
-  const context = document.createElement('canvas').getContext('2d')
-  if (!context) return
-  context.font = "100px 'Surah Names'"
-  const gap = 30 // .surah-title's 0.3em gap, at 100px
-  for (const id of pending) {
-    // Left to right: the name, the gap, then "سورة".
-    const name = context.measureText(surahNumber(id))
-    const word = context.measureText('surah')
-    const width = name.width + gap + word.width
-    const inkLeft = -name.actualBoundingBoxLeft
-    const inkRight = name.width + gap + word.actualBoundingBoxRight
-    titleOffsets.set(id, Math.round((width / 2 - (inkLeft + inkRight) / 2) * 10) / 1000)
+// Centre the visible ink of each label within its part of the frame. The title has two runs with a 0.3em gap.
+// Canvas measures at 100px, so dividing the centre difference by 100 gives the shift in em at any display size.
+function inkOffset(first, second) {
+  const last = second ?? first
+  const advance = second ? first.width + 30 : 0
+  const width = advance + last.width
+  const left = -first.actualBoundingBoxLeft
+  const right = advance + last.actualBoundingBoxRight
+  const ascent = Math.max(first.actualBoundingBoxAscent, last.actualBoundingBoxAscent)
+  const descent = Math.max(first.actualBoundingBoxDescent, last.actualBoundingBoxDescent)
+  return {
+    '--ink-x': `${(width - left - right) / 200}em`,
+    '--ink-y': `${(ascent - descent - first.fontBoundingBoxAscent + first.fontBoundingBoxDescent) / 200}em`,
   }
 }
 
-watch(
-  () => data.value?.lines.filter((line) => line?.surah).map((line) => line.surah),
-  (ids) => ids?.length && centreTitles(ids),
-  { immediate: true },
-)
+const bannerStyles = reactive(new Map())
+
+async function centreBannerLabels(surahIds) {
+  const pending = surahIds.filter((id) => !bannerStyles.has(id))
+  if (!pending.length || typeof document === 'undefined' || !document.fonts) return
+  const titleFont = "100px 'Surah Names'"
+  const medallionFont = "700 100px 'Thmanyah Sans'"
+  try {
+    await Promise.all([document.fonts.load(titleFont), document.fonts.load(medallionFont)])
+  } catch {
+    return
+  }
+  const context = document.createElement('canvas').getContext('2d')
+  if (!context) return
+  context.textAlign = 'left'
+  for (const id of pending) {
+    const { place, ayahs } = surahInfo(id)
+    context.font = titleFont
+    context.direction = 'ltr'
+    const title = inkOffset(context.measureText(surahNumber(id)), context.measureText('surah'))
+    context.font = medallionFont
+    context.direction = 'rtl'
+    bannerStyles.set(id, {
+      title,
+      place: inkOffset(context.measureText(place)),
+      count: inkOffset(context.measureText(toArabicNumerals(ayahs))),
+    })
+  }
+}
+
+watch(bannerSurahs, centreBannerLabels)
 
 // A tap shows or hides the bars; holding an ayah selects it. Moving the finger (turning the page), lifting it, or a
 // second finger cancels the hold. The pager takes the pointer once a drag starts, so the hold listens on the window.
@@ -249,7 +268,12 @@ onBeforeUnmount(() => {
     @keydown="onKeydown"
     @contextmenu="onContextMenu"
   >
-    <div v-if="data" class="mushaf-sheet" :class="{ 'is-opening': page <= 2 }" :style="{ '--page-font': fontFamily }">
+    <div
+      v-if="data"
+      class="mushaf-sheet"
+      :class="{ 'is-opening': page <= 2 }"
+      :style="{ '--page-font': fontFamily, '--surah-lines': bannerSurahs.length }"
+    >
       <!-- Not a <header>: a second banner landmark on the screen would tell a screen reader nothing. -->
       <div class="mushaf-sheet__meta">
         <span>{{ headerSurah }}</span>
@@ -265,21 +289,27 @@ onBeforeUnmount(() => {
             </span>
             <span class="surah-frame" aria-hidden="true">&#xFC20;</span>
             <span
-              class="surah-title"
+              class="surah-label surah-title"
               dir="rtl"
               aria-hidden="true"
-              :style="{ transform: `translate(${titleOffsets.get(line.surah) ?? 0}em, 0.079em)` }"
+              :style="bannerStyles.get(line.surah)?.title"
             >
               <span>surah</span>
               <span>{{ surahNumber(line.surah) }}</span>
             </span>
             <!-- The frame's two medallions: where the surah was revealed on the right, its ayat on the left. -->
-            <span class="surah-medallion surah-medallion--start" aria-hidden="true">{{
-              surahInfo(line.surah).place
-            }}</span>
-            <span class="surah-medallion surah-medallion--end" aria-hidden="true">{{
-              toArabicNumerals(surahInfo(line.surah).ayahs)
-            }}</span>
+            <span
+              class="surah-label surah-medallion surah-medallion--start"
+              aria-hidden="true"
+              :style="bannerStyles.get(line.surah)?.place"
+              >{{ surahInfo(line.surah).place }}</span
+            >
+            <span
+              class="surah-label surah-medallion surah-medallion--end"
+              aria-hidden="true"
+              :style="bannerStyles.get(line.surah)?.count"
+              >{{ toArabicNumerals(surahInfo(line.surah).ayahs) }}</span
+            >
           </div>
 
           <div v-else-if="line.basmala" class="mushaf-line mushaf-line--basmala">
@@ -361,12 +391,20 @@ onBeforeUnmount(() => {
    wider ones are set smaller to fit (see the watch on data). */
 .mushaf-sheet {
   --line-width: 17.2em;
-  --pitch: clamp(1.85em, calc((100cqh - 96px - var(--player-room)) / 15), 2.5em);
+  --page-room: calc(100cqh - 96px - var(--player-room));
+  --surah-pitch: 2.65em;
+  // The 2.15em frame needs a taller row than the ayat. Reserve those rows before spacing the remaining lines.
+  --pitch: clamp(
+    1.85em,
+    calc((var(--page-room) - var(--surah-lines) * var(--surah-pitch)) / (15 - var(--surah-lines))),
+    2.5em
+  );
 
   display: flex;
   flex-direction: column;
   width: var(--line-width);
-  font-size: min(calc((100cqw - 24px) / 17.2), calc((100cqh - 96px - var(--player-room)) / 28));
+  // Each banner uses 0.8em more than a line at the minimum pitch.
+  font-size: min(calc((100cqw - 24px) / 17.2), calc(var(--page-room) / (28 + var(--surah-lines) * 0.8)));
   color: var(--bs-body-color);
   -webkit-user-select: none;
   user-select: none;
@@ -435,6 +473,7 @@ onBeforeUnmount(() => {
   position: relative;
   display: grid;
   place-items: center;
+  height: var(--surah-pitch);
 }
 
 .surah-frame {
@@ -445,43 +484,40 @@ onBeforeUnmount(() => {
   color: color-mix(in srgb, var(--bs-primary) 60%, var(--bs-body-color));
 }
 
-.surah-title {
+.surah-label {
   position: absolute;
-  inset: 0;
+  top: 50%;
+  font-size: calc(var(--label-scale) * 1em);
+  line-height: 1;
+  word-spacing: normal;
+  // The frame's ink sits 0.091em (in the page font size) below the centre of its box.
+  /*! rtl:begin:ignore */
+  left: var(--label-at, 50%);
+  transform: translate(calc(-50% + var(--ink-x, 0em)), calc(-50% + 0.091em / var(--label-scale) + var(--ink-y, 0em)));
+  /*! rtl:end:ignore */
+}
+
+.surah-title {
+  --label-scale: 1.15;
   display: flex;
-  align-items: center;
-  justify-content: center;
   gap: 0.3em;
   font-family: 'Surah Names';
-  font-size: 1.15em;
-  line-height: var(--pitch);
 }
 
 .surah-medallion {
-  position: absolute;
-  top: 50%;
-  font-family: var(--bs-body-font-family);
-  // A medallion is about 1.2em of the page across: the count gets 0.44em, "مدنية" fits in it at 0.38em.
-  font-size: calc(var(--medallion-scale) * 1em);
+  font-family: 'Thmanyah Sans', sans-serif;
   font-weight: 700;
-  line-height: 1;
   color: color-mix(in srgb, var(--bs-primary) 60%, var(--bs-body-color));
-  // Centred on the frame's medallions, measured from the glyph: 20.9% in from the right end and 20.7% from the left.
-  // The frame's ink sits 0.044 of its size (0.091em of the page) below the middle of its box.
-  // Physical sides, so rtlcss leaves them.
-  /*! rtl:begin:ignore */
-  right: var(--medallion-at);
-  transform: translate(50%, calc(-50% + 0.091em / var(--medallion-scale)));
-  /*! rtl:end:ignore */
+  // Each medallion is about 1.2em of the page across. The centres are measured from the frame glyph's left edge.
 
   &--start {
-    --medallion-at: 20.94%;
-    --medallion-scale: 0.38;
+    --label-at: 79.06%;
+    --label-scale: 0.38;
   }
 
   &--end {
-    --medallion-at: 79.31%;
-    --medallion-scale: 0.44;
+    --label-at: 20.69%;
+    --label-scale: 0.44;
   }
 }
 
