@@ -22,7 +22,7 @@ export const THEMES = [
     value: 'yellow',
     label: 'أصفر',
     scheme: 'light',
-    swatch: 'color-mix(in srgb, #f9f2de 96%, var(--bs-primary))',
+    swatch: 'color-mix(in srgb, #fbf6e8 96%, var(--bs-primary))',
     ink: '#212529',
   },
   {
