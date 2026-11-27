@@ -51,19 +51,18 @@ const longitude = computed(() => (hasPropsCoords.value ? props.long : store.long
 const isCoordinate = (value) => Number.isFinite(Number(value)) && Number(value) !== 0
 const hasCoords = computed(() => isCoordinate(latitude.value) && isCoordinate(longitude.value))
 
-const timings = computed(() => {
-  if (!hasCoords.value) return null
-
-  return calculatePrayerTimes({
+const timingsFor = (date) =>
+  calculatePrayerTimes({
     latitude: latitude.value,
     longitude: longitude.value,
-    date: todayDate.value,
+    date,
     method: store.calcMethod,
     school: store.calcSchool,
     latitudeAdjustment: store.calcLatitudeAdjustment,
     shafaq: store.calcShafaq,
   })
-})
+
+const timings = computed(() => (hasCoords.value ? timingsFor(todayDate.value) : null))
 
 // The compact strip drops the ص/م suffix and leading zero; which half of the day each prayer falls in is obvious.
 const formatShortTiming = (time) => toArabicNumerals(formatDate(new Date(time), 'h:mm'))
@@ -91,18 +90,19 @@ const phases = computed(() => {
   return result
 })
 
-const remainingTime = computed(() => {
-  if (!timings.value || !nextPrayerKey.value) return null
-
-  let nextPrayerTime = new Date(timings.value[nextPrayerKey.value])
-  const currentTime = now.value
-
-  if (nextPrayerTime < currentTime) {
-    nextPrayerTime.setDate(nextPrayerTime.getDate() + 1)
-  }
-
-  return formatTime((nextPrayerTime - currentTime) / 1000)
+// When the next prayer is already past today (Fajr, after Isha), it's tomorrow's, worked out for tomorrow's date;
+// the label and the countdown both use it.
+const nextPrayerAt = computed(() => {
+  const key = nextPrayerKey.value
+  if (!timings.value || !key) return null
+  const today = new Date(timings.value[key])
+  if (today >= now.value) return today
+  const tomorrow = new Date(todayDate.value)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  return new Date(timingsFor(tomorrow)[key])
 })
+
+const remainingTime = computed(() => (nextPrayerAt.value ? formatTime((nextPrayerAt.value - now.value) / 1000) : null))
 
 const progress = computed(() => {
   const prayerTimes = timings.value
@@ -125,10 +125,7 @@ const progress = computed(() => {
   return Math.min(1, Math.max(0, (nowMs - prevMs) / span))
 })
 
-const nextPrayerTime = computed(() => {
-  const time = timings.value?.[nextPrayerKey.value]
-  return time ? formatTiming(time) : ''
-})
+const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPrayerAt.value) : ''))
 </script>
 
 <template>

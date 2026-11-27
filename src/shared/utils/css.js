@@ -1,5 +1,6 @@
 const PRIMARY_COLOR_VARS = [
   '--bs-primary',
+  '--app-on-primary',
   '--bs-primary-rgb',
   '--bs-link-color',
   '--bs-link-hover-color',
@@ -73,6 +74,16 @@ function toRgbValue(color) {
     .join(', ')
 }
 
+// Text and icons on a solid brand fill: white on dark colors, near-black on light ones such as the sand theme, where
+// white falls well short of readable contrast. The switch is at a relative luminance of 0.4.
+function onColor(rgb) {
+  const [r, g, b] = rgb.split(',').map((channel) => {
+    const c = Number(channel) / 255
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+  })
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.4 ? '#1f1b16' : '#fff'
+}
+
 function setVars(vars) {
   const targets = [document.documentElement, document.body]
   for (const el of targets) {
@@ -104,7 +115,10 @@ export function applyPrimaryColor(color) {
       '--bs-primary-border-subtle': 'color-mix(in srgb, var(--bs-primary) 35%, transparent)',
     }
     const rgb = toRgbValue(fg)
-    if (rgb) vars['--bs-primary-rgb'] = rgb
+    if (rgb) {
+      vars['--bs-primary-rgb'] = rgb
+      vars['--app-on-primary'] = onColor(rgb)
+    }
     setVars(vars)
   } else {
     removeVars(PRIMARY_COLOR_VARS)

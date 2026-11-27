@@ -92,12 +92,16 @@ const actionLabel = computed(() => `${ACTION_LABELS[props.asset.status] ?? 'تح
 }
 
 .dm-item-info {
+  /* One line: the name, then its kind muted after it. */
+  display: flex;
   flex: 1;
+  align-items: baseline;
+  gap: 0.5rem;
   min-width: 0;
 }
 
 .dm-item-name {
-  display: block;
+  min-width: 0;
   font-size: 0.875rem;
   font-weight: 500;
   white-space: nowrap;
@@ -106,6 +110,7 @@ const actionLabel = computed(() => `${ACTION_LABELS[props.asset.status] ?? 'تح
 }
 
 .dm-item-type {
+  flex-shrink: 0;
   font-size: 0.75rem;
   color: var(--bs-secondary-color);
 }

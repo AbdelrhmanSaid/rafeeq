@@ -315,14 +315,17 @@ useEventListener(panel, 'transitionend', onTransitionEnd)
   --bs-btn-hover-color: var(--bs-body-color);
   --bs-btn-active-color: var(--bs-body-color);
 
+  /* A 32px circle inside a 44px target. */
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: -0.375rem;
   margin-inline-start: auto;
-  padding: 0;
+  padding: 0.375rem;
   border-radius: 50%;
+  background-clip: content-box;
 }
 
 .sheet-body {
@@ -346,8 +349,8 @@ useEventListener(panel, 'transitionend', onTransitionEnd)
 
     &:focus-visible {
       position: static;
-      width: 2rem;
-      height: 2rem;
+      width: 2.75rem;
+      height: 2.75rem;
       clip: auto;
     }
   }

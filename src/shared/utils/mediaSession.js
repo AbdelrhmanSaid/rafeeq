@@ -31,13 +31,6 @@ export function setMediaPlaybackState(state) {
   if (s) s.playbackState = state
 }
 
-export function setMediaPositionState({ duration, position, playbackRate = 1 } = {}) {
-  const s = session()
-  if (!s || typeof s.setPositionState !== 'function') return
-  if (!Number.isFinite(duration) || !Number.isFinite(position)) return
-  s.setPositionState({ duration, position: Math.min(position, duration), playbackRate })
-}
-
 export function clearMediaSession() {
   const s = session()
   if (!s) return

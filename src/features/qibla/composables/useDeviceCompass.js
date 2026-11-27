@@ -19,10 +19,17 @@ export function useDeviceCompass() {
 
   const canRequestPermission = computed(() => !hasSupport.value && needsPermissionPrompt())
 
+  // Readings arrive many times a second; if they stop (the sensor goes quiet or loses north), the last heading is no
+  // longer live and mustn't keep saying the phone faces the qibla.
+  let staleTimer = 0
+  const STALE_MS = 2000
+
   function update(rawHeading) {
     // The first reading jumps straight to the heading instead of sweeping there from north.
     heading.value = hasReading.value ? smoothAngle(heading.value, rawHeading, SMOOTHING) : normalizeAngle(rawHeading)
     hasReading.value = true
+    clearTimeout(staleTimer)
+    staleTimer = setTimeout(() => (hasReading.value = false), STALE_MS)
   }
 
   function trackPose(event) {
@@ -95,6 +102,7 @@ export function useDeviceCompass() {
   onMounted(() => ask(true))
   onUnmounted(() => {
     active = false
+    clearTimeout(staleTimer)
     window.removeEventListener('deviceorientation', handleOrientation, true)
     window.removeEventListener('deviceorientationabsolute', handleAbsoluteOrientation, true)
   })

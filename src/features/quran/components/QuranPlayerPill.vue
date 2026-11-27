@@ -107,7 +107,7 @@ const reciterName = computed(() => quranStore.reciter?.name ?? 'اختر الق�
 
 <style lang="scss" scoped>
 /* An embed has no tab bar to clear. */
-:global(.main-content-embed) .player-pill {
+:global(.main-content-embed .player-pill) {
   bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
 }
 
@@ -157,7 +157,7 @@ const reciterName = computed(() => quranStore.reciter?.name ?? 'اختر الق�
   border: 0;
   border-radius: 50%;
   background: var(--bs-primary);
-  color: #fff;
+  color: var(--app-on-primary);
   transition: transform 0.15s var(--app-ease-out);
 
   &:active {

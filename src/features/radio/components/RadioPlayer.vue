@@ -40,6 +40,9 @@ const STARS = [
   [196, 20, 1],
   [214, 84, 1],
 ]
+
+// Ctrl/Cmd/Shift-click or a middle click opens the station elsewhere; only a plain click plays it here.
+const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button > 0
 </script>
 
 <template>
@@ -118,7 +121,7 @@ const STARS = [
           :key="item.slug"
           :to="{ name: 'radio-station', params: { slug: item.slug } }"
           class="list-group-item list-group-item-action d-flex align-items-center gap-3 station__row"
-          @click="$emit('play-similar', item)"
+          @click="(event) => !isModifiedClick(event) && $emit('play-similar', item)"
         >
           <span class="list-index">{{ toArabicNumerals(index + 1) }}</span>
           <span class="fw-medium text-truncate">
@@ -258,7 +261,7 @@ const STARS = [
   border: 0.3rem solid var(--bs-body-bg);
   border-radius: 50%;
   background: var(--bs-primary);
-  color: #fff;
+  color: var(--app-on-primary);
 
   svg {
     width: 2rem;

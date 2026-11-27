@@ -54,7 +54,6 @@ export function pageOfAyah(surah, ayah) {
 export const surahStartPage = (surah) => pageOfAyah(surah, 1)
 
 export const surahOfPage = (page) => PAGE_STARTS[page - 1][0]
-export const juzOfPage = (page) => PAGE_STARTS[page - 1][1]
 
 export const nextVerse = (surah, ayah) => {
   if (ayah < surahs[surah - 1].numberOfAyahs) return { surah, ayah: ayah + 1 }

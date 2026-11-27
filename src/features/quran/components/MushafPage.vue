@@ -164,6 +164,9 @@ function onClick(event) {
   }
   // The retry button on a page that failed to load is its own action.
   if (event.target.closest('button')) return
+  // A click with no pointer behind it (a screen reader activating an ayah's button) opens the ayah's menu.
+  const key = event.target.closest('[data-key]')?.dataset.key
+  if (key && event.detail === 0) return select(key)
   emit('tap')
 }
 
@@ -297,12 +300,12 @@ onBeforeUnmount(() => {
    so a 16.6em line fits every one, with the rest of each line going to the spaces between words. */
 .mushaf-sheet {
   --line-width: 16.6em;
-  --pitch: clamp(1.85em, calc((100cqh - 6rem) / 15), 2.5em);
+  --pitch: clamp(1.85em, calc((100cqh - 96px) / 15), 2.5em);
 
   display: flex;
   flex-direction: column;
   width: var(--line-width);
-  font-size: min(calc((100cqw - 1.5rem) / 16.6), calc((100cqh - 6rem) / 28));
+  font-size: min(calc((100cqw - 24px) / 16.6), calc((100cqh - 96px) / 28));
   color: var(--bs-body-color);
   -webkit-user-select: none;
   user-select: none;

@@ -300,7 +300,7 @@ const copyZekr = () => {
   border: 0;
   border-radius: 999px;
   background: var(--bs-primary);
-  color: #fff;
+  color: var(--app-on-primary);
   font-size: 0.9375rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;

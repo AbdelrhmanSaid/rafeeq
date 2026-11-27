@@ -1,4 +1,5 @@
 import { computed, reactive } from 'vue'
+import { useLocalStorage } from '@vueuse/core'
 import surahs from '@/features/quran/data/surahs.js'
 import { pageDataUrl, pageFontUrl, surahPages } from '@/features/quran/lib/mushaf'
 
@@ -28,23 +29,47 @@ export function scanStoredPages() {
   return scanned
 }
 
-// A file from the device if it's there, else from the network, kept for next time. `saved` says whether it's on the
-// device now: a full disk only costs the offline copy, but then the page mustn't be counted as downloaded.
-async function fetchStored(url) {
+// Files are checked before they're kept, so a broken response (a captive portal's page, a cut-off download) is never
+// stored and retried forever: a page's layout must parse, and a font must be a WOFF2 file.
+const checkLayout = (buffer) => {
+  const data = JSON.parse(new TextDecoder().decode(buffer))
+  if (!Array.isArray(data?.lines) || typeof data.verses !== 'object') throw new Error('Not a Mushaf page')
+  return data
+}
+
+const checkFont = (buffer) => {
+  if (new TextDecoder().decode(buffer.slice(0, 4)) !== 'wOF2') throw new Error('Not a WOFF2 font')
+  return buffer
+}
+
+// A file from the device if it's there and sound, else from the network, kept for next time. `saved` says whether
+// it's on the device now: a full disk only costs the offline copy, but then the page mustn't count as downloaded.
+async function fetchStored(url, check) {
   const cache = await openCache()
   const stored = await cache?.match(url)
-  if (stored) return { response: stored, saved: true }
+  if (stored) {
+    try {
+      return { value: check(await stored.arrayBuffer()), saved: true }
+    } catch {
+      await cache.delete(url)
+    }
+  }
 
   const response = await fetch(url)
   if (!response.ok) throw new Error(`Failed to fetch ${url}: ${response.status}`)
+  const buffer = await response.arrayBuffer()
+  const value = check(buffer)
   const saved = cache
-    ? await cache.put(url, response.clone()).then(
+    ? await cache.put(url, new Response(buffer, { headers: response.headers })).then(
         () => true,
         () => false,
       )
     : false
-  return { response, saved }
+  return { value, saved }
 }
+
+const fetchLayout = (page) => fetchStored(pageDataUrl(page), checkLayout)
+const fetchFont = (page) => fetchStored(pageFontUrl(page), checkFont)
 
 const fontFamily = (page) => `mushaf-p${page}`
 
@@ -56,16 +81,23 @@ export function loadPage(page) {
   if (!loaded.has(page)) {
     const entry = { dropped: false, face: null }
     entry.promise = (async () => {
-      const [data, font] = await Promise.all([fetchStored(pageDataUrl(page)), fetchStored(pageFontUrl(page))])
-      const face = new FontFace(fontFamily(page), await font.response.arrayBuffer())
-      const [json] = await Promise.all([data.response.json(), face.load()])
+      const [data, font] = await Promise.all([fetchLayout(page), fetchFont(page)])
+      const face = new FontFace(fontFamily(page), font.value)
+      try {
+        await face.load()
+      } catch (error) {
+        // A font the browser can't read is dropped, so the next try fetches it afresh.
+        const cache = await openCache()
+        await cache?.delete(pageFontUrl(page))
+        throw error
+      }
       if (data.saved && font.saved) storedPages.add(page)
       // Let go while loading: the page is no longer near the reader, so its font isn't registered.
       if (!entry.dropped) {
         entry.face = face
         document.fonts.add(face)
       }
-      return { data: json, fontFamily: fontFamily(page) }
+      return { data: data.value, fontFamily: fontFamily(page) }
     })()
     entry.promise.catch(() => loaded.get(page) === entry && loaded.delete(page))
     loaded.set(page, entry)
@@ -83,10 +115,10 @@ export function keepPagesNear(page, distance = 4) {
   }
 }
 
-export async function downloadPages(pages) {
+async function downloadPages(pages) {
   for (const page of pages) {
     if (storedPages.has(page)) continue
-    const files = await Promise.all([fetchStored(pageDataUrl(page)), fetchStored(pageFontUrl(page))])
+    const files = await Promise.all([fetchLayout(page), fetchFont(page)])
     if (!files.every((file) => file.saved)) throw new Error(`Could not store page ${page}`)
     storedPages.add(page)
   }
@@ -101,17 +133,31 @@ async function removePages(pages) {
   }
 }
 
-const isSurahStored = (surah) => surahPages(surah).every((page) => storedPages.has(page))
+// The surahs downloaded on purpose, as opposed to pages kept from reading. A page shared by several surahs stays
+// until the last of them is removed. Kept out of settings backups: it describes this device's storage.
+const downloaded = useLocalStorage('mushaf-downloaded-surahs', [])
+const downloadedSet = computed(() => new Set(downloaded.value))
+
+const isSurahDownloaded = (surah) =>
+  downloadedSet.value.has(surah) && surahPages(surah).every((page) => storedPages.has(page))
 
 // The downloads list counts the Mushaf by surah.
 export const mushafDownloads = {
-  downloadedCount: computed(() => surahs.filter((s) => isSurahStored(s.id)).length),
-  isDownloaded: (key) => isSurahStored(Number(key)),
-  download: (key) => downloadPages(surahPages(Number(key))),
-  // Removes all of the surah's pages, so it reads as removed even when it shares a page with a surah that stays;
-  // that surah then shows as needing that page again.
-  remove: (key) => removePages(surahPages(Number(key))),
+  downloadedCount: computed(() => surahs.filter((s) => isSurahDownloaded(s.id)).length),
+  isDownloaded: (key) => isSurahDownloaded(Number(key)),
+  async download(key) {
+    const surah = Number(key)
+    await downloadPages(surahPages(surah))
+    if (!downloadedSet.value.has(surah)) downloaded.value = [...downloaded.value, surah]
+  },
+  async remove(key) {
+    const surah = Number(key)
+    downloaded.value = downloaded.value.filter((id) => id !== surah)
+    const kept = new Set(downloaded.value.flatMap((id) => surahPages(id)))
+    await removePages(surahPages(surah).filter((page) => !kept.has(page)))
+  },
   async removeAll() {
+    downloaded.value = []
     if (hasCacheStorage()) await caches.delete(CACHE_NAME)
     storedPages.clear()
   },

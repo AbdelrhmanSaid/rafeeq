@@ -35,12 +35,6 @@ export const useDownloadStore = defineStore('download', () => {
   }
   const types = Object.values(assetTypes)
 
-  scanStoredPages()
-  // The old reader stored surahs as text, which nothing reads now.
-  idbKeys()
-    .then((all) => delMany(all.filter((key) => key === 'offline-quran' || String(key).startsWith('quran.'))))
-    .catch(() => {})
-
   const downloadQueue = ref([])
   const isDownloading = ref(false)
   const isPaused = ref(false)
@@ -85,13 +79,16 @@ export const useDownloadStore = defineStore('download', () => {
       const asset = downloadQueue.value[0]
       currentItem.value = asset
 
+      // Done or failed, the asset is taken out by its id: the queue may have been cancelled or refilled meanwhile.
       try {
         await fetchAsset(asset)
-        downloadQueue.value.shift()
+        removeFromQueue(asset)
         await sleep(100)
       } catch (error) {
         console.error(`Failed to download ${asset.name}:`, error)
-        downloadQueue.value.shift()
+        // Cancelled while it was downloading: it stays cancelled.
+        if (!isInQueue(asset)) continue
+        removeFromQueue(asset)
         // Three tries, then it's left out rather than retried forever (a full disk would never succeed).
         const tries = (failures.get(asset.id) ?? 0) + 1
         failures.set(asset.id, tries)
@@ -106,6 +103,21 @@ export const useDownloadStore = defineStore('download', () => {
     failures.clear()
     if (failed) toast.error('تعذر تحميل بعض الملفات، تأكد من الاتصال ومساحة التخزين ثم حاول مرة أخرى')
   }
+
+  // The old reader kept downloaded surahs as text, which the Mushaf can't draw. Those surahs are downloaded again as
+  // Mushaf pages, then the old copies go.
+  async function replaceOldSurahDownloads() {
+    await scanStoredPages()
+    const old = (await idbKeys()).filter((key) => key === 'offline-quran' || String(key).startsWith('quran.'))
+    if (!old.length) return
+    const ids = new Set(old.filter((key) => key !== 'offline-quran').map((key) => String(key).slice('quran.'.length)))
+    downloadQueue.value.push(
+      ...assetTypes.surah.assets.filter((a) => ids.has(a.key) && !isDownloaded(a) && !isInQueue(a)),
+    )
+    processQueue()
+    await delMany(old)
+  }
+  replaceOldSurahDownloads().catch(() => {})
 
   function queueAsset(asset) {
     if (!isDownloaded(asset) && !isInQueue(asset)) {

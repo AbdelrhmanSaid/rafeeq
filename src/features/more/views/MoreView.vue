@@ -150,9 +150,11 @@ const links = [
 }
 
 .more-row__text {
+  /* One line: the name, then its detail muted after it, cut short on narrow phones. */
   display: flex;
   flex: 1;
-  flex-direction: column;
+  align-items: baseline;
+  gap: 0.5rem;
   min-width: 0;
 
   .more-row__label {

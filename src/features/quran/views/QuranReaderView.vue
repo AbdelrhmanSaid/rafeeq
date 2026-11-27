@@ -58,6 +58,8 @@ const track = useTemplateRef('track')
 let offset = 0
 // Finishes the slide in progress, if any, at once.
 let finishTurn = null
+// Drops the slide in progress without settling on its page: when the reader closes, or another page is opened.
+let cancelTurn = null
 
 function moveTrack(x, animate) {
   offset = x
@@ -91,15 +93,19 @@ function turnTo(page) {
   if (page < 1 || page > PAGE_COUNT || page === current.value) return
   if (Math.abs(page - current.value) !== 1 || reducedMotion.value) return settleOn(page)
   moveTrack((page - current.value) * pageWidth(), true)
-  const done = () => {
+  const stop = () => {
     clearTimeout(fallback)
     track.value?.removeEventListener('transitionend', done)
-    finishTurn = null
+    finishTurn = cancelTurn = null
+  }
+  const done = () => {
+    stop()
     settleOn(page)
   }
   const fallback = setTimeout(done, 400)
   track.value?.addEventListener('transitionend', done, { once: true })
   finishTurn = done
+  cancelTurn = stop
 }
 
 const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
@@ -188,7 +194,15 @@ onMounted(() => {
 
 // Opening another page from outside (a bookmark, say) while the reader is open.
 watch(routePage, (page) => {
-  if (page !== current.value) settleOn(page)
+  if (page === current.value) return
+  cancelTurn?.()
+  settleOn(page)
+})
+
+let disposed = false
+onBeforeUnmount(() => {
+  disposed = true
+  cancelTurn?.()
 })
 
 const sheetOpen = computed(() => Boolean(selected.value || tafseerAyah.value))
@@ -259,13 +273,19 @@ const previousVerse = ({ surah, ayah }) => {
   return surah > 1 ? { surah: surah - 1, ayah: surahs[surah - 2].numberOfAyahs } : null
 }
 
+// Only the latest step lands, and none after the sheet closes.
+let tafseerStep = 0
+watch(tafseerAyah, (ayah) => !ayah && tafseerStep++)
+
 async function stepTafseer(delta) {
+  const step = ++tafseerStep
   const from = tafseerAyah.value
   const to = delta > 0 ? nextVerse(from.surah, from.ayah) : previousVerse(from)
   if (!to) return
   const key = verseKey(to.surah, to.ayah)
   try {
     const { data } = await loadPage(pageOfAyah(to.surah, to.ayah))
+    if (step !== tafseerStep) return
     openTafseer({ key, ...to, text: data.verses[key] })
   } catch {
     toast.error('تعذر تحميل الآية')
@@ -287,6 +307,8 @@ async function togglePlayback() {
 
   try {
     const { data } = await loadPage(current.value)
+    // The reader may have closed while the page loaded.
+    if (disposed) return
     const { surah, ayah } = parseVerseKey(Object.keys(data.verses)[0])
     startRecitation(surah, ayah)
   } catch {
@@ -355,6 +377,27 @@ usePageMeta(() => ({
       </div>
     </div>
 
+    <!-- Page turning for keyboard and screen-reader users, who can't drag; shown when focused. -->
+    <div class="reader__turns">
+      <button
+        type="button"
+        class="btn btn-soft visually-hidden-focusable"
+        :disabled="current >= PAGE_COUNT"
+        @click="turnTo(current + 1)"
+      >
+        الصفحة التالية
+      </button>
+      <button
+        type="button"
+        class="btn btn-soft visually-hidden-focusable"
+        :disabled="current <= 1"
+        @click="turnTo(current - 1)"
+      >
+        الصفحة السابقة
+      </button>
+    </div>
+    <p class="visually-hidden" aria-live="polite">صفحة {{ toArabicNumerals(current) }}</p>
+
     <QuranPlayerPill
       v-if="online || recitation.playing.value"
       :playing="recitation.playing.value"
@@ -398,6 +441,25 @@ usePageMeta(() => ({
   .reader {
     top: var(--topnav-height);
   }
+
+  // An embed has no top nav.
+  :global(.main-content-embed .reader) {
+    top: 0;
+  }
+}
+
+.reader__turns {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + var(--appbar-height) + 0.5rem);
+  inset-inline: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+
+  .btn {
+    min-height: 2.75rem;
+  }
 }
 
 .reader__pager {
@@ -407,8 +469,8 @@ usePageMeta(() => ({
   // A mouse drag turns the page rather than selecting text.
   -webkit-user-select: none;
   user-select: none;
-  // The pager handles horizontal drags itself; nothing on the page scrolls.
-  touch-action: none;
+  // The pager handles drags itself; the browser keeps pinch-zoom.
+  touch-action: pinch-zoom;
 }
 
 .reader__track {

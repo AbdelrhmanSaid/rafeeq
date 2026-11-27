@@ -67,16 +67,25 @@ export function useMushafRecitation() {
   }
 
   let playId = 0
+  let disposed = false
+  // What was asked for, kept apart from the ayah playing, so a reciter change while loading keeps the right place.
+  let requested = null
 
   // Starts reciting at an ayah; ayah 1 starts with the surah's Basmala.
   async function playFrom(surahNumber, ayahNumber = 1) {
+    if (disposed) return
     const id = ++playId
+    requested = { surah: surahNumber, ayah: ayahNumber }
     if (radioStore.isPlaying) radioStore.stop()
     loading.value = true
     try {
       if (surah.value !== surahNumber || !audio.src) await loadSurah(surahNumber)
       else if (pendingLoad) await pendingLoad
       if (id !== playId) return
+      // Without a timing for the ayah (no timings, or not a Hafs recording) it can only start at the top.
+      if (ayahNumber > 1 && !timings.some((t) => t.ayah === ayahNumber)) {
+        toast('لا يمكن البدء من هذه الآية مع هذا القارئ، ستبدأ التلاوة من أول السورة')
+      }
       audio.currentTime = ayahNumber <= 1 ? 0 : startOf(ayahNumber)
       ayah.value = !timings.length ? null : ayahNumber <= 1 && timings.some((t) => t.ayah === 0) ? 0 : ayahNumber
       await audio.play()
@@ -158,7 +167,7 @@ export function useMushafRecitation() {
     () => {
       // Includes a recitation still loading, which must not go on to play the old reciter.
       const wasActive = playing.value || loading.value
-      const at = { surah: surah.value, ayah: Math.max(1, ayah.value ?? 1) }
+      const at = loading.value && requested ? requested : { surah: surah.value, ayah: Math.max(1, ayah.value ?? 1) }
       loadId++
       playId++
       audio.pause()
@@ -186,6 +195,7 @@ export function useMushafRecitation() {
   // Leaving the reader ends the recitation, including one still loading, which would otherwise start playing on
   // another screen with nothing there to stop it.
   onScopeDispose(() => {
+    disposed = true
     cancelAnimationFrame(frame)
     loadId++
     playId++

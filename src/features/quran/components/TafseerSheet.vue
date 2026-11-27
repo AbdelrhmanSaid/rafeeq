@@ -44,6 +44,11 @@ watch([() => props.ayah, edition], ([ayah]) => {
   url.value = `${API.quranCloud}/ayah/${ayah.number}/editions/${edition.value}`
   if (online.value) execute()
 })
+
+// Opened offline, the tafsir loads once the connection is back.
+watch(online, (isOnline) => {
+  if (isOnline && props.ayah && !data.value && !isFetching.value) execute()
+})
 </script>
 
 <template>

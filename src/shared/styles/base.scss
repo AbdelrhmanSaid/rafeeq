@@ -49,6 +49,8 @@
   --app-hairline-strong: color-mix(in srgb, var(--bs-primary) 30%, var(--bs-border-color));
   --app-tint: color-mix(in srgb, var(--bs-primary) 10%, transparent);
   --app-tint-strong: color-mix(in srgb, var(--bs-primary) 18%, transparent);
+  /* On a solid brand fill; a light theme color gets dark text instead (see applyPrimaryColor). */
+  --app-on-primary: #fff;
   --app-glass: color-mix(in srgb, var(--bs-body-bg) 78%, transparent);
   --app-shadow-card: 0 1px 2px rgba(18, 18, 18, 0.04), 0 6px 20px -8px rgba(18, 18, 18, 0.08);
   --app-shadow-card-hover: 0 2px 4px rgba(18, 18, 18, 0.05), 0 16px 32px -12px rgba(18, 18, 18, 0.16);
@@ -320,10 +322,6 @@ body {
   display: none !important;
 }
 
-.main-content-embed .embed-invisible {
-  visibility: hidden !important;
-}
-
 .main-content-embed .main-content > * {
   width: 100%;
 }
@@ -514,27 +512,34 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  min-height: 2.75rem;
   padding: 0.6rem;
-  border: 1px solid var(--app-hairline);
+  border: 0;
   border-radius: var(--bs-border-radius);
-  background: none;
-  color: var(--bs-secondary-color);
+  /* Filled, not outlined: a quiet fill for the choices, the soft brand tint for the one chosen. */
+  background: color-mix(in srgb, var(--bs-body-color) 6%, transparent);
+  color: var(--bs-body-color);
   font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover {
-      background: rgba(var(--bs-secondary-rgb), 0.1);
+    &:hover:not(.active) {
+      background: color-mix(in srgb, var(--bs-body-color) 10%, transparent);
     }
   }
 
   &.active {
-    background: var(--bs-primary);
-    border-color: var(--bs-primary);
-    color: #fff;
-    box-shadow: 0 6px 16px -6px rgba(var(--bs-primary-rgb), 0.55);
+    background: var(--app-tint-strong);
+    color: var(--bs-primary);
+    font-weight: 600;
   }
+}
+
+[data-bs-theme='dark'] .btn-group-toggle .btn-toggle.active {
+  color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
 }
 
 /* Screens only fade in: nothing slides, so the layout holds still between pages. */

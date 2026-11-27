@@ -49,8 +49,9 @@ const hasValue = (value) => parseFloat(value) > 0
 const statusOf = (reached) => (reached ? 'reached' : 'below')
 
 const results = computed(() => ({
+  // Money and trade are judged against a nisab priced in gold, so there is no amount to show until that price is in.
   money: {
-    value: money(moneyResult.value),
+    value: hasValue(goldPrice.value) ? money(moneyResult.value) : '—',
     hint: hasValue(goldPrice.value)
       ? `٢٫٥٪ · النصاب ${money(moneyNisab.value)}`
       : '٢٫٥٪ · أدخل سعر الذهب لمعرفة النصاب',
@@ -82,7 +83,7 @@ const results = computed(() => ({
     status: hasValue(cropsAmount.value) ? statusOf(parseFloat(cropsAmount.value) >= NISAB.crops) : null,
   },
   business: {
-    value: money(businessResult.value),
+    value: hasValue(goldPrice.value) ? money(businessResult.value) : '—',
     hint: hasValue(goldPrice.value)
       ? `٢٫٥٪ · النصاب ${money(businessNisab.value)}`
       : '٢٫٥٪ · أدخل سعر الذهب لمعرفة النصاب',

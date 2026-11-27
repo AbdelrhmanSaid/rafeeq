@@ -9,17 +9,17 @@ html[dir='rtl'],
 }
 
 .btn-primary {
-  --bs-btn-color: #fff;
+  --bs-btn-color: var(--app-on-primary);
   --bs-btn-bg: var(--bs-primary);
   --bs-btn-border-color: var(--bs-primary);
-  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-color: var(--app-on-primary);
   --bs-btn-hover-bg: color-mix(in srgb, var(--bs-primary) 88%, #000);
   --bs-btn-hover-border-color: color-mix(in srgb, var(--bs-primary) 80%, #000);
   --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
-  --bs-btn-active-color: #fff;
+  --bs-btn-active-color: var(--app-on-primary);
   --bs-btn-active-bg: color-mix(in srgb, var(--bs-primary) 78%, #000);
   --bs-btn-active-border-color: color-mix(in srgb, var(--bs-primary) 70%, #000);
-  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-color: var(--app-on-primary);
   --bs-btn-disabled-bg: var(--bs-primary);
   --bs-btn-disabled-border-color: var(--bs-primary);
 }
