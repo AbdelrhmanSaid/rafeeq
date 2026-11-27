@@ -47,7 +47,8 @@ export const SHAFAQ_OPTIONS = [
 
 export const CALCULATION_FIELDS = [
   { key: 'calcMethod', label: 'طريقة الحساب', options: CALCULATION_METHODS },
-  { key: 'calcSchool', label: 'المذهب (حساب العصر)', options: SCHOOLS },
+  // Three short choices: all on show, as a segmented control, rather than behind a select.
+  { key: 'calcSchool', label: 'المذهب (حساب العصر)', options: SCHOOLS, segmented: true },
   { key: 'calcLatitudeAdjustment', label: 'تعديل خطوط العرض العليا', options: LATITUDE_ADJUSTMENT_METHODS },
   { key: 'calcShafaq', label: 'الشفق', options: SHAFAQ_OPTIONS },
 ]

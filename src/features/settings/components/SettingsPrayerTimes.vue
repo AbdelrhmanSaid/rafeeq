@@ -37,18 +37,38 @@ const location = computed(() => {
         </button>
       </div>
 
-      <SelectRow
-        v-for="field in calculationFields"
-        :key="field.key"
-        v-model="store[field.key]"
-        :label="field.label"
-        :options="field.options"
-      />
+      <template v-for="field in calculationFields" :key="field.key">
+        <div v-if="field.segmented" class="segmented-row">
+          <span :id="`${field.key}-label`">{{ field.label }}</span>
+          <div class="btn-group-toggle" role="group" :aria-labelledby="`${field.key}-label`">
+            <button
+              v-for="option in field.options"
+              :key="option.value"
+              type="button"
+              class="btn-toggle"
+              :class="{ active: store[field.key] === option.value }"
+              :aria-pressed="store[field.key] === option.value"
+              @click="store[field.key] = option.value"
+            >
+              {{ option.label }}
+            </button>
+          </div>
+        </div>
+        <SelectRow v-else v-model="store[field.key]" :label="field.label" :options="field.options" />
+      </template>
     </div>
   </SettingsSection>
 </template>
 
 <style scoped>
+/* The label, then the choices across the row under it. */
+.segmented-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-block: 0.75rem;
+}
+
 .location-row {
   display: flex;
   align-items: center;

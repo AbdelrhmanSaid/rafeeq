@@ -1,161 +1,32 @@
 <script setup>
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
-import { IconCheck, IconSearch } from '@tabler/icons-vue'
-import { useSearch } from '@/shared/composables/useSearch'
-import { rovingTarget } from '@/shared/utils/rovingFocus'
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
+import OptionsList from '@/shared/ui/OptionsList.vue'
 
-// A list of choices in a bottom sheet (a dialog on desktop), standing in for a native select. Choosing one closes it.
-const props = defineProps({
+// The choices of a select in a bottom sheet (a dialog on desktop). Choosing one closes it.
+defineProps({
   show: { type: Boolean, default: false },
   title: { type: String, required: true },
-  // [{ value, label, hint? }]; the hint sits muted beside the label.
+  // [{ value, label, hint? }]
   options: { type: Array, required: true },
-  // Long lists get a search field; short ones don't need it.
   searchable: { type: Boolean, default: null },
-  searchPlaceholder: { type: String, default: 'ابحث' },
-  emptyMessage: { type: String, default: 'لا توجد نتائج' },
+  searchPlaceholder: { type: String, default: undefined },
+  emptyMessage: { type: String, default: undefined },
 })
 
 const model = defineModel({ type: [String, Number], default: '' })
 const emit = defineEmits(['close'])
-
-const SEARCH_FROM = 10
-const hasSearch = computed(() => props.searchable ?? props.options.length > SEARCH_FROM)
-
-const { search, filtered } = useSearch(() => props.options, ['label'])
-const list = useTemplateRef('list')
-
-// Values compare as strings, so a stored "3" still finds the option whose value is 3.
-const isChosen = (option) => String(option.value) === String(model.value)
-
-watch(
-  () => props.show,
-  async (open) => {
-    if (!open) return
-    search.value = ''
-    await nextTick()
-    list.value?.querySelector('[aria-checked="true"]')?.scrollIntoView?.({ block: 'center' })
-  },
-  { immediate: true },
-)
-
-function choose(option) {
-  model.value = option.value
-  emit('close')
-}
-
-// The list is one Tab stop, on the chosen option (or the first, when a search hides it); the arrows move between
-// options without choosing one, since choosing closes the sheet. Space or Enter chooses.
-const focusIndex = ref(0)
-watch(filtered, (options) => (focusIndex.value = Math.max(0, options.findIndex(isChosen))), { immediate: true })
-
-function onListKeydown(event) {
-  const to = rovingTarget(event.key, focusIndex.value, filtered.value.length)
-  if (to === null) return
-  event.preventDefault()
-  focusIndex.value = to
-  list.value?.querySelectorAll('[role="radio"]')[to]?.focus()
-}
 </script>
 
 <template>
   <BottomSheet :show="show" :title="title" @close="emit('close')">
-    <div class="options" :class="{ 'options--search': hasSearch }">
-      <div v-if="hasSearch" class="options__search">
-        <div class="search-field">
-          <IconSearch class="search-field__icon" size="1.15rem" aria-hidden="true" />
-          <input
-            v-model="search"
-            type="text"
-            class="form-control search-field__input"
-            :placeholder="searchPlaceholder"
-            :aria-label="searchPlaceholder"
-          />
-        </div>
-      </div>
-
-      <ul
-        ref="list"
-        class="bottom-sheet-list options__list"
-        role="radiogroup"
-        :aria-label="title"
-        @keydown="onListKeydown"
-      >
-        <li v-for="(option, index) in filtered" :key="option.value">
-          <button
-            type="button"
-            class="bottom-sheet-item"
-            :class="{ 'is-chosen': isChosen(option) }"
-            role="radio"
-            :aria-checked="isChosen(option)"
-            :tabindex="index === focusIndex ? 0 : -1"
-            @focus="focusIndex = index"
-            @click="choose(option)"
-          >
-            <span class="options__label">{{ option.label }}</span>
-            <small v-if="option.hint" class="options__hint">{{ option.hint }}</small>
-            <IconCheck v-if="isChosen(option)" size="20" class="options__check" aria-hidden="true" />
-          </button>
-        </li>
-        <li v-if="!filtered.length" class="options__empty">{{ emptyMessage }}</li>
-      </ul>
-    </div>
+    <OptionsList
+      v-model="model"
+      :label="title"
+      :options="options"
+      :searchable="searchable"
+      :search-placeholder="searchPlaceholder"
+      :empty-message="emptyMessage"
+      @choose="emit('close')"
+    />
   </BottomSheet>
 </template>
-
-<style lang="scss" scoped>
-.options {
-  display: flex;
-  flex-direction: column;
-}
-
-/* A searchable list keeps a fixed height, so the sheet doesn't jump as the search narrows it; the list scrolls inside. */
-.options--search {
-  height: min(70dvh, 36rem);
-
-  .options__list {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-  }
-}
-
-.options__search {
-  flex-shrink: 0;
-  padding: 0.25rem 1rem 0.5rem;
-}
-
-.options__list {
-  padding-bottom: 0.5rem;
-}
-
-.options__label {
-  flex-grow: 1;
-  min-width: 0;
-}
-
-.options__hint {
-  flex-shrink: 0;
-  color: var(--bs-secondary-color);
-}
-
-.bottom-sheet-item.is-chosen {
-  font-weight: 600;
-}
-
-.bottom-sheet-item > .options__check {
-  color: var(--app-primary-ink);
-}
-
-[data-bs-theme='dark'] .bottom-sheet-item > .options__check {
-  color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
-}
-
-.options__empty {
-  padding: 1rem;
-  text-align: center;
-  color: var(--bs-secondary-color);
-}
-</style>
