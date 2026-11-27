@@ -84,11 +84,26 @@
 }
 
 /* Papers on top of a scheme, keyed to body like data-bs-theme; keep the colours in step with shared/constants/themes.js. */
+/* The light tokens derived at :root resolve against white, so a paper redeclares them to follow its own colours. */
 body[data-app-paper='yellow'] {
-  --app-body-bg-base: #fdf9ee;
-  --bs-body-bg: color-mix(in srgb, #f6eed6 96%, var(--bs-primary));
-  --bs-secondary-bg: #ebe1c6;
-  --bs-tertiary-bg: #f2e9d0;
+  --app-body-bg-base: #fffbef;
+  --bs-body-bg: color-mix(in srgb, #f9f2de 96%, var(--bs-primary));
+  --bs-border-color: #ebe1c8;
+  --bs-secondary-bg: #efe6cd;
+  --bs-tertiary-bg: #f5eedb;
+
+  --app-surface: var(--app-body-bg-base);
+  --app-surface-hover: color-mix(in srgb, var(--bs-primary) 6%, var(--app-surface));
+  --app-surface-active: color-mix(in srgb, var(--bs-primary) 11%, var(--app-surface));
+  --app-hairline: color-mix(in srgb, var(--bs-primary) 8%, var(--bs-border-color));
+  --app-hairline-strong: color-mix(in srgb, var(--bs-primary) 30%, var(--bs-border-color));
+  --app-glass: color-mix(in srgb, var(--bs-body-bg) 78%, transparent);
+  --app-shadow-card: 0 1px 2px rgba(74, 56, 20, 0.05), 0 6px 20px -8px rgba(74, 56, 20, 0.1);
+  --app-shadow-card-hover: 0 2px 4px rgba(74, 56, 20, 0.06), 0 16px 32px -12px rgba(74, 56, 20, 0.18);
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    --app-glass: var(--bs-body-bg);
+  }
 }
 
 /* True black for OLED screens: no brand tint or glow behind the page, only on the cards above it. */
