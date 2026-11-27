@@ -51,10 +51,7 @@ const timingsFor = (date) =>
     latitude: latitude.value,
     longitude: longitude.value,
     date,
-    method: store.calcMethod,
-    school: store.calcSchool,
-    latitudeAdjustment: store.calcLatitudeAdjustment,
-    shafaq: store.calcShafaq,
+    ...store.calculationSettings,
   })
 
 const timings = computed(() => (hasCoords.value ? timingsFor(todayDate.value) : null))

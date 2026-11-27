@@ -19,10 +19,7 @@ export function useCurrentPrayerKey() {
       latitude: store.latitude,
       longitude: store.longitude,
       date: new Date(`${today.value}T00:00:00`),
-      method: store.calcMethod,
-      school: store.calcSchool,
-      latitudeAdjustment: store.calcLatitudeAdjustment,
-      shafaq: store.calcShafaq,
+      ...store.calculationSettings,
     })
   })
 

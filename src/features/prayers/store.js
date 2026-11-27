@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { useLocalStorage } from '@vueuse/core'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { getCurrentPosition } from '@/shared/composables/useGeolocation'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 import { AUTO } from '@/features/prayers/constants/calculationOptions'
@@ -15,6 +15,13 @@ export const usePrayersStore = defineStore('prayers', function () {
   const calcSchool = useLocalStorage(STORAGE_KEYS.prayerCalcSchool, AUTO)
   const calcLatitudeAdjustment = useLocalStorage(STORAGE_KEYS.prayerCalcLatitudeAdjustment, AUTO)
   const calcShafaq = useLocalStorage(STORAGE_KEYS.prayerCalcShafaq, AUTO)
+
+  const calculationSettings = computed(() => ({
+    method: calcMethod.value,
+    school: calcSchool.value,
+    latitudeAdjustment: calcLatitudeAdjustment.value,
+    shafaq: calcShafaq.value,
+  }))
 
   const isDetecting = ref(false)
 
@@ -47,6 +54,7 @@ export const usePrayersStore = defineStore('prayers', function () {
     calcSchool,
     calcLatitudeAdjustment,
     calcShafaq,
+    calculationSettings,
     isDetecting,
     detect,
     clear,
