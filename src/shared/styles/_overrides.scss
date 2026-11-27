@@ -4,10 +4,6 @@ html[dir='rtl'],
   --toast-button-margin-end: 0 !important;
 }
 
-.bg-body {
-  background-color: var(--bs-body-bg) !important;
-}
-
 .btn-primary {
   --bs-btn-color: var(--app-on-primary);
   --bs-btn-bg: var(--bs-primary);
@@ -82,12 +78,6 @@ html[dir='rtl'],
   }
 }
 
-.dropdown-toggle::after {
-  margin-inline-start: 0.4em;
-  vertical-align: 0.15em;
-  opacity: 0.6;
-}
-
 @keyframes dropdown-in {
   from {
     opacity: 0;
@@ -96,12 +86,6 @@ html[dir='rtl'],
   to {
     opacity: 1;
   }
-}
-
-.progress,
-.progress-stacked {
-  --bs-progress-bar-bg: var(--bs-primary);
-  --bs-progress-bar-color: #fff;
 }
 
 /* Bootstrap bakes the compile-time primary color into range thumbs. */
@@ -144,8 +128,7 @@ html[dir='rtl'],
 
 /* Inputs show no focus ring or border change in any state; the caret and the field itself mark focus. */
 .form-check-input,
-.form-control,
-.form-select {
+.form-control {
   &:focus,
   &:focus-visible,
   &:active {
@@ -154,8 +137,7 @@ html[dir='rtl'],
   }
 }
 
-.form-control:focus,
-.form-select:focus {
+.form-control:focus {
   border-color: var(--app-hairline);
 }
 
@@ -163,16 +145,6 @@ html[dir='rtl'],
   border-color: var(--bs-border-color);
 }
 
-/* Keep numeric input alignment from being flipped by rtlcss. */
-/*! rtl:begin:ignore */
-html[dir='rtl'] input[type='number'],
-html[dir='rtl'] input[type='number']::placeholder {
-  direction: rtl;
-  text-align: right;
-}
-/*! rtl:end:ignore */
-
-/* iOS-style switches: a pill track, a white knob, the brand colour when on. */
 .form-switch {
   min-height: 0;
   padding-inline-start: 0;
@@ -210,8 +182,7 @@ html[dir='rtl'] input[type='number']::placeholder {
   --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3.25' fill='%23fff' stroke='rgba(0,0,0,.06)' stroke-width='.15'/%3e%3c/svg%3e");
 }
 
-/* Soft tinted button for secondary actions: a light brand fill, brand text, no border.
-   Solid btn-primary is kept for the one main action on a screen. */
+/* Secondary actions; solid btn-primary is kept for the one main action on a screen. */
 .btn-soft {
   --bs-btn-color: var(--app-primary-ink);
   --bs-btn-bg: var(--app-tint);

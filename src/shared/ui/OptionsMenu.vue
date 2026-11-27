@@ -3,18 +3,12 @@ import { nextTick, ref, useTemplateRef, watch } from 'vue'
 import { onClickOutside, useEventListener } from '@vueuse/core'
 import OptionsList from '@/shared/ui/OptionsList.vue'
 
-// The choices of a select in a dropdown under its row, for desktop, where a sheet would be more than a short list
-// needs. Opens above the row when there's more room there. Choosing, Escape, Tab or a click outside closes it.
 const props = defineProps({
   show: { type: Boolean, default: false },
   // The row that opens it: the menu lines up with it, and focus goes back to it on close.
   anchor: { type: Object, default: null },
   title: { type: String, required: true },
-  // [{ value, label, hint? }]
   options: { type: Array, required: true },
-  searchable: { type: Boolean, default: null },
-  searchPlaceholder: { type: String, default: undefined },
-  emptyMessage: { type: String, default: undefined },
 })
 
 const model = defineModel({ type: [String, Number], default: '' })
@@ -32,7 +26,7 @@ const ROW_HEIGHT = 40
 const style = ref({})
 const up = ref(false)
 
-// About the height the list wants: all of MAX_HEIGHT once it's long enough for a search field (as in OptionsList).
+// All of MAX_HEIGHT once the list is long enough for a search field (OptionsList's threshold).
 const wantedHeight = () => (props.options.length > 10 ? MAX_HEIGHT : props.options.length * ROW_HEIGHT + 16)
 
 function place() {
@@ -43,7 +37,6 @@ function place() {
 
   const below = vh - rect.bottom - GAP - MARGIN
   const above = rect.top - GAP - MARGIN
-  // Below the row, unless the list doesn't fit there and there's more room above.
   up.value = below < Math.min(wantedHeight(), MAX_HEIGHT) && above > below
   const height = Math.max(0, Math.min(MAX_HEIGHT, up.value ? above : below))
 
@@ -105,16 +98,7 @@ function onKeydown(event) {
         :style="style"
         @keydown="onKeydown"
       >
-        <OptionsList
-          ref="list"
-          v-model="model"
-          :label="title"
-          :options="options"
-          :searchable="searchable"
-          :search-placeholder="searchPlaceholder"
-          :empty-message="emptyMessage"
-          @choose="close()"
-        />
+        <OptionsList ref="list" v-model="model" :label="title" :options="options" @choose="close()" />
       </div>
     </Transition>
   </Teleport>

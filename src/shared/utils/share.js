@@ -1,6 +1,5 @@
 import { toast } from 'vue-sonner'
 
-// Native share sheet where available, otherwise copy the link.
 export async function sharePage(title) {
   const data = {
     title,

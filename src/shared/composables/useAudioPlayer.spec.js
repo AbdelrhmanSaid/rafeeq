@@ -8,7 +8,6 @@ class FakeAudio {
   constructor() {
     instances.push(this)
     this.paused = true
-    this.ended = false
     this.src = ''
     this._listeners = {}
   }
@@ -51,13 +50,15 @@ afterEach(() => {
 })
 
 describe('useAudioPlayer', () => {
-  it('plays a url and reports playing once the audio element fires playing', () => {
+  it('reports connecting until the audio element fires playing', () => {
     const player = create()
     player.play('http://stream/1')
 
     const audio = instances[0]
     expect(player.src.value).toBe('http://stream/1')
     expect(audio.src).toBe('http://stream/1')
+    expect(player.status.value).toBe('connecting')
+    expect(player.isPlaying.value).toBe(false)
 
     audio.emit('playing')
     expect(player.status.value).toBe('playing')
@@ -89,6 +90,7 @@ describe('useAudioPlayer', () => {
 
     audio.emit('error')
     expect(player.status.value).toBe('retrying')
+    expect(player.isPlaying.value).toBe(false)
 
     audio.emit('playing')
     expect(player.status.value).toBe('playing')
@@ -103,26 +105,6 @@ describe('useAudioPlayer', () => {
     expect(player.src.value).toBe(null)
     expect(player.status.value).toBe('idle')
     expect(instances[0].paused).toBe(true)
-  })
-
-  it('reports connecting, not playing, until the audio actually starts', () => {
-    const player = create()
-    player.play('u')
-
-    expect(player.status.value).toBe('connecting')
-    expect(player.isPlaying.value).toBe(false)
-
-    instances[0].emit('playing')
-    expect(player.isPlaying.value).toBe(true)
-  })
-
-  it('stays not playing while retrying after an error', () => {
-    const player = create({ retryDelay: 1000 })
-    player.play('u')
-    instances[0].emit('error')
-
-    expect(player.status.value).toBe('retrying')
-    expect(player.isPlaying.value).toBe(false)
   })
 
   it('goes back to connecting while a playing stream buffers', () => {

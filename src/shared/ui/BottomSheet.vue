@@ -46,9 +46,8 @@ watch(
       forget()
       untrack?.()
       untrack = null
-      // Hand focus back to whatever opened the sheet, unless the user already moved it elsewhere. The panel stays in
-      // the page through its exit transition, so focus still inside it counts as not moved: left there, it would
-      // drop to <body> once the panel goes.
+      // Return focus to the opener unless the user moved it. Focus still in the leaving panel counts as not moved:
+      // left there, it would drop to <body> once the panel goes.
       const active = document.activeElement
       const stillInside = !active || active === document.body || panel.value?.contains(active)
       if (returnFocus?.isConnected && stillInside) returnFocus.focus({ preventScroll: true })
@@ -80,8 +79,8 @@ useEventListener(document, 'keydown', (event) => {
   }
 })
 
-// Keep Tab cycling inside the sheet while it is open. The next stop is chosen here rather than left to the browser:
-// a list with a roving tabindex (one option at 0, the rest at -1) could otherwise send Tab past the sheet's end.
+// Tab cycles inside the sheet. The next stop is chosen here: with a roving tabindex (one option at 0, the rest at -1)
+// the browser could send Tab past the sheet's end.
 const TABBABLE =
   'a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]'
 
@@ -110,12 +109,8 @@ function trapFocus(event) {
   stops[next].focus()
 }
 
-/*
- * Drag to dismiss on phones, from anywhere on the sheet.
- * Each gesture decides once whether it scrolls the content under the finger or drags the sheet: it drags
- * when nothing under the finger can scroll, or the content is already at its top and the finger moves down.
- * Letting go past a quarter of the sheet, or flicking it down, closes it; otherwise it settles back.
- */
+// Drag to dismiss on phones. A gesture drags the sheet when nothing under the finger can scroll, or the content is at
+// its top and the finger moves down. Letting go past a quarter of the sheet, or a flick, closes it.
 const scrolls = (node) => node.scrollHeight > node.clientHeight && /auto|scroll/.test(getComputedStyle(node).overflowY)
 
 let start = null
@@ -353,7 +348,7 @@ useEventListener(panel, 'transitionend', onTransitionEnd)
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
 }
 
-/* Phones: the grip, a swipe down, Escape or a tap outside closes it; the close button stays for screen readers. */
+/* Phones close it by swipe, Escape or a tap outside; the close button stays for screen readers. */
 @media (max-width: 991.98px) {
   .sheet-close {
     position: absolute;
@@ -373,7 +368,6 @@ useEventListener(panel, 'transitionend', onTransitionEnd)
   }
 }
 
-/* Larger screens get a centered dialog. */
 @media (min-width: 992px) {
   .sheet-root {
     align-items: center;
@@ -405,7 +399,6 @@ useEventListener(panel, 'transitionend', onTransitionEnd)
   }
 }
 
-/* Motion: the sheet rises on the iOS sheet curve and leaves faster than it came. */
 .sheet-enter-active .sheet-scrim {
   transition: opacity 0.4s var(--app-ease-sheet);
 }

@@ -28,10 +28,7 @@ export function resetKeyboard() {
   width = 0
 }
 
-/**
- * Whether the on-screen keyboard is open, judged by how far the visual viewport shrank below its tallest.
- * Fixed bottom bars hide while it is open, so they do not ride up over the field being typed in.
- */
+// Judged by how far the visual viewport shrank below its tallest.
 export function useVirtualKeyboard() {
   const viewport = typeof window !== 'undefined' ? window.visualViewport : null
 

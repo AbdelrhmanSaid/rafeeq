@@ -12,19 +12,11 @@ defineProps({
     type: [String, Array, Object],
     default: 'btn-flat',
   },
-  embedHidden: {
-    type: Boolean,
-    default: true,
-  },
 })
 </script>
 
 <template>
-  <RouterLink
-    :to="to"
-    class="btn d-inline-flex align-items-center gap-2"
-    :class="[buttonClass, { 'embed-hidden': embedHidden }]"
-  >
+  <RouterLink :to="to" class="btn d-inline-flex align-items-center gap-2" :class="[buttonClass, 'embed-hidden']">
     <span>{{ label }}</span>
   </RouterLink>
 </template>

@@ -4,14 +4,11 @@ import { IconCheck, IconSearch } from '@tabler/icons-vue'
 import { useSearch } from '@/shared/composables/useSearch'
 import { rovingTarget } from '@/shared/utils/rovingFocus'
 
-// The choices behind a select: a radio list with a checkmark on the current one, and a search field when the list is
-// long. Shared by the phone sheet (OptionsSheet) and the desktop dropdown (OptionsMenu), which mount it as they open.
+// The radio list behind OptionsSheet (phones) and OptionsMenu (desktop), which mount it as they open.
 const props = defineProps({
   label: { type: String, required: true },
   // [{ value, label, hint? }]; the hint sits muted beside the label.
   options: { type: Array, required: true },
-  // Long lists get a search field; short ones don't need it.
-  searchable: { type: Boolean, default: null },
   searchPlaceholder: { type: String, default: 'ابحث' },
   emptyMessage: { type: String, default: 'لا توجد نتائج' },
 })
@@ -20,7 +17,7 @@ const model = defineModel({ type: [String, Number], default: '' })
 const emit = defineEmits(['choose'])
 
 const SEARCH_FROM = 10
-const hasSearch = computed(() => props.searchable ?? props.options.length > SEARCH_FROM)
+const hasSearch = computed(() => props.options.length > SEARCH_FROM)
 
 const { search, filtered } = useSearch(() => props.options, ['label'])
 const list = useTemplateRef('list')
@@ -56,7 +53,6 @@ function onListKeydown(event) {
   radios()[to]?.focus()
 }
 
-// The search field when there is one, so typing narrows the list at once; otherwise the chosen option.
 function focus() {
   const target = input.value ?? radios()[focusIndex.value]
   target?.focus({ preventScroll: true })
@@ -113,12 +109,11 @@ defineExpose({ focus })
 .options {
   display: flex;
   flex-direction: column;
-  /* Sized by its height (below) or its content, and free to shrink inside a dropdown that's shorter. */
   flex: 1 1 auto;
   min-height: 0;
 }
 
-/* A searchable list keeps a fixed height, so it doesn't jump as the search narrows it; the list scrolls inside. */
+/* A fixed height, so the list doesn't jump as the search narrows it. */
 .options--search {
   height: var(--options-search-height, min(70dvh, 36rem));
 }

@@ -28,10 +28,10 @@ export function useOfflineData(namespace) {
       }
     })
 
-    instances.set(namespace, { keys, isFinished })
+    instances.set(namespace, keys)
   }
 
-  const { keys, isFinished } = instances.get(namespace)
+  const keys = instances.get(namespace)
   const downloadedCount = computed(() => keys.value.length)
 
   const isDownloaded = (key) => keys.value.includes(String(key))
@@ -60,8 +60,6 @@ export function useOfflineData(namespace) {
   }
 
   return {
-    keys,
-    isFinished,
     downloadedCount,
     isDownloaded,
     save,

@@ -7,7 +7,6 @@ import OptionsMenu from '@/shared/ui/OptionsMenu.vue'
 
 const props = defineProps({
   label: { type: String, required: true },
-  // [{ value, label, hint? }]
   options: { type: Array, required: true },
 })
 
@@ -17,14 +16,10 @@ const selected = computed(() => props.options.find((option) => String(option.val
 const open = ref(false)
 const row = useTemplateRef('row')
 
-// A sheet within thumb's reach on phones; a dropdown under the row on desktop, where a dialog is too much for a short
-// list.
 const isPhone = useIsMobile()
 </script>
 
 <template>
-  <!-- An iOS-style row: the label on one side, the current choice and a chevron on the other. The wrapper is the row a
-       row group divides; the button fills it. -->
   <div class="select-row">
     <button
       ref="row"
@@ -74,8 +69,7 @@ const isPhone = useIsMobile()
   }
 }
 
-/* The value keeps its full width up to 60% of the row, and the label wraps beside it, so a large text size doesn't
-   squeeze a short value like "تلقائي" down to a couple of letters. Only a long value is cut short. */
+/* The value keeps its width up to 60% and the label wraps, so a large text size doesn't squeeze a short value. */
 .select-row__label {
   flex: 1 1 auto;
   min-width: 0;

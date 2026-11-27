@@ -22,7 +22,6 @@ defineProps({
   padding-block: 2rem;
 }
 
-/* A small brand-coloured ring. */
 .loading-state__spinner {
   width: 1.75rem;
   height: 1.75rem;

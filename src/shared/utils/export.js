@@ -28,9 +28,7 @@ function isCanvasBlank(canvas) {
   }
 }
 
-export async function exportComponent(component, props = {}, filePrefix = 'export', options = {}) {
-  const { canvas: canvasOptions = {}, format = 'png', quality = 0.92, expectedWidth } = options || {}
-
+export async function exportComponent(component, props, filePrefix, { expectedWidth } = {}) {
   // html2canvas-pro supports the theme's color() and color-mix() values.
   const { default: html2canvas } = await import('html2canvas-pro')
 
@@ -71,7 +69,7 @@ export async function exportComponent(component, props = {}, filePrefix = 'expor
       Math.sqrt(MAX_CANVAS_AREA / (actualWidth * actualHeight)),
     )
 
-    const defaultCanvasOptions = {
+    const canvasOptions = {
       backgroundColor: '#ffffff',
       scale,
       useCORS: true,
@@ -80,30 +78,20 @@ export async function exportComponent(component, props = {}, filePrefix = 'expor
       // Avoid WebKit's clone-iframe scroll restoration race.
       scrollX: 0,
       scrollY: 0,
-      ...canvasOptions,
     }
 
     // Retry once when font or clone timing produces a blank rasterization.
-    let canvas = await html2canvas(element, defaultCanvasOptions)
+    let canvas = await html2canvas(element, canvasOptions)
     if (isCanvasBlank(canvas)) {
       await new Promise((resolve) => setTimeout(resolve, 300))
-      canvas = await html2canvas(element, defaultCanvasOptions)
+      canvas = await html2canvas(element, canvasOptions)
     }
 
     if (isCanvasBlank(canvas)) throw new Error('Export produced a blank image')
 
-    const mimesMap = {
-      png: 'image/png',
-      jpeg: 'image/jpeg',
-      webp: 'image/webp',
-    }
-
-    const mimeType = mimesMap[format] || mimesMap.png
-    const dataUrl = canvas.toDataURL(mimeType, quality)
-
     const link = document.createElement('a')
-    link.download = `${filePrefix}-${Date.now()}.${format}`
-    link.href = dataUrl
+    link.download = `${filePrefix}-${Date.now()}.png`
+    link.href = canvas.toDataURL('image/png')
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)

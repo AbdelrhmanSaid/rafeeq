@@ -7,10 +7,10 @@ vi.mock('@/shared/composables/useIsMobile', () => ({ useIsMobile: () => ref(true
 
 const wrappers = []
 
-const mountSheet = (props = {}) => {
+const mountSheet = (props = {}, content = '<button class="inside">عنصر</button>') => {
   const wrapper = mount(BottomSheet, {
     props: { show: true, title: 'المزيد', ...props },
-    slots: { default: '<button class="inside">عنصر</button>' },
+    slots: { default: content },
     attachTo: document.body,
   })
   wrappers.push(wrapper)
@@ -58,15 +58,7 @@ describe('BottomSheet', () => {
     expect(wrapper.emitted('close')).toBeUndefined()
   })
 
-  it('closes on Escape', async () => {
-    const wrapper = mountSheet()
-
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
-
-    expect(wrapper.emitted('close')).toHaveLength(1)
-  })
-
-  it('closes only the topmost sheet on Escape', async () => {
+  it('closes only the topmost sheet on Escape', () => {
     const below = mountSheet()
     const above = mountSheet()
 
@@ -76,7 +68,7 @@ describe('BottomSheet', () => {
     expect(below.emitted('close')).toBeUndefined()
   })
 
-  it('closes when the backdrop is tapped', async () => {
+  it('closes when the backdrop is tapped', () => {
     const wrapper = mountSheet()
 
     document.querySelector('.sheet-scrim').click()
@@ -160,21 +152,15 @@ describe('BottomSheet', () => {
       delete HTMLElement.prototype.checkVisibility
     })
 
-    const mountRoving = () => {
-      const wrapper = mount(BottomSheet, {
-        props: { show: true, title: 'القارئ' },
-        slots: {
-          default: `<div role="radiogroup">
-            <button class="opt" tabindex="-1">أ</button>
-            <button class="opt checked" tabindex="0">ب</button>
-            <button class="opt" tabindex="-1">ج</button>
-          </div>`,
-        },
-        attachTo: document.body,
-      })
-      wrappers.push(wrapper)
-      return wrapper
-    }
+    const mountRoving = () =>
+      mountSheet(
+        {},
+        `<div role="radiogroup">
+          <button class="opt" tabindex="-1">أ</button>
+          <button class="opt checked" tabindex="0">ب</button>
+          <button class="opt" tabindex="-1">ج</button>
+        </div>`,
+      )
 
     const tab = (shiftKey = false) => {
       const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey, cancelable: true })

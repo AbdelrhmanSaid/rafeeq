@@ -27,7 +27,7 @@ const props = defineProps({
 
 const heading = useTemplateRef('heading')
 
-// A page's h1 is its large title; the app bar picks it up once it scrolls under the bar, and carries its share action.
+// The app bar shows the h1's title, and its share action, once it scrolls under the bar.
 if (props.size === 1) {
   usePageHeader({
     title: () => props.title,
