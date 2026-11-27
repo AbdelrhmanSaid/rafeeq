@@ -29,6 +29,27 @@ describe('useQuranBookmarks', () => {
     expect(colors.value.get('2:255')).toBe('blue')
   })
 
+  it('moves a color to the ayah bookmarked with it last', () => {
+    const { bookmarks, setBookmark } = useQuranBookmarks()
+    setBookmark('2:255', 'gold')
+    setBookmark('18:10', 'green')
+    setBookmark('36:12', 'gold')
+
+    expect(bookmarks.value.map((b) => [b.key, b.color])).toEqual([
+      ['36:12', 'gold'],
+      ['18:10', 'green'],
+    ])
+  })
+
+  it('takes a color over from the ayah that had it when recoloring', () => {
+    const { bookmarks, setBookmark } = useQuranBookmarks()
+    setBookmark('2:255', 'gold')
+    setBookmark('18:10', 'green')
+    setBookmark('18:10', 'gold')
+
+    expect(bookmarks.value.map((b) => [b.key, b.color])).toEqual([['18:10', 'gold']])
+  })
+
   it('removes a bookmark', () => {
     const { bookmarks, setBookmark, removeBookmark } = useQuranBookmarks()
     setBookmark('2:255', 'gold')

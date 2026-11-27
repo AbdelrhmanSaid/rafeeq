@@ -4,7 +4,7 @@ import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 import { parseVerseKey, verseKey } from '@/features/quran/lib/mushaf'
 import '@/features/quran/styles/bookmark-colors.css'
 
-// Each bookmark tints its ayah on the page in its own color, so several readings can be kept apart.
+// Each bookmark tints its ayah on the page in its own color, so several readings can be kept apart: one per color.
 export const BOOKMARK_COLORS = [
   { id: 'gold', label: 'ذهبي' },
   { id: 'green', label: 'أخضر' },
@@ -64,10 +64,11 @@ export function useQuranBookmarks() {
   const list = computed(() => [...bookmarks.value].reverse())
   const colors = computed(() => new Map(bookmarks.value.map((b) => [b.key, b.color])))
 
-  // Bookmarking an ayah again changes its color and brings it to the top.
+  // A color marks one ayah: using it again moves it. Bookmarking an ayah again changes its color.
   const setBookmark = (key, color) => {
     if (!parseVerseKey(key) || !COLOR_IDS.has(color)) return
-    bookmarks.value = [...bookmarks.value.filter((b) => b.key !== key), { key, color, at: Date.now() }]
+    const others = bookmarks.value.filter((b) => b.key !== key && b.color !== color)
+    bookmarks.value = [...others, { key, color, at: Date.now() }]
   }
 
   const removeBookmark = (key) => {
