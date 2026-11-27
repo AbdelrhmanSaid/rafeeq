@@ -13,14 +13,12 @@ const bar = useTemplateRef('bar')
 
 const { parent, goBack } = useBackNavigation()
 
-// A page with a large title hands it to the bar once it scrolls away; other pages show theirs from the start.
 const hasLargeTitle = computed(() => Boolean(pageHeader.title && pageHeader.el))
 const title = computed(() => pageHeader.title || route.meta.title || '')
 
 const scrolled = ref(false)
 const largeTitleHidden = ref(false)
-// The bar's title only ever takes over from a large title scrolled under it. Showing the route title as a fallback
-// made it flash on a direct load: visible until the page mounted and registered its large title, then hidden.
+// Only take over from a large title scrolled under the bar; a route-title fallback flashed on direct loads.
 const showTitle = computed(() => Boolean(title.value) && hasLargeTitle.value && largeTitleHidden.value)
 
 let frame = 0
@@ -35,7 +33,6 @@ function measure() {
     return
   }
 
-  // Swap once the large title's baseline passes under the bar.
   largeTitleHidden.value = heading.getBoundingClientRect().bottom <= bar.value.getBoundingClientRect().bottom
 }
 
@@ -46,8 +43,7 @@ function scheduleMeasure() {
 useEventListener(window, 'scroll', scheduleMeasure, { passive: true })
 useEventListener(window, 'resize', scheduleMeasure, { passive: true })
 
-// A new screen starts as an unscrolled bar and is measured on the next frame, once the router has moved the page to
-// its top (or back to a saved position). Measuring sooner read the last screen's depth and flashed the title and glass.
+// Measure on the next frame, after the router has restored scroll; sooner reads the last screen's depth.
 watch(
   [() => route.fullPath, () => pageHeader.el],
   () => {
@@ -92,7 +88,6 @@ watch(
   position: sticky;
   top: 0;
   z-index: 1020;
-  /* Sit below the status bar / notch in a standalone or store build. */
   padding-top: env(safe-area-inset-top, 0px);
   background: transparent;
   transition:
@@ -101,8 +96,7 @@ watch(
     transform 0.3s var(--app-ease-out),
     opacity 0.2s ease;
 
-  /* Glass only once content slides under it, so the top of each page stays one clean surface.
-     The hairline is an inset shadow, so the bar stays exactly --appbar-height tall and full-height screens fit. */
+  /* Inset-shadow hairline keeps the bar exactly --appbar-height tall, so full-height screens fit. */
   &.is-scrolled {
     box-shadow: inset 0 -1px 0 var(--app-hairline);
     background: var(--app-glass);
@@ -110,7 +104,6 @@ watch(
     backdrop-filter: blur(18px) saturate(1.4);
   }
 
-  /* Tucked away while reading the Mushaf. */
   &.is-hidden {
     transform: translateY(-100%);
     opacity: 0;

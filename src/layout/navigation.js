@@ -9,7 +9,6 @@ import {
   IconLayoutGrid,
 } from '@tabler/icons-vue'
 
-// `primary` items are the tab bar destinations; `more` items are the tools on the More screen.
 export const navigation = [
   {
     name: 'home',

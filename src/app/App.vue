@@ -21,7 +21,6 @@ useRadioNotifications()
 
 const route = useRoute()
 
-// Connection changes get a passing snackbar; screens that need the network show their own offline state.
 const online = useOnline()
 
 watch(online, (isOnline) => {
@@ -32,14 +31,12 @@ watch(online, (isOnline) => {
   }
 })
 const isEmbedRoute = computed(() => route.path.startsWith('/embed'))
-// An embed sits inside someone else's page, so it drops the app's top glow.
 watch(isEmbedRoute, (embed) => document.body.classList.toggle('is-embed', embed), { immediate: true })
 
 // A service-worker update may reload only once per page load.
 let hasReloadedForUpdate = false
 
-// Surahs downloaded for offline reading are checked on start, and any whose pages are gone are downloaded again (the
-// downloads store does that as it starts), so they stay readable offline without a visit to the downloads screen.
+// Starting the downloads store re-downloads any offline surah whose pages were evicted.
 onMounted(() => {
   if (isEmbedRoute.value || !hasMushafDownloads()) return
   import('@/features/downloads/store').then(({ useDownloadStore }) => useDownloadStore()).catch(() => {})
@@ -81,7 +78,6 @@ const updateSW = registerSW({
     <InstallBanner v-if="!isEmbedRoute" />
   </div>
 
-  <!-- Screen readers announce the region by its label (followed by sonner's alt+T shortcut), so it is Arabic. -->
   <Toaster
     container-aria-label="الإشعارات"
     :theme="themeStore.mode"
@@ -117,7 +113,6 @@ const updateSW = registerSW({
 
 .main-content {
   flex-grow: 1;
-  /* Include the tab bar's iPhone home-indicator inset. */
   padding-bottom: calc(var(--navbar-height) + env(safe-area-inset-bottom));
 }
 

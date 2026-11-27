@@ -1,6 +1,6 @@
 <script setup>
 import Logo from '@/shared/ui/Logo.vue'
-import { supportLinks as support } from '@/layout/links'
+import { TELEGRAM_URL, supportLinks as support } from '@/layout/links'
 import { IconBrandGithub, IconBrandTelegram, IconHeart } from '@tabler/icons-vue'
 
 const resources = [
@@ -39,7 +39,7 @@ const resources = [
               <IconBrandGithub size="1.2rem" />
             </a>
             <a
-              href="https://t.me/rafeeqme"
+              :href="TELEGRAM_URL"
               target="_blank"
               class="btn btn-soft btn-icon rounded-circle"
               aria-label="قناة التليجرام"

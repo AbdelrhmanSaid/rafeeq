@@ -36,14 +36,12 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,woff,woff2}'],
-        // Store screenshots are for the store listings, not something the app needs offline. The iOS splash images
-        // are only read by iOS when the app is added to the home screen, so they aren't precached either. The 604
-        // Mushaf page fonts (about 48 MB) are stored as pages are read or downloaded, by the reader itself.
+        // Not needed offline: store screenshots, iOS splash images (read only on add-to-home-screen), and the ~48 MB
+        // of Mushaf page fonts, which the reader stores itself as pages are read or downloaded.
         globIgnores: ['push/onesignal/**/*', 'screenshots/**/*', 'splash/**/*', 'fonts/mushaf/**/*'],
         runtimeCaching: [
           {
-            // Mushaf page fonts keep their own cache (see src/features/quran/lib/mushafStorage.js), so they aren't
-            // stored twice.
+            // Mushaf page fonts have their own cache (src/features/quran/lib/mushafStorage.js).
             urlPattern: ({ url }) => !url.pathname.startsWith('/fonts/mushaf/') && /\.(ttf|woff2?)$/.test(url.pathname),
             handler: 'CacheFirst',
             options: {
@@ -67,12 +65,10 @@ export default defineConfig({
         id: '/',
         lang: 'ar',
         dir: 'rtl',
-        // No theme_color: an installed app lets the manifest's value override the page's theme-color meta, which
-        // pins the system bars to one color instead of following the chosen theme. It's set to undefined, not
-        // left out, because vite-plugin-pwa merges in a default (Vue green); JSON.stringify then drops the key.
+        // No theme_color, so the installed app's bars follow the page's theme-color meta. Explicitly undefined because
+        // vite-plugin-pwa otherwise merges in a default; JSON.stringify drops the key.
         theme_color: undefined,
-        // The maskable icon's flat fill. Android 12+ draws the splash as that icon, cropped to a circle, on this
-        // color, so matching them hides the circle and leaves only the mark.
+        // Matches the maskable icon's fill, so Android 12+'s circle-cropped splash icon shows only the mark.
         background_color: '#f2ebe2',
         display: 'standalone',
         start_url: '/',

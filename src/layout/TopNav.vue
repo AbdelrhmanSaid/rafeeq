@@ -16,10 +16,9 @@ const destinations = navigation.filter((item) => item.menus.includes('primary'))
 </script>
 
 <template>
-  <!-- Desktop counterpart of the app bar and tab bar together: back, brand, destinations and the page's share. -->
   <header class="top-nav">
     <div class="top-nav__inner container">
-      <!-- Always in the layout, only shown on detail screens, so the logo and tabs never shift between pages. -->
+      <!-- Always in the layout so the logo and tabs never shift between pages. -->
       <button
         type="button"
         class="top-nav__action top-nav__back"
@@ -124,7 +123,6 @@ const destinations = navigation.filter((item) => item.menus.includes('primary'))
 }
 
 .top-nav__back {
-  /* Sits close to the logo, as one unit with it. */
   margin-inline-end: -1.25rem;
 }
 
@@ -156,7 +154,6 @@ const destinations = navigation.filter((item) => item.menus.includes('primary'))
     border-radius: var(--bs-border-radius);
   }
 
-  /* A hairline under the current destination, sitting on the bar's bottom edge. */
   &.is-active {
     color: var(--app-primary-ink);
     font-weight: 700;
@@ -187,7 +184,7 @@ const destinations = navigation.filter((item) => item.menus.includes('primary'))
   color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
 }
 
-/* Reserve the bold width up front, so turning bold on the current tab never nudges its neighbours. */
+/* Reserve the bold width so the current tab never nudges its neighbours. */
 .top-nav-item__label {
   display: inline-flex;
   flex-direction: column;

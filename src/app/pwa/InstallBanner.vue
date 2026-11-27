@@ -38,7 +38,6 @@ const { canInstall, install, dismiss } = useInstallPrompt()
 <style lang="scss" scoped>
 .install-banner {
   position: fixed;
-  /* Clear the tab bar and its home-indicator inset. */
   bottom: calc(var(--navbar-height) + env(safe-area-inset-bottom, 0px) + 1.25rem);
   inset-inline: 0.75rem;
   z-index: 1030;
