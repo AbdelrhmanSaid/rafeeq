@@ -6,19 +6,17 @@ import { toArabicNumerals } from '@/shared/utils/arabic'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 import { BEADS, beadPositions, litBeads } from '@/features/sebha/lib/beads'
 
-// Open-ended counting with no target. The count is saved, so leaving the screen doesn't lose it.
 const count = useLocalStorage(STORAGE_KEYS.sebhaCount, 0)
-// A hand-edited backup can leave anything there; what isn't a whole, non-negative count starts over at 0, not NaN.
+// A hand-edited backup can hold anything; anything but a non-negative integer starts over at 0.
 if (!Number.isSafeInteger(count.value) || count.value < 0) count.value = 0
 const countId = useId()
 
-// Long counts shrink to stay inside the ring (see .sebha__count).
 const digits = computed(() => String(count.value).length)
 
 const BEAD_POSITIONS = beadPositions(120, 104)
 const lit = computed(() => litBeads(count.value))
 
-// When the ring starts over, the whole ring fades out together, slowly, while the first bead lights.
+// When the ring starts over, all beads fade out slowly together while the first one lights.
 const wrapping = ref(false)
 const { start: endWrapping } = useTimeoutFn(() => (wrapping.value = false), 600, { immediate: false })
 
@@ -38,7 +36,6 @@ function reset() {
 
 <template>
   <div class="sebha">
-    <!-- The whole area around the ring is the counter. -->
     <button type="button" class="sebha__tap" aria-label="تسبيحة" :aria-describedby="countId" @click="increment">
       <svg class="sebha__ring" :class="{ 'is-wrapping': wrapping }" viewBox="0 0 240 240" aria-hidden="true">
         <circle cx="120" cy="120" r="104" class="sebha__string" />
@@ -69,8 +66,7 @@ function reset() {
 
 <style lang="scss" scoped>
 .sebha {
-  /* The ring's size: as wide as a phone allows, and short enough in a short frame (a banner-shaped embed, a phone on
-     its side) that the reset button stays in view below it. */
+  /* Short frames (banner embed, landscape phone) must keep the reset button in view below the ring. */
   --sebha-ring: min(18rem, 80vw, 100dvh - 9rem);
 
   display: flex;
@@ -117,7 +113,6 @@ function reset() {
   fill: var(--app-surface);
   stroke: color-mix(in srgb, var(--bs-primary) 35%, var(--bs-body-bg));
   stroke-width: 1.5;
-  /* Each bead fills in softly as it's reached, and the latest one swells a little, like a bead slipping under the thumb. */
   transform-box: fill-box;
   transform-origin: center;
   transition:
@@ -130,8 +125,7 @@ function reset() {
     stroke: color-mix(in srgb, var(--bs-primary) 70%, var(--bs-body-bg));
   }
 
-  /* The latest bead is the brand colour at full strength, so you can see where you are on the ring. The ink colour is
-     the brand colour darkened for a light one (sand), which would otherwise barely stand out from the lit beads. */
+  /* Ink, not primary: a light brand colour (sand) would barely stand out from the lit beads. */
   &.is-current {
     fill: var(--app-primary-ink);
     stroke: var(--app-primary-ink);
@@ -149,7 +143,6 @@ function reset() {
   }
 }
 
-/* Dark mode lifts the lit beads towards white, like the app's other dark-mode accents. */
 [data-bs-theme='dark'] .sebha__bead {
   &.is-lit {
     fill: color-mix(in srgb, var(--bs-primary) 70%, #fff);
@@ -166,7 +159,6 @@ function reset() {
   display: grid;
   grid-area: 1 / 1;
   justify-items: center;
-  gap: 0.25rem;
   pointer-events: none;
 }
 

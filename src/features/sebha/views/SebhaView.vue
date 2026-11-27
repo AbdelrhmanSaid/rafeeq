@@ -5,7 +5,6 @@ import Sebha from '@/features/sebha/components/Sebha.vue'
 </script>
 
 <template>
-  <!-- One screen tall: the title, then the bead ring filling the rest. -->
   <Page class="sebha-page full-height">
     <Heading
       subtitle-desktop-only

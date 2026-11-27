@@ -3,7 +3,7 @@ import { cachedFetch } from '@/shared/offline/cachedFetch'
 import { API } from '@/shared/constants/api'
 import categories from '@/features/azkar/data/categories.js'
 
-export const azkarOffline = () => useOfflineData('azkar')
+const azkarOffline = () => useOfflineData('azkar')
 
 export const isKnownCategory = (slug) => categories.some((category) => category.slug === slug)
 

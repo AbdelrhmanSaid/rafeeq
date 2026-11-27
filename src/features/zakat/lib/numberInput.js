@@ -1,5 +1,4 @@
-// The amount fields take digits however the keyboard sends them: Western, Arabic-Indic (٠–٩) or Persian (۰–۹), with
-// "." or the Arabic decimal sign "٫" as the decimal point. Grouping marks ("," and "٬") and anything else are dropped.
+// Accepts Western, Arabic-Indic (٠–٩) and Persian (۰–۹) digits, with "." or "٫" as the decimal point.
 
 const ARABIC_ZERO = 0x0660
 const PERSIAN_ZERO = 0x06f0
@@ -13,8 +12,7 @@ function toDigit(char) {
   return null
 }
 
-// The typed text as a plain number string ("1234.5") the calculations can parse, and where the caret lands in it, so a
-// dropped character doesn't throw the caret to the end. Counts (integer) take no decimal point.
+// Returns a plain number string ("1234.5") and the caret mapped into it, so dropped characters don't move it to the end.
 export function normalizeNumberInput(text, caret = text.length, { integer = false } = {}) {
   let value = ''
   let newCaret = 0
@@ -37,8 +35,7 @@ export function normalizeNumberInput(text, caret = text.length, { integer = fals
   return { value, caret: newCaret }
 }
 
-// The number as the field shows it: Arabic-Indic digits and the Arabic decimal sign, one character for each in the
-// plain string, so caret positions carry over unchanged.
+// Maps one character to one character, so caret positions carry over unchanged.
 export function toInputDisplay(value) {
   return String(value ?? '')
     .replace(/\d/g, (digit) => String.fromCharCode(ARABIC_ZERO + Number(digit)))

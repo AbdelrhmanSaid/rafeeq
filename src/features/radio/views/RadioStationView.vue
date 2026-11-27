@@ -24,7 +24,6 @@ const { isFavorite, toggleFavorite } = useFavorites(STORAGE_KEYS.radioFavorites)
 
 const stationSlug = computed(() => route.params.slug.toLowerCase())
 const station = computed(() => radiosData[stationSlug.value])
-// This station is loaded; `isPlaying` only once sound comes out, `isConnecting` while it starts, buffers or retries.
 const isCurrent = computed(() => !!station.value && store.station === station.value.url)
 const isPlaying = computed(() => isCurrent.value && store.status === 'playing')
 const isConnecting = computed(() => isCurrent.value && ['connecting', 'retrying'].includes(store.status))

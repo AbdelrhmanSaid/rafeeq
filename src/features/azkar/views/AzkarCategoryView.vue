@@ -34,7 +34,7 @@ const {
   execute: reloadCategory,
 } = useAsyncData(() => fetchCategory(slug.value))
 
-// A category opened offline failed to load; fetch it again once the connection is back. A loaded one stays as it is.
+// Only a failed load is retried on reconnect.
 useReconnectExecute(useOnline(), () => error.value && reloadCategory())
 
 usePageMeta(() => {
@@ -85,7 +85,6 @@ onBeforeRouteLeave(async () => {
         :benefit="zekr.benefit"
       />
 
-      <!-- Back lives in the app bar; the page ends with a quiet reset once counting has started. -->
       <div v-if="totalClicked > 0" class="d-flex justify-content-center">
         <button type="button" class="btn btn-flat d-inline-flex align-items-center gap-2" @click="resetProgress">
           <IconRestore size="1.25rem" />
@@ -94,7 +93,6 @@ onBeforeRouteLeave(async () => {
       </div>
     </Page>
 
-    <!-- An unknown category resolves to nothing rather than failing, so it gets its own state, not a retry. -->
     <Page v-else class="full-height missing-category">
       <StatePanel :icon="IconBookOff" title="الباب غير موجود" message="لم نعثر على هذا الباب من الأذكار.">
         <button type="button" class="btn btn-soft" @click="router.push({ name: 'azkar' })">كل الأذكار</button>
@@ -127,7 +125,6 @@ onBeforeRouteLeave(async () => {
   place-items: center;
 }
 
-/* Skip rendering off-screen cards in long categories. */
 .zekr-card-lazy {
   content-visibility: auto;
   contain-intrinsic-size: auto 300px;

@@ -35,16 +35,10 @@ const businessAmount = ref('')
 const moneyNisab = computed(() => goldPriceNisab(goldPrice.value, NISAB.money))
 const businessNisab = computed(() => goldPriceNisab(goldPrice.value, NISAB.business))
 
-const moneyResult = computed(() => moneyZakat(moneyAmount.value, moneyNisab.value))
-const goldResult = computed(() => goldZakat(goldWeight.value))
-const silverResult = computed(() => silverZakat(silverWeight.value))
-const cropsResult = computed(() => cropsZakat(cropsAmount.value))
-const businessResult = computed(() => businessZakat(businessAmount.value, businessNisab.value))
 const livestockResult = computed(() =>
   livestockZakat({ cows: livestockCows.value, sheep: livestockSheep.value, camels: livestockCamels.value }),
 )
 
-// Each kind of animal pays its own due, in the order the counts are asked for.
 const LIVESTOCK_KINDS = [
   { key: 'cows', label: 'عن الأبقار', count: livestockCows },
   { key: 'sheep', label: 'عن الأغنام', count: livestockSheep },
@@ -63,52 +57,50 @@ const hasLivestock = computed(() => LIVESTOCK_KINDS.some(({ count }) => hasValue
 const money = (value) => `${formatNumber(value)} ج.م`
 const hasValue = (value) => parseFloat(value) > 0
 const statusOf = (reached) => (reached ? 'reached' : 'below')
+const nisabStatus = (amount, nisab) => (hasValue(amount) ? statusOf(parseFloat(amount) >= nisab) : null)
 
-const results = computed(() => ({
-  // Money and trade are judged against a nisab priced in gold, so there is no amount to show until that price is in.
-  money: {
-    value: hasValue(goldPrice.value) ? money(moneyResult.value) : '—',
-    hint: hasValue(goldPrice.value)
-      ? `٢٫٥٪ · النصاب ${money(moneyNisab.value)}`
-      : '٢٫٥٪ · أدخل سعر الذهب لمعرفة النصاب',
-    status:
-      hasValue(goldPrice.value) && hasValue(moneyAmount.value)
-        ? statusOf(parseFloat(moneyAmount.value) >= moneyNisab.value)
-        : null,
-  },
-  gold: {
-    value: `${formatNumber(goldResult.value)} جرام`,
-    hint: `٢٫٥٪ · النصاب ${toArabicNumerals(NISAB.gold)} جرام`,
-    status: hasValue(goldWeight.value) ? statusOf(parseFloat(goldWeight.value) >= NISAB.gold) : null,
-  },
-  silver: {
-    value: `${formatNumber(silverResult.value)} جرام`,
-    hint: `٢٫٥٪ · النصاب ${toArabicNumerals(NISAB.silver)} جرام`,
-    status: hasValue(silverWeight.value) ? statusOf(parseFloat(silverWeight.value) >= NISAB.silver) : null,
-  },
-  livestock: {
-    // Animals, named for each kind (حقة عن الإبل), rather than one count of heads across kinds.
-    items: livestockItems.value,
-    value: hasLivestock.value ? 'لا شيء' : '—',
-    hint: 'حسب الأنصبة الشرعية لكل نوع',
-    status: hasLivestock.value ? statusOf(livestockItems.value.length > 0) : null,
-  },
-  crops: {
-    value: `${formatNumber(cropsResult.value)} ~ ${formatNumber(cropsResult.value * 2)} كجم`,
-    hint: `٥٪ للمروية · ١٠٪ للمطرية · النصاب ${toArabicNumerals(NISAB.crops)} كجم`,
-    status: hasValue(cropsAmount.value) ? statusOf(parseFloat(cropsAmount.value) >= NISAB.crops) : null,
-  },
-  business: {
-    value: hasValue(goldPrice.value) ? money(businessResult.value) : '—',
-    hint: hasValue(goldPrice.value)
-      ? `٢٫٥٪ · النصاب ${money(businessNisab.value)}`
-      : '٢٫٥٪ · أدخل سعر الذهب لمعرفة النصاب',
-    status:
-      hasValue(goldPrice.value) && hasValue(businessAmount.value)
-        ? statusOf(parseFloat(businessAmount.value) >= businessNisab.value)
-        : null,
-  },
-}))
+// Money and trade are judged against a nisab priced in gold, so there is nothing to show until that price is in.
+const goldPricedResult = (amount, nisab, due) => {
+  const priced = hasValue(goldPrice.value)
+  return {
+    value: priced ? money(due) : '—',
+    hint: priced ? `٢٫٥٪ · النصاب ${money(nisab)}` : '٢٫٥٪ · أدخل سعر الذهب لمعرفة النصاب',
+    status: priced ? nisabStatus(amount, nisab) : null,
+  }
+}
+
+const results = computed(() => {
+  const crops = cropsZakat(cropsAmount.value)
+  return {
+    money: goldPricedResult(moneyAmount.value, moneyNisab.value, moneyZakat(moneyAmount.value, moneyNisab.value)),
+    gold: {
+      value: `${formatNumber(goldZakat(goldWeight.value))} جرام`,
+      hint: `٢٫٥٪ · النصاب ${toArabicNumerals(NISAB.gold)} جرام`,
+      status: nisabStatus(goldWeight.value, NISAB.gold),
+    },
+    silver: {
+      value: `${formatNumber(silverZakat(silverWeight.value))} جرام`,
+      hint: `٢٫٥٪ · النصاب ${toArabicNumerals(NISAB.silver)} جرام`,
+      status: nisabStatus(silverWeight.value, NISAB.silver),
+    },
+    livestock: {
+      items: livestockItems.value,
+      value: hasLivestock.value ? 'لا شيء' : '—',
+      hint: 'حسب الأنصبة الشرعية لكل نوع',
+      status: hasLivestock.value ? statusOf(livestockItems.value.length > 0) : null,
+    },
+    crops: {
+      value: `${formatNumber(crops)} ~ ${formatNumber(crops * 2)} كجم`,
+      hint: `٥٪ للمروية · ١٠٪ للمطرية · النصاب ${toArabicNumerals(NISAB.crops)} كجم`,
+      status: nisabStatus(cropsAmount.value, NISAB.crops),
+    },
+    business: goldPricedResult(
+      businessAmount.value,
+      businessNisab.value,
+      businessZakat(businessAmount.value, businessNisab.value),
+    ),
+  }
+})
 
 const tabs = [
   { id: 'money', title: 'المال والمدخرات', icon: IconCoins },
@@ -121,8 +113,7 @@ const tabs = [
 
 const activeTab = computed(() => (tabs.some((tab) => tab.id === route.params.tab) ? route.params.tab : 'money'))
 
-// Opened from a link to a later tab, the row of tabs scrolls to show which one is open. After the fonts load, since
-// they change how wide the tabs are.
+// Scroll a deep-linked tab into view once the fonts, which set the tabs' widths, have loaded.
 const nav = ref(null)
 onMounted(async () => {
   await document.fonts?.ready
@@ -211,11 +202,7 @@ const conditions = {
         </RouterLink>
       </nav>
 
-      <ZakatCalculatorCard
-        :result="results[activeTab]"
-        :status="results[activeTab].status"
-        :conditions="conditions[activeTab]"
-      >
+      <ZakatCalculatorCard :result="results[activeTab]" :conditions="conditions[activeTab]">
         <template v-if="activeTab === 'money'">
           <ZakatInputRow v-model="goldPrice" label="سعر جرام الذهب (عيار ٢٤)" unit="ج.م" />
           <ZakatInputRow v-model="moneyAmount" label="إجمالي المال والمدخرات" unit="ج.م" />
@@ -253,8 +240,7 @@ const conditions = {
 </template>
 
 <style scoped>
-/* One column with a scrollable row of tabs on every screen size; pages are capped at 40rem. minmax(0, …) so the tab
-   row scrolls inside the column instead of widening it past a narrow phone. */
+/* minmax(0, …) makes the tab row scroll inside the column instead of widening it past a narrow phone. */
 .zakat-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
