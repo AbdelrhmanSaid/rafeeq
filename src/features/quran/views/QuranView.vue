@@ -133,19 +133,10 @@ const bookmarkRows = computed(() =>
         </RouterLink>
       </template>
     </SearchableFavoritesList>
-
-    <p class="mushaf-credit">مصحف المدينة المنورة بخطوط مجمع الملك فهد لطباعة المصحف الشريف، عبر Quran.com.</p>
   </Page>
 </template>
 
 <style lang="scss" scoped>
-.mushaf-credit {
-  margin: 1.5rem 0 0;
-  font-size: 0.8125rem;
-  color: var(--bs-secondary-color);
-  text-align: center;
-}
-
 /* One line per surah, named without "سورة" like the rest of the Quran screens. The name comes first: the details at
    the end of the row give way, then trail off, before the name is ever cut. */
 .surah-name {
