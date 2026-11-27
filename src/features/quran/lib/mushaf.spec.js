@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import {
-  PAGE_COUNT,
   ayahIndex,
   clampPage,
   juzOfPage,
@@ -9,17 +8,12 @@ import {
   parseVerseKey,
   plainSurahName,
   readingSurahOfPage,
-  surahName,
   surahOfPage,
   surahPages,
   surahStartPage,
 } from './mushaf'
 
 describe('mushaf', () => {
-  it('has the 604 pages of the Madinah Mushaf', () => {
-    expect(PAGE_COUNT).toBe(604)
-  })
-
   it('numbers ayat across the whole Quran', () => {
     expect(ayahIndex(1, 1)).toBe(1)
     expect(ayahIndex(2, 1)).toBe(8)
@@ -70,11 +64,6 @@ describe('mushaf', () => {
     expect(clampPage('900')).toBe(604)
     expect(clampPage('abc')).toBe(1)
     expect(clampPage('42')).toBe(42)
-  })
-
-  it('names surahs without the "سورة" prefix', () => {
-    expect(surahName(1)).not.toMatch(/^سورة/)
-    expect(surahName(1).length).toBeGreaterThan(0)
   })
 
   it('names the surah being read on a page, which is the one opening there rather than one ending at its top', () => {

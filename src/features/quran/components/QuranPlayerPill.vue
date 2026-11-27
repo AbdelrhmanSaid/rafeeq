@@ -29,7 +29,6 @@ const reciterOptions = computed(() =>
 const showReciters = ref(false)
 
 const reciterName = computed(() => quranStore.reciter?.name ?? 'اختر القارئ')
-// Two recordings can share a reciter's name, so the player says which one is playing.
 const reciterStyle = computed(() => recordingStyle(quranStore.reciter))
 </script>
 
@@ -77,7 +76,6 @@ const reciterStyle = computed(() => recordingStyle(quranStore.reciter))
   bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
 }
 
-/* A small pill just above the tab bar: play, and who is reciting. */
 .player-pill {
   position: fixed;
   inset-inline: 0;

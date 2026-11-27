@@ -55,7 +55,6 @@ const share = async () => {
 
 <template>
   <BottomSheet :show="!!ayah" :title="title" @close="emit('close')">
-    <!-- Bookmarking is a color: the ayah is tinted with it on the page. -->
     <div class="bookmark-colors" role="radiogroup" aria-label="لون الإشارة المرجعية">
       <span class="bookmark-colors__label">إشارة مرجعية</span>
       <div class="bookmark-colors__dots">

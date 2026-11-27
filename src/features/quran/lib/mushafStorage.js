@@ -6,18 +6,16 @@ import { pageDataUrl, pageFontUrl, surahPages } from '@/features/quran/lib/musha
 // Every page read or downloaded stays on the device: its layout and its font, kept together in one cache so a stored
 // page always opens offline. The cache name changes only if the files themselves ever change.
 const CACHE_NAME = 'mushaf-v2'
-// Earlier caches, deleted on start. mushaf-v1 held the V2 fonts and their layouts, which don't match the V4 ones.
+// Deleted on start: mushaf-v1 held the V2 fonts and layouts, which don't match the V4 ones.
 const OLD_CACHES = ['mushaf-v1']
 
 const hasCacheStorage = () => typeof caches !== 'undefined'
 const openCache = () => (hasCacheStorage() ? caches.open(CACHE_NAME).catch(() => null) : Promise.resolve(null))
 
-// Pages with both files stored.
 export const storedPages = reactive(new Set())
 
 let scanned = null
 
-// Read once what earlier sessions stored, so the downloads list shows it.
 export function scanStoredPages() {
   scanned ??= (async () => {
     if (hasCacheStorage()) await Promise.all(OLD_CACHES.map((name) => caches.delete(name).catch(() => {})))
@@ -28,7 +26,6 @@ export function scanStoredPages() {
     for (let page = 1; page <= 604; page++) {
       if (urls.has(absolute(pageDataUrl(page))) && urls.has(absolute(pageFontUrl(page)))) storedPages.add(page)
     }
-    // Surahs read to the end before reading counted as downloading them.
     recordReadSurahs(storedPages)
   })()
   return scanned
@@ -47,9 +44,8 @@ const checkFont = (buffer) => {
   return buffer
 }
 
-// A file from the device if it's there and sound, else from the network, kept for next time. `saved` says whether
-// it's on the device now: a full disk only costs the offline copy, but then the page mustn't count as downloaded.
-// An aborted download stops fetching and stores nothing more.
+// `saved` says whether the file is on the device now: a full disk only costs the offline copy, but then the page
+// mustn't count as downloaded.
 async function fetchStored(url, check, signal) {
   const cache = await openCache()
   const stored = await cache?.match(url)
@@ -80,10 +76,8 @@ const fetchFont = (page, signal) => fetchStored(pageFontUrl(page), checkFont, si
 
 const fontFamily = (page) => `mushaf-p${page}`
 
-// Pages in memory, each with its layout and its registered font.
 const loaded = new Map()
 
-// A page ready to draw: its layout and the name of its loaded font.
 export function loadPage(page) {
   if (!loaded.has(page)) {
     const entry = { dropped: false, face: null }
@@ -158,7 +152,6 @@ async function removePages(pages) {
 const downloaded = useLocalStorage('mushaf-downloaded-surahs', [])
 const downloadedSet = computed(() => new Set(downloaded.value))
 
-// The surahs on each page, built the first time a page is checked.
 let surahsByPage = null
 function surahsOnPage(page) {
   if (!surahsByPage) {
@@ -187,10 +180,8 @@ const isSurahDownloaded = (surah) =>
 // Whether any surah was downloaded on purpose, so the app knows to check those downloads are still whole on start.
 export const hasMushafDownloads = () => downloaded.value.length > 0
 
-// The downloads list counts the Mushaf by surah.
 export const mushafDownloads = {
-  // Surahs downloaded on purpose whose pages are no longer all stored: the Mushaf moved to new files, or the browser
-  // cleared some of its storage. They are downloaded again.
+  // Surahs downloaded on purpose whose pages are no longer all stored (new Mushaf files, or the browser evicted some).
   missing: () => downloaded.value.filter((surah) => !isSurahDownloaded(surah)),
   downloadedCount: computed(() => surahs.filter((s) => isSurahDownloaded(s.id)).length),
   isDownloaded: (key) => isSurahDownloaded(Number(key)),
@@ -203,7 +194,6 @@ export const mushafDownloads = {
     if (!downloadedSet.value.has(surah)) downloaded.value = [...downloaded.value, surah]
     for (const page of pages) unfinished.delete(page)
   },
-  // Takes back what a cancelled download of the surah stored, except pages a downloaded surah owns.
   async discard(key) {
     const pages = surahPages(Number(key)).filter((page) => unfinished.has(page))
     const kept = new Set(downloaded.value.flatMap((id) => surahPages(id)))

@@ -4,7 +4,7 @@ import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 import { parseVerseKey, verseKey } from '@/features/quran/lib/mushaf'
 import '@/features/quran/styles/bookmark-colors.css'
 
-// Each bookmark tints its ayah on the page in its own color, so several readings can be kept apart: one per color.
+// One bookmark per color, so several readings can be kept apart.
 export const BOOKMARK_COLORS = [
   { id: 'gold', label: 'ذهبي' },
   { id: 'green', label: 'أخضر' },
@@ -45,7 +45,6 @@ function takeLegacyBookmark() {
   }
 }
 
-// One list shared by every screen.
 let store = null
 
 function useStore() {

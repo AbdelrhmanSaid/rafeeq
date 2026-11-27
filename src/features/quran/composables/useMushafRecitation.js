@@ -11,8 +11,6 @@ import {
   setMediaPlaybackState,
 } from '@/shared/utils/mediaSession'
 
-// Plays the reciter's recording surah by surah, follows the ayah being recited from the recording's timings, and runs
-// on into the next surah, the way a Mushaf app reads on page after page.
 export function useMushafRecitation() {
   const quranStore = useQuranStore()
   const radioStore = useRadioStore()
@@ -60,7 +58,6 @@ export function useMushafRecitation() {
     timings = isHafsRecording(quranStore.reciter) ? loadedTimings.filter((t) => Number.isFinite(t.start_time)) : []
   }
 
-  // Seconds into the recording; an ayah without a timing plays from the start of the surah.
   const startOf = (number) => {
     const timing = timings.find((t) => t.ayah === number)
     return timing ? timing.start_time / 1000 : 0
@@ -82,7 +79,6 @@ export function useMushafRecitation() {
       if (surah.value !== surahNumber || !audio.src) await loadSurah(surahNumber)
       else if (pendingLoad) await pendingLoad
       if (id !== playId) return
-      // Without a timing for the ayah (no timings, or not a Hafs recording) it can only start at the top.
       if (ayahNumber > 1 && !timings.some((t) => t.ayah === ayahNumber)) {
         toast('لا يمكن البدء من هذه الآية مع هذا القارئ، ستبدأ التلاوة من أول السورة')
       }
@@ -155,13 +151,11 @@ export function useMushafRecitation() {
     }
   })
 
-  // The end of a surah carries on into the next one.
   audio.addEventListener('ended', () => {
     if (surah.value && surah.value < 114) playFrom(surah.value + 1, 1)
     else stop()
   })
 
-  // Another reciter picks up where this one was.
   watch(
     () => quranStore.currentReciter,
     () => {
@@ -180,7 +174,6 @@ export function useMushafRecitation() {
     },
   )
 
-  // The radio taking over stops the recitation.
   watch(
     () => radioStore.isPlaying,
     (radioPlaying) => radioPlaying && playing.value && pause(),
@@ -192,8 +185,7 @@ export function useMushafRecitation() {
     setMediaPlaybackState('playing')
   }
 
-  // Leaving the reader ends the recitation, including one still loading, which would otherwise start playing on
-  // another screen with nothing there to stop it.
+  // Also ends a recitation still loading, which would otherwise start on another screen with nothing to stop it.
   onScopeDispose(() => {
     disposed = true
     cancelAnimationFrame(frame)
@@ -205,5 +197,5 @@ export function useMushafRecitation() {
     if (!radioStore.station) clearMediaSession()
   })
 
-  return { playing, loading, surah, ayah, playingKey, playFrom, pause, resume, stop }
+  return { playing, loading, surah, ayah, playingKey, playFrom, pause, resume }
 }

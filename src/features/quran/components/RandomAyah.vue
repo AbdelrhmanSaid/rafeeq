@@ -24,7 +24,6 @@ const online = useOnline()
 
 const TOTAL_AYAHS = 6236
 const current = ref(Math.floor(Math.random() * TOTAL_AYAHS) + 1)
-// The tafsir is fetched by the sheet on demand, so the card stays short and loads only the text and recitation.
 const endpoint = computed(() => `${API.quranCloud}/ayah/${current.value}/editions/quran-uthmani,ar.alafasy`)
 
 const { isFetching, data, error, execute } = useFetch(endpoint, { refetch: true }).json().get()
@@ -133,8 +132,7 @@ async function toggleAyahPlayback() {
           </button>
 
           <button
-            class="btn btn-flat btn-icon ayah-play"
-            :class="{ 'is-playing': isPlaying }"
+            class="btn btn-flat btn-icon"
             @click="toggleAyahPlayback"
             :disabled="!recitation?.audio"
             :title="isPlaying ? 'إيقاف التلاوة' : 'تشغيل التلاوة'"

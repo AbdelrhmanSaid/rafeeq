@@ -27,7 +27,6 @@ const emit = defineEmits(['tap', 'select'])
 
 const online = useOnline()
 const data = shallowRef(null)
-// A spinner only for a page that takes a moment (a first visit on a slow connection); a quick load shows nothing.
 const slow = ref(false)
 let slowTimer = 0
 const fontFamily = ref('')
@@ -56,9 +55,8 @@ async function load() {
 
 watch(() => props.page, load, { immediate: true })
 
-// The V4 fonts stretch their letters more on some lines than others, so about one line in forty comes out wider than the
-// page (up to a third wider on a few pages). Once the page's font has drawn its lines, those are set a little smaller so
-// they still meet both margins. Everything is in em, so the ratio holds at any size.
+// About one line in forty of the V4 fonts comes out wider than the page (up to a third wider); once drawn, those are
+// set smaller to fit. Everything is in em, so the ratio holds at any size.
 const linesBox = useTemplateRef('linesBox')
 watch(data, async () => {
   await nextTick()
@@ -69,10 +67,8 @@ watch(data, async () => {
     if (over > 1.002) line.style.setProperty('--fit', (1 / over).toFixed(4))
   }
 })
-// A page that failed offline loads once the connection is back.
 watch(online, (isOnline) => isOnline && failed.value && load())
 
-// The header names the surah at the top of the page, as the printed Mushaf does, without vowel marks at its small size.
 const headerSurah = computed(() => {
   const first = data.value && Object.keys(data.value.verses)[0]
   return first ? plainSurahName(parseVerseKey(first).surah) : ''
@@ -166,8 +162,7 @@ async function centreBannerLabels(surahIds) {
 
 watch(bannerSurahs, centreBannerLabels)
 
-// A tap shows or hides the bars; holding an ayah selects it. Moving the finger (turning the page), lifting it, or a
-// second finger cancels the hold. The pager takes the pointer once a drag starts, so the hold listens on the window.
+// The pager captures the pointer once a drag starts, so the hold listens for moves and release on the window.
 const HOLD_MS = 450
 let holdTimer = 0
 let holdStart = null
@@ -183,8 +178,7 @@ function cancelHold() {
   window.removeEventListener('pointercancel', cancelHold)
 }
 
-// The click that ends a hold isn't a tap. It may not even land on the page: the ayah's menu has opened under the
-// finger, and its backdrop would take the click and close it.
+// The click ending a hold isn't a tap, and may land on the backdrop of the ayah's menu, which would close it.
 function swallowNextClick() {
   const swallow = (event) => {
     event.stopPropagation()
@@ -202,7 +196,6 @@ function swallowNextClick() {
 
 function onPointerDown(event) {
   lastPointerType = event.pointerType
-  // A second finger is a pinch, not a hold.
   if (holdStart && event.pointerId !== holdStart.id) return cancelHold()
   const key = event.target.closest('[data-key]')?.dataset.key
   cancelHold()
@@ -226,7 +219,6 @@ function onHoldMove(event) {
 }
 
 function onClick(event) {
-  // The retry button on a page that failed to load is its own action.
   if (event.target.closest('button')) return
   // A click with no pointer behind it (a screen reader activating an ayah's button) opens the ayah's menu.
   const key = event.target.closest('[data-key]')?.dataset.key
@@ -234,7 +226,6 @@ function onClick(event) {
   emit('tap')
 }
 
-// A right-click on an ayah opens the page's own menu, not the browser's.
 function onContextMenu(event) {
   event.preventDefault()
   if (lastPointerType !== 'mouse') return
@@ -340,7 +331,7 @@ onBeforeUnmount(() => {
     <LoadingState v-else-if="slow && !failed" message="جاري تحميل الصفحة..." />
 
     <div v-else-if="failed" class="mushaf-page__state">
-      <!-- Which page this is, from the index the app carries, so a page not downloaded still says where it is. -->
+      <!-- From the bundled index, so a page not downloaded still says where it is. -->
       <p class="mushaf-page__where">
         صفحة {{ toArabicNumerals(page) }}، {{ plainSurahName(surahOfPage(page)) }}، الجزء
         {{ toArabicNumerals(juzOfPage(page)) }}
@@ -385,10 +376,8 @@ onBeforeUnmount(() => {
   }
 }
 
-/* The page is sized to the screen: as wide as a full line allows, unless fifteen lines would then run too tall.
-   Measured across all 604 pages with the V4 fonts, a line's words come to 16.1em at the median and 17.2em or less for
-   97 lines in 100, so a 17.2em line fits nearly all of them with the rest going to the spaces between words; the few
-   wider ones are set smaller to fit (see the watch on data). */
+/* Across all 604 pages, a line's words come to 16.1em at the median and at most 17.2em for 97 lines in 100; the
+   few wider ones are set smaller to fit (see the watch on data). */
 .mushaf-sheet {
   --line-width: 17.2em;
   --page-room: calc(100cqh - 96px - var(--player-room));
@@ -438,7 +427,6 @@ onBeforeUnmount(() => {
 .mushaf-line {
   height: var(--pitch);
   line-height: var(--pitch);
-  // Justified like the printed page: the spaces between words stretch so every full line meets both margins.
   text-align: justify;
   text-align-last: justify;
   white-space: nowrap;
@@ -446,8 +434,7 @@ onBeforeUnmount(() => {
   // touch, even on a line that fills the page or was set smaller to fit; justifying widens them from there.
   word-spacing: -0.08em;
 
-  // A line wider than the page is drawn smaller to fit. Only its words shrink, so the line keeps its height, and so
-  // does the ayah around them, which the tint is measured from.
+  // Only the words shrink, so the line and the ayah around them (which the tint is measured from) keep their height.
   .ayah__glyphs {
     font-size: calc(1em * var(--fit, 1));
   }
@@ -460,7 +447,6 @@ onBeforeUnmount(() => {
 }
 
 .is-opening .mushaf-sheet__lines {
-  // The opening pages sit in the middle of the page, like the printed Mushaf.
   padding-block: calc(var(--pitch) * 3.5);
 }
 
@@ -539,9 +525,8 @@ onBeforeUnmount(() => {
   position: relative;
   cursor: default;
 
-  // The tint is exactly one line tall, so an ayah's lines meet without overlapping. The ayah's own box comes from the
-  // font and is taller than the line, so its background would run into the lines above and below it.
-  // It reaches a little past the words on either side without moving them.
+  // Exactly one line tall: the ayah's own box comes from the font and is taller than the line, so its background
+  // would run into the lines above and below.
   &::before {
     content: '';
     position: absolute;

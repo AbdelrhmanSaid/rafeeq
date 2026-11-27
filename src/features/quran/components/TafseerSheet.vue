@@ -51,7 +51,6 @@ watch([() => props.ayah, edition], ([ayah], [previous]) => {
   else data.value = null
 })
 
-// Opened offline, the tafsir loads once the connection is back.
 watch(online, (isOnline) => {
   if (isOnline && props.ayah && !data.value && !isFetching.value) execute()
 })
@@ -120,7 +119,6 @@ watch(online, (isOnline) => {
 .tafseer__text {
   transition: opacity 0.2s ease;
 
-  // The last ayah's tafsir, kept while this one's loads.
   &.is-stale {
     opacity: 0.4;
   }

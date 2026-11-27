@@ -22,8 +22,6 @@ import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 const quranStore = useQuranStore()
 const { bookmarks, removeBookmark } = useQuranBookmarks()
 
-// Where the reader was left, so the Quran opens one tap away from it. It names the surah being read there: on the
-// page al-Kahf opens on, al-Kahf, not al-Isra ending at its top.
 const lastPage = computed(() => {
   const page = Number(quranStore.lastPage)
   return isPage(page) ? { page, surah: surahName(readingSurahOfPage(page)) } : null
@@ -164,8 +162,7 @@ const bookmarkRows = computed(() =>
   vertical-align: middle;
 }
 
-/* As compact as the surah rows: the 44px remove button sets the height, and sits out at the row's end like the
-   heart does. */
+/* As compact as the surah rows: the 44px remove button sets the height and sits out at the row's end. */
 .bookmark-row {
   padding-block: 0.375rem;
 }
@@ -177,7 +174,6 @@ const bookmarkRows = computed(() =>
   color: var(--bs-secondary-color);
 }
 
-/* A bookmark's color, as on its ayah in the Mushaf. */
 .bookmark-dot {
   flex-shrink: 0;
   width: 0.75rem;
