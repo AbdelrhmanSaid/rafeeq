@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
@@ -8,6 +9,7 @@ import rtlcss from 'rtlcss'
 import { manifestIcons } from './src/app/pwa/manifest-icons.js'
 import { manifestScreenshots } from './src/app/pwa/manifest-screenshots.js'
 import { sitemapXml } from './src/app/sitemap.js'
+import { QURAN_TEXT_PATH, quranVerses } from './src/features/quran/lib/quranText.js'
 
 // These packages are already RTL-safe.
 const rtlcssExcludePatterns = [/vue-sonner/]
@@ -36,10 +38,31 @@ function sitemap() {
   }
 }
 
+// The Quran's text for the ayah search, joined from the page layouts so the repository keeps it once.
+function quranText() {
+  const readPage = (page) =>
+    JSON.parse(readFileSync(new URL(`./public/data/mushaf/${page}.json`, import.meta.url), 'utf8'))
+  const source = () => JSON.stringify(quranVerses(readPage))
+
+  return {
+    name: 'quran-text',
+    configureServer(server) {
+      server.middlewares.use(`/${QURAN_TEXT_PATH}`, (request, response) => {
+        response.setHeader('Content-Type', 'application/json')
+        response.end(source())
+      })
+    },
+    generateBundle() {
+      this.emitFile({ type: 'asset', fileName: QURAN_TEXT_PATH, source: source() })
+    },
+  }
+}
+
 export default defineConfig({
   plugins: [
     vue(),
     sitemap(),
+    quranText(),
     VitePWA({
       registerType: 'prompt',
       cleanupOutdatedCaches: true,
@@ -47,7 +70,8 @@ export default defineConfig({
         enabled: false,
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,woff,woff2}'],
+        // The Quran's text is the one data file installed with the app, so ayah search works offline from the start.
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,woff,woff2}', QURAN_TEXT_PATH],
         // Not precached: screenshots, iOS splash images, and ~48 MB of Mushaf fonts the reader caches itself.
         globIgnores: ['push/onesignal/**/*', 'screenshots/**/*', 'splash/**/*', 'fonts/mushaf/**/*'],
         runtimeCaching: [

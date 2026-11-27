@@ -1,11 +1,13 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { IconBook, IconChevronLeft, IconX } from '@tabler/icons-vue'
 import Page from '@/layout/Page.vue'
 import Heading from '@/shared/ui/Heading.vue'
 import SearchableFavoritesList from '@/shared/ui/SearchableFavoritesList.vue'
+import AyahSearchResults from '@/features/quran/components/AyahSearchResults.vue'
 import surahs from '@/features/quran/data/surahs.js'
 import { useQuranStore } from '@/features/quran/store'
+import { useAyahSearch } from '@/features/quran/composables/useAyahSearch'
 import { useQuranBookmarks } from '@/features/quran/composables/useQuranBookmarks'
 import {
   formatAyahCount,
@@ -21,6 +23,16 @@ import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 
 const quranStore = useQuranStore()
 const { bookmarks, removeBookmark } = useQuranBookmarks()
+
+// Kept on this history entry, so coming back from an ayah finds the search and its results as they were left.
+const saved = history.state?.quranSearch
+const search = ref(saved?.text ?? '')
+const shown = ref(saved?.shown)
+const ayat = reactive(useAyahSearch(search, shown))
+
+watch([search, shown], ([text, count]) => {
+  history.replaceState({ ...history.state, quranSearch: { text, shown: count } }, '')
+})
 
 const lastPage = computed(() => {
   const page = Number(quranStore.lastPage)
@@ -49,12 +61,14 @@ const bookmarkRows = computed(() =>
     />
 
     <SearchableFavoritesList
+      v-model:search="search"
       :items="surahs"
       item-key="id"
       :favorites-key="STORAGE_KEYS.quranFavorites"
-      placeholder="ابحث بالسورة"
-      label="تبحث عن سورة معينة؟"
+      placeholder="ابحث عن سورة أو آية"
+      label="ابحث عن سورة أو آية"
       :item-label="(item) => surahName(item.id)"
+      :hide-empty="ayat.isLoading || ayat.failed || ayat.total > 0"
     >
       <template #before-list="{ search }">
         <template v-if="!search">
@@ -105,6 +119,10 @@ const bookmarkRows = computed(() =>
             </ul>
           </section>
         </template>
+      </template>
+
+      <template #after-list>
+        <AyahSearchResults :results="ayat" />
       </template>
 
       <template #favorites-title>

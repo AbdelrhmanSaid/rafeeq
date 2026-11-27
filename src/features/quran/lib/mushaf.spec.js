@@ -11,6 +11,7 @@ import {
   surahOfPage,
   surahPages,
   surahStartPage,
+  verseAt,
 } from './mushaf'
 
 describe('mushaf', () => {
@@ -18,6 +19,10 @@ describe('mushaf', () => {
     expect(ayahIndex(1, 1)).toBe(1)
     expect(ayahIndex(2, 1)).toBe(8)
     expect(ayahIndex(114, 6)).toBe(6236)
+    expect(verseAt(1)).toEqual({ surah: 1, ayah: 1 })
+    expect(verseAt(7)).toEqual({ surah: 1, ayah: 7 })
+    expect(verseAt(8)).toEqual({ surah: 2, ayah: 1 })
+    expect(verseAt(6236)).toEqual({ surah: 114, ayah: 6 })
   })
 
   it('finds the page an ayah starts on', () => {
