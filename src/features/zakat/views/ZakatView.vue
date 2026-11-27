@@ -179,6 +179,7 @@ const conditions = {
           replace
           class="zakat-nav-item tab-pill"
           :class="{ active: activeTab === tab.id }"
+          :aria-current="activeTab === tab.id ? 'page' : undefined"
         >
           <component :is="tab.icon" :size="20" />
           <span>{{ tab.title }}</span>

@@ -14,6 +14,7 @@ const props = defineProps({
   itemClass: { type: Function, default: () => ({}) },
   groups: { type: Array, default: null },
   groupKey: { type: String, default: 'category' },
+  itemLabel: { type: Function, default: null },
 })
 
 const { search, filtered } = useSearch(() => props.items, props.searchKeys)
@@ -39,6 +40,7 @@ const { search, filtered } = useSearch(() => props.items, props.searchKeys)
     :item-class="itemClass"
     :groups="groups"
     :group-key="groupKey"
+    :item-label="itemLabel"
   >
     <template v-for="(_, name) in $slots" #[name]="slotProps">
       <slot :name="name" v-bind="slotProps ?? {}" />

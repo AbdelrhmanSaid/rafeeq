@@ -34,12 +34,25 @@ const props = defineProps({
     type: String,
     default: 'category',
   },
+  // Names the item in the favourite button's label, e.g. (item) => item.name.
+  itemLabel: {
+    type: Function,
+    default: null,
+  },
 })
 
 const { isFavorite, toggleFavorite, filterFavorites } = useFavorites(props.favoritesKey)
 
 const getKey = (item) => item[props.itemKey]
 const favorites = filterFavorites(() => props.items, getKey)
+
+const favoriteLabel = (item) => {
+  const added = isFavorite(getKey(item))
+  if (!props.itemLabel) return added ? 'إزالة من المفضلة' : 'إضافة للمفضلة'
+
+  const name = props.itemLabel(item)
+  return added ? `إزالة ${name} من المفضلة` : `إضافة ${name} للمفضلة`
+}
 
 const sections = computed(() => {
   if (!props.groups) return [{ key: 'all', title: null, items: props.items }]
@@ -68,7 +81,7 @@ const sections = computed(() => {
               class="btn btn-flat btn-icon fav-btn is-active position-relative z-1"
               @click.stop="toggleFavorite(getKey(item))"
               title="إزالة من المفضلة"
-              aria-label="إزالة من المفضلة"
+              :aria-label="favoriteLabel(item)"
             >
               <IconHeartFilled size="1.25rem" class="text-danger" />
             </button>
@@ -99,7 +112,7 @@ const sections = computed(() => {
               :class="{ 'is-active': isFavorite(getKey(item)) }"
               @click.stop="toggleFavorite(getKey(item))"
               :title="isFavorite(getKey(item)) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"
-              :aria-label="isFavorite(getKey(item)) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"
+              :aria-label="favoriteLabel(item)"
             >
               <IconHeartFilled v-if="isFavorite(getKey(item))" size="1.25rem" class="text-danger" />
               <IconHeart v-else size="1.25rem" />

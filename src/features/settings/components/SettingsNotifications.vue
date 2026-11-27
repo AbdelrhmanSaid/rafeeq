@@ -16,7 +16,7 @@ const { enabled, loading, state, toggle } = usePushNotifications()
 
     <button
       type="button"
-      class="btn btn-sm d-inline-flex align-items-center gap-2"
+      class="btn btn-sm d-inline-flex align-items-center gap-2 notifications-toggle"
       :class="enabled ? 'btn-soft text-danger' : 'btn-soft'"
       :disabled="loading"
       @click="toggle"
@@ -26,3 +26,9 @@ const { enabled, loading, state, toggle } = usePushNotifications()
     </button>
   </SettingsSection>
 </template>
+
+<style scoped>
+.notifications-toggle {
+  min-height: 2.75rem;
+}
+</style>

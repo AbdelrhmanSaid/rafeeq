@@ -5,6 +5,8 @@ defineProps({
   title: { type: String, default: '' },
   description: { type: String, default: '' },
   icon: { type: [Object, Function], default: null },
+  // The id of the switch in the actions slot; the header then becomes its label, so tapping the title toggles it.
+  controlId: { type: String, default: null },
 })
 
 const slots = useSlots()
@@ -29,7 +31,12 @@ const hasBody = computed(() => {
 
   <!-- One row in a settings group: the title and a muted description, the control at the end, any body below. -->
   <section v-else class="settings-section">
-    <header v-if="title || $slots.actions" class="settings-section-header">
+    <component
+      :is="controlId ? 'label' : 'header'"
+      v-if="title || $slots.actions"
+      :for="controlId || undefined"
+      class="settings-section-header"
+    >
       <div class="settings-section-heading">
         <h2 class="settings-section-title">{{ title }}</h2>
         <p v-if="description" class="settings-section-description">{{ description }}</p>
@@ -38,7 +45,7 @@ const hasBody = computed(() => {
       <div v-if="$slots.actions" class="settings-section-actions">
         <slot name="actions" />
       </div>
-    </header>
+    </component>
 
     <div v-if="hasBody" class="settings-section-body" :class="{ 'has-header': title || $slots.actions }">
       <slot />

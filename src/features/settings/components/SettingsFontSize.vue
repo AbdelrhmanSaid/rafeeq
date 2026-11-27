@@ -32,7 +32,7 @@ function increase() {
       <button
         v-if="!isDefault"
         type="button"
-        class="btn btn-sm btn-flat d-inline-flex align-items-center gap-1"
+        class="btn btn-sm btn-flat d-inline-flex align-items-center justify-content-center gap-1 font-reset"
         aria-label="إعادة تعيين حجم الخط"
         @click="theme.resetFontScale()"
       >
@@ -55,6 +55,7 @@ function increase() {
           :max="max"
           :step="step"
           aria-label="حجم الخط"
+          :aria-valuetext="scaleLabel"
         />
 
         <button type="button" class="font-step" :disabled="fontScale >= max" aria-label="تكبير الخط" @click="increase">
@@ -79,14 +80,19 @@ function increase() {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 2.75rem;
+  height: 2.75rem;
   border: 1px solid var(--app-hairline);
   border-radius: var(--bs-border-radius-sm);
   background: none;
   color: var(--bs-body-color);
   cursor: pointer;
   transition: background 0.15s;
+}
+
+.font-reset {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
 }
 
 @media (hover: hover) and (pointer: fine) {

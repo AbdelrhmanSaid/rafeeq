@@ -146,13 +146,19 @@ const handleAssetAction = (asset) => {
 
     <div class="dm-toolbar">
       <div class="tab-pills dm-filters">
-        <button class="tab-pill dm-filter-btn" :class="{ active: filterType === 'all' }" @click="filterType = 'all'">
+        <button
+          class="tab-pill dm-filter-btn"
+          :class="{ active: filterType === 'all' }"
+          :aria-pressed="filterType === 'all'"
+          @click="filterType = 'all'"
+        >
           <span>الكل</span>
           <span class="chip chip-muted dm-filter-count">{{ toArabicNumerals(totalAssets) }}</span>
         </button>
         <button
           class="tab-pill dm-filter-btn"
           :class="{ active: filterType === 'surah' }"
+          :aria-pressed="filterType === 'surah'"
           @click="filterType = 'surah'"
         >
           <IconBook2 :size="16" />
@@ -162,6 +168,7 @@ const handleAssetAction = (asset) => {
         <button
           class="tab-pill dm-filter-btn"
           :class="{ active: filterType === 'azkar' }"
+          :aria-pressed="filterType === 'azkar'"
           @click="filterType = 'azkar'"
         >
           <IconSparkles :size="16" />
@@ -176,6 +183,7 @@ const handleAssetAction = (asset) => {
           class="btn btn-soft btn-icon dm-action-btn"
           @click="isPaused ? resumeDownloads() : pauseDownloads()"
           :title="isPaused ? 'استئناف' : 'إيقاف مؤقت'"
+          :aria-label="isPaused ? 'استئناف' : 'إيقاف مؤقت'"
         >
           <component :is="isPaused ? IconPlayerPlay : IconPlayerPause" :size="16" />
         </button>
@@ -185,6 +193,7 @@ const handleAssetAction = (asset) => {
           class="btn btn-soft btn-icon dm-action-btn"
           @click="cancelAllDownloads"
           title="إلغاء"
+          aria-label="إلغاء"
         >
           <IconX :size="16" />
         </button>
@@ -194,6 +203,7 @@ const handleAssetAction = (asset) => {
           @click="handleRemoveAll"
           :disabled="isDownloading || downloadedCount === 0"
           title="حذف الكل"
+          aria-label="حذف الكل"
         >
           <IconTrash :size="16" />
         </button>

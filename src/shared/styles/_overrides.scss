@@ -198,6 +198,12 @@ html[dir='rtl'] input[type='number']::placeholder {
   }
 }
 
+/* Switches are buttons, not text fields, so keyboard users still get the app's focus ring. */
+.form-switch .form-check-input:focus-visible {
+  outline: 2px solid rgba(var(--bs-primary-rgb), 0.5);
+  outline-offset: 2px;
+}
+
 /* Bootstrap greys the off knob in dark mode; keep it white like the light theme. */
 [data-bs-theme='dark'] .form-switch .form-check-input:not(:checked):not(:focus),
 .form-switch .form-check-input:not(:checked):focus {

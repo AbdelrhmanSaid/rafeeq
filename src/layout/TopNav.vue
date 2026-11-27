@@ -47,13 +47,10 @@ const destinations = navigation.filter((item) => item.menus.includes('primary'))
         >
           <span class="top-nav-item__icon">
             <component :is="item.icon" />
-            <span
-              v-if="item.name === 'radio' && radio.isPlaying"
-              class="top-nav-item__live"
-              aria-label="يعمل الآن"
-            ></span>
+            <span v-if="item.name === 'radio' && radio.isPlaying" class="top-nav-item__live" aria-hidden="true"></span>
           </span>
           <span class="top-nav-item__label" :data-label="item.label">{{ item.label }}</span>
+          <span v-if="item.name === 'radio' && radio.isPlaying" class="visually-hidden">يعمل الآن</span>
         </RouterLink>
       </nav>
 

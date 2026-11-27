@@ -24,6 +24,7 @@ const items = categories.map((category, index) => ({ ...category, id: index + 1 
       :favorites-key="STORAGE_KEYS.azkarFavorites"
       placeholder="ابحث عن الباب"
       label="تبحث عن باب معين؟"
+      :item-label="(item) => item.name"
     >
       <template #favorites-title>
         <h2 class="list-title">الأبواب المفضلة</h2>

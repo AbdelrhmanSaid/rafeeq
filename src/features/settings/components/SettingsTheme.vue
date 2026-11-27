@@ -18,15 +18,30 @@ const colors = [
 <template>
   <SettingsSection title="المظهر" description="اختر وضع العرض واللون الأساسي للتطبيق" :icon="IconPalette">
     <div class="btn-group-toggle mb-3">
-      <button class="btn-toggle" :class="{ active: theme.mode === 'light' }" @click="theme.setMode('light')">
+      <button
+        class="btn-toggle"
+        :class="{ active: theme.mode === 'light' }"
+        :aria-pressed="theme.mode === 'light'"
+        @click="theme.setMode('light')"
+      >
         <IconSunFilled :size="16" />
         <span>فاتح</span>
       </button>
-      <button class="btn-toggle" :class="{ active: theme.mode === 'dark' }" @click="theme.setMode('dark')">
+      <button
+        class="btn-toggle"
+        :class="{ active: theme.mode === 'dark' }"
+        :aria-pressed="theme.mode === 'dark'"
+        @click="theme.setMode('dark')"
+      >
         <IconMoonStars :size="16" />
         <span>داكن</span>
       </button>
-      <button class="btn-toggle" :class="{ active: theme.mode === 'system' }" @click="theme.setMode('system')">
+      <button
+        class="btn-toggle"
+        :class="{ active: theme.mode === 'system' }"
+        :aria-pressed="theme.mode === 'system'"
+        @click="theme.setMode('system')"
+      >
         <IconDeviceLaptop :size="16" />
         <span>تلقائي</span>
       </button>
@@ -40,6 +55,7 @@ const colors = [
           :key="color.value"
           class="color-option"
           :class="{ active: theme.primaryColor === color.value }"
+          :aria-pressed="theme.primaryColor === color.value"
           @click="theme.setPrimaryColor(color.value)"
         >
           <span class="color-dot" :style="{ background: color.value || '#795547' }">

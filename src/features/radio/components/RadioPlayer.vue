@@ -86,7 +86,7 @@ const STARS = [
           class="sky__favorite embed-hidden"
           :class="{ 'is-favorite': isFavorite }"
           type="button"
-          :aria-label="isFavorite ? 'إزالة من المفضلة' : 'إضافة للمفضلة'"
+          aria-label="المفضلة"
           :aria-pressed="isFavorite"
           @click="$emit('favorite')"
         >

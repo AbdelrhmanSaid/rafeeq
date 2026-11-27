@@ -145,6 +145,11 @@ body {
 
   background-color: var(--app-page-bg-color);
   background-image: var(--app-page-bg-image);
+
+  &.is-embed {
+    --app-page-bg-image: none;
+  }
+
   background-repeat: no-repeat;
   background-attachment: fixed;
   /* Disable native pull-to-refresh and top-edge scroll glow. */
@@ -598,7 +603,7 @@ html [data-sonner-toaster][data-sonner-theme] {
 /* Muted list and section titles, like the Home section titles, so the rows carry the screen. */
 .list-title {
   margin: 0 0.125rem 0.75rem;
-  color: color-mix(in srgb, var(--bs-body-color) 60%, var(--bs-body-bg));
+  color: color-mix(in srgb, var(--bs-body-color) 68%, var(--bs-body-bg));
   font-family: inherit;
   font-size: 1rem;
   font-weight: 700;

@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, useId } from 'vue'
 import { storeToRefs } from 'pinia'
 import { IconDeviceMobileVibration } from '@tabler/icons-vue'
 import { useAppStore } from '@/app/stores/app'
@@ -10,6 +10,7 @@ const appStore = useAppStore()
 const { zekrVibrationEnabled, zekrVibrationIntensity } = storeToRefs(appStore)
 
 const vibrationValueLabel = computed(() => toArabicNumerals(zekrVibrationIntensity.value))
+const switchId = useId()
 </script>
 
 <template>
@@ -17,10 +18,17 @@ const vibrationValueLabel = computed(() => toArabicNumerals(zekrVibrationIntensi
     title="الاهتزاز عند الانتهاء"
     description="يعمل على الأجهزة والمتصفحات التي تدعم الاهتزاز"
     :icon="IconDeviceMobileVibration"
+    :control-id="switchId"
   >
     <template #actions>
       <div class="form-check form-switch m-0">
-        <input v-model="zekrVibrationEnabled" class="form-check-input" type="checkbox" />
+        <input
+          :id="switchId"
+          v-model="zekrVibrationEnabled"
+          class="form-check-input"
+          type="checkbox"
+          aria-label="الاهتزاز عند الانتهاء"
+        />
       </div>
     </template>
 
@@ -30,7 +38,16 @@ const vibrationValueLabel = computed(() => toArabicNumerals(zekrVibrationIntensi
         <small class="text-muted">{{ vibrationValueLabel }} مللي ثانية</small>
       </div>
 
-      <input v-model.number="zekrVibrationIntensity" class="form-range" type="range" min="20" max="250" step="10" />
+      <input
+        v-model.number="zekrVibrationIntensity"
+        class="form-range"
+        type="range"
+        min="20"
+        max="250"
+        step="10"
+        aria-label="قوة الاهتزاز"
+        :aria-valuetext="`${vibrationValueLabel} مللي ثانية`"
+      />
 
       <div class="d-flex justify-content-between text-muted">
         <small>خفيف</small>

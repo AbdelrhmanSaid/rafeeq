@@ -24,9 +24,10 @@ const tabs = navigation.filter((item) => item.menus.includes('primary'))
       >
         <span class="tab-item__indicator">
           <component :is="item.icon" class="tab-item__icon" />
-          <span v-if="item.name === 'radio' && radio.isPlaying" class="tab-item__live" aria-label="يعمل الآن"></span>
+          <span v-if="item.name === 'radio' && radio.isPlaying" class="tab-item__live" aria-hidden="true"></span>
         </span>
         <span class="tab-item__label">{{ item.label }}</span>
+        <span v-if="item.name === 'radio' && radio.isPlaying" class="visually-hidden">يعمل الآن</span>
       </RouterLink>
     </div>
   </nav>
@@ -87,7 +88,7 @@ const tabs = navigation.filter((item) => item.menus.includes('primary'))
   border: 0;
   background: none;
   /* Quieter than body text in both themes, so the brand-colored current tab stands out. */
-  color: color-mix(in srgb, var(--bs-body-color) 55%, var(--bs-body-bg));
+  color: color-mix(in srgb, var(--bs-body-color) 68%, var(--bs-body-bg));
   text-decoration: none;
   -webkit-touch-callout: none;
   -webkit-user-select: none;

@@ -33,15 +33,30 @@ const location = computed(() => {
     <div class="mb-2">
       <span class="d-block mb-2">طريقة العرض</span>
       <div class="btn-group-toggle">
-        <button class="btn-toggle" :class="{ active: store.layout === 'cards' }" @click="store.layout = 'cards'">
+        <button
+          class="btn-toggle"
+          :class="{ active: store.layout === 'cards' }"
+          :aria-pressed="store.layout === 'cards'"
+          @click="store.layout = 'cards'"
+        >
           <IconLayoutGrid :size="16" />
           <span>بطاقات</span>
         </button>
-        <button class="btn-toggle" :class="{ active: store.layout === 'list' }" @click="store.layout = 'list'">
+        <button
+          class="btn-toggle"
+          :class="{ active: store.layout === 'list' }"
+          :aria-pressed="store.layout === 'list'"
+          @click="store.layout = 'list'"
+        >
           <IconLayoutList :size="16" />
           <span>قائمة</span>
         </button>
-        <button class="btn-toggle" :class="{ active: store.layout === 'auto' }" @click="store.layout = 'auto'">
+        <button
+          class="btn-toggle"
+          :class="{ active: store.layout === 'auto' }"
+          :aria-pressed="store.layout === 'auto'"
+          @click="store.layout = 'auto'"
+        >
           <IconDevices :size="16" />
           <span>تلقائي</span>
         </button>

@@ -53,6 +53,7 @@ const radiosList = Object.entries(radiosData).map(([slug, station]) => ({
       label="تبحث عن إذاعة معينة؟"
       :item-class="(item) => ({ active: store.station === item.url })"
       :groups="groups"
+      :item-label="(item) => item.title"
     >
       <template #favorites-title>
         <h2 class="list-title">الإذاعات المفضلة</h2>

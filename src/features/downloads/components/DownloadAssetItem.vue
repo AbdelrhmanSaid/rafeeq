@@ -1,12 +1,22 @@
 <script setup>
+import { computed } from 'vue'
 import { IconBook2, IconSparkles, IconCheck, IconLoader2, IconDownload } from '@tabler/icons-vue'
 
-defineProps({
+const props = defineProps({
   asset: { type: Object, required: true },
   online: { type: Boolean, default: true },
 })
 
 defineEmits(['action'])
+
+const ACTION_LABELS = {
+  'downloaded': 'حذف',
+  'queued': 'إلغاء',
+  'downloading': 'جاري تحميل',
+  'not-downloaded': 'تحميل',
+}
+
+const actionLabel = computed(() => `${ACTION_LABELS[props.asset.status] ?? 'تحميل'} ${props.asset.name}`)
 </script>
 
 <template>
@@ -24,6 +34,7 @@ defineEmits(['action'])
     <button
       class="dm-item-action"
       :class="asset.status"
+      :aria-label="actionLabel"
       @click="$emit('action', asset)"
       :disabled="asset.status === 'downloading' || (!online && asset.status === 'not-downloaded')"
     >
@@ -100,8 +111,8 @@ defineEmits(['action'])
 }
 
 .dm-item-action {
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 2.75rem;
+  height: 2.75rem;
   display: flex;
   align-items: center;
   justify-content: center;

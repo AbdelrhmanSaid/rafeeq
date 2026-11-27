@@ -31,6 +31,8 @@ watch(online, (isOnline) => {
   }
 })
 const isEmbedRoute = computed(() => route.path.startsWith('/embed'))
+// An embed sits inside someone else's page, so it drops the app's top glow.
+watch(isEmbedRoute, (embed) => document.body.classList.toggle('is-embed', embed), { immediate: true })
 
 // A service-worker update may reload only once per page load.
 let hasReloadedForUpdate = false

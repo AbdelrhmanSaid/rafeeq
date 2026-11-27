@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, useId } from 'vue'
 import { useLocalStorage, useTimeoutFn } from '@vueuse/core'
 import { IconRestore } from '@tabler/icons-vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
@@ -8,6 +8,7 @@ import { BEADS, beadPositions, litBeads } from '@/features/sebha/lib/beads'
 
 // Open-ended counting with no target. The count is saved, so leaving the screen doesn't lose it.
 const count = useLocalStorage(STORAGE_KEYS.sebhaCount, 0)
+const countId = useId()
 
 const BEAD_POSITIONS = beadPositions(120, 104)
 const lit = computed(() => litBeads(count.value))
@@ -33,7 +34,7 @@ function reset() {
 <template>
   <div class="sebha">
     <!-- The whole area around the ring is the counter. -->
-    <button type="button" class="sebha__tap" aria-label="تسبيحة" @click="increment">
+    <button type="button" class="sebha__tap" aria-label="تسبيحة" :aria-describedby="countId" @click="increment">
       <svg class="sebha__ring" :class="{ 'is-wrapping': wrapping }" viewBox="0 0 240 240" aria-hidden="true">
         <circle cx="120" cy="120" r="104" class="sebha__string" />
         <circle
@@ -52,7 +53,7 @@ function reset() {
       </span>
     </button>
 
-    <span class="visually-hidden" role="status">{{ toArabicNumerals(count) }}</span>
+    <span :id="countId" class="visually-hidden" role="status">{{ toArabicNumerals(count) }}</span>
 
     <button type="button" class="btn btn-flat sebha__reset" :disabled="count === 0" @click="reset">
       <IconRestore size="1.25rem" />

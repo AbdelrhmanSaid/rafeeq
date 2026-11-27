@@ -11,7 +11,7 @@ defineProps({
 <template>
   <div class="zakat-calc">
     <!-- The answer first, in a brand card like the Home prayer card; it updates as you type. -->
-    <section class="zakat-hero" aria-live="polite">
+    <section class="zakat-hero">
       <span class="zakat-hero__label">الزكاة الواجبة</span>
       <bdi class="zakat-hero__value">{{ result.value }}</bdi>
       <p class="zakat-hero__meta">

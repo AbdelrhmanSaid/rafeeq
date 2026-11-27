@@ -48,6 +48,7 @@ const formatAyahCount = (count) => {
       :favorites-key="STORAGE_KEYS.quranFavorites"
       placeholder="ابحث بالسورة"
       label="تبحث عن سورة معينة؟"
+      :item-label="(item) => normalizeQuranicText(item.name)"
     >
       <template #favorites-title>
         <h2 class="list-title">السور المفضلة</h2>

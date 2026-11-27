@@ -44,6 +44,13 @@ function onChange(event) {
   cursor: pointer;
 }
 
+/* The select itself is invisible, so the row shows its keyboard focus. */
+.select-row:has(.select-row__select:focus-visible) {
+  border-radius: var(--bs-border-radius);
+  outline: 2px solid rgba(var(--bs-primary-rgb), 0.5);
+  outline-offset: 2px;
+}
+
 .select-row__label {
   flex-shrink: 0;
 }

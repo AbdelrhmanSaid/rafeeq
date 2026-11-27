@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import { getShortestRotation, getTapeTicks, normalizeAngle } from '@/features/qibla/lib/qibla'
 
@@ -20,9 +20,6 @@ const props = defineProps({
   heading: { type: Number, default: 0 },
   // A live compass: the tape follows the phone. Without one the tape rests on the qibla bearing.
   live: { type: Boolean, default: false },
-  compassError: { type: String, default: null },
-  // A short warning under the hint, like asking to hold the phone upright or to calibrate.
-  notice: { type: String, default: null },
   // The bearing comes from the location saved for prayer times because a fresh fix failed.
   savedLocation: { type: Boolean, default: false },
   // A fresh location fix is on its way; until it lands the saved location is in use.
@@ -37,6 +34,17 @@ const ticks = computed(() => getTapeTicks(centerDegree.value, HALF_RANGE, 5))
 // Positive: the qibla is to the right, so turn clockwise.
 const turn = computed(() => getShortestRotation(centerDegree.value, props.qiblaDirection))
 const isFacing = computed(() => props.live && Math.abs(turn.value) <= FACING_TOLERANCE)
+
+// What screen readers hear. Facing is announced once on entry and only cleared a couple of degrees past the edge, so a
+// hand wobbling at ±5° doesn't repeat it. The live degrees and turn hint are left out; they change too often.
+const announcedFacing = ref(false)
+watchEffect(() => {
+  const off = Math.abs(turn.value)
+  if (!props.live) announcedFacing.value = false
+  else if (off <= FACING_TOLERANCE) announcedFacing.value = true
+  else if (off > FACING_TOLERANCE + 2) announcedFacing.value = false
+})
+const announcement = computed(() => (announcedFacing.value ? 'أنت تواجه القبلة' : ''))
 
 // The Kaaba marker sits on the tape at the qibla bearing while that's within ±EDGE_OFFSET, the part of the tape that
 // isn't faded. Further out it becomes an arrow at that edge pointing the way to turn, so the marker never sits over
@@ -100,10 +108,9 @@ const turnAmount = computed(() => `${toArabicNumerals(Math.round(Math.abs(turn.v
       </template>
       <template v-else>
         القبلة على <bdi dir="ltr">{{ degrees(qiblaDirection) }}</bdi>
-        <span v-if="compassError" class="d-block">{{ compassError }}</span>
       </template>
     </p>
-    <p v-if="notice" class="qibla__notice">{{ notice }}</p>
+    <span class="visually-hidden" role="status">{{ announcement }}</span>
     <p v-if="distanceLabel" class="qibla__distance">{{ distanceLabel }}</p>
     <p v-if="savedLocation && refreshingLocation" class="qibla__distance">حسب موقعك المحفوظ · جاري تحديث الموقع…</p>
     <button v-else-if="savedLocation" type="button" class="qibla__location" @click="$emit('refresh-location')">
@@ -141,18 +148,12 @@ const turnAmount = computed(() => `${toArabicNumerals(Math.round(Math.abs(turn.v
 }
 
 .qibla__location {
+  min-height: 2.75rem;
   margin-top: 0.5rem;
   padding: 0.25rem 0.5rem;
   border: 0;
   background: none;
   color: var(--qibla-accent);
-  font-size: 0.875rem;
-}
-
-.qibla__notice {
-  max-width: 18rem;
-  margin: 0 0 0.5rem;
-  color: var(--bs-warning-text-emphasis);
   font-size: 0.875rem;
 }
 

@@ -14,6 +14,8 @@ const BG_COLOR_VARS = [
   '--bs-body-bg-rgb',
   '--bs-secondary-bg',
   '--bs-tertiary-bg',
+  '--app-page-bg-color',
+  '--app-page-bg-image',
 ]
 
 // The rem-based UI scales from the root font size; 100 is the browser default.
@@ -137,16 +139,17 @@ export function applyBgColor(color) {
   const bg = normalizeColor(color)
 
   if (bg) {
-    const tintedBg = `color-mix(in srgb, ${bg} 96%, var(--bs-primary))`
-
+    // Only embeds set a background, to sit on the host page, so it's used exactly: no brand tint, no glow.
     const vars = {
       '--app-body-bg-base': bg,
-      '--bs-body-bg': tintedBg,
+      '--bs-body-bg': bg,
       '--bs-secondary-bg': 'color-mix(in srgb, var(--bs-body-bg) 92%, #fff)',
       '--bs-tertiary-bg': 'color-mix(in srgb, var(--bs-body-bg) 84%, #fff)',
+      '--app-page-bg-color': bg,
+      '--app-page-bg-image': 'none',
     }
 
-    const rgb = toRgbValue(tintedBg)
+    const rgb = toRgbValue(bg)
     if (rgb) vars['--bs-body-bg-rgb'] = rgb
     setVars(vars)
   } else {
