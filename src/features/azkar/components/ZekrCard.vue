@@ -8,7 +8,6 @@ import { toArabicNumerals } from '@/shared/utils/arabic'
 import { useIsMobile } from '@/shared/composables/useIsMobile'
 import { useZekrScroll } from '@/features/azkar/composables/useZekrScroll'
 import { useZekrVibration } from '@/features/azkar/composables/useZekrVibration'
-import { repeatLabel } from '@/features/azkar/lib/repeatLabel'
 
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
 import ZekrImage from './ZekrImage.vue'
@@ -154,7 +153,6 @@ function copyZekr() {
       <button class="btn-counter" type="button" aria-label="تسجيل تكرار الذكر" @click.stop="increment">
         {{ toArabicNumerals(`${count} / ${repeat}`) }}
       </button>
-      <span class="zekr-footer__repeat">{{ repeatLabel(repeat) }}</span>
       <span class="visually-hidden" role="status">{{ toArabicNumerals(count) }} من {{ toArabicNumerals(repeat) }}</span>
 
       <div class="card-actions">
@@ -291,24 +289,27 @@ function copyZekr() {
   padding: 0.25rem 0.75rem;
   border: 0;
   border-radius: 999px;
-  background: var(--bs-primary);
-  color: var(--app-on-primary);
+  /* Soft, like .btn-soft, so the count sits under the zekr's text; the progress line keeps the strong colour. */
+  background: var(--app-tint);
+  color: var(--app-primary-ink);
   font-size: 0.9375rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  transition: background-color 0.15s ease;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: var(--app-tint-strong);
+    }
+  }
 
   &:active {
-    opacity: 0.85;
+    background: color-mix(in srgb, var(--bs-primary) 22%, transparent);
   }
 }
 
-.zekr-footer__repeat {
-  min-width: 0;
-  overflow: hidden;
-  color: var(--bs-secondary-color);
-  font-size: 0.8125rem;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+[data-bs-theme='dark'] .btn-counter {
+  color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
 }
 
 .card-actions {
