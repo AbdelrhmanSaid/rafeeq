@@ -6,6 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 import rtlcss from 'rtlcss'
 
 import { manifestIcons } from './src/app/pwa/manifest-icons.js'
+import { manifestScreenshots } from './src/app/pwa/manifest-screenshots.js'
 
 // These packages are already RTL-safe.
 const rtlcssExcludePatterns = [/vue-sonner/]
@@ -73,26 +74,27 @@ export default defineConfig({
         start_url: '/',
         scope: '/',
         icons: manifestIcons,
+        screenshots: manifestScreenshots,
         shortcuts: [
           {
             name: 'القرآن الكريم',
             url: '/quran',
-            icons: [{ src: 'icons/android/android-launchericon-96-96.png', sizes: '96x96' }],
+            icons: [{ src: 'icons/shortcut-quran.png', sizes: '96x96', type: 'image/png' }],
           },
           {
             name: 'الأذكار',
             url: '/azkar',
-            icons: [{ src: 'icons/android/android-launchericon-96-96.png', sizes: '96x96' }],
+            icons: [{ src: 'icons/shortcut-azkar.png', sizes: '96x96', type: 'image/png' }],
           },
           {
             name: 'الإذاعة',
             url: '/radio',
-            icons: [{ src: 'icons/android/android-launchericon-96-96.png', sizes: '96x96' }],
+            icons: [{ src: 'icons/shortcut-radio.png', sizes: '96x96', type: 'image/png' }],
           },
           {
             name: 'اتجاه القبلة',
             url: '/qibla',
-            icons: [{ src: 'icons/android/android-launchericon-96-96.png', sizes: '96x96' }],
+            icons: [{ src: 'icons/shortcut-qibla.png', sizes: '96x96', type: 'image/png' }],
           },
         ],
       },
