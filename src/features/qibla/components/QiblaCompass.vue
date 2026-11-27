@@ -5,7 +5,7 @@ import { getShortestRotation, getTapeTicks, normalizeAngle } from '@/features/qi
 import QiblaLocationNote from '@/features/qibla/components/QiblaLocationNote.vue'
 
 // Within this many degrees either side, you're facing the qibla.
-const FACING_TOLERANCE = 5
+const FACING_TOLERANCE = 2
 
 // The tape spans ±HALF_RANGE degrees around the centre line, drawn PX_PER_DEGREE apart in a 320-wide box.
 const TAPE_WIDTH = 320
@@ -21,6 +21,15 @@ const props = defineProps({
   heading: { type: Number, default: 0 },
   // A live compass: the tape follows the phone. Without one the tape rests on the qibla bearing.
   live: { type: Boolean, default: false },
+  // Whether the live heading can be relied on. When it can't, the tape still follows the phone but never says
+  // you're facing the qibla.
+  trusted: { type: Boolean, default: true },
+  // How far off the phone says its compass may be, in degrees. Null where it doesn't say.
+  accuracy: { type: Number, default: null },
+  // How far off the bearing may be because the location is rough, in degrees. Null when it's precise enough.
+  uncertainty: { type: Number, default: null },
+  // The sun's bearing from true north while it's up, to check the compass against. Null otherwise.
+  sunAzimuth: { type: Number, default: null },
   // The bearing comes from the location saved for prayer times because a fresh fix failed.
   savedLocation: { type: Boolean, default: false },
   // A fresh location fix is on its way; until it lands the saved location is in use.
@@ -34,14 +43,17 @@ const ticks = computed(() => getTapeTicks(centerDegree.value, HALF_RANGE, 5))
 
 // Positive: the qibla is to the right, so turn clockwise.
 const turn = computed(() => getShortestRotation(centerDegree.value, props.qiblaDirection))
-const isFacing = computed(() => props.live && Math.abs(turn.value) <= FACING_TOLERANCE)
+const aligned = computed(() => props.live && Math.abs(turn.value) <= FACING_TOLERANCE)
+// The bearing itself is in doubt: the location is rough, or it's the saved one and a fresh fix is still on its way.
+const approximate = computed(() => props.uncertainty != null || (props.savedLocation && props.refreshingLocation))
+const isFacing = computed(() => aligned.value && props.trusted && !approximate.value)
 
 // What screen readers hear. Facing is announced once on entry and only cleared a couple of degrees past the edge, so a
 // hand wobbling at ±5° doesn't repeat it. The live degrees and turn hint are left out; they change too often.
 const announcedFacing = ref(false)
 watchEffect(() => {
   const off = Math.abs(turn.value)
-  if (!props.live) announcedFacing.value = false
+  if (!props.live || !props.trusted || approximate.value) announcedFacing.value = false
   else if (off <= FACING_TOLERANCE) announcedFacing.value = true
   else if (off > FACING_TOLERANCE + 2) announcedFacing.value = false
 })
@@ -55,12 +67,24 @@ const kaabaOutOfView = computed(() => Math.abs(turn.value) > EDGE_OFFSET)
 const kaabaX = computed(() => CENTER + turn.value * PX_PER_DEGREE)
 const arrowX = computed(() => CENTER + Math.sign(turn.value) * EDGE_OFFSET * PX_PER_DEGREE)
 
+// The sun rides the tape at its own bearing while that's in view, so aiming the phone at it checks the compass.
+const sunTurn = computed(() =>
+  props.live && props.sunAzimuth != null ? getShortestRotation(centerDegree.value, props.sunAzimuth) : null,
+)
+const sunInView = computed(() => sunTurn.value != null && Math.abs(sunTurn.value) <= HALF_RANGE - 5)
+const sunX = computed(() => CENTER + sunTurn.value * PX_PER_DEGREE)
+const SUN_RAYS = [0, 45, 90, 135, 180, 225, 270, 315]
+
 // Rounded after wrapping, so 359.6° reads 0° rather than 360°.
 const degrees = (value) => `${toArabicNumerals(Math.round(normalizeAngle(value)) % 360)}°`
 
 // The instruction under the tape: which way to turn, and by how much.
 const turnSide = computed(() => (turn.value > 0 ? 'يمينًا' : 'يسارًا'))
 const turnAmount = computed(() => `${toArabicNumerals(Math.round(Math.abs(turn.value)))}°`)
+
+const plusMinus = (value) => `±${toArabicNumerals(Math.max(1, Math.round(value)))}°`
+const showsAccuracy = computed(() => props.live && props.accuracy != null && props.accuracy >= 0)
+const showsSun = computed(() => props.live && props.sunAzimuth != null)
 </script>
 
 <template>
@@ -84,6 +108,12 @@ const turnAmount = computed(() => `${toArabicNumerals(Math.round(Math.abs(turn.v
         </text>
       </g>
 
+      <!-- The sun, where it is in the sky right now. -->
+      <g v-if="sunInView" class="qibla__sun" :transform="`translate(${sunX} 24)`">
+        <circle r="4" />
+        <line v-for="ray in SUN_RAYS" :key="ray" y1="-6.5" y2="-9" :transform="`rotate(${ray})`" />
+      </g>
+
       <!-- The Kaaba: a dark cube with its gold band. Out of view, an arrow at the edge points the way to turn. -->
       <g v-if="!kaabaOutOfView" class="qibla__kaaba" :transform="`translate(${kaabaX} 24)`">
         <rect x="-10" y="-10" width="20" height="20" rx="2.5" class="qibla__kaaba-body" />
@@ -101,6 +131,10 @@ const turnAmount = computed(() => `${toArabicNumerals(Math.round(Math.abs(turn.v
 
     <p class="qibla__hint">
       <template v-if="isFacing">أنت تواجه القبلة</template>
+      <template v-else-if="aligned && savedLocation && refreshingLocation">اتجاه تقريبي، جاري تحديث موقعك…</template>
+      <template v-else-if="aligned && uncertainty != null">
+        اتجاه تقريبي <bdi dir="ltr">{{ plusMinus(uncertainty) }}</bdi>، موقعك غير دقيق
+      </template>
       <template v-else-if="live">
         أدر هاتفك {{ turnSide }} <bdi dir="ltr">{{ turnAmount }}</bdi>
       </template>
@@ -109,10 +143,20 @@ const turnAmount = computed(() => `${toArabicNumerals(Math.round(Math.abs(turn.v
       </template>
     </p>
     <span class="visually-hidden" role="status">{{ announcement }}</span>
+    <p v-if="showsAccuracy || showsSun" class="qibla__note">
+      <template v-if="showsAccuracy">
+        دقة البوصلة <bdi dir="ltr">{{ plusMinus(accuracy) }}</bdi>
+      </template>
+      <template v-if="showsAccuracy && showsSun"> · </template>
+      <template v-if="showsSun">
+        الشمس على <bdi dir="ltr">{{ degrees(sunAzimuth) }}</bdi>
+      </template>
+    </p>
     <QiblaLocationNote
       :distance="distance"
       :saved-location="savedLocation"
       :refreshing-location="refreshingLocation"
+      :imprecise-location="uncertainty != null"
       @refresh-location="$emit('refresh-location')"
     />
   </div>
@@ -196,6 +240,13 @@ const turnAmount = computed(() => `${toArabicNumerals(Math.round(Math.abs(turn.v
   stroke-linejoin: round;
 }
 
+.qibla__sun {
+  fill: #d9a521;
+  stroke: #d9a521;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
 .qibla__kaaba-body {
   fill: #1f1b1a;
   stroke: #d9b26a;
@@ -211,6 +262,12 @@ const turnAmount = computed(() => `${toArabicNumerals(Math.round(Math.abs(turn.v
   font-weight: 600;
   color: var(--qibla-accent);
   transition: color 0.3s ease;
+}
+
+.qibla__note {
+  margin: 0;
+  color: var(--bs-secondary-color);
+  font-size: 0.875rem;
 }
 
 [data-bs-theme='dark'] .qibla:not(.is-facing) {

@@ -1,4 +1,4 @@
-import { Coordinates, Qibla } from 'adhan'
+import geodesic from 'geographiclib-geodesic'
 import geomagnetism from 'geomagnetism'
 
 // Into [0, 360). Anything that isn't a finite number reads as north instead of poisoning later maths.
@@ -26,23 +26,31 @@ export function isFacingQibla(needleAngle, tolerance) {
   return needleAngle <= tolerance || needleAngle >= 360 - tolerance
 }
 
-// Bearing to the Kaaba in degrees clockwise from true north.
-export function getQiblaDirection(latitude, longitude) {
-  return Qibla(new Coordinates(Number(latitude), Number(longitude)))
+const KAABA = { latitude: 21.4225241, longitude: 39.8261818 }
+const RAD = Math.PI / 180
+
+// The shortest path to the Kaaba over the real shape of the earth (the WGS84 ellipsoid, which GPS positions are
+// given on), not a sphere: a sphere puts the bearing up to 0.2° off.
+function toKaaba(latitude, longitude) {
+  return geodesic.Geodesic.WGS84.Inverse(Number(latitude), Number(longitude), KAABA.latitude, KAABA.longitude)
 }
 
-const KAABA = { latitude: 21.4225, longitude: 39.8262 }
-const EARTH_RADIUS_KM = 6371
+// Bearing to the Kaaba in degrees clockwise from true north.
+export function getQiblaDirection(latitude, longitude) {
+  const bearing = toKaaba(latitude, longitude).azi1
+  return Number.isFinite(bearing) ? normalizeAngle(bearing) : Number.NaN
+}
 
-// Great-circle distance from a point to the Kaaba, in kilometres.
+// Distance from a point to the Kaaba, in kilometres.
 export function getDistanceToKaaba(latitude, longitude) {
-  const toRadians = (degrees) => (Number(degrees) * Math.PI) / 180
-  const dLat = toRadians(KAABA.latitude - latitude)
-  const dLon = toRadians(KAABA.longitude - longitude)
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRadians(latitude)) * Math.cos(toRadians(KAABA.latitude)) * Math.sin(dLon / 2) ** 2
-  return 2 * EARTH_RADIUS_KM * Math.asin(Math.sqrt(a))
+  return toKaaba(latitude, longitude).s12 / 1000
+}
+
+// How far off the bearing could be, in degrees, when the location is only known to within `accuracy` metres: the
+// angle that error covers as seen from the Kaaba's distance. Null when either isn't known.
+export function getBearingUncertainty(accuracy, distance) {
+  if (!Number.isFinite(accuracy) || !Number.isFinite(distance) || accuracy < 0) return null
+  return Math.atan2(accuracy / 1000, distance) / RAD
 }
 
 // Ticks for the compass tape: every `step` degrees within `halfRange` of the heading,
@@ -55,8 +63,6 @@ export function getTapeTicks(heading, halfRange, step) {
   }
   return ticks
 }
-
-const RAD = Math.PI / 180
 
 // Compass heading (degrees clockwise from north) of where the phone points, from a deviceorientation(absolute)
 // event's Euler angles. `360 - alpha` is only right while the phone lies flat: tilted up it drifts, and browsers may
@@ -85,17 +91,46 @@ export function isHeldSideways(beta, gamma) {
   return Math.abs(Math.cos(beta * RAD) * Math.sin(gamma * RAD)) > 0.75
 }
 
+// How far the phone is tipped from lying flat with its screen up, in degrees: 0 flat, 90 on any edge.
+export function tiltFromFlat(beta, gamma) {
+  const cosine = Math.cos(beta * RAD) * Math.cos(gamma * RAD)
+  return Math.acos(Math.min(1, Math.max(-1, cosine))) / RAD
+}
+
+// Watches the gap between the compass heading and the heading the gyroscope alone gives. The gyroscope can't feel
+// magnets, so while the compass is right that gap holds still; a magnet, metal nearby or a compass that needs
+// calibrating makes it wander. `add` takes the gap now and returns how far it has wandered over the last `windowMs`.
+export function createDriftMonitor({ windowMs = 10000, everyMs = 200 } = {}) {
+  let samples = []
+  let spread = 0
+
+  return {
+    add(offset, time) {
+      if (samples.length && time - samples[samples.length - 1].time < everyMs) return spread
+      samples.push({ offset, time })
+      samples = samples.filter((sample) => time - sample.time <= windowMs)
+      spread = Math.max(...samples.map((sample) => Math.abs(getShortestRotation(sample.offset, offset))))
+      return spread
+    },
+    reset() {
+      samples = []
+      spread = 0
+    },
+  }
+}
+
 // Phone compasses measure from magnetic north; the qibla bearing is from true north. The gap (magnetic declination)
 // depends on place and year: about +5° in Cairo, -12° in New York. Add it to turn a magnetic heading into a true one.
 // The bundled World Magnetic Model 2025 runs to late 2029; past that it extrapolates (still within a degree or so for
-// a few years) rather than failing, and anything unexpected falls back to no correction.
+// a few years) rather than failing. Null when it can't be worked out: with no correction the compass could be tens of
+// degrees off, so the screen must not show a heading then.
 export function getDeclination(latitude, longitude, date = new Date()) {
   try {
     const declination = geomagnetism
       .model(date, { allowOutOfBoundsModel: true })
       .point([Number(latitude), Number(longitude)]).decl
-    return Number.isFinite(declination) ? declination : 0
+    return Number.isFinite(declination) ? declination : null
   } catch {
-    return 0
+    return null
   }
 }

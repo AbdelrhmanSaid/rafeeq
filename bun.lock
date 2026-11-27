@@ -14,6 +14,7 @@
         "@vueuse/router": "^15.0.0",
         "adhan": "^4.4.6",
         "bootstrap": "^5.3.8",
+        "geographiclib-geodesic": "2.2.0",
         "geomagnetism": "0.2.0",
         "html2canvas-pro": "^2.6.4",
         "idb-keyval": "^6.3.0",
@@ -706,6 +707,8 @@
     "functions-have-names": ["functions-have-names@1.2.3", "", {}, "sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ=="],
 
     "gensync": ["gensync@1.0.0-beta.2", "", {}, "sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg=="],
+
+    "geographiclib-geodesic": ["geographiclib-geodesic@2.2.0", "", {}, "sha512-cIedo9VTYb0DFufodgibDmVfsWe9EASqb/kUByl09xc6PZYvLvlc89BHCThtGTPf2OII/zWJGxsR3Uz6O7QOVw=="],
 
     "geomagnetism": ["geomagnetism@0.2.0", "", {}, "sha512-dO8HJrXqah244nMe+pU5m52L90SMoi4lDA0AV3xunRxogloYV+s3aYWCW72VMMfiYis+YSAlhoKktw8aLMiJbw=="],
 

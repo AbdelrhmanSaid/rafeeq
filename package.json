@@ -23,6 +23,7 @@
     "@vueuse/router": "^15.0.0",
     "adhan": "^4.4.6",
     "bootstrap": "^5.3.8",
+    "geographiclib-geodesic": "2.2.0",
     "geomagnetism": "0.2.0",
     "html2canvas-pro": "^2.6.4",
     "idb-keyval": "^6.3.0",

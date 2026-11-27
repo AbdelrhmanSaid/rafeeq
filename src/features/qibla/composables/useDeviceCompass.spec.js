@@ -100,6 +100,161 @@ describe('useDeviceCompass', () => {
     expect(compass.accuracy.value).toBe(-1)
   })
 
+  it('keeps the last heading when an iPhone is stood up, where its heading flips', async () => {
+    asIos()
+    const compass = mountCompass()
+    await compass.requestPermission()
+    fire('deviceorientation', { webkitCompassHeading: 131, webkitCompassAccuracy: 10, alpha: 0, beta: 30, gamma: 0 })
+    fire('deviceorientation', { webkitCompassHeading: 311, webkitCompassAccuracy: 10, alpha: 0, beta: 85, gamma: 0 })
+
+    expect(compass.upright.value).toBe(true)
+    expect(compass.heading.value).toBeCloseTo(131)
+    expect(compass.hasReading.value).toBe(true)
+  })
+
+  it('flags an iPhone stood up from the start, before any heading counts', async () => {
+    asIos()
+    const compass = mountCompass()
+    await compass.requestPermission()
+    fire('deviceorientation', { webkitCompassHeading: 311, webkitCompassAccuracy: 10, alpha: 0, beta: 85, gamma: 0 })
+
+    expect(compass.upright.value).toBe(true)
+    expect(compass.hasReading.value).toBe(false)
+  })
+
+  it('settles on the last reading even when no more arrive', () => {
+    vi.useFakeTimers()
+    asAndroid()
+    const compass = mountCompass()
+    fire('deviceorientationabsolute', { alpha: 0, beta: 0, gamma: 0, absolute: true })
+    fire('deviceorientationabsolute', { alpha: 270, beta: 0, gamma: 0, absolute: true })
+    expect(compass.heading.value).toBeCloseTo(0)
+
+    vi.advanceTimersByTime(900)
+
+    expect(compass.heading.value).toBeCloseTo(90)
+    vi.useRealTimers()
+  })
+
+  it('keeps the heading live while a still phone sends nothing but motion at rest', () => {
+    vi.useFakeTimers()
+    asAndroid()
+    const compass = mountCompass()
+    fire('deviceorientationabsolute', { alpha: 90, beta: 0, gamma: 0, absolute: true })
+
+    for (let i = 0; i < 6; i++) {
+      vi.advanceTimersByTime(500)
+      fire('devicemotion', { rotationRate: { alpha: 0.2, beta: 0.1, gamma: 0 } })
+    }
+
+    expect(compass.hasReading.value).toBe(true)
+    vi.useRealTimers()
+  })
+
+  it('lets the heading go stale when the phone turns but no reading follows', () => {
+    vi.useFakeTimers()
+    asAndroid()
+    const compass = mountCompass()
+    fire('deviceorientationabsolute', { alpha: 90, beta: 0, gamma: 0, absolute: true })
+
+    for (let i = 0; i < 6; i++) {
+      vi.advanceTimersByTime(500)
+      fire('devicemotion', { rotationRate: { alpha: 0, beta: 0, gamma: 60 } })
+    }
+
+    expect(compass.hasReading.value).toBe(false)
+    vi.useRealTimers()
+  })
+
+  it('flags a compass that moves while the gyroscope says the phone is still', () => {
+    vi.useFakeTimers()
+    asAndroid()
+    const compass = mountCompass()
+    const read = (compassAlpha, gyroAlpha) => {
+      fire('deviceorientation', { alpha: gyroAlpha, beta: 0, gamma: 0, absolute: false })
+      fire('deviceorientationabsolute', { alpha: compassAlpha, beta: 0, gamma: 0, absolute: true })
+    }
+
+    read(0, 200)
+    vi.advanceTimersByTime(1100)
+    read(0, 200)
+    expect(compass.disturbed.value).toBe(false)
+
+    vi.advanceTimersByTime(300)
+    read(330, 200)
+
+    expect(compass.disturbed.value).toBe(true)
+    vi.useRealTimers()
+  })
+
+  it('does not flag a compass that only trails the gyroscope through a slow turn', () => {
+    vi.useFakeTimers()
+    asAndroid()
+    const compass = mountCompass()
+    const read = (compassAlpha, gyroAlpha) => {
+      fire('deviceorientation', { alpha: gyroAlpha, beta: 0, gamma: 0, absolute: false })
+      fire('deviceorientationabsolute', { alpha: compassAlpha, beta: 0, gamma: 0, absolute: true })
+    }
+    const step = (compassAlpha, gyroAlpha) => {
+      read(compassAlpha, gyroAlpha)
+      vi.advanceTimersByTime(20)
+    }
+
+    for (let i = 0; i < 60; i++) step(0, 0)
+    // A 90° turn at 45° a second, the compass 25° behind, then a second for it to catch up.
+    for (let turn = 0; turn <= 90; turn += 0.9) step(Math.max(0, turn - 25), turn)
+    for (let i = 0; i < 50; i++) step(Math.min(90, 65 + i * 0.5), 90)
+    for (let i = 0; i < 150; i++) step(90, 90)
+
+    expect(compass.disturbed.value).toBe(false)
+    expect(compass.drifted.value).toBeLessThan(1)
+    vi.useRealTimers()
+  })
+
+  it('stops flagging interference once there has been nothing new to compare for a while', () => {
+    vi.useFakeTimers()
+    asAndroid()
+    const compass = mountCompass()
+    const read = (compassAlpha) => {
+      fire('deviceorientation', { alpha: 200, beta: 0, gamma: 0, absolute: false })
+      fire('deviceorientationabsolute', { alpha: compassAlpha, beta: 0, gamma: 0, absolute: true })
+    }
+
+    read(0)
+    vi.advanceTimersByTime(1100)
+    read(0)
+    vi.advanceTimersByTime(300)
+    read(330)
+    expect(compass.disturbed.value).toBe(true)
+
+    for (let i = 0; i < 14; i++) {
+      vi.advanceTimersByTime(500)
+      fire('devicemotion', { rotationRate: { alpha: 0, beta: 0, gamma: 0 } })
+    }
+
+    expect(compass.disturbed.value).toBe(false)
+    vi.useRealTimers()
+  })
+
+  it('does not flag a compass that turns together with the gyroscope', () => {
+    vi.useFakeTimers()
+    asAndroid()
+    const compass = mountCompass()
+    const read = (turn) => {
+      fire('deviceorientation', { alpha: 200 + turn, beta: 0, gamma: 0, absolute: false })
+      fire('deviceorientationabsolute', { alpha: turn, beta: 0, gamma: 0, absolute: true })
+    }
+
+    for (const turn of [0, 0, 0, 0, 0, 40, 40, 40, 40, 40, 40, 120, 120, 120, 120, 120, 120]) {
+      read(turn)
+      vi.advanceTimersByTime(300)
+    }
+
+    expect(compass.disturbed.value).toBe(false)
+    expect(compass.drifted.value).toBeCloseTo(0)
+    vi.useRealTimers()
+  })
+
   it('flags a phone held on its side', () => {
     asAndroid()
     const compass = mountCompass()

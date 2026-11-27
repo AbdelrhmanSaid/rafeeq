@@ -11,6 +11,9 @@ import {
   headingFromOrientation,
   getDeclination,
   isHeldSideways,
+  getBearingUncertainty,
+  tiltFromFlat,
+  createDriftMonitor,
 } from './qibla'
 
 describe('normalizeAngle', () => {
@@ -60,19 +63,111 @@ describe('isFacingQibla', () => {
 })
 
 describe('getQiblaDirection', () => {
-  it('returns the bearing to the Kaaba', () => {
-    expect(getQiblaDirection(30.0444, 31.2357)).toBeCloseTo(136.1, 1)
-    expect(getQiblaDirection(40.7128, -74.006)).toBeCloseTo(58.5, 1)
+  // Reference bearings on the WGS84 ellipsoid, worked out separately with Vincenty's inverse formula.
+  it.each([
+    ['Cairo', 30.0444, 31.2357, 135.982],
+    ['Riyadh', 24.7136, 46.6753, 243.932],
+    ['Istanbul', 41.0082, 28.9784, 151.514],
+    ['London', 51.5074, -0.1278, 118.868],
+    ['New York', 40.7128, -74.006, 58.396],
+    ['Jakarta', -6.2088, 106.8456, 295.025],
+    ['Sydney', -33.8688, 151.2093, 277.319],
+    ['Tokyo', 35.6762, 139.6503, 293.072],
+    ['Cape Town', -33.9249, 18.4241, 23.467],
+    ['Los Angeles', 34.0522, -118.2437, 23.769],
+    ['Reykjavik', 64.1466, -21.9426, 106.027],
+    ['São Paulo', -23.5505, -46.6333, 69.094],
+  ])('gives the bearing to the Kaaba from %s', (_city, latitude, longitude, bearing) => {
+    expect(getQiblaDirection(latitude, longitude)).toBeCloseTo(bearing, 2)
+  })
+
+  it("points due north or south along the Kaaba's own meridian", () => {
+    expect(getQiblaDirection(0, 39.8261818)).toBeCloseTo(0, 6)
+    expect(getQiblaDirection(50, 39.8261818)).toBeCloseTo(180, 6)
+  })
+
+  it('accepts coordinates saved as text', () => {
+    expect(getQiblaDirection('30.0444', '31.2357')).toBeCloseTo(135.982, 2)
+  })
+
+  it('is not a number for a location that is not one', () => {
+    expect(Number.isFinite(getQiblaDirection(Number.NaN, 31))).toBe(false)
   })
 })
 
 describe('getDistanceToKaaba', () => {
-  it('is about 1,290 km from Cairo', () => {
-    expect(getDistanceToKaaba(30.0444, 31.2357)).toBeCloseTo(1290, -1)
+  it('is 1,286 km from Cairo', () => {
+    expect(getDistanceToKaaba(30.0444, 31.2357)).toBeCloseTo(1285.6, 0)
   })
 
   it('is zero at the Kaaba', () => {
-    expect(getDistanceToKaaba(21.4225, 39.8262)).toBeCloseTo(0)
+    expect(getDistanceToKaaba(21.4225241, 39.8261818)).toBeCloseTo(0)
+  })
+})
+
+describe('getBearingUncertainty', () => {
+  it('is small far from Makkah and large close to it for the same location error', () => {
+    expect(getBearingUncertainty(20000, 1285)).toBeCloseTo(0.89, 1)
+    expect(getBearingUncertainty(20000, 65)).toBeCloseTo(17.1, 0)
+    expect(getBearingUncertainty(10, 1285)).toBeLessThan(0.001)
+  })
+
+  it('is unknown when the accuracy or the distance is', () => {
+    expect(getBearingUncertainty(null, 1285)).toBe(null)
+    expect(getBearingUncertainty(50, null)).toBe(null)
+  })
+})
+
+describe('tiltFromFlat', () => {
+  it('is how far the phone is tipped from lying flat, whichever way', () => {
+    expect(tiltFromFlat(0, 0)).toBeCloseTo(0)
+    expect(tiltFromFlat(45, 0)).toBeCloseTo(45)
+    expect(tiltFromFlat(-45, 0)).toBeCloseTo(45)
+    expect(tiltFromFlat(0, 30)).toBeCloseTo(30)
+    expect(tiltFromFlat(90, 0)).toBeCloseTo(90)
+    expect(tiltFromFlat(120, 0)).toBeCloseTo(120)
+  })
+})
+
+describe('createDriftMonitor', () => {
+  it('reports no drift while the gap holds still', () => {
+    const drift = createDriftMonitor()
+
+    expect(drift.add(40, 0)).toBe(0)
+    expect(drift.add(41, 1000)).toBeCloseTo(1)
+    expect(drift.add(40, 2000)).toBeCloseTo(1)
+  })
+
+  it('reports how far the gap has wandered, across the 0/360 seam too', () => {
+    const drift = createDriftMonitor()
+    drift.add(350, 0)
+
+    expect(drift.add(15, 1000)).toBeCloseTo(25)
+  })
+
+  it('forgets what happened before its window', () => {
+    const drift = createDriftMonitor({ windowMs: 10000 })
+    drift.add(0, 0)
+    drift.add(30, 1000)
+
+    expect(drift.add(30, 10500)).toBeCloseTo(0)
+    expect(drift.add(30, 12000)).toBeCloseTo(0)
+  })
+
+  it('takes one sample at a time, not every reading', () => {
+    const drift = createDriftMonitor({ everyMs: 200 })
+    drift.add(0, 0)
+
+    expect(drift.add(90, 50)).toBe(0)
+  })
+
+  it('starts over after a reset', () => {
+    const drift = createDriftMonitor()
+    drift.add(0, 0)
+    drift.add(30, 1000)
+    drift.reset()
+
+    expect(drift.add(60, 2000)).toBe(0)
   })
 })
 
@@ -142,5 +237,9 @@ describe('getDeclination', () => {
     expect(getDeclination(30.0444, 31.2357, date)).toBeCloseTo(4.8, 0)
     expect(getDeclination(40.7128, -74.006, date)).toBeCloseTo(-12.5, 0)
     expect(getDeclination(24.7136, 46.6753, date)).toBeCloseTo(3.1, 0)
+  })
+
+  it('is unknown, not zero, when it cannot be worked out', () => {
+    expect(getDeclination(Number.NaN, 31)).toBe(null)
   })
 })
