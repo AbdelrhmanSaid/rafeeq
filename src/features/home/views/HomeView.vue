@@ -8,9 +8,7 @@ import PrayerTimes from '@/features/prayers/components/PrayerTimes.vue'
 import RandomAyah from '@/features/quran/components/RandomAyah.vue'
 import SunnahPrayers from '@/features/prayers/components/SunnahPrayers.vue'
 import QuickAzkar from '@/features/azkar/components/QuickAzkar.vue'
-import { usePrayersStore } from '@/features/prayers/store'
 
-const prayersStore = usePrayersStore()
 const now = useNow({ interval: 60_000 })
 
 // Morning from 4 AM until noon, evening for the rest of the day.
@@ -41,7 +39,7 @@ const today = computed(() =>
     </header>
 
     <HomeSection>
-      <PrayerTimes :vertical="prayersStore.vertical" :compact="prayersStore.compact" :show-weekday="false" />
+      <PrayerTimes :show-weekday="false" />
     </HomeSection>
 
     <HomeSection>

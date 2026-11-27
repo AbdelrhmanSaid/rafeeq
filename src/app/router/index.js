@@ -203,6 +203,10 @@ const router = createRouter({
       path: '/embed/components/:component',
       name: 'embed-component',
       component: () => import('@/features/embed/views/EmbedComponentView.vue'),
+      meta: {
+        // The embed's own ?title=, or the app's default title when it has none.
+        title: (to) => (typeof to.query.title === 'string' ? to.query.title.trim() : undefined),
+      },
     },
 
     {

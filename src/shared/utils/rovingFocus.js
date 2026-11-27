@@ -1,4 +1,4 @@
-// A radio list (the reciters) is one Tab stop, and the keys move between its options: the arrows along it, wrapping
+// A radio list (an options sheet) is one Tab stop, and the keys move between its options: the arrows along it, wrapping
 // round (left is onward on a right-to-left page), and Home and End to its ends. Null for any other key.
 export function rovingTarget(key, index, count) {
   if (!count) return null

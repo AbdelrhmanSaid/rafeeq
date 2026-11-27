@@ -33,14 +33,8 @@ describe('PrayerTimes', () => {
     const wrapper = mount(PrayerTimes, { props: { lat: 30.0444, long: 31.2357 } })
 
     expect(fetch).not.toHaveBeenCalled()
-    expect(wrapper.findAll('.prayer-card, .prayer-row')).toHaveLength(6)
-  })
-
-  it('folds the six times into the next-prayer card when compact', () => {
-    const wrapper = mount(PrayerTimes, { props: { lat: 30.0444, long: 31.2357, compact: true } })
-
+    // The six times sit in the strip inside the next-prayer card.
     expect(wrapper.findAll('.prayer-strip__item')).toHaveLength(6)
-    expect(wrapper.findAll('.prayer-card, .prayer-row')).toHaveLength(0)
   })
 
   it('asks for a location again when the saved coordinates are corrupt', () => {
