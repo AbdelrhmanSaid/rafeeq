@@ -18,6 +18,7 @@ const BG_COLOR_VARS = [
   '--bs-tertiary-bg',
   '--app-page-bg-color',
   '--app-page-bg-image',
+  '--app-page-top-color',
 ]
 
 // The rem-based UI scales from the root font size; 100 is the browser default.
@@ -149,10 +150,12 @@ export function syncMetaThemeColor() {
 
   ensureMeta('msapplication-TileColor').setAttribute('content', bg)
 
-  // The status bar and browser UI take this colour; match the page so they blend in both themes.
+  // The status bar and browser UI take this colour. It's the page's top edge, glow included, rather than the flat
+  // background, so the bar blends into the header in both themes.
   // index.html ships light and dark first-paint tags keyed to the system theme; once the app knows its own theme,
   // every tag carries that colour and drops its media query, so a manual theme wins over the system one.
-  const rgb = toRgbValue(bg)
+  const top = normalizeColor(styles.getPropertyValue('--app-page-top-color'))
+  const rgb = (top && toRgbValue(top)) || toRgbValue(bg)
   if (rgb) {
     ensureMeta('theme-color')
     for (const meta of document.querySelectorAll('meta[name="theme-color"]')) {
@@ -178,6 +181,7 @@ export function applyBgColor(color) {
       '--bs-tertiary-bg': 'color-mix(in srgb, var(--bs-body-bg) 84%, #fff)',
       '--app-page-bg-color': bg,
       '--app-page-bg-image': 'none',
+      '--app-page-top-color': bg,
     }
 
     const rgb = toRgbValue(bg)
