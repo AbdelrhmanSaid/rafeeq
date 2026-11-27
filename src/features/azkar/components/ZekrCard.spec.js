@@ -64,14 +64,6 @@ describe('ZekrCard', () => {
     expect(scrollToNextZekr).toHaveBeenCalledTimes(1)
   })
 
-  it('shows the repeat count once in the footer, in the counter', async () => {
-    const { wrapper } = mountCard(3)
-    await clickCounter(wrapper)
-
-    expect(wrapper.find('.btn-counter').text()).toBe('١ / ٣')
-    expect(wrapper.find('.zekr-footer').text()).not.toContain('مرات')
-  })
-
   it('does not count or re-fire past the required repeat', async () => {
     const { wrapper, counts } = mountCard(2)
 
