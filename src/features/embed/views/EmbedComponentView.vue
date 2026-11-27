@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import Heading from '@/shared/ui/Heading.vue'
 import Page from '@/layout/Page.vue'
 import ErrorState from '@/shared/ui/ErrorState.vue'
 import { IconAlertTriangle } from '@tabler/icons-vue'
@@ -9,7 +10,7 @@ import SunnahPrayers from '@/features/prayers/components/SunnahPrayers.vue'
 import Sebha from '@/features/sebha/components/Sebha.vue'
 import RandomAyah from '@/features/quran/components/RandomAyah.vue'
 
-// Each embed looks as it does in the app; the query only picks a location and adds a title.
+// Each embed looks as it does in the app; the query only picks a location and adds a heading above it.
 const components = {
   'prayer-times': {
     component: PrayerTimes,
@@ -37,7 +38,9 @@ function toNumber(value) {
 const route = useRoute()
 const entry = computed(() => components[route.params.component])
 
-const title = computed(() => (typeof route.query.title === 'string' ? route.query.title.trim() : ''))
+const queryText = (key) => (typeof route.query[key] === 'string' ? route.query[key].trim() : '')
+const title = computed(() => queryText('title'))
+const subtitle = computed(() => queryText('subtitle'))
 const componentProps = computed(() => ({
   ...entry.value?.props?.(route.query),
   ...(entry.value?.ownsTitle && title.value ? { title: title.value } : {}),
@@ -47,8 +50,14 @@ const componentProps = computed(() => ({
 <template>
   <Page>
     <section v-if="entry">
-      <!-- The app's muted section title, as on Home. -->
-      <h2 v-if="title && !entry.ownsTitle" class="list-title">{{ title }}</h2>
+      <!-- Embeds only: a heading the host page sets, which the app's own sections don't have. -->
+      <Heading
+        v-if="title && !entry.ownsTitle"
+        :size="2"
+        class="mb-4"
+        :title="title"
+        :subtitle="subtitle || undefined"
+      />
       <component :is="entry.component" v-bind="componentProps" />
     </section>
 
