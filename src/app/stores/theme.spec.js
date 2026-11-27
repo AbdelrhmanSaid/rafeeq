@@ -39,4 +39,29 @@ describe('theme store', () => {
 
     expect(css.applyPrimaryColor).toHaveBeenLastCalledWith(null)
   })
+
+  it('applies a page override over the saved theme and drops it when cleared', async () => {
+    const theme = useThemeStore()
+
+    theme.setPageOverrides({ mode: 'dark', bg: '#000000' })
+    await nextTick()
+    expect(css.applyMode).toHaveBeenLastCalledWith('dark')
+    expect(css.applyBgColor).toHaveBeenLastCalledWith('#000000')
+
+    theme.clearPageOverrides()
+    await nextTick()
+    expect(css.applyMode).toHaveBeenLastCalledWith('light')
+    expect(css.applyBgColor).toHaveBeenLastCalledWith(null)
+  })
+
+  it("lets an embed's query win over a page override", async () => {
+    const theme = useThemeStore()
+
+    theme.setPageOverrides({ mode: 'dark', bg: '#000000' })
+    theme.applyQueryOverrides({ bg: '#ffffff' })
+    await nextTick()
+
+    expect(css.applyMode).toHaveBeenLastCalledWith('dark')
+    expect(css.applyBgColor).toHaveBeenLastCalledWith('#ffffff')
+  })
 })

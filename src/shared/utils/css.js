@@ -186,7 +186,7 @@ export function applyBgColor(color) {
   const bg = normalizeColor(color)
 
   if (bg) {
-    // Only embeds set a background, to sit on the host page, so it's used exactly: no brand tint, no glow.
+    // An embed's host page or the Quran reader's chosen paper, so it's used exactly: no brand tint, no glow.
     const vars = {
       '--app-body-bg-base': bg,
       '--bs-body-bg': bg,

@@ -13,6 +13,7 @@ import { useQuranStore } from '@/features/quran/store'
 import surahs from '@/features/quran/data/surahs.js'
 import { useQuranBookmarks } from '@/features/quran/composables/useQuranBookmarks'
 import { useMushafRecitation } from '@/features/quran/composables/useMushafRecitation'
+import { useReaderBackground } from '@/features/quran/composables/useReaderBackground'
 import { keepPagesNear, loadPage } from '@/features/quran/lib/mushafStorage'
 import {
   PAGE_COUNT,
@@ -40,6 +41,7 @@ const recitation = useMushafRecitation()
 const { toggle: toggleChrome } = useImmersiveChrome()
 
 useScreenWakeLock()
+useReaderBackground()
 
 const routePage = computed(() => clampPage(route.params.page))
 const current = ref(routePage.value)

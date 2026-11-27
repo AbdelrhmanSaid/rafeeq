@@ -19,6 +19,8 @@ export const useThemeStore = defineStore('theme', () => {
   const prefersDark = usePreferredDark()
 
   const queryOverrides = ref(null)
+  // A screen's own look, like the Quran reader's background; it goes when the screen does.
+  const pageOverrides = ref(null)
 
   const resolvedMode = computed(() => {
     if (mode.value === 'system') return prefersDark.value ? 'dark' : 'light'
@@ -57,11 +59,28 @@ export const useThemeStore = defineStore('theme', () => {
     queryOverrides.value = null
   }
 
+  function setPageOverrides({ mode: pageMode, bg } = {}) {
+    const overrides = {}
+    if (pageMode === 'light' || pageMode === 'dark') overrides.mode = pageMode
+    if (bg) overrides.bg = bg
+
+    pageOverrides.value = Object.keys(overrides).length ? overrides : null
+  }
+
+  function clearPageOverrides() {
+    pageOverrides.value = null
+  }
+
   watchEffect(() => {
     const theme = {
       mode: resolvedMode.value,
       fg: primaryColor.value || null,
       bg: null,
+    }
+
+    // An embed's query comes last: the host page's look wins over the reader's own.
+    if (pageOverrides.value) {
+      Object.assign(theme, pageOverrides.value)
     }
 
     if (queryOverrides.value) {
@@ -91,5 +110,7 @@ export const useThemeStore = defineStore('theme', () => {
     resetFontScale,
     applyQueryOverrides,
     clearQueryOverrides,
+    setPageOverrides,
+    clearPageOverrides,
   }
 })
