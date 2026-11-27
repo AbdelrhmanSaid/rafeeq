@@ -34,15 +34,22 @@ const copy = () => {
   })
 }
 
-const share = () => {
+// The system share sheet says for itself whether it worked; closing it without sharing isn't an error.
+const share = async () => {
   const text = shareText.value
   emit('close')
-  const canShare = !!navigator.share
-  toast.promise(() => (canShare ? navigator.share({ title: 'رفيق', text }) : navigator.clipboard.writeText(text)), {
-    loading: 'جاري المشاركة...',
-    success: canShare ? 'تم مشاركة الآية بنجاح' : 'تعذرت المشاركة، تم نسخ الآية بدلاً من ذلك',
-    error: 'حدث خطأ أثناء مشاركة الآية',
-  })
+  if (!navigator.share) {
+    toast.promise(() => navigator.clipboard.writeText(text), {
+      success: 'تم نسخ الآية للمشاركة',
+      error: 'حدث خطأ أثناء مشاركة الآية',
+    })
+    return
+  }
+  try {
+    await navigator.share({ title: 'رفيق', text })
+  } catch (error) {
+    if (error?.name !== 'AbortError') toast.error('حدث خطأ أثناء مشاركة الآية')
+  }
 }
 </script>
 

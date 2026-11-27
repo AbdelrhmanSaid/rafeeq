@@ -39,6 +39,8 @@ const tafsir = computed(() => data.value?.data?.[0])
 watch([() => props.ayah, edition], ([ayah]) => {
   if (!ayah) return
   displayAyah.value = ayah
+  // Offline, the request below doesn't run; the last ayah's tafsir mustn't show under this one.
+  data.value = null
   url.value = `${API.quranCloud}/ayah/${ayah.number}/editions/${edition.value}`
   if (online.value) execute()
 })

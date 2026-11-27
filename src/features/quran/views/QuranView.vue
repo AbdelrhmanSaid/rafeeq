@@ -7,7 +7,15 @@ import SearchableFavoritesList from '@/shared/ui/SearchableFavoritesList.vue'
 import surahs from '@/features/quran/data/surahs.js'
 import { useQuranStore } from '@/features/quran/store'
 import { useQuranBookmarks } from '@/features/quran/composables/useQuranBookmarks'
-import { isPage, pageOfAyah, parseVerseKey, surahName, surahOfPage, surahStartPage } from '@/features/quran/lib/mushaf'
+import {
+  formatAyahCount,
+  isPage,
+  pageOfAyah,
+  parseVerseKey,
+  surahName,
+  surahOfPage,
+  surahStartPage,
+} from '@/features/quran/lib/mushaf'
 import { toArabicNumerals, normalizeQuranicText } from '@/shared/utils/arabic'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 
@@ -30,12 +38,6 @@ const bookmarkRows = computed(() =>
     }
   }),
 )
-
-// Arabic counts ending in 3–10 (7, 103, 110) take the plural آيات; the rest (11, 99, 200) take the singular آية.
-const formatAyahCount = (count) => {
-  const lastTwo = count % 100
-  return `${toArabicNumerals(count)} ${lastTwo >= 3 && lastTwo <= 10 ? 'آيات' : 'آية'}`
-}
 </script>
 
 <template>

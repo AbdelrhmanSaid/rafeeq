@@ -16,13 +16,9 @@
 @import 'bootstrap/scss/buttons';
 @import 'bootstrap/scss/transitions';
 @import 'bootstrap/scss/dropdown';
-@import 'bootstrap/scss/nav';
 @import 'bootstrap/scss/card';
 @import 'bootstrap/scss/badge';
-@import 'bootstrap/scss/progress';
 @import 'bootstrap/scss/list-group';
-@import 'bootstrap/scss/close';
-@import 'bootstrap/scss/spinners';
 
 @import 'bootstrap/scss/helpers/color-bg';
 @import 'bootstrap/scss/helpers/position';
@@ -56,7 +52,6 @@
   --app-glass: color-mix(in srgb, var(--bs-body-bg) 78%, transparent);
   --app-shadow-card: 0 1px 2px rgba(18, 18, 18, 0.04), 0 6px 20px -8px rgba(18, 18, 18, 0.08);
   --app-shadow-card-hover: 0 2px 4px rgba(18, 18, 18, 0.05), 0 16px 32px -12px rgba(18, 18, 18, 0.16);
-  --app-shadow-bar: 0 -8px 24px -12px rgba(18, 18, 18, 0.12);
   --app-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --app-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   /* The curve iOS sheets rise and settle on. */
@@ -81,7 +76,6 @@
   --app-glass: color-mix(in srgb, var(--bs-body-bg) 72%, transparent);
   --app-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.25), 0 8px 24px -10px rgba(0, 0, 0, 0.45);
   --app-shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.3), 0 18px 36px -14px rgba(0, 0, 0, 0.6);
-  --app-shadow-bar: 0 -8px 24px -12px rgba(0, 0, 0, 0.5);
 }
 
 /* Keep glass surfaces opaque when backdrop filtering is unavailable. */
@@ -179,43 +173,6 @@ body {
   backdrop-filter: blur(18px) saturate(1.4);
 }
 
-.card-interactive {
-  transition:
-    transform 0.25s var(--app-ease),
-    box-shadow 0.25s var(--app-ease),
-    border-color 0.2s ease,
-    background-color 0.2s ease;
-
-  @media (hover: hover) and (pointer: fine) {
-    &:hover {
-      transform: translateY(-2px);
-      border-color: var(--app-hairline-strong);
-      background-color: var(--app-surface-hover);
-      box-shadow: var(--app-shadow-card-hover);
-    }
-  }
-
-  /* Touch gets feedback the moment the finger lands. */
-  &:active {
-    transform: scale(0.985);
-    background-color: var(--app-surface-active);
-    transition-duration: 0.1s;
-  }
-
-  /* Only keyboard focus rings the card; a tapped link keeps focus on Android and would leave it lit. */
-  &:has(:focus-visible) {
-    border-color: var(--app-hairline-strong);
-    background-color: var(--app-surface-hover);
-    box-shadow:
-      var(--app-shadow-card-hover),
-      0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
-  }
-
-  .stretched-link:focus {
-    outline: none;
-  }
-}
-
 .list-group {
   --bs-list-group-bg: var(--app-surface);
   --bs-list-group-border-color: var(--app-hairline);
@@ -249,11 +206,6 @@ body {
   }
 }
 
-.form-floating > .form-control:not(:placeholder-shown) ~ label::after,
-.form-floating > .form-control:focus ~ label::after {
-  background-color: transparent;
-}
-
 .chip {
   display: inline-flex;
   align-items: center;
@@ -278,28 +230,6 @@ body {
   color: var(--bs-secondary-color);
 }
 
-.btn-soft {
-  --bs-btn-color: var(--bs-primary);
-  --bs-btn-bg: var(--app-tint);
-  --bs-btn-border-color: transparent;
-  --bs-btn-hover-color: var(--bs-primary);
-  --bs-btn-hover-bg: var(--app-tint-strong);
-  --bs-btn-hover-border-color: transparent;
-  --bs-btn-active-color: #fff;
-  --bs-btn-active-bg: var(--bs-primary);
-  --bs-btn-active-border-color: var(--bs-primary);
-  --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
-}
-
-[data-bs-theme='dark'] .btn-soft {
-  --bs-btn-color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
-  --bs-btn-hover-color: #fff;
-}
-
-.spinner-border {
-  color: var(--bs-primary);
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -318,10 +248,6 @@ body {
 
 .min-w-0 {
   min-width: 0;
-}
-
-.cursor-pointer {
-  cursor: pointer;
 }
 
 .tabler-icon {
@@ -470,6 +396,39 @@ body {
 
 .tab-pill svg {
   flex-shrink: 0;
+}
+
+/* A short filled bar, like a native search field, instead of a tall floating-label input. */
+.search-field {
+  position: relative;
+}
+
+.search-field__input {
+  height: 2.5rem;
+  padding-block: 0;
+  padding-inline: 2.5rem 0.875rem;
+  border-color: var(--app-hairline);
+  border-radius: var(--bs-border-radius);
+  background-color: color-mix(in srgb, var(--bs-body-color) 6%, transparent);
+
+  &::placeholder {
+    color: var(--bs-secondary-color);
+  }
+
+  &:focus {
+    border-color: var(--app-hairline);
+    background-color: color-mix(in srgb, var(--bs-body-color) 6%, transparent);
+  }
+}
+
+.search-field__icon {
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 0.875rem;
+  z-index: 1;
+  transform: translateY(-50%);
+  color: var(--bs-secondary-color);
+  pointer-events: none;
 }
 
 /* Rows in a bottom sheet: inset, rounded, and tall enough for a thumb. */

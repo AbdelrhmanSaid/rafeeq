@@ -1,8 +1,16 @@
 <script setup>
 import { computed, nextTick, ref, useTemplateRef } from 'vue'
-import { IconCheck, IconChevronDown, IconLoader2, IconPlayerPauseFilled, IconPlayerPlayFilled } from '@tabler/icons-vue'
+import {
+  IconCheck,
+  IconChevronDown,
+  IconSearch,
+  IconLoader2,
+  IconPlayerPauseFilled,
+  IconPlayerPlayFilled,
+} from '@tabler/icons-vue'
 import reciters from '@/features/quran/data/reciters.js'
 import { useQuranStore } from '@/features/quran/store'
+import { isHafsRecording } from '@/features/quran/lib/reciters'
 import { useSearch } from '@/shared/composables/useSearch'
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
 
@@ -16,15 +24,10 @@ const emit = defineEmits(['toggle'])
 
 const quranStore = useQuranStore()
 
-// The Mushaf is in Hafs, so the list offers the reciters who recorded the whole Quran in it, murattal or mujawwad,
-// plus whoever was picked in Settings.
-const HAFS = new Set(['حفص عن عاصم', 'المصحف المجود'])
+// The Mushaf is in Hafs, so the list offers the reciters who recorded the whole Quran in it, plus whoever was picked
+// in Settings, which may be another riwaya: it plays, but the ayah isn't followed.
 const choices = computed(() =>
-  reciters.filter(
-    (r) =>
-      (r.soar_count >= 114 && HAFS.has(r.rewaya.replace(/\s+/g, ' ').trim())) ||
-      r.id === Number(quranStore.currentReciter),
-  ),
+  reciters.filter((r) => (r.soar_count >= 114 && isHafsRecording(r)) || r.id === Number(quranStore.currentReciter)),
 )
 
 const showReciters = ref(false)
@@ -67,14 +70,17 @@ const reciterName = computed(() => quranStore.reciter?.name ?? 'اختر الق�
 
     <BottomSheet :show="showReciters" title="القارئ" @close="showReciters = false">
       <div class="reciters">
-        <div class="search-field">
-          <input
-            v-model="search"
-            type="search"
-            class="form-control"
-            placeholder="ابحث عن قارئ"
-            aria-label="ابحث عن قارئ"
-          />
+        <div class="reciters__search">
+          <div class="search-field">
+            <IconSearch class="search-field__icon" size="1.15rem" aria-hidden="true" />
+            <input
+              v-model="search"
+              type="text"
+              class="form-control search-field__input"
+              placeholder="ابحث عن قارئ"
+              aria-label="ابحث عن قارئ"
+            />
+          </div>
         </div>
 
         <ul ref="list" class="bottom-sheet-list" role="radiogroup" aria-label="القارئ">
@@ -88,6 +94,7 @@ const reciterName = computed(() => quranStore.reciter?.name ?? 'اختر الق�
             >
               <span class="flex-grow-1 text-truncate">{{ reciter.name }}</span>
               <small v-if="reciter.rewaya.includes('المجود')" class="reciters__style">مجوّد</small>
+              <small v-else-if="!isHafsRecording(reciter)" class="reciters__style">{{ reciter.rewaya }}</small>
               <IconCheck v-if="reciter.id === Number(quranStore.currentReciter)" size="20" class="reciters__check" />
             </button>
           </li>
@@ -99,6 +106,11 @@ const reciterName = computed(() => quranStore.reciter?.name ?? 'اختر الق�
 </template>
 
 <style lang="scss" scoped>
+/* An embed has no tab bar to clear. */
+:global(.main-content-embed) .player-pill {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
+}
+
 /* A small pill just above the tab bar: play, and who is reciting. */
 .player-pill {
   position: fixed;
@@ -123,13 +135,16 @@ const reciterName = computed(() => quranStore.reciter?.name ?? 'اختر الق�
     transform 0.3s var(--app-ease-out),
     opacity 0.2s ease;
 
+  // Hidden from the keyboard and screen readers too, like the bars.
   &.is-hidden {
     transform: translateY(calc(100% + var(--navbar-height) + 1rem));
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
     transition:
       transform 0.25s ease-in,
-      opacity 0.2s ease-in;
+      opacity 0.2s ease-in,
+      visibility 0s 0.25s;
   }
 }
 
@@ -137,8 +152,8 @@ const reciterName = computed(() => quranStore.reciter?.name ?? 'اختر الق�
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   border: 0;
   border-radius: 50%;
   background: var(--bs-primary);
@@ -159,7 +174,7 @@ const reciterName = computed(() => quranStore.reciter?.name ?? 'اختر الق�
   align-items: center;
   gap: 0.25rem;
   min-width: 0;
-  min-height: 2.5rem;
+  min-height: 2.75rem;
   padding-inline: 0.5rem 0.25rem;
   border: 0;
   border-radius: var(--bs-border-radius-pill);
@@ -187,21 +202,23 @@ const reciterName = computed(() => quranStore.reciter?.name ?? 'اختر الق�
 }
 
 .reciters {
-  padding-bottom: 0.5rem;
+  // A fixed height, so the sheet doesn't jump as the search narrows the list; the list scrolls inside it.
+  display: flex;
+  flex-direction: column;
+  height: min(70dvh, 36rem);
 }
 
-.reciters .search-field {
-  position: sticky;
-  top: 0;
-  z-index: 1;
+.reciters__search {
+  flex-shrink: 0;
   padding: 0.25rem 1rem 0.5rem;
-  background-color: var(--app-surface);
+}
 
-  .form-control {
-    height: 2.5rem;
-    border-color: var(--app-hairline);
-    background-color: color-mix(in srgb, var(--bs-body-color) 6%, transparent);
-  }
+.reciters .bottom-sheet-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: 0.5rem;
 }
 
 .reciters__style {

@@ -1,5 +1,5 @@
 import surahs from '@/features/quran/data/surahs.js'
-import { normalizeQuranicText, removeSurahPrefix } from '@/shared/utils/arabic'
+import { normalizeQuranicText, removeSurahPrefix, toArabicNumerals } from '@/shared/utils/arabic'
 import { AYAHS_STARTING, PAGE_STARTS } from '@/features/quran/data/mushaf-index.js'
 
 // The Madinah Mushaf (King Fahd Complex, 15 lines a page), drawn with the Complex's own per-page fonts.
@@ -59,6 +59,12 @@ export const juzOfPage = (page) => PAGE_STARTS[page - 1][1]
 export const nextVerse = (surah, ayah) => {
   if (ayah < surahs[surah - 1].numberOfAyahs) return { surah, ayah: ayah + 1 }
   return surah < surahs.length ? { surah: surah + 1, ayah: 1 } : null
+}
+
+// "٧ آيات", "١١٠ آية": Arabic counts ending in 3–10 take the plural, the rest the singular.
+export const formatAyahCount = (count) => {
+  const lastTwo = count % 100
+  return `${toArabicNumerals(count)} ${lastTwo >= 3 && lastTwo <= 10 ? 'آيات' : 'آية'}`
 }
 
 // A surah's name without the "سورة" prefix, for headers and lists.

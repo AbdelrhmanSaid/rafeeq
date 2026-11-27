@@ -1,6 +1,6 @@
 <script setup>
 import { useThemeStore } from '@/app/stores/theme'
-import { IconCheck, IconSunFilled, IconMoonStars, IconDeviceLaptop, IconPalette } from '@tabler/icons-vue'
+import { IconCheck, IconSunFilled, IconMoonStars, IconDeviceLaptop } from '@tabler/icons-vue'
 import SettingsSection from './SettingsSection.vue'
 
 const theme = useThemeStore()
@@ -16,7 +16,7 @@ const colors = [
 </script>
 
 <template>
-  <SettingsSection title="المظهر" description="اختر وضع العرض واللون الأساسي للتطبيق" :icon="IconPalette">
+  <SettingsSection title="المظهر" description="اختر وضع العرض واللون الأساسي للتطبيق">
     <div class="btn-group-toggle mb-3">
       <button
         class="btn-toggle"

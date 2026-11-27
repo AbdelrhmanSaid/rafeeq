@@ -4,7 +4,7 @@ import { storeToRefs } from 'pinia'
 import { useThemeStore } from '@/app/stores/theme'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import { MIN_FONT_SCALE, MAX_FONT_SCALE, DEFAULT_FONT_SCALE, FONT_SCALE_STEP } from '@/shared/utils/css'
-import { IconTextSize, IconRotate } from '@tabler/icons-vue'
+import { IconRotate } from '@tabler/icons-vue'
 import SettingsSection from './SettingsSection.vue'
 
 const theme = useThemeStore()
@@ -27,7 +27,7 @@ function increase() {
 </script>
 
 <template>
-  <SettingsSection title="حجم الخط" description="تحكم في حجم النصوص في جميع أنحاء التطبيق" :icon="IconTextSize">
+  <SettingsSection title="حجم الخط" description="تحكم في حجم النصوص في جميع أنحاء التطبيق">
     <template #actions>
       <button
         v-if="!isDefault"

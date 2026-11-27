@@ -31,7 +31,7 @@ const links = [
     <Heading class="mb-4" title="المزيد" />
 
     <section class="more-section" aria-labelledby="more-tools">
-      <h2 id="more-tools" class="more-section__title">الأدوات</h2>
+      <h2 id="more-tools" class="list-title">الأدوات</h2>
       <div class="more-list">
         <RouterLink v-for="item in tools" :key="item.name" :to="{ name: item.name }" class="more-row">
           <span class="icon-tile more-row__icon"><component :is="item.icon" aria-hidden="true" /></span>
@@ -55,7 +55,7 @@ const links = [
     </section>
 
     <section class="more-section" aria-labelledby="more-links">
-      <h2 id="more-links" class="more-section__title">تواصل ودعم</h2>
+      <h2 id="more-links" class="list-title">تواصل ودعم</h2>
       <div class="more-list">
         <template v-for="item in links" :key="item.link">
           <a v-if="item.external" :href="item.link" target="_blank" rel="noopener" class="more-row">
@@ -83,14 +83,6 @@ const links = [
 <style lang="scss" scoped>
 .more-section {
   margin-bottom: 1.5rem;
-}
-
-.more-section__title {
-  margin: 0 0.25rem 0.625rem;
-  color: var(--bs-secondary-color);
-  font-family: inherit;
-  font-size: 0.875rem;
-  font-weight: 600;
 }
 
 /* An inset grouped list, like a native settings screen. */

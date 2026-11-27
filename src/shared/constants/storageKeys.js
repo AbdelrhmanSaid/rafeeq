@@ -21,6 +21,7 @@ export const STORAGE_KEYS = {
 
   currentReciter: 'currentReciter',
   currentTafseer: 'currentTafseer',
+  // No longer set (the Mushaf player has no speed control); kept so backups that include it still import.
   playbackRate: 'quran-playback-rate',
 
   installPromptDismissed: 'install-prompt-dismissed',

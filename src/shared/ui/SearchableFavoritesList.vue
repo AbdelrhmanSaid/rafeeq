@@ -47,38 +47,3 @@ const { search, filtered } = useSearch(() => props.items, props.searchKeys)
     </template>
   </FavoriteList>
 </template>
-
-<style lang="scss" scoped>
-/* A short filled bar, like a native search field, instead of a tall floating-label input. */
-.search-field {
-  position: relative;
-}
-
-.search-field__input {
-  height: 2.5rem;
-  padding-block: 0;
-  padding-inline: 2.5rem 0.875rem;
-  border-color: var(--app-hairline);
-  border-radius: var(--bs-border-radius);
-  background-color: color-mix(in srgb, var(--bs-body-color) 6%, transparent);
-
-  &::placeholder {
-    color: var(--bs-secondary-color);
-  }
-
-  &:focus {
-    border-color: var(--app-hairline);
-    background-color: color-mix(in srgb, var(--bs-body-color) 6%, transparent);
-  }
-}
-
-.search-field__icon {
-  position: absolute;
-  top: 50%;
-  inset-inline-start: 0.875rem;
-  z-index: 1;
-  transform: translateY(-50%);
-  color: var(--bs-secondary-color);
-  pointer-events: none;
-}
-</style>

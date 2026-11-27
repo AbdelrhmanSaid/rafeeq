@@ -1,18 +1,14 @@
 <script setup>
-import { Comment, Text, computed, useSlots, inject } from 'vue'
+import { Comment, Text, computed, useSlots } from 'vue'
 
 defineProps({
   title: { type: String, default: '' },
   description: { type: String, default: '' },
-  icon: { type: [Object, Function], default: null },
   // The id of the switch in the actions slot; the header then becomes its label, so tapping the title toggles it.
   controlId: { type: String, default: null },
 })
 
 const slots = useSlots()
-
-// Bottom sheets provide their own card chrome.
-const bare = inject('settings-bare', false)
 
 const hasBody = computed(() => {
   const nodes = slots.default?.() ?? []
@@ -25,12 +21,8 @@ const hasBody = computed(() => {
 </script>
 
 <template>
-  <div v-if="bare" class="settings-section-body">
-    <slot />
-  </div>
-
   <!-- One row in a settings group: the title and a muted description, the control at the end, any body below. -->
-  <section v-else class="settings-section">
+  <section class="settings-section">
     <component
       :is="controlId ? 'label' : 'header'"
       v-if="title || $slots.actions"

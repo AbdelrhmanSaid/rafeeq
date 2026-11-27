@@ -9,6 +9,7 @@ import { fetchCategory } from '@/features/azkar/api'
 import surahs from '@/features/quran/data/surahs.js'
 import azkarCategories from '@/features/azkar/data/categories.js'
 import { sleep } from '@/shared/utils/async'
+import { toast } from 'vue-sonner'
 
 export const useDownloadStore = defineStore('download', () => {
   const online = useOnline()
@@ -67,7 +68,10 @@ export const useDownloadStore = defineStore('download', () => {
     await assetTypes[asset.type].fetch(asset)
   }
 
+  const failures = new Map()
+
   async function processQueue() {
+    let failed = false
     if (isDownloading.value || isPaused.value || downloadQueue.value.length === 0) return
 
     isDownloading.value = true
@@ -88,13 +92,19 @@ export const useDownloadStore = defineStore('download', () => {
       } catch (error) {
         console.error(`Failed to download ${asset.name}:`, error)
         downloadQueue.value.shift()
-        downloadQueue.value.push(asset)
+        // Three tries, then it's left out rather than retried forever (a full disk would never succeed).
+        const tries = (failures.get(asset.id) ?? 0) + 1
+        failures.set(asset.id, tries)
+        if (tries < 3) downloadQueue.value.push(asset)
+        else failed = true
         await sleep(1000)
       }
     }
 
     isDownloading.value = false
     currentItem.value = null
+    failures.clear()
+    if (failed) toast.error('تعذر تحميل بعض الملفات، تأكد من الاتصال ومساحة التخزين ثم حاول مرة أخرى')
   }
 
   function queueAsset(asset) {

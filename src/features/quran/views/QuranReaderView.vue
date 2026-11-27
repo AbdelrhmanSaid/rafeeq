@@ -1,6 +1,6 @@
 <script setup>
-import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
-import { useDebounceFn, useEventListener, useOnline, useResizeObserver } from '@vueuse/core'
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { useEventListener, useMediaQuery, useOnline } from '@vueuse/core'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
 
@@ -40,41 +40,130 @@ const { toggle: toggleChrome } = useImmersiveChrome()
 useScreenWakeLock()
 
 const routePage = computed(() => clampPage(route.params.page))
-// The page in view, which changes as soon as a swipe passes halfway; the route follows once the swipe settles.
 const current = ref(routePage.value)
-const pages = Array.from({ length: PAGE_COUNT }, (_, i) => i + 1)
-// Only the pages either side of the one in view are drawn; the rest are empty slots of the same width.
-const isNear = (page) => Math.abs(page - current.value) <= 1
+
+// Only the page in view and the one either side are drawn. Page 1 is rightmost and later pages lie to the left, so
+// the next page comes in with a swipe to the right, as a printed Mushaf turns.
+const slots = computed(() =>
+  [current.value - 1, current.value, current.value + 1].filter((page) => page >= 1 && page <= PAGE_COUNT),
+)
+const slotStyle = (page) => ({ transform: `translateX(${(current.value - page) * 100}%)` })
 
 const pager = useTemplateRef('pager')
+const track = useTemplateRef('track')
 
-// Page 1 sits at the right edge and later pages to its left, so the next page comes in with a swipe to the right, as
-// a printed Mushaf turns. The width is the exact one, not clientWidth: a page can be a fraction of a pixel wide
-// (392.73px on some phones), and rounding it would drift a whole page off by page 300.
-const pageWidth = () => pager.value.getBoundingClientRect().width
+// The pager turns exactly one page per drag, flick or trackpad swipe; native scrolling would let a fast flick fly
+// past several pages.
+let offset = 0
+// Finishes the slide in progress, if any, at once.
+let finishTurn = null
 
-function scrollToPage(page, behavior = 'instant') {
-  if (pager.value) pager.value.scrollTo({ left: -(page - 1) * pageWidth(), behavior })
+function moveTrack(x, animate) {
+  offset = x
+  if (!track.value) return
+  track.value.style.transition = animate ? 'transform 0.32s var(--app-ease-out)' : 'none'
+  track.value.style.transform = `translateX(${x}px)`
 }
 
-const pageInView = () => clampPage(Math.round(Math.abs(pager.value.scrollLeft) / pageWidth()) + 1)
+const pageWidth = () => pager.value?.getBoundingClientRect().width || window.innerWidth
 
-let frame = 0
-function onScroll() {
-  if (frame) return
-  frame = requestAnimationFrame(() => {
-    frame = 0
-    current.value = pageInView()
-    settle()
-  })
-}
-
-const settle = useDebounceFn(() => {
-  const page = pageInView()
+function settleOn(page) {
+  current.value = page
+  // The slots move to their new places on the next render; the track resets with them, so nothing jumps.
+  nextTick(() => moveTrack(0, false))
   quranStore.lastPage = page
   keepPagesNear(page)
   if (page !== routePage.value) showPageInAddress(page)
-}, 150)
+}
+
+// Slides to the next or previous page; any other page is a jump.
+function turnTo(page) {
+  finishTurn?.()
+  if (page < 1 || page > PAGE_COUNT || page === current.value) return
+  if (Math.abs(page - current.value) !== 1 || reducedMotion.value) return settleOn(page)
+  moveTrack((page - current.value) * pageWidth(), true)
+  const done = () => {
+    clearTimeout(fallback)
+    track.value?.removeEventListener('transitionend', done)
+    finishTurn = null
+    settleOn(page)
+  }
+  const fallback = setTimeout(done, 400)
+  track.value?.addEventListener('transitionend', done, { once: true })
+  finishTurn = done
+}
+
+const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
+
+// Dragging: the page follows the finger, then turns if it went a fifth of the way or was flicked; otherwise it
+// springs back. A drag past the first or last page gives a little and returns.
+let drag = null
+const DRAG_START = 8
+
+function onPointerDown(event) {
+  if (event.button > 0) return
+  // A new drag doesn't wait for the last page to finish sliding in.
+  finishTurn?.()
+  drag = { id: event.pointerId, x: event.clientX, y: event.clientY, t: event.timeStamp, active: false, vx: 0 }
+}
+
+function onPointerMove(event) {
+  if (!drag || event.pointerId !== drag.id) return
+  const dx = event.clientX - drag.x
+  if (!drag.active) {
+    if (Math.abs(dx) < DRAG_START || Math.abs(dx) < Math.abs(event.clientY - drag.y)) return
+    drag.active = true
+    pager.value.setPointerCapture(event.pointerId)
+  }
+  const target = dx > 0 ? current.value + 1 : current.value - 1
+  const edge = target < 1 || target > PAGE_COUNT
+  drag.vx = (dx - (drag.lastDx ?? 0)) / Math.max(1, event.timeStamp - (drag.lastT ?? drag.t))
+  drag.lastDx = dx
+  drag.lastT = event.timeStamp
+  moveTrack(edge ? dx / 4 : dx, false)
+}
+
+function onPointerUp(event) {
+  if (!drag || event.pointerId !== drag.id) return
+  const { active, vx } = drag
+  drag = null
+  if (!active) return
+  // The click that follows a drag isn't a tap.
+  suppressClick = true
+  setTimeout(() => (suppressClick = false))
+  const width = pageWidth()
+  const far = Math.abs(offset) > width / 5 || (Math.abs(vx) > 0.4 && Math.sign(vx) === Math.sign(offset))
+  const target = offset > 0 ? current.value + 1 : current.value - 1
+  if (far && target >= 1 && target <= PAGE_COUNT) turnTo(target)
+  else moveTrack(0, true)
+}
+
+let suppressClick = false
+function onClickCapture(event) {
+  if (!suppressClick) return
+  event.stopPropagation()
+  event.preventDefault()
+}
+
+// A trackpad swipe turns one page, then waits for the swipe's momentum to die down before another can.
+let wheelSum = 0
+let wheelIdle = 0
+let wheelLocked = false
+function onWheel(event) {
+  if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return
+  event.preventDefault()
+  clearTimeout(wheelIdle)
+  wheelIdle = setTimeout(() => {
+    wheelSum = 0
+    wheelLocked = false
+  }, 200)
+  if (wheelLocked) return
+  wheelSum += event.deltaX
+  if (Math.abs(wheelSum) < 40) return
+  wheelLocked = true
+  // Content scrolls with the fingers: swiping right (negative deltaX) brings the next page in from the left.
+  turnTo(wheelSum < 0 ? current.value + 1 : current.value - 1)
+}
 
 // The address follows the page in view. An embed keeps its /embed address and its theme query, which a named route
 // would drop.
@@ -84,37 +173,18 @@ function showPageInAddress(page) {
   router.replace({ path: `${base}/quran/page/${page}`, query })
 }
 
-onMounted(() => {
-  scrollToPage(current.value)
-  quranStore.lastPage = current.value
-})
-
-// Turning the phone or resizing the window keeps the same page in view. Only the width matters: a phone's toolbar
-// sliding away changes the height mid-swipe, and snapping then would fight the finger.
-let pagerWidth = 0
-useResizeObserver(pager, ([entry]) => {
-  const width = entry.contentRect.width
-  if (width === pagerWidth) return
-  pagerWidth = width
-  scrollToPage(current.value)
-})
+onMounted(() => (quranStore.lastPage = current.value))
 
 // Opening another page from outside (a bookmark, say) while the reader is open.
 watch(routePage, (page) => {
-  if (page === current.value) return
-  current.value = page
-  scrollToPage(page)
+  if (page !== current.value) settleOn(page)
 })
-
-function turnTo(page) {
-  if (page >= 1 && page <= PAGE_COUNT) scrollToPage(page, 'smooth')
-}
 
 const sheetOpen = computed(() => Boolean(selected.value || tafseerAyah.value))
 
-// Arrow keys turn pages the way they point on a right-to-left page.
+// Arrow keys turn pages the way they point on a right-to-left page; not while a sheet is open over the page.
 useEventListener(window, 'keydown', (event) => {
-  if (sheetOpen.value || event.target.closest?.('input, textarea, [role="radiogroup"]')) return
+  if (sheetOpen.value || document.querySelector('.sheet-root') || event.target.closest?.('input, textarea')) return
   if (event.key === 'ArrowLeft') turnTo(current.value + 1)
   else if (event.key === 'ArrowRight') turnTo(current.value - 1)
   else return
@@ -145,10 +215,11 @@ function onSelect({ key, text }) {
   selected.value = { key, surah, ayah, text }
 }
 
-// A tap shows or hides the bars, or lets go of a selected ayah.
+// A tap shows or hides the bars, or lets go of a selected ayah. On desktop the top nav stays, so taps leave the bars be.
+const isDesktop = useMediaQuery('(min-width: 992px)')
 function onTap() {
   if (selected.value) selected.value = null
-  else toggleChrome()
+  else if (!isDesktop.value) toggleChrome()
 }
 
 const highlightKey = computed(() => selected.value?.key ?? flashKey.value)
@@ -242,18 +313,36 @@ usePageMeta(() => ({
 
 <template>
   <div class="reader">
-    <div ref="pager" class="reader__pager" dir="rtl" @scroll.passive="onScroll">
-      <section v-for="page in pages" :key="page" class="reader__slot" :aria-hidden="page !== current || undefined">
-        <MushafPage
-          v-if="isNear(page)"
-          :page="page"
-          :selected-key="highlightKey"
-          :playing-key="recitation.playingKey.value"
-          :bookmarks="bookmarkColors"
-          @tap="onTap"
-          @select="onSelect"
-        />
-      </section>
+    <div
+      ref="pager"
+      class="reader__pager"
+      @pointerdown="onPointerDown"
+      @pointermove="onPointerMove"
+      @pointerup="onPointerUp"
+      @pointercancel="onPointerUp"
+      @click.capture="onClickCapture"
+      @wheel="onWheel"
+      @dragstart.prevent
+    >
+      <div ref="track" class="reader__track">
+        <section
+          v-for="page in slots"
+          :key="page"
+          class="reader__slot"
+          :style="slotStyle(page)"
+          :inert="page !== current"
+          :aria-hidden="page !== current || undefined"
+        >
+          <MushafPage
+            :page="page"
+            :selected-key="highlightKey"
+            :playing-key="recitation.playingKey.value"
+            :bookmarks="bookmarkColors"
+            @tap="onTap"
+            @select="onSelect"
+          />
+        </section>
+      </div>
     </div>
 
     <QuranPlayerPill
@@ -302,25 +391,26 @@ usePageMeta(() => ({
 }
 
 .reader__pager {
-  display: flex;
+  position: relative;
   height: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  overscroll-behavior: contain;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
+  overflow: hidden;
+  // A mouse drag turns the page rather than selecting text.
+  -webkit-user-select: none;
+  user-select: none;
+  // The pager handles horizontal drags itself; nothing on the page scrolls.
+  touch-action: none;
+}
 
-  &::-webkit-scrollbar {
-    display: none;
-  }
+.reader__track {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
 }
 
 .reader__slot {
-  flex: 0 0 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
   overflow: hidden;
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
   container-type: size;
 }
 </style>

@@ -2,7 +2,6 @@
 import reciters from '@/features/quran/data/reciters.js'
 import { useQuranStore } from '@/features/quran/store.js'
 import { computed } from 'vue'
-import { IconMicrophone2 } from '@tabler/icons-vue'
 import SettingsSection from './SettingsSection.vue'
 import SelectRow from '@/shared/ui/SelectRow.vue'
 
@@ -27,7 +26,7 @@ function onRewayaChange(value) {
 </script>
 
 <template>
-  <SettingsSection title="القرآن الكريم" description="اختر الرواية والقارئ المفضل لديك" :icon="IconMicrophone2">
+  <SettingsSection title="القرآن الكريم" description="اختر الرواية والقارئ المفضل لديك">
     <div class="row-group row-group--flush">
       <SelectRow
         label="الرواية"

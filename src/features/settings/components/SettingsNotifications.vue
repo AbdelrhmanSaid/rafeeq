@@ -7,17 +7,15 @@ const { enabled, loading, state, toggle } = usePushNotifications()
 </script>
 
 <template>
-  <SettingsSection title="إشعارات التطبيق" description="تفعيل أو إيقاف إشعارات المتصفح لهذا الجهاز." :icon="IconBell">
+  <SettingsSection title="إشعارات التطبيق" description="تفعيل أو إيقاف إشعارات المتصفح لهذا الجهاز.">
     <template #actions>
-      <span class="badge text-bg-light border">
-        {{ state }}
-      </span>
+      <span class="chip chip-muted">{{ state }}</span>
     </template>
 
     <button
       type="button"
       class="btn btn-sm d-inline-flex align-items-center gap-2 notifications-toggle"
-      :class="enabled ? 'btn-soft text-danger' : 'btn-soft'"
+      :class="enabled ? 'btn-flat text-danger' : 'btn-soft'"
       :disabled="loading"
       @click="toggle"
     >

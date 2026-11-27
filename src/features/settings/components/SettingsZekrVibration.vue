@@ -1,7 +1,6 @@
 <script setup>
 import { computed, useId } from 'vue'
 import { storeToRefs } from 'pinia'
-import { IconDeviceMobileVibration } from '@tabler/icons-vue'
 import { useAppStore } from '@/app/stores/app'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import SettingsSection from './SettingsSection.vue'
@@ -17,7 +16,6 @@ const switchId = useId()
   <SettingsSection
     title="الاهتزاز عند الانتهاء"
     description="يعمل على الأجهزة والمتصفحات التي تدعم الاهتزاز"
-    :icon="IconDeviceMobileVibration"
     :control-id="switchId"
   >
     <template #actions>

@@ -12,7 +12,6 @@ import {
   IconWifiOff,
   IconBook2,
   IconSparkles,
-  IconCloudDownload,
 } from '@tabler/icons-vue'
 import { useDownloadStore } from '@/features/downloads/store.js'
 import DownloadAssetItem from '@/features/downloads/components/DownloadAssetItem.vue'
@@ -106,15 +105,8 @@ const handleAssetAction = (asset) => {
   <div class="download-manager card">
     <div class="dm-header">
       <div class="dm-header-content">
-        <div class="dm-title">
-          <span class="icon-tile dm-title-icon">
-            <IconCloudDownload :size="20" />
-          </span>
-          <div>
-            <h3>التنزيلات</h3>
-            <p>للاستخدام بدون إنترنت</p>
-          </div>
-        </div>
+        <!-- The screen's own title already says التنزيلات, so the card only says what they are for. -->
+        <p class="dm-title">للاستخدام بدون إنترنت</p>
 
         <div class="dm-stats">
           <div class="dm-stats-text">
@@ -237,6 +229,12 @@ const handleAssetAction = (asset) => {
 </template>
 
 <style scoped>
+.dm-title {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--bs-secondary-color);
+}
+
 .download-manager {
   overflow: hidden;
   contain: layout style;
@@ -252,32 +250,6 @@ const handleAssetAction = (asset) => {
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-}
-
-.dm-title {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-}
-
-.dm-title-icon {
-  color: var(--bs-primary);
-}
-
-[data-bs-theme='dark'] .dm-title-icon {
-  color: color-mix(in srgb, var(--bs-primary) 28%, #fff);
-}
-
-.dm-title h3 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.dm-title p {
-  margin: 0.15rem 0 0;
-  font-size: 0.85rem;
-  color: var(--bs-secondary-color);
 }
 
 .dm-stats {

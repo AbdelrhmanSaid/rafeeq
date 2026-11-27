@@ -2,14 +2,7 @@
 import { computed } from 'vue'
 import { usePrayersStore } from '@/features/prayers/store'
 import { usePrayerLocation } from '@/features/prayers/composables/usePrayerLocation'
-import {
-  IconRefreshDot,
-  IconTrash,
-  IconLayoutList,
-  IconLayoutGrid,
-  IconDevices,
-  IconClockHour4,
-} from '@tabler/icons-vue'
+import { IconRefreshDot, IconTrash, IconLayoutList, IconLayoutGrid, IconDevices } from '@tabler/icons-vue'
 import SettingsSection from './SettingsSection.vue'
 import SelectRow from '@/shared/ui/SelectRow.vue'
 import { CALCULATION_FIELDS } from '@/features/prayers/constants/calculationOptions'
@@ -29,7 +22,7 @@ const location = computed(() => {
 </script>
 
 <template>
-  <SettingsSection title="مواقيت الصلاة" description="حدّد موقعك وطريقة عرض المواقيت" :icon="IconClockHour4">
+  <SettingsSection title="مواقيت الصلاة" description="حدّد موقعك وطريقة عرض المواقيت">
     <div class="mb-2">
       <span class="d-block mb-2">طريقة العرض</span>
       <div class="btn-group-toggle">

@@ -21,6 +21,5 @@ export function useImmersiveChrome() {
 
   return {
     toggle: () => (chrome.hidden = !chrome.hidden),
-    show: () => (chrome.hidden = false),
   }
 }

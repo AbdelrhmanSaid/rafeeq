@@ -11,7 +11,6 @@ const DEFAULT_TAFSEER = 'ar.muyassar'
 export const useQuranStore = defineStore('quran', () => {
   const currentReciter = useLocalStorage(STORAGE_KEYS.currentReciter, DEFAULT_RECITER_ID)
   const currentTafseer = useLocalStorage(STORAGE_KEYS.currentTafseer, DEFAULT_TAFSEER)
-  const playbackRate = useLocalStorage(STORAGE_KEYS.playbackRate, 1)
   // The Mushaf page last open, so the Quran screen can offer to carry on from it. 0 until something is read.
   const lastPage = useLocalStorage(STORAGE_KEYS.quranLastPage, 0)
 
@@ -49,7 +48,6 @@ export const useQuranStore = defineStore('quran', () => {
   return {
     currentReciter,
     currentTafseer,
-    playbackRate,
     lastPage,
     reciter,
     surahAudioUrl,

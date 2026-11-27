@@ -3,6 +3,7 @@ import { toast } from 'vue-sonner'
 import { useQuranStore } from '@/features/quran/store'
 import { useRadioStore } from '@/features/radio/store'
 import { surahName, verseKey } from '@/features/quran/lib/mushaf'
+import { isHafsRecording } from '@/features/quran/lib/reciters'
 import {
   clearMediaSession,
   setMediaHandlers,
@@ -55,7 +56,8 @@ export function useMushafRecitation() {
       }),
     ]).finally(() => listening.abort())
     if (id !== loadId) throw new Error('superseded')
-    timings = loadedTimings.filter((t) => Number.isFinite(t.start_time))
+    // Without timings, or for a recording not in Hafs, the surah still plays; only the following stops.
+    timings = isHafsRecording(quranStore.reciter) ? loadedTimings.filter((t) => Number.isFinite(t.start_time)) : []
   }
 
   // Seconds into the recording; an ayah without a timing plays from the start of the surah.
@@ -74,9 +76,9 @@ export function useMushafRecitation() {
     try {
       if (surah.value !== surahNumber || !audio.src) await loadSurah(surahNumber)
       else if (pendingLoad) await pendingLoad
+      if (id !== playId) return
       audio.currentTime = ayahNumber <= 1 ? 0 : startOf(ayahNumber)
-      ayah.value = ayahNumber <= 1 && timings.some((t) => t.ayah === 0) ? 0 : ayahNumber
-      audio.playbackRate = Number(quranStore.playbackRate) || 1
+      ayah.value = !timings.length ? null : ayahNumber <= 1 && timings.some((t) => t.ayah === 0) ? 0 : ayahNumber
       await audio.play()
       if (id !== playId) return
       playing.value = true
@@ -169,11 +171,6 @@ export function useMushafRecitation() {
     },
   )
 
-  watch(
-    () => quranStore.playbackRate,
-    (rate) => (audio.playbackRate = Number(rate) || 1),
-  )
-
   // The radio taking over stops the recitation.
   watch(
     () => radioStore.isPlaying,
@@ -186,10 +183,15 @@ export function useMushafRecitation() {
     setMediaPlaybackState('playing')
   }
 
+  // Leaving the reader ends the recitation, including one still loading, which would otherwise start playing on
+  // another screen with nothing there to stop it.
   onScopeDispose(() => {
     cancelAnimationFrame(frame)
+    loadId++
+    playId++
     audio.pause()
     audio.removeAttribute('src')
+    audio.load()
     if (!radioStore.isPlaying) clearMediaSession()
   })
 
