@@ -4,7 +4,6 @@ import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 import { parseVerseKey, verseKey } from '@/features/quran/lib/mushaf'
 import '@/features/quran/styles/bookmark-colors.css'
 
-// Each bookmark tints its ayah on the page in its own color, so several readings can be kept apart: one per color.
 export const BOOKMARK_COLORS = [
   { id: 'gold', label: 'ذهبي' },
   { id: 'green', label: 'أخضر' },
@@ -18,7 +17,6 @@ const COLOR_IDS = new Set(BOOKMARK_COLORS.map((c) => c.id))
 const isValid = (bookmark) =>
   Boolean(parseVerseKey(bookmark?.key)) && COLOR_IDS.has(bookmark?.color) && Number.isFinite(bookmark?.at)
 
-// A damaged or hand-edited value reads as no bookmarks rather than breaking the reader.
 const serializer = {
   read(value) {
     try {
@@ -31,7 +29,7 @@ const serializer = {
   write: (value) => JSON.stringify(value),
 }
 
-// The old reader kept a single bookmark; it carries over as a gold one.
+// Migration for existing users: the old reader's single bookmark carries over as a gold one.
 function takeLegacyBookmark() {
   const raw = localStorage.getItem(STORAGE_KEYS.quranBookmark)
   if (raw === null) return null
@@ -45,7 +43,6 @@ function takeLegacyBookmark() {
   }
 }
 
-// One list shared by every screen.
 let store = null
 
 function useStore() {
@@ -60,11 +57,10 @@ function useStore() {
 export function useQuranBookmarks() {
   const bookmarks = useStore()
 
-  // Newest first; each change moves its bookmark to the end of the stored list.
+  // Stored oldest first, since each change appends its bookmark.
   const list = computed(() => [...bookmarks.value].reverse())
   const colors = computed(() => new Map(bookmarks.value.map((b) => [b.key, b.color])))
 
-  // A color marks one ayah: using it again moves it. Bookmarking an ayah again changes its color.
   const setBookmark = (key, color) => {
     if (!parseVerseKey(key) || !COLOR_IDS.has(color)) return
     const others = bookmarks.value.filter((b) => b.key !== key && b.color !== color)

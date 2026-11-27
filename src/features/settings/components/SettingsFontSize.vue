@@ -41,7 +41,6 @@ function increase() {
       </button>
     </template>
 
-    <!-- Flush in the row: the slider takes the full width, the steps and the value sit under it. -->
     <input
       v-model.number="fontScale"
       class="form-range d-block"
@@ -81,7 +80,6 @@ function increase() {
   font-variant-numeric: tabular-nums;
 }
 
-/* Filled, not outlined, like the app's other quiet controls. */
 .font-step {
   flex-shrink: 0;
   display: inline-flex;

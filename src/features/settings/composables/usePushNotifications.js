@@ -19,7 +19,6 @@ export function usePushNotifications() {
 
   const blocked = computed(() => permission.value === 'denied')
 
-  // Why the switch can't be used right now, if it can't; null when it can.
   const unavailableReason = computed(() => {
     if (!supported) return 'هذا المتصفح لا يدعم الإشعارات'
     if (blocked.value) return BLOCKED_MESSAGE
@@ -30,7 +29,6 @@ export function usePushNotifications() {
 
   const disabled = computed(() => !supported || blocked.value || loading.value || busy.value)
 
-  // Success is reported only once the subscription says so: a blocked or dismissed prompt changes nothing.
   async function toggle() {
     if (disabled.value) return
     busy.value = true
@@ -66,7 +64,6 @@ export function usePushNotifications() {
     enabled.value = event.current.optedIn === true
   }
 
-  // Allowing or blocking from the browser's own settings shows here without a reload.
   function onPermissionChange() {
     permission.value = browserPermission()
   }
@@ -80,8 +77,7 @@ export function usePushNotifications() {
       })
       .catch(() => {})
 
-    // OneSignal replaces PushSubscription during initialization, so poll the live
-    // singleton before binding; the initial deferred object never emits changes.
+    // OneSignal replaces PushSubscription during init, and the initial deferred object never emits changes.
     window.OneSignalDeferred = window.OneSignalDeferred || []
     window.OneSignalDeferred.push((OneSignal) => {
       let tries = 0
@@ -107,5 +103,5 @@ export function usePushNotifications() {
     permissionStatus?.removeEventListener('change', onPermissionChange)
   })
 
-  return { enabled, loading, disabled, unavailableReason, toggle }
+  return { enabled, disabled, unavailableReason, toggle }
 }

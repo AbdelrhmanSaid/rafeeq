@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { ITEM_FORMS, countLabel } from './countLabel'
+import { countLabel } from './countLabel'
+
+const ITEM_FORMS = { one: 'عنصر واحد', two: 'عنصرين', few: 'عناصر', many: 'عنصرًا', other: 'عنصر' }
 
 const items = (count) => countLabel(count, ITEM_FORMS)
 

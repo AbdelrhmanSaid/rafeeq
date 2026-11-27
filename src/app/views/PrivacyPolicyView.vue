@@ -125,7 +125,6 @@ const lastUpdated = new Intl.DateTimeFormat('ar-EG', { dateStyle: 'long' }).form
 </template>
 
 <style lang="scss" scoped>
-/* A reading column: body-size text with room between lines, muted section titles' weight from the app's lists. */
 .policy__updated {
   margin: -0.5rem 0 1.25rem;
   color: var(--bs-secondary-color);

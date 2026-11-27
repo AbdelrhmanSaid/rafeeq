@@ -1,4 +1,3 @@
-// Store screenshots shown in the install dialog (Chrome, Edge) and app stores.
 const screenshot = (name, formFactor, label) => ({
   src: `screenshots/${name}.png`,
   sizes: formFactor === 'wide' ? '2880x1800' : '1170x2532',

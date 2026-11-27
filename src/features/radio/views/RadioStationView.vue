@@ -6,7 +6,6 @@ import { IconRadio } from '@tabler/icons-vue'
 import { usePageMeta } from '@/shared/composables/usePageMeta'
 
 import Page from '@/layout/Page.vue'
-import BackButton from '@/shared/ui/BackButton.vue'
 import OfflineState from '@/shared/ui/OfflineState.vue'
 import StatePanel from '@/shared/ui/StatePanel.vue'
 import RadioPlayer from '@/features/radio/components/RadioPlayer.vue'
@@ -24,7 +23,6 @@ const { isFavorite, toggleFavorite } = useFavorites(STORAGE_KEYS.radioFavorites)
 
 const stationSlug = computed(() => route.params.slug.toLowerCase())
 const station = computed(() => radiosData[stationSlug.value])
-// This station is loaded; `isPlaying` only once sound comes out, `isConnecting` while it starts, buffers or retries.
 const isCurrent = computed(() => !!station.value && store.station === station.value.url)
 const isPlaying = computed(() => isCurrent.value && store.status === 'playing')
 const isConnecting = computed(() => isCurrent.value && ['connecting', 'retrying'].includes(store.status))
@@ -52,7 +50,7 @@ usePageMeta(
       title="لم يتم العثور على الإذاعة"
       message="يمكنك العودة لقائمة الإذاعات المتاحة."
     >
-      <BackButton :to="{ name: 'radio' }" label="العودة إلى الإذاعات" button-class="btn-soft" />
+      <RouterLink :to="{ name: 'radio' }" class="btn btn-soft embed-hidden">العودة إلى الإذاعات</RouterLink>
     </StatePanel>
 
     <RadioPlayer

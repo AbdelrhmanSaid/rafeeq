@@ -1,5 +1,4 @@
-// The share downloaded, as a whole percentage. Rounding alone showed "٠٪" beside "١ من ٢٤٨" and could show "١٠٠٪"
-// with one left, so anything started reads at least 1% and anything unfinished at most 99%.
+// Clamped so the percent never contradicts the count: anything started is at least 1%, anything unfinished at most 99%.
 export function progressPercent(done, total) {
   if (total <= 0 || done <= 0) return 0
   if (done >= total) return 100

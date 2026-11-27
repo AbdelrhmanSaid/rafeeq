@@ -6,7 +6,7 @@ import SettingsImportExport from './SettingsImportExport.vue'
 import { serializeSettingsBackup } from '../lib/backup.js'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 
-vi.mock('vue-sonner', () => ({ toast: { error: vi.fn(), success: vi.fn(), warning: vi.fn(), dismiss: vi.fn() } }))
+vi.mock('vue-sonner', () => ({ toast: { error: vi.fn(), success: vi.fn(), dismiss: vi.fn() } }))
 vi.mock('@/shared/composables/useIsMobile', () => ({ useIsMobile: () => ref(true) }))
 
 const wrappers = []
@@ -40,7 +40,6 @@ describe('SettingsImportExport', () => {
 
     expect(sheets()).toHaveLength(0)
     expect(toast.error).toHaveBeenCalledTimes(1)
-    expect(toast.warning).not.toHaveBeenCalled()
   })
 
   it('asks once, with the count, for a valid backup even when picked twice', async () => {

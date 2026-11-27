@@ -9,7 +9,7 @@ const online = vi.hoisted(() => ({ value: true }))
 vi.mock('@vueuse/core', async (importOriginal) => ({ ...(await importOriginal()), useOnline: () => online }))
 vi.mock('vue-sonner', () => ({ toast: { error: vi.fn() } }))
 vi.mock('idb-keyval', () => ({ keys: async () => [], delMany: async () => {} }))
-vi.mock('@/shared/utils/async', () => ({ sleep: () => new Promise((resolve) => setTimeout(resolve, 0)) }))
+vi.mock('@/features/downloads/lib/sleep', () => ({ sleep: () => new Promise((resolve) => setTimeout(resolve, 0)) }))
 
 vi.mock('@/shared/offline/useOfflineData', async () => {
   const { computed, reactive } = await import('vue')
@@ -30,8 +30,7 @@ vi.mock('@/features/azkar/api', async () => {
   return { fetchCategory: async (slug) => useOfflineData('azkar').save(slug) }
 })
 
-// A Mushaf download that finishes only when the test says so, and, like the real one, stops when its signal aborts
-// and records nothing after that.
+// A Mushaf download that finishes when the test says so and, like the real one, records nothing once aborted.
 vi.mock('@/features/quran/lib/mushafStorage', async () => {
   const { computed, reactive } = await import('vue')
   const downloaded = reactive(new Set())
@@ -82,7 +81,6 @@ describe('download store', () => {
     expect(store.currentItem?.id).toBe(fatiha.id)
 
     await store.cancelAllDownloads()
-    // The network finishing late changes nothing.
     mushafDownloads.running[0].finish()
     await flush()
 
@@ -169,7 +167,6 @@ describe('download store', () => {
     store.queueAsset(category)
     await flush()
     mushafDownloads.running[0].finish()
-    // The category starts after the surah; cancel straight away.
     await new Promise((resolve) => setTimeout(resolve, 1))
     await store.cancelAllDownloads()
     await flush()

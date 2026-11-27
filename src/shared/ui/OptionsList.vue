@@ -4,14 +4,9 @@ import { IconCheck, IconSearch } from '@tabler/icons-vue'
 import { useSearch } from '@/shared/composables/useSearch'
 import { rovingTarget } from '@/shared/utils/rovingFocus'
 
-// The choices behind a select: a radio list with a checkmark on the current one, and a search field when the list is
-// long. Shared by the phone sheet (OptionsSheet) and the desktop dropdown (OptionsMenu), which mount it as they open.
 const props = defineProps({
   label: { type: String, required: true },
-  // [{ value, label, hint? }]; the hint sits muted beside the label.
   options: { type: Array, required: true },
-  // Long lists get a search field; short ones don't need it.
-  searchable: { type: Boolean, default: null },
   searchPlaceholder: { type: String, default: 'ابحث' },
   emptyMessage: { type: String, default: 'لا توجد نتائج' },
 })
@@ -20,7 +15,7 @@ const model = defineModel({ type: [String, Number], default: '' })
 const emit = defineEmits(['choose'])
 
 const SEARCH_FROM = 10
-const hasSearch = computed(() => props.searchable ?? props.options.length > SEARCH_FROM)
+const hasSearch = computed(() => props.options.length > SEARCH_FROM)
 
 const { search, filtered } = useSearch(() => props.options, ['label'])
 const list = useTemplateRef('list')
@@ -31,7 +26,7 @@ const isChosen = (option) => String(option.value) === String(model.value)
 
 const radios = () => list.value?.querySelectorAll('[role="radio"]') ?? []
 
-// The chosen option starts in the middle of the list. Scrolled by hand: scrollIntoView would scroll the page too.
+// Scrolled by hand: scrollIntoView would scroll the page too.
 onMounted(async () => {
   await nextTick()
   const chosen = list.value?.querySelector('[aria-checked="true"]')
@@ -43,8 +38,6 @@ function choose(option) {
   emit('choose', option.value)
 }
 
-// The list is one Tab stop, on the chosen option (or the first, when a search hides it); the arrows move between
-// options without choosing one, since choosing closes the list. Space or Enter chooses.
 const focusIndex = ref(0)
 watch(filtered, (options) => (focusIndex.value = Math.max(0, options.findIndex(isChosen))), { immediate: true })
 
@@ -56,7 +49,6 @@ function onListKeydown(event) {
   radios()[to]?.focus()
 }
 
-// The search field when there is one, so typing narrows the list at once; otherwise the chosen option.
 function focus() {
   const target = input.value ?? radios()[focusIndex.value]
   target?.focus({ preventScroll: true })
@@ -113,12 +105,10 @@ defineExpose({ focus })
 .options {
   display: flex;
   flex-direction: column;
-  /* Sized by its height (below) or its content, and free to shrink inside a dropdown that's shorter. */
   flex: 1 1 auto;
   min-height: 0;
 }
 
-/* A searchable list keeps a fixed height, so it doesn't jump as the search narrows it; the list scrolls inside. */
 .options--search {
   height: var(--options-search-height, min(70dvh, 36rem));
 }

@@ -17,7 +17,6 @@ export const useFavorites = (storageKey) => {
   const filterFavorites = (items, keyFn) => computed(() => toValue(items).filter((item) => isFavorite(keyFn(item))))
 
   return {
-    keys,
     isFavorite,
     toggleFavorite,
     filterFavorites,

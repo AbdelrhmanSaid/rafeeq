@@ -2,7 +2,7 @@
 import { RouterLink } from 'vue-router'
 import { useRadioStore } from '@/features/radio/store'
 import { useActiveNav } from '@/layout/useActiveNav'
-import { useVirtualKeyboard } from '@/shared/composables/useVirtualKeyboard'
+import { useVirtualKeyboard } from '@/layout/useVirtualKeyboard'
 import { navigation } from '@/layout/navigation'
 import { chrome } from '@/layout/chrome'
 
@@ -40,9 +40,7 @@ const tabs = navigation.filter((item) => item.menus.includes('primary'))
   inset-inline: 0;
   bottom: 0;
   z-index: 1020;
-  /* Docked to the screen edge; the home indicator / gesture bar gets its own strip below the tabs. */
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  /* Keep physical safe-area sides from being flipped by rtlcss. */
   /*! rtl:begin:ignore */
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);
@@ -55,7 +53,6 @@ const tabs = navigation.filter((item) => item.menus.includes('primary'))
     transform 0.3s var(--app-ease-out),
     opacity 0.2s ease;
 
-  /* Out of the way while the keyboard is up, instead of riding over the field being typed in, and while reading. */
   &.is-hidden {
     transform: translateY(100%);
     opacity: 0;
@@ -72,7 +69,6 @@ const tabs = navigation.filter((item) => item.menus.includes('primary'))
   grid-auto-columns: minmax(0, 1fr);
   grid-auto-flow: column;
   max-width: 32rem;
-  /* Allow large font scales to grow the bar. */
   min-height: var(--navbar-height);
   margin-inline: auto;
   padding-inline: 0.25rem;
@@ -88,14 +84,12 @@ const tabs = navigation.filter((item) => item.menus.includes('primary'))
   padding: 0.5rem 0.125rem 0.375rem;
   border: 0;
   background: none;
-  /* Quieter than body text in both themes, so the brand-colored current tab stands out. */
   color: color-mix(in srgb, var(--bs-body-color) 68%, var(--bs-body-bg));
   text-decoration: none;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
 
-  /* Press feedback: the whole tab dims under the finger, no shapes or motion. */
   &:active {
     opacity: 0.6;
   }
@@ -129,7 +123,6 @@ const tabs = navigation.filter((item) => item.menus.includes('primary'))
   white-space: nowrap;
 }
 
-/* The current tab is marked by color and a firmer stroke alone, like a native tab bar. */
 .tab-item.is-active {
   color: var(--app-primary-ink);
 

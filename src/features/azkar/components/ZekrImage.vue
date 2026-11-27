@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import Logo from '@/shared/ui/Logo.vue'
-import { toArabicNumerals } from '@/shared/utils/arabic'
+import { repeatLabel } from '@/features/azkar/lib/repeatLabel'
 
 const props = defineProps({
   text: {
@@ -26,7 +26,6 @@ const primaryColor = rootStyles.getPropertyValue('--bs-primary').trim() || '#795
 const primaryRgb = rootStyles.getPropertyValue('--bs-primary-rgb').trim() || '121, 85, 71'
 const primary = (alpha) => `rgba(${primaryRgb}, ${alpha})`
 
-// Keep exports independent of the user's font scale.
 const textSize = computed(() => {
   const len = props.text.length
   if (len <= 60) return { fontSize: '30px', lineHeight: 2.1 }
@@ -34,14 +33,6 @@ const textSize = computed(() => {
   if (len <= 320) return { fontSize: '23px', lineHeight: 2 }
   if (len <= 600) return { fontSize: '20px', lineHeight: 1.95 }
   return { fontSize: '18px', lineHeight: 1.9 }
-})
-
-const repeatLabel = computed(() => {
-  const n = props.repeat
-  if (n === 2) return 'يُردَّد مرتين'
-  if (n >= 3 && n <= 10) return `يُردَّد ${toArabicNumerals(n)} مرات`
-  if (n > 10) return `يُردَّد ${toArabicNumerals(n)} مرة`
-  return 'يُردَّد مرة واحدة'
 })
 
 // Inline styles avoid stale scoped-CSS hashes. Use only html2canvas-safe CSS here.
@@ -249,7 +240,7 @@ const st = {
 
         <div :style="st.repeatPill">
           <span :style="st.pillDiamond"></span>
-          <span :style="st.pillLabel">{{ repeatLabel }}</span>
+          <span :style="st.pillLabel">يُردَّد {{ repeatLabel(repeat) }}</span>
           <span :style="st.pillDiamond"></span>
         </div>
       </div>

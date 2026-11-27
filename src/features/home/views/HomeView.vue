@@ -11,14 +11,12 @@ import QuickAzkar from '@/features/azkar/components/QuickAzkar.vue'
 
 const now = useNow({ interval: 60_000 })
 
-// Morning from 4 AM until noon, evening for the rest of the day.
 const isMorning = computed(() => {
   const hour = now.value.getHours()
   return hour >= 4 && hour < 12
 })
 const greeting = computed(() => (isMorning.value ? 'صباح الخير' : 'مساء الخير'))
 
-// The greeting carries the weekday and Gregorian date; the prayer card below keeps the Hijri date.
 const today = computed(() =>
   new Intl.DateTimeFormat('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' }).format(now.value),
 )
@@ -65,7 +63,6 @@ const today = computed(() =>
   margin: 0.25rem 0.125rem 0.875rem;
 }
 
-/* Sun in the morning, crescent in the evening, matching the greeting. */
 .home-greeting__badge {
   display: grid;
   place-items: center;
@@ -82,7 +79,6 @@ const today = computed(() =>
   }
 }
 
-/* Phones show no top bar on Home, so the greeting clears the status bar / notch itself. */
 @media (max-width: 991.98px) {
   .home-greeting {
     padding-top: calc(env(safe-area-inset-top, 0px) + 1rem);

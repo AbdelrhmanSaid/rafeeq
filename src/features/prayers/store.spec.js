@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import { getCurrentPosition } from '@/shared/composables/useGeolocation'
+import { getCurrentPosition } from '@/shared/utils/geolocation'
 import { usePrayersStore } from './store'
 
-vi.mock('@/shared/composables/useGeolocation', () => ({ getCurrentPosition: vi.fn() }))
+vi.mock('@/shared/utils/geolocation', () => ({ getCurrentPosition: vi.fn() }))
 
 beforeEach(() => {
   localStorage.setItem('latitude', '30.0444')

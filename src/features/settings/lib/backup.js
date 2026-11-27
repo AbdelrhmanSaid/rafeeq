@@ -1,7 +1,7 @@
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 
-export const SETTINGS_BACKUP_APP = 'rafeeq'
-export const SETTINGS_BACKUP_VERSION = 1
+const SETTINGS_BACKUP_APP = 'rafeeq'
+const SETTINGS_BACKUP_VERSION = 1
 
 const DYNAMIC_KEY_PREFIXES = [`${STORAGE_KEYS.azkarProgress}:`]
 const MANAGED_KEYS = new Set(Object.values(STORAGE_KEYS))
@@ -17,7 +17,7 @@ export function listSettingsStorageKeys(storage = localStorage) {
     .sort()
 }
 
-export function createSettingsBackup(storage = localStorage) {
+function createSettingsBackup(storage = localStorage) {
   const settings = {}
 
   for (const key of listSettingsStorageKeys(storage)) {
@@ -37,7 +37,6 @@ export function serializeSettingsBackup(storage = localStorage) {
   return `${JSON.stringify(createSettingsBackup(storage), null, 2)}\n`
 }
 
-// Throws unless the file is a Rafeeq backup; returns its entries. Checked before asking to replace anything.
 export function parseSettingsBackup(fileContents) {
   let backup
 

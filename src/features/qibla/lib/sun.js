@@ -3,15 +3,11 @@ const RAD = Math.PI / 180
 const sin = (degrees) => Math.sin(degrees * RAD)
 const cos = (degrees) => Math.cos(degrees * RAD)
 
-// Where the sun is in the sky from a place at a moment: `azimuth` in degrees clockwise from true north, `altitude` in
-// degrees above the horizon. It needs no sensor, only the clock and the location, so it's a check on the compass:
-// point the phone at the sun and the heading should match. Good to a few hundredths of a degree (Meeus,
-// Astronomical Algorithms, ch. 25), far finer than a phone compass.
+// Meeus, Astronomical Algorithms ch. 25; good to a few hundredths of a degree.
 export function getSunPosition(date, latitude, longitude) {
   const days = date.getTime() / 86400000 + 2440587.5 - 2451545
   const t = days / 36525
 
-  // The sun's apparent place along the ecliptic.
   const meanLongitude = 280.46646 + t * (36000.76983 + t * 0.0003032)
   const anomaly = 357.52911 + t * (35999.05029 - t * 0.0001537)
   const centre =
@@ -23,11 +19,9 @@ export function getSunPosition(date, latitude, longitude) {
   const longitudeOnEcliptic = meanLongitude + centre - 0.00569 + nutation
   const obliquity = 23 + (26 + (21.448 - t * (46.815 + t * (0.00059 - t * 0.001813))) / 60) / 60 + 0.00256 * cos(node)
 
-  // The same place measured against the equator.
   const declination = Math.asin(sin(obliquity) * sin(longitudeOnEcliptic)) / RAD
   const rightAscension = Math.atan2(cos(obliquity) * sin(longitudeOnEcliptic), cos(longitudeOnEcliptic)) / RAD
 
-  // How far the earth has turned: the sun's angle west of the local meridian.
   const siderealTime = 280.46061837 + 360.98564736629 * days + t * t * 0.000387933 + nutation * cos(obliquity)
   const hourAngle = siderealTime + Number(longitude) - rightAscension
 

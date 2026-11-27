@@ -83,7 +83,7 @@ describe('useQuranBookmarks', () => {
 
     expect(bookmarks.value).toEqual([])
   })
-  // The list is first used by whichever screen opens first; saving must outlive that screen.
+
   it('keeps saving after the screen that first used it is gone', async () => {
     const wrapper = mount(defineComponent({ setup: () => useQuranBookmarks(), render: () => null }))
     wrapper.unmount()

@@ -3,8 +3,6 @@ import {
   normalizeAngle,
   getShortestRotation,
   smoothAngle,
-  needleRotation,
-  isFacingQibla,
   getQiblaDirection,
   getDistanceToKaaba,
   getTapeTicks,
@@ -22,6 +20,12 @@ describe('normalizeAngle', () => {
     expect(normalizeAngle(360)).toBe(0)
     expect(normalizeAngle(-90)).toBe(270)
     expect(normalizeAngle(450)).toBe(90)
+    expect(normalizeAngle(-725)).toBe(355)
+  })
+
+  it('reads anything that is not a finite number as north', () => {
+    expect(normalizeAngle(Number.NaN)).toBe(0)
+    expect(normalizeAngle(Number.POSITIVE_INFINITY)).toBe(0)
   })
 })
 
@@ -41,24 +45,6 @@ describe('smoothAngle', () => {
 
   it('takes the short way across the 0/360 seam', () => {
     expect(smoothAngle(350, 10, 0.1)).toBeCloseTo(352)
-  })
-})
-
-describe('needleRotation', () => {
-  it('is the qibla bearing minus the device heading', () => {
-    expect(needleRotation(120, 0)).toBe(120)
-    expect(needleRotation(10, 30)).toBe(340)
-    expect(needleRotation(null, 50)).toBe(0)
-  })
-})
-
-describe('isFacingQibla', () => {
-  it('is true within tolerance of 0/360', () => {
-    expect(isFacingQibla(0, 15)).toBe(true)
-    expect(isFacingQibla(10, 15)).toBe(true)
-    expect(isFacingQibla(350, 15)).toBe(true)
-    expect(isFacingQibla(30, 15)).toBe(false)
-    expect(isFacingQibla(180, 15)).toBe(false)
   })
 })
 
@@ -218,14 +204,6 @@ describe('isHeldSideways', () => {
     expect(isHeldSideways(0, 0)).toBe(false)
     expect(isHeldSideways(80, 10)).toBe(false)
     expect(isHeldSideways(0, 85)).toBe(true)
-  })
-})
-
-describe('normalizeAngle with bad input', () => {
-  it('reads anything that is not a finite number as north', () => {
-    expect(normalizeAngle(Number.NaN)).toBe(0)
-    expect(normalizeAngle(Number.POSITIVE_INFINITY)).toBe(0)
-    expect(normalizeAngle(-725)).toBe(355)
   })
 })
 

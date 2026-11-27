@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/features/home/views/HomeView.vue'
 import NotFoundView from '@/app/views/NotFoundView.vue'
-import { trackPageview } from '@/shared/utils/analytics'
+import { trackPageview } from '@/app/analytics'
 import { useMeta } from '@/shared/utils/head'
 import { useThemeStore } from '@/app/stores/theme'
 import { isVerse, pageOfAyah, verseKey } from '@/features/quran/lib/mushaf'
@@ -15,14 +15,10 @@ function withEmbedAliases(routes) {
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  // Custom behavior also puts browser history scrolling in manual mode.
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) return savedPosition
-    // Param tabs and Mushaf pages are in-page state changes, so preserve their scroll position.
     if (to.name === from.name && (to.meta.paramTabs || to.meta.pageParam)) return
-    // A new screen opens at its top at once. Gliding up from the last page's depth showed the app bar's title and
-    // glass for a moment, since the large title started out scrolled under the bar. 'instant' is explicit because
-    // Bootstrap makes the page scroll smoothly by default.
+    // 'instant' overrides Bootstrap's smooth scrolling, which flashed the app bar's title and glass on the way up.
     return { top: 0, behavior: 'instant' }
   },
   routes: withEmbedAliases([
@@ -49,7 +45,6 @@ const router = createRouter({
       },
     },
 
-    // The Mushaf, one page at a time. The page follows the reader with replace(), so it stays out of the history.
     {
       path: '/quran/page/:page(\\d+)',
       name: 'quran-page',
@@ -57,7 +52,7 @@ const router = createRouter({
       meta: { parent: 'quran', pageParam: true },
     },
 
-    // Older links open a surah, or an ayah with ?ayah=, on its page.
+    // Old public links: a surah, or an ayah with ?ayah=, opens on its Mushaf page.
     {
       path: '/quran/:surah(\\d+)',
       name: 'quran-surah',
@@ -161,7 +156,6 @@ const router = createRouter({
       },
     },
 
-    // Each settings section is its own screen, opened from the list on /settings, and titled after itself.
     {
       path: `/settings/:tab(${Object.keys(SETTINGS_SECTION_LABELS).join('|')})`,
       name: 'settings-section',
@@ -204,7 +198,6 @@ const router = createRouter({
       name: 'embed-component',
       component: () => import('@/features/embed/views/EmbedComponentView.vue'),
       meta: {
-        // The embed's own ?title=, or the app's default title when it has none.
         title: (to) => (typeof to.query.title === 'string' ? to.query.title.trim() : undefined),
       },
     },
@@ -230,10 +223,8 @@ router.afterEach((to, from) => {
     themeStore.clearQueryOverrides()
   }
 
-  // Turning a Mushaf page is reading, not a new visit; the reader keeps its own title up to date.
   if (to.meta.pageParam && from.name === to.name) return
 
-  // A title may depend on the route's params.
   const { title } = to.meta
   useMeta({ ...to.meta, title: typeof title === 'function' ? title(to) : title })
 

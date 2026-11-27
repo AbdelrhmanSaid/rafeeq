@@ -5,29 +5,24 @@ import { IconHeart, IconHeartFilled, IconLoader2, IconPlayerPause, IconPlayerPla
 import { usePageHeader } from '@/layout/pageHeader'
 import { stationTitle } from '@/features/radio/lib/stationLabel'
 import { toArabicNumerals } from '@/shared/utils/arabic'
+import StationName from '@/features/radio/components/StationName.vue'
 
 const props = defineProps({
   station: { type: Object, required: true },
   isPlaying: { type: Boolean, default: false },
-  // Started but not heard yet (connecting, buffering or retrying); the button then cancels it.
   isConnecting: { type: Boolean, default: false },
   isFavorite: { type: Boolean, default: false },
-  // Other stations to suggest under the player, each with its `slug`.
   similar: { type: Array, default: () => [] },
 })
 
-// `play-similar` fires with the tapped suggestion, which also opens that station's page.
 defineEmits(['toggle', 'favorite', 'play-similar'])
 
-// The station name is the page's large title: the app bar (or the desktop top nav) carries back and share.
 usePageHeader({
   title: () => stationTitle(props.station),
   share: () => true,
   el: useTemplateRef('title'),
 })
 
-// Faint stars around the crescent, as [x, y, radius] in the scene's 360×240 box.
-// They fade out towards the title side (see the `sky-stars-fade` mask), so the text sits on a clean sky.
 const STARS = [
   [32, 138, 1.2],
   [104, 150, 1],
@@ -43,15 +38,12 @@ const STARS = [
   [214, 84, 1],
 ]
 
-// Ctrl/Cmd/Shift-click or a middle click opens the station elsewhere; only a plain click plays it here.
 const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button > 0
 </script>
 
 <template>
   <div class="station">
-    <!-- A night sky over a mosque skyline: crescent, stars, domes and minarets in silhouette.
-         The scene fits whole and sits on the bottom edge (slicing it to fill a wide card cut off the crescent); the
-         ground runs far past the viewBox on both sides, so the skyline still spans any width. -->
+    <!-- "meet", not "slice", so a wide card doesn't cut off the crescent. -->
     <section class="sky">
       <svg class="sky__scene" viewBox="0 0 360 240" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
         <defs>
@@ -104,7 +96,6 @@ const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shift
       </div>
     </section>
 
-    <!-- Play rests on the skyline. -->
     <div class="station__controls">
       <button
         class="station__play"
@@ -129,10 +120,7 @@ const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shift
           @click="(event) => !isModifiedClick(event) && $emit('play-similar', item)"
         >
           <span class="list-index">{{ toArabicNumerals(index + 1) }}</span>
-          <span class="station-name">
-            <span class="fw-medium">{{ stationTitle(item) }}</span>
-            <span v-if="item.description" class="station-name__detail">{{ item.description }}</span>
-          </span>
+          <StationName :name="stationTitle(item)" :description="item.description" />
         </RouterLink>
       </div>
     </section>
@@ -144,14 +132,12 @@ const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shift
   width: 100%;
 }
 
-/* The sky shares the prayer card's radius and brand colour, darkening towards the top like night. */
 .sky {
   position: relative;
   overflow: hidden;
   height: 15rem;
   border-radius: var(--bs-border-radius-lg);
   box-shadow: var(--app-shadow-card);
-  /* A soft light at the top, like the prayer card, over a sky that deepens towards the skyline. */
   background:
     radial-gradient(28rem 12rem at 50% 0, rgba(255, 255, 255, 0.16), transparent 70%),
     linear-gradient(180deg, color-mix(in srgb, var(--bs-primary) 70%, #000), var(--bs-primary));
@@ -163,7 +149,6 @@ const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shift
   inset: 0;
   width: 100%;
   height: 100%;
-  /* Let the ground run past the viewBox; the rounded sky clips it. */
   overflow: visible;
 }
 
@@ -198,7 +183,6 @@ const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shift
   flex-shrink: 0;
   width: 2.75rem;
   height: 2.75rem;
-  /* Line the icon up with the title's corner while keeping a 44px target. */
   margin-top: -0.5rem;
   margin-inline-end: -0.625rem;
   padding: 0;
@@ -255,7 +239,6 @@ const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shift
   position: relative;
   display: flex;
   justify-content: center;
-  /* Pull the play button up so it rests on the skyline. */
   margin-top: -2.25rem;
 }
 
@@ -275,19 +258,8 @@ const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shift
     height: 2rem;
   }
 
-  /* Darken instead of fading, so the sky behind the button never shows through. */
   &:active {
     background: color-mix(in srgb, var(--bs-primary) 85%, #000);
-  }
-}
-
-.is-spinning {
-  animation: station-spin 0.9s linear infinite;
-}
-
-@keyframes station-spin {
-  to {
-    transform: rotate(360deg);
   }
 }
 
@@ -297,22 +269,6 @@ const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shift
 
 .station__row {
   min-height: 3.5rem;
-  /* List actions default to the muted text colour; the name stays full strength and only the detail is muted. */
   color: var(--bs-body-color);
-}
-
-/* Name, then the muted detail on the same line while it fits; at large text sizes the detail drops below and the
-   name wraps instead of being cut to one word. */
-.station-name {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  column-gap: 0.375em;
-  min-width: 0;
-  overflow-wrap: break-word;
-}
-
-.station-name__detail {
-  color: var(--bs-secondary-color);
 }
 </style>

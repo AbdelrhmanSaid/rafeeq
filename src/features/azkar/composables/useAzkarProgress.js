@@ -4,7 +4,6 @@ import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 
 const today = () => new Date().toLocaleDateString('en-CA')
 
-// Persisted counts expire at the local day boundary.
 export const useAzkarProgress = (slug, persist = true) => {
   const state = persist
     ? useLocalStorage(() => `${STORAGE_KEYS.azkarProgress}:${toValue(slug)}`, { date: today(), counts: {} })

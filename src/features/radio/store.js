@@ -1,6 +1,6 @@
 import { watch } from 'vue'
 import { defineStore } from 'pinia'
-import { useAudioPlayer } from '@/shared/composables/useAudioPlayer'
+import { useAudioPlayer } from '@/features/radio/composables/useAudioPlayer'
 import { stationTitle } from '@/features/radio/lib/stationLabel'
 import {
   setMediaMetadata,

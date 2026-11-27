@@ -59,7 +59,6 @@ describe('QuranReaderView', () => {
     vi.useRealTimers()
   })
 
-  // Each press used to aim from the page in view before the slide in progress had landed, so it aimed at that page.
   it('turns a page for every arrow press, however quick', async () => {
     let router
     ;({ wrapper, router } = await open('/quran/page/100'))

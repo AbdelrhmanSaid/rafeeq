@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 
-export function useAsyncData(fetcher, { immediate = true } = {}) {
+export function useAsyncData(fetcher) {
   const data = ref(null)
   const error = ref(null)
   const pending = ref(false)
@@ -18,7 +18,7 @@ export function useAsyncData(fetcher, { immediate = true } = {}) {
     }
   }
 
-  if (immediate) execute()
+  execute()
 
   return { data, error, pending, execute }
 }

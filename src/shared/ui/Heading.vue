@@ -18,7 +18,6 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  // List screens drop the subtitle on phones so the list starts higher.
   subtitleDesktopOnly: {
     type: Boolean,
     default: false,
@@ -27,7 +26,6 @@ const props = defineProps({
 
 const heading = useTemplateRef('heading')
 
-// A page's h1 is its large title; the app bar picks it up once it scrolls under the bar, and carries its share action.
 if (props.size === 1) {
   usePageHeader({
     title: () => props.title,

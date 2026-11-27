@@ -1,6 +1,5 @@
 import { onBeforeUnmount, onMounted, reactive, toValue, watchEffect } from 'vue'
 
-// The page's large title, shared with the app bar so it can take the title over once it scrolls away.
 export const pageHeader = reactive({
   owner: null,
   title: '',

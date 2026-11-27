@@ -18,9 +18,6 @@ $font-family-sans-serif:
 $headings-font-family: 'Thmanyah Serif Text', 'Thmanyah Sans', serif;
 $line-height-base: 1.6;
 
-// One radius scale for the whole app:
-// sm (8px) small chips and tiles · base (12px) controls: inputs, buttons, pills
-// lg (16px) every surface: cards, lists, grouped rows, hero cards · xl (24px) overlays: sheets and dialogs
 $border-radius-sm: 0.5rem;
 $border-radius: 0.75rem;
 $border-radius-lg: 1rem;
@@ -35,13 +32,9 @@ $btn-font-weight: 500;
 $card-border-radius: var(--bs-border-radius-lg);
 $card-spacer-y: 1.5rem;
 $card-spacer-x: 1.5rem;
-$modal-content-border-radius: var(--bs-border-radius-xl);
 $list-group-border-radius: var(--bs-border-radius-lg);
 $list-group-item-padding-x: 1rem;
 $list-group-item-padding-y: 0.75rem;
-$input-border-radius: var(--bs-border-radius);
-$input-border-radius-lg: var(--bs-border-radius-lg);
-$dropdown-border-radius: var(--bs-border-radius);
 $dropdown-box-shadow: 0 12px 32px rgba(18, 18, 18, 0.12);
 
 $box-shadow-sm: 0 1px 2px rgba(18, 18, 18, 0.05);

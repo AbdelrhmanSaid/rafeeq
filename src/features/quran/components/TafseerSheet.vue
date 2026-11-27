@@ -26,7 +26,7 @@ const tafseerOptions = tafseers.map((tafseer) => ({ value: tafseer.identifier, l
 const online = useOnline()
 const quranStore = useQuranStore()
 
-// Retain content until the close animation finishes.
+// Kept through the close animation.
 const displayAyah = ref(props.ayah)
 
 // Edition changes here are temporary and do not replace the saved default.
@@ -38,20 +38,17 @@ const tafsir = computed(() => data.value?.data?.[0])
 
 const scroller = useTemplateRef('scroller')
 
-// While the next tafsir loads, the last one stays in place, dimmed, so the sheet and its buttons don't jump about.
 watch([() => props.ayah, edition], ([ayah], [previous]) => {
   if (!ayah) return
   displayAyah.value = ayah
-  // A sheet opened afresh starts from the spinner, not from the tafsir it showed last time.
   if (!previous) data.value = null
   if (ayah !== previous) scroller.value?.scrollTo?.({ top: 0 })
   url.value = `${API.quranCloud}/ayah/${ayah.number}/editions/${edition.value}`
   if (online.value) execute()
-  // Offline, the request doesn't run; the last ayah's tafsir mustn't show under this one.
+  // Offline nothing is fetched, so the previous ayah's tafsir mustn't stay.
   else data.value = null
 })
 
-// Opened offline, the tafsir loads once the connection is back.
 watch(online, (isOnline) => {
   if (isOnline && props.ayah && !data.value && !isFetching.value) execute()
 })
@@ -59,7 +56,6 @@ watch(online, (isOnline) => {
 
 <template>
   <BottomSheet :show="!!ayah" title="تفسير الآية" @close="emit('close')">
-    <!-- A fixed height, like the reciter sheet: the text scrolls, and the buttons stay put from one ayah to the next. -->
     <div class="tafseer">
       <div ref="scroller" class="tafseer__scroll p-4" :aria-busy="isFetching">
         <template v-if="displayAyah">
@@ -102,7 +98,7 @@ watch(online, (isOnline) => {
 </template>
 
 <style lang="scss" scoped>
-@import '@/shared/styles/quran.css';
+@import '@/features/quran/styles/ayah-number.css';
 
 .tafseer {
   display: flex;
@@ -120,7 +116,6 @@ watch(online, (isOnline) => {
 .tafseer__text {
   transition: opacity 0.2s ease;
 
-  // The last ayah's tafsir, kept while this one's loads.
   &.is-stale {
     opacity: 0.4;
   }

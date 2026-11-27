@@ -4,7 +4,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 async function setup() {
   vi.resetModules()
   const module = await import('@/shared/ui/sheetHistory')
-  // What the router knows: the screen's address and state.
   const router = {
     options: {
       history: { location: '/quran/page/3', state: { position: 1, current: '/quran/page/3' }, createHref: (p) => p },
@@ -14,7 +13,6 @@ async function setup() {
   return { ...module, router }
 }
 
-// A sheet whose close button does what a real sheet's does: it closes, and stops being tracked.
 function open(trackSheet) {
   let untrack = null
   const close = vi.fn(() => untrack())
@@ -81,7 +79,6 @@ describe('sheetHistory', () => {
   it('puts back the address the router moved to while the sheet was open', async () => {
     const { trackSheet, router } = await setup()
     open(trackSheet)
-    // A page turns under the tafsir: the router replaces the sheet's entry.
     history.replaceState({ ...history.state, current: '/quran/page/4' }, '', '/quran/page/4')
     router.options.history.location = '/quran/page/4'
     router.options.history.state = { position: 1, current: '/quran/page/4' }

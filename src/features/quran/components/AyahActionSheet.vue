@@ -7,7 +7,6 @@ import { BOOKMARK_COLORS } from '@/features/quran/composables/useQuranBookmarks'
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
 
 const props = defineProps({
-  // { key, surah, ayah, text } of the selected ayah.
   ayah: { type: Object, default: null },
   surahName: { type: String, default: '' },
   online: { type: Boolean, default: true },
@@ -34,7 +33,7 @@ const copy = () => {
   })
 }
 
-// The system share sheet says for itself whether it worked; closing it without sharing isn't an error.
+// The share sheet reports its own result; dismissing it isn't an error.
 const share = async () => {
   const text = shareText.value
   emit('close')
@@ -55,7 +54,6 @@ const share = async () => {
 
 <template>
   <BottomSheet :show="!!ayah" :title="title" @close="emit('close')">
-    <!-- Bookmarking is a color: the ayah is tinted with it on the page. -->
     <div class="bookmark-colors" role="radiogroup" aria-label="لون الإشارة المرجعية">
       <span class="bookmark-colors__label">إشارة مرجعية</span>
       <div class="bookmark-colors__dots">

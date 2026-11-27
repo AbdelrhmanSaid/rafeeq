@@ -9,7 +9,6 @@ vi.mock('@/features/quran/lib/mushaf', async (importOriginal) => ({
 const layout = () => new TextEncoder().encode(JSON.stringify({ lines: [], verses: {} })).buffer
 const font = () => new TextEncoder().encode('wOF2 font').buffer
 
-// An in-memory Cache Storage, by cache name. `urls()` lists the current Mushaf cache.
 function fakeCaches() {
   const stores = new Map()
   const store = (name) => {
@@ -78,7 +77,6 @@ describe('mushafDownloads', () => {
 
     controller.abort()
     await expect(download).rejects.toThrow()
-    // The network answering late stores nothing more.
     held.get(3).forEach((respond) => respond())
     await new Promise((resolve) => setTimeout(resolve))
 
@@ -104,7 +102,6 @@ describe('mushafDownloads', () => {
   })
 
   it('keeps pages stored by reading when a download is discarded', async () => {
-    // As the reader leaves a page it opened.
     storage.storedPages.add(1)
 
     await storage.mushafDownloads.discard('1')

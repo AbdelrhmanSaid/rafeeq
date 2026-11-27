@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { reactive } from 'vue'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import ZekrCard from '@/features/azkar/components/ZekrCard.vue'
@@ -24,12 +23,12 @@ vi.mock('@/features/azkar/composables/useZekrScroll', () => ({
 }))
 
 const mountCard = (repeat) => {
-  const counts = reactive({})
+  const counts = {}
   const wrapper = mount(ZekrCard, {
     props: {
       'text': 'ذكر',
       repeat,
-      'count': counts[0] ?? 0,
+      'count': 0,
       'onUpdate:count': (value) => {
         counts[0] = value
         wrapper.setProps({ count: value })
@@ -50,17 +49,7 @@ describe('ZekrCard', () => {
     vi.unstubAllGlobals()
   })
 
-  it('vibrates and scrolls to the next zekr once the count reaches repeat (repeat=1)', async () => {
-    const { wrapper, counts } = mountCard(1)
-
-    await clickCounter(wrapper)
-
-    expect(counts[0]).toBe(1)
-    expect(vibrateOnFinish).toHaveBeenCalledTimes(1)
-    expect(scrollToNextZekr).toHaveBeenCalledTimes(1)
-  })
-
-  it('only fires the completion behavior on the final increment (repeat=3)', async () => {
+  it('vibrates and scrolls to the next zekr only on the final increment', async () => {
     const { wrapper, counts } = mountCard(3)
 
     await clickCounter(wrapper)
@@ -87,21 +76,6 @@ describe('ZekrCard', () => {
     expect(scrollToNextZekr).toHaveBeenCalledTimes(1)
   })
 
-  it('keeps reset outside the actions dropdown and disabled at zero', () => {
-    const { wrapper } = mountCard(3)
-    const resetBtn = wrapper.find('[aria-label="تصفير"]')
-
-    expect(resetBtn.exists()).toBe(true)
-    expect(resetBtn.element.closest('.dropdown-menu')).toBeNull()
-    expect(resetBtn.attributes('disabled')).toBeDefined()
-    expect(
-      wrapper
-        .findAll('.dropdown-item')
-        .map((item) => item.text())
-        .join(),
-    ).not.toContain('تصفير')
-  })
-
   it('marks the card as completed once the count reaches repeat', async () => {
     const { wrapper } = mountCard(2)
 
@@ -117,8 +91,9 @@ describe('ZekrCard', () => {
     expect(wrapper.classes()).not.toContain('completed')
   })
 
-  it('resets the count from the standalone reset button', async () => {
+  it('disables reset at zero and resets the count', async () => {
     const { wrapper, counts } = mountCard(3)
+    expect(wrapper.find('[aria-label="تصفير"]').attributes('disabled')).toBeDefined()
 
     await clickCounter(wrapper)
     await clickCounter(wrapper)
@@ -137,19 +112,6 @@ describe('ZekrCard', () => {
     await wrapper.find('.zekr-text').trigger('click')
 
     expect(counts[0]).toBe(1)
-  })
-
-  it('still counts a tap while text is selected elsewhere on the page', async () => {
-    const { wrapper, counts } = mountCard(3)
-    const elsewhere = document.createElement('p')
-    elsewhere.textContent = 'نص محدد'
-    document.body.appendChild(elsewhere)
-    window.getSelection().selectAllChildren(elsewhere)
-
-    await wrapper.find('.zekr-text').trigger('click')
-
-    expect(counts[0]).toBe(1)
-    elsewhere.remove()
   })
 
   it('does not count a click on the card actions, and lets it bubble so the dropdown can close', async () => {

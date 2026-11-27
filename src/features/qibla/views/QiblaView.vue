@@ -20,9 +20,10 @@ import QiblaCompass from '@/features/qibla/components/QiblaCompass.vue'
 import QiblaDebug from '@/features/qibla/components/QiblaDebug.vue'
 import QiblaLocationNote from '@/features/qibla/components/QiblaLocationNote.vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
-import { getCurrentPosition } from '@/shared/composables/useGeolocation'
+import { getCurrentPosition } from '@/shared/utils/geolocation'
 import { useIsMobile } from '@/shared/composables/useIsMobile'
 import { usePrayersStore } from '@/features/prayers/store'
+import { isCoordinate } from '@/features/prayers/lib/coordinates'
 import { useDeviceCompass } from '@/features/qibla/composables/useDeviceCompass'
 import {
   getBearingUncertainty,
@@ -36,17 +37,14 @@ import { getSunPosition } from '@/features/qibla/lib/sun'
 const isMobile = useIsMobile()
 const prayersStore = usePrayersStore()
 
-const isCoordinate = (value) => Number.isFinite(Number(value)) && Number(value) !== 0
-
-// The location saved for prayer times is good enough for the qibla, so only ask when there isn't one.
 const latitude = ref(isCoordinate(prayersStore.latitude) ? Number(prayersStore.latitude) : null)
 const longitude = ref(isCoordinate(prayersStore.longitude) ? Number(prayersStore.longitude) : null)
 const locationLoading = ref(latitude.value == null)
 const locationError = ref(null)
-// How far off a fresh fix may be, in metres. The saved location doesn't say.
 const locationAccuracy = ref(null)
 
-function applyFix(position) {
+async function takeFreshFix() {
+  const position = await getCurrentPosition({ enableHighAccuracy: true, timeout: 15000 })
   latitude.value = position.coords.latitude
   longitude.value = position.coords.longitude
   locationAccuracy.value = position.coords.accuracy ?? null
@@ -57,7 +55,7 @@ async function requestLocation() {
   locationError.value = null
 
   try {
-    applyFix(await getCurrentPosition({ enableHighAccuracy: true, timeout: 15000 }))
+    await takeFreshFix()
   } catch (err) {
     if (!navigator.geolocation) locationError.value = 'الموقع الجغرافي غير مدعوم في هذا المتصفح'
     else if (err?.code === 1) locationError.value = 'تم رفض إذن الوصول للموقع'
@@ -68,15 +66,13 @@ async function requestLocation() {
   }
 }
 
-// The saved location shows the qibla at once; a fresh fix then replaces it, in case you've travelled since.
-// If the fix fails the screen says it's using the saved location, since an old city means a wrong bearing.
 const usingSavedLocation = ref(latitude.value != null)
 const refreshingLocation = ref(false)
 
 async function refreshLocation() {
   refreshingLocation.value = true
   try {
-    applyFix(await getCurrentPosition({ enableHighAccuracy: true, timeout: 15000 }))
+    await takeFreshFix()
     usingSavedLocation.value = false
   } catch {
     // Keep the saved location, and keep saying so.
@@ -86,7 +82,6 @@ async function refreshLocation() {
 }
 
 const hasLocation = computed(() => latitude.value != null && longitude.value != null)
-// A bearing that isn't a finite number hides the compass rather than reading as north.
 const qiblaDirection = computed(() => {
   if (!hasLocation.value) return null
   const bearing = getQiblaDirection(latitude.value, longitude.value)
@@ -94,8 +89,7 @@ const qiblaDirection = computed(() => {
 })
 const distance = computed(() => (hasLocation.value ? getDistanceToKaaba(latitude.value, longitude.value) : null))
 
-// A rough location means a rough bearing, most of all near Makkah: 20 km out is under 1° in Cairo but 17° in Jeddah.
-// Past this many degrees the screen shows the direction as approximate and won't say you're facing the qibla.
+// 20 km of error is under 1° in Cairo but 17° in Jeddah; past this the direction shows as approximate.
 const MAX_UNCERTAINTY = 1
 const uncertainty = computed(() => getBearingUncertainty(locationAccuracy.value, distance.value))
 const impreciseLocation = computed(() => uncertainty.value != null && uncertainty.value > MAX_UNCERTAINTY)
@@ -116,7 +110,6 @@ const {
   requestPermission,
 } = useDeviceCompass()
 
-// Phone compasses read from magnetic north; the qibla bearing is from true north, so add the local declination.
 const declination = computed(() => (hasLocation.value ? getDeclination(latitude.value, longitude.value) : 0))
 const trueHeading = computed(() => normalizeAngle(heading.value + (declination.value ?? 0)))
 // Without the correction the heading could be tens of degrees off, so there's no compass to show.
@@ -124,12 +117,10 @@ const compassIssue = computed(
   () => compassError.value || (declination.value == null ? 'تعذّر حساب الشمال الحقيقي لموقعك' : null),
 )
 
-// The heading assumes the phone is upright in portrait; turned sideways it would be a quarter turn off.
+// The heading assumes portrait; sideways (even rotation-locked, which still reports portrait) it's 90° off.
 const { angle: screenAngle } = useScreenOrientation()
-// Also off when the phone is on its side with rotation lock, where the screen still reports portrait.
 const isPortrait = computed(() => !screenAngle.value && !sideways.value)
 
-// iOS says how far off its compass may be; past this many degrees it needs calibrating.
 const MAX_COMPASS_ERROR = 15
 const needsCalibration = computed(
   () => accuracy.value != null && (accuracy.value < 0 || accuracy.value > MAX_COMPASS_ERROR),
@@ -137,21 +128,17 @@ const needsCalibration = computed(
 
 const awaitingCompass = computed(() => isMobile.value && canRequestPermission.value && !hasReading.value)
 
-// A phone that offers the compass but never sends a north-based reading (no magnetometer, or the browser withholds it)
-// would otherwise sit on the resting tape forever, which looks like a working compass.
+// A phone that never sends a north-based reading would otherwise sit on a resting tape that looks live.
 const readingTimedOut = ref(false)
 useTimeoutFn(() => (readingTimedOut.value = true), 4000)
 
-// On a phone the compass is the point of the screen, so when it can't be trusted the screen says so instead of showing
-// a tape that reads like a live direction. A name, not an object, so a stream of readings doesn't count as a change.
+// A name, not an object, so a stream of readings doesn't count as a change.
 const problem = computed(() => {
   if (!isMobile.value) return null
   // iOS with no usable heading never produces a reading, so this comes before the reading checks.
   if (accuracy.value != null && accuracy.value < 0) return 'calibrate'
   if (compassIssue.value && !canRequestPermission.value) return 'unavailable'
-  // Stood up, an iPhone has no heading to give, so it may never have produced a reading either.
   if (upright.value) return 'upright'
-  // Readings that stopped after arriving mean the sensor paused, not that the phone has no compass.
   if (!hasReading.value && hadReading.value) return 'paused'
   if (!hasReading.value) return hasSupport.value && readingTimedOut.value ? 'no-reading' : null
   if (!isPortrait.value) return 'sideways'
@@ -161,7 +148,6 @@ const problem = computed(() => {
 })
 // Turning or tilting the phone can cross these lines for a moment; only a problem that lasts swaps the screen.
 const lastingProblem = refDebounced(problem, 600)
-// Until it swaps, the tape keeps following the phone but can't be relied on: it won't say you're facing the qibla.
 const trusted = computed(() => problem.value === null)
 
 // Isolated so the degree sign stays after the number inside Arabic text.
@@ -171,13 +157,10 @@ const bearingLine = computed(() =>
     : ` القبلة على \u2066${toArabicNumerals(Math.round(qiblaDirection.value) % 360)}°\u2069 من الشمال.`,
 )
 
-// Panels that give the bearing in words also say where it's from, as the compass does: the distance, and the saved
-// location with a way to refresh it.
 const BEARING_PROBLEMS = new Set(['unavailable', 'no-reading', 'paused'])
 
 const problemPanel = computed(() => {
   if (!problem.value) return null
-  // With no live reading there's no tape to keep showing meanwhile, so the panel comes at once.
   if (hasReading.value && !lastingProblem.value) return null
   return {
     'calibrate': {
@@ -218,16 +201,11 @@ const problemPanel = computed(() => {
   }[problem.value]
 })
 
-// Phones with a working compass follow the phone; anywhere else the screen shows the bearing and distance. A problem
-// that hasn't lasted yet keeps the tape live rather than flashing the resting bearing as if it were a reading.
 const live = computed(() => isMobile.value && hasReading.value && !problemPanel.value)
 
-// On a phone the tape only ever shows a live heading. With none, and no panel saying why, it's still starting; the
-// resting tape, with the Kaaba dead centre, would read as facing the qibla.
 const startingCompass = computed(() => isMobile.value && !live.value)
 
-// The sun's bearing needs only the clock and the location, so it checks the compass: aim the phone at the sun and it
-// should sit on the centre line. Only while the sun is up, and not so high that its direction is hard to judge.
+// Aim the phone at the sun to check the compass; too high and its direction is hard to judge.
 const now = useNow({ interval: 30000 })
 const sunAzimuth = computed(() => {
   if (!hasLocation.value) return null
@@ -235,7 +213,6 @@ const sunAzimuth = computed(() => {
   return sun.altitude > 3 && sun.altitude < 70 ? sun.azimuth : null
 })
 
-// /qibla?debug shows the raw sensor values, to check the compass on a real phone.
 const route = useRoute()
 const debugging = computed(() => 'debug' in route.query)
 const debugValues = computed(() => {
@@ -274,7 +251,6 @@ onMounted(() => {
 </script>
 
 <template>
-  <!-- One screen tall: the title, then the compass centred in the rest. -->
   <Page class="qibla-page full-height">
     <Heading
       subtitle-desktop-only
@@ -289,8 +265,6 @@ onMounted(() => {
         <button type="button" class="btn btn-soft" @click="requestLocation">إعادة المحاولة</button>
       </StatePanel>
 
-      <!-- Where the phone asks before sharing its compass (iOS), show only the request until it's allowed, so a
-           resting tape isn't mistaken for a working compass. -->
       <StatePanel
         v-else-if="awaitingCompass"
         :icon="IconCompass"

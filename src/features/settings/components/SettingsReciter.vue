@@ -1,17 +1,19 @@
 <script setup>
 import reciters from '@/features/quran/data/reciters.js'
 import { useQuranStore } from '@/features/quran/store.js'
+import { normalizeRewaya } from '@/features/quran/lib/reciters'
 import { computed } from 'vue'
 import SettingsSection from './SettingsSection.vue'
 import SelectRow from '@/shared/ui/SelectRow.vue'
 
 const quranStore = useQuranStore()
-const normalize = (s) => s.replace(/\s+/g, ' ')
 
-const fullReciters = reciters.filter((r) => r.soar_count >= 114).map((r) => ({ ...r, rewaya: normalize(r.rewaya) }))
+const fullReciters = reciters
+  .filter((r) => r.soar_count >= 114)
+  .map((r) => ({ ...r, rewaya: normalizeRewaya(r.rewaya) }))
 
 const rewayat = [...new Set(fullReciters.map((r) => r.rewaya))]
-const currentRewaya = computed(() => normalize(quranStore.reciter?.rewaya ?? '') || rewayat[0])
+const currentRewaya = computed(() => normalizeRewaya(quranStore.reciter?.rewaya ?? '') || rewayat[0])
 const filteredReciters = computed(() => fullReciters.filter((r) => r.rewaya === currentRewaya.value))
 
 const rewayaOptions = rewayat.map((rewaya) => ({ value: rewaya, label: rewaya }))

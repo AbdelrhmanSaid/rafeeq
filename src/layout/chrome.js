@@ -1,6 +1,5 @@
 import { onBeforeUnmount, onMounted, reactive } from 'vue'
 
-// Full-screen readers draw under the app bar and tab bar, which float over them and can be tucked away with a tap.
 export const chrome = reactive({
   overlay: false,
   hidden: false,

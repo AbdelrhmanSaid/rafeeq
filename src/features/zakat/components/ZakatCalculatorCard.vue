@@ -1,17 +1,12 @@
 <script setup>
 defineProps({
-  // { value, hint, items? }: the amount due, already formatted, and how it's worked out. Livestock lists what's due for
-  // each kind of animal as items ({ value, label }) instead of one value.
   result: { type: Object, required: true },
-  // 'reached' or 'below' once something is entered; null while the nisab can't be judged yet.
-  status: { type: String, default: null },
   conditions: { type: Array, required: true },
 })
 </script>
 
 <template>
   <div class="zakat-calc">
-    <!-- The answer first, in a brand card like the Home prayer card; it updates as you type. -->
     <section class="zakat-hero">
       <span class="zakat-hero__label">الزكاة الواجبة</span>
       <ul v-if="result.items?.length" class="zakat-hero__items">
@@ -23,8 +18,8 @@ defineProps({
       <bdi v-else class="zakat-hero__value">{{ result.value }}</bdi>
       <p class="zakat-hero__meta">
         <span>{{ result.hint }}</span>
-        <span v-if="status" class="zakat-hero__status">
-          {{ status === 'reached' ? 'بلغ النصاب' : 'لم يبلغ النصاب' }}
+        <span v-if="result.status" class="zakat-hero__status">
+          {{ result.status === 'reached' ? 'بلغ النصاب' : 'لم يبلغ النصاب' }}
         </span>
       </p>
     </section>
@@ -52,11 +47,8 @@ defineProps({
   background:
     radial-gradient(28rem 14rem at 100% 0, rgba(255, 255, 255, 0.18), transparent 70%),
     linear-gradient(135deg, var(--bs-primary), color-mix(in srgb, var(--bs-primary) 72%, #000));
-  /* White on a dark brand colour, near-black on a light one (sand); see the prayer card. */
   color: var(--app-on-primary);
 
-  /* As on the prayer card, the gradient deepens away from the text colour, so a light brand colour doesn't darken
-     behind its dark text. */
   @supports (color: rgb(from red r g b)) {
     background:
       radial-gradient(28rem 14rem at 100% 0, rgba(255, 255, 255, 0.18), transparent 70%),
@@ -71,7 +63,6 @@ defineProps({
       );
   }
 
-  /* The same star pattern as the prayer card, fading out across the card. */
   &::before {
     content: '';
     position: absolute;
@@ -98,7 +89,6 @@ defineProps({
   font-weight: 700;
   line-height: 1.3;
   font-variant-numeric: tabular-nums;
-  /* A very large amount breaks across lines rather than running out of the card. */
   overflow-wrap: anywhere;
 }
 

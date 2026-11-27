@@ -8,6 +8,7 @@ import Heading from '@/shared/ui/Heading.vue'
 import SearchableFavoritesList from '@/shared/ui/SearchableFavoritesList.vue'
 import radiosData from '@/features/radio/data/radios.js'
 import OfflineState from '@/shared/ui/OfflineState.vue'
+import StationName from '@/features/radio/components/StationName.vue'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 import { stationTitle } from '@/features/radio/lib/stationLabel'
@@ -16,16 +17,13 @@ const store = useRadioStore()
 const online = useOnline()
 
 const groups = [
-  // The first section needs no heading of its own: the screen title covers it, or "كل الإذاعات" under favourites.
   { key: 'general', title: null },
   { key: 'reciters', title: 'القراء' },
   { key: 'translations', title: 'الترجمات' },
 ]
 
-// Started but not heard yet: connecting, buffering or retrying.
 const isConnecting = (item) => store.station === item.url && ['connecting', 'retrying'].includes(store.status)
 
-// `title` spells out translation stations, so searching "ترجمة" still finds them.
 const radiosList = Object.entries(radiosData).map(([slug, station]) => ({
   slug,
   ...station,
@@ -72,10 +70,7 @@ const radiosList = Object.entries(radiosData).map(([slug, station]) => ({
           class="flex-grow-1 radio-link d-flex align-items-center gap-3 min-w-0"
         >
           <span class="list-index">{{ toArabicNumerals(index + 1) }}</span>
-          <span class="station-name">
-            <span class="fw-medium">{{ item.name }}</span>
-            <span v-if="item.description" class="station-name__detail">{{ item.description }}</span>
-          </span>
+          <StationName :name="item.name" :description="item.description" />
         </RouterLink>
       </template>
 
@@ -111,31 +106,6 @@ const radiosList = Object.entries(radiosData).map(([slug, station]) => ({
   text-decoration: none;
 }
 
-/* Name, then the muted detail on the same line while it fits; at large text sizes the detail drops below and the
-   name wraps instead of being cut to one word (several stations share a reciter's name). */
-.station-name {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  column-gap: 0.375em;
-  min-width: 0;
-  overflow-wrap: break-word;
-}
-
-.station-name__detail {
-  color: var(--bs-secondary-color);
-}
-
-.is-spinning {
-  animation: radio-spin 0.9s linear infinite;
-}
-
-@keyframes radio-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 :deep(.list-group-item) {
   container-type: inline-size;
   transition:
@@ -143,7 +113,6 @@ const radiosList = Object.entries(radiosData).map(([slug, station]) => ({
     border-color 0.3s,
     color 0.3s;
 
-  /* The station on air is a solid brand row, so everything on it takes the brand's readable "on" colour. */
   &.active {
     background-color: var(--bs-primary);
     color: var(--app-on-primary);
@@ -162,8 +131,6 @@ const radiosList = Object.entries(radiosData).map(([slug, station]) => ({
     }
   }
 
-  /* With large text on a narrow screen the two 44px actions leave the name a few letters' width; the row number is
-     the one thing it can spare. (em here is the row's text size, so this follows the font scale.) */
   @container (max-width: 17em) {
     .list-index {
       display: none;

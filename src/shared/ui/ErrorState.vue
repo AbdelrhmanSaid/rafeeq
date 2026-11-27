@@ -7,7 +7,6 @@ defineProps({
   icon: { type: [Object, Function], default: () => IconAlertTriangle },
   title: { type: String, default: 'تعذّر التحميل' },
   message: { type: String, default: 'حدث خطأ غير متوقع، برجاء المحاولة مرة أخرى.' },
-  // Shows a "try again" button when given.
   retry: { type: Function, default: null },
 })
 </script>

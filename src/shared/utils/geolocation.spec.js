@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getCurrentPosition } from './useGeolocation'
+import { getCurrentPosition } from './geolocation'
 
 function setGeolocation(value) {
   Object.defineProperty(globalThis.navigator, 'geolocation', { value, configurable: true })

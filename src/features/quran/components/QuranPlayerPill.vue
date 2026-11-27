@@ -16,8 +16,7 @@ const emit = defineEmits(['toggle'])
 
 const quranStore = useQuranStore()
 
-// The Mushaf is in Hafs, so the list offers the reciters who recorded the whole Quran in it, plus whoever was picked
-// in Settings, which may be another riwaya: it plays, but the ayah isn't followed.
+// Full-Quran Hafs reciters, plus the Settings pick even if it's another riwaya (it plays without ayah following).
 const choices = computed(() =>
   reciters.filter((r) => (r.soar_count >= 114 && isHafsRecording(r)) || r.id === Number(quranStore.currentReciter)),
 )
@@ -29,7 +28,6 @@ const reciterOptions = computed(() =>
 const showReciters = ref(false)
 
 const reciterName = computed(() => quranStore.reciter?.name ?? 'اختر القارئ')
-// Two recordings can share a reciter's name, so the player says which one is playing.
 const reciterStyle = computed(() => recordingStyle(quranStore.reciter))
 </script>
 
@@ -42,7 +40,7 @@ const reciterStyle = computed(() => recordingStyle(quranStore.reciter))
       :disabled="loading"
       @click="emit('toggle')"
     >
-      <IconLoader2 v-if="loading" size="16" class="spin" aria-hidden="true" />
+      <IconLoader2 v-if="loading" size="16" class="is-spinning" aria-hidden="true" />
       <IconPlayerPauseFilled v-else-if="playing" size="16" aria-hidden="true" />
       <IconPlayerPlayFilled v-else size="16" aria-hidden="true" />
     </button>
@@ -72,12 +70,10 @@ const reciterStyle = computed(() => recordingStyle(quranStore.reciter))
 </template>
 
 <style lang="scss" scoped>
-/* An embed has no tab bar to clear. */
 :global(.main-content-embed .player-pill) {
   bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
 }
 
-/* A small pill just above the tab bar: play, and who is reciting. */
 .player-pill {
   position: fixed;
   inset-inline: 0;
@@ -101,7 +97,6 @@ const reciterStyle = computed(() => recordingStyle(quranStore.reciter))
     transform 0.3s var(--app-ease-out),
     opacity 0.2s ease;
 
-  // Hidden from the keyboard and screen readers too, like the bars.
   &.is-hidden {
     transform: translateY(calc(100% + var(--navbar-height) + 1rem));
     opacity: 0;
@@ -172,15 +167,5 @@ const reciterStyle = computed(() => recordingStyle(quranStore.reciter))
   color: var(--bs-secondary-color);
   font-size: 0.8125rem;
   font-weight: 400;
-}
-
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 </style>

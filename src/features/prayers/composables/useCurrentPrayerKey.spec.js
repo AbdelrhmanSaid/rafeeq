@@ -19,14 +19,12 @@ afterEach(() => {
 
 describe('useCurrentPrayerKey', () => {
   it('is the prayer whose time has most recently started', () => {
-    // 13:00 in Cairo, after Dhuhr and before Asr.
     vi.useFakeTimers({ now: new Date('2026-11-26T11:00:00Z') })
 
     expect(useCurrentPrayerKey().value).toBe('Dhuhr')
   })
 
   it("is still the previous night's Isha before Fajr", () => {
-    // 02:00 in Cairo.
     vi.useFakeTimers({ now: new Date('2026-11-26T00:00:00Z') })
 
     expect(useCurrentPrayerKey().value).toBe('Isha')

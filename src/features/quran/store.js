@@ -11,7 +11,6 @@ const DEFAULT_TAFSEER = 'ar.muyassar'
 export const useQuranStore = defineStore('quran', () => {
   const currentReciter = useLocalStorage(STORAGE_KEYS.currentReciter, DEFAULT_RECITER_ID)
   const currentTafseer = useLocalStorage(STORAGE_KEYS.currentTafseer, DEFAULT_TAFSEER)
-  // The Mushaf page last open, so the Quran screen can offer to carry on from it. 0 until something is read.
   const lastPage = useLocalStorage(STORAGE_KEYS.quranLastPage, 0)
 
   const reciter = computed(() => {
@@ -32,7 +31,7 @@ export const useQuranStore = defineStore('quran', () => {
     return r ? `${r.folder_url}${String(surah).padStart(3, '0')}.mp3` : null
   }
 
-  // When each ayah starts in the reciter's recording of a surah, in milliseconds. Ayah 0 is the Basmala.
+  // Ayah start times in ms within the surah recording; ayah 0 is the Basmala.
   async function fetchAyahTimings(surah) {
     const r = reciter.value
     if (!r) return []

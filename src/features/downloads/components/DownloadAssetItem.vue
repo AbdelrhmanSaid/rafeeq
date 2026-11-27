@@ -29,7 +29,6 @@ const disabled = computed(
 </script>
 
 <template>
-  <!-- One line: the name, its state muted after it, and the action at the end. -->
   <div class="download-row" :class="asset.status">
     <span class="download-row__text">
       <span class="download-row__name">{{ asset.name }}</span>
@@ -47,7 +46,7 @@ const disabled = computed(
       @click="$emit('action', asset)"
     >
       <IconTrash v-if="asset.status === 'downloaded'" :size="18" />
-      <IconLoader2 v-else-if="asset.status === 'downloading'" :size="18" class="spin" />
+      <IconLoader2 v-else-if="asset.status === 'downloading'" :size="18" class="is-spinning" />
       <IconX v-else-if="asset.status === 'queued'" :size="18" />
       <IconDownload v-else :size="18" />
     </button>
@@ -62,7 +61,6 @@ const disabled = computed(
   min-height: 3.25rem;
   padding-block: 0.25rem;
   padding-inline: 1rem 0.5rem;
-  /* Long lists: skip laying out rows that are off screen. */
   content-visibility: auto;
   contain-intrinsic-size: auto 3.25rem;
 
@@ -141,7 +139,6 @@ const disabled = computed(
   color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
 }
 
-/* Removing and cancelling are quieter than downloading. */
 .download-row.downloaded .download-row__action,
 .download-row.queued .download-row__action {
   color: var(--bs-secondary-color);
@@ -158,16 +155,6 @@ const disabled = computed(
 
   .download-row.downloaded .download-row__action:hover {
     color: var(--bs-danger);
-  }
-}
-
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
   }
 }
 </style>

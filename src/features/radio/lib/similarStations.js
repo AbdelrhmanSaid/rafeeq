@@ -1,5 +1,3 @@
-// Stations to suggest under the player: the same reciter's other recitations first,
-// then the stations next to this one in its section, nearest first.
 export function getSimilarStations(slug, radios, limit = 4) {
   const entries = Object.entries(radios).map(([key, station]) => ({ slug: key, ...station }))
   const current = entries.find((station) => station.slug === slug)

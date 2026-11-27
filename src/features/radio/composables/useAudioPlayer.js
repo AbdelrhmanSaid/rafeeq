@@ -1,7 +1,5 @@
 import { ref, computed, onScopeDispose } from 'vue'
 
-// `status` is what the listener hears: 'connecting' from play() (or a stall) until sound starts, 'playing' while it
-// plays, 'retrying' between attempts after an error, 'paused' when the system pauses it, 'failed' once retries run out.
 export function useAudioPlayer({ maxRetries = 3, retryDelay = 3000 } = {}) {
   const audio = new Audio()
 
@@ -63,11 +61,9 @@ export function useAudioPlayer({ maxRetries = 3, retryDelay = 3000 } = {}) {
     status.value = 'playing'
     retryCount.value = 0
   })
-  // A live stream that runs out of buffer goes quiet until more data arrives.
   audio.addEventListener('waiting', () => {
     if (status.value === 'playing') status.value = 'connecting'
   })
-  // Paused by the system (another app, a call, unplugged headphones), not by stop(), which clears the source first.
   audio.addEventListener('pause', () => {
     if (src.value && status.value === 'playing') status.value = 'paused'
   })

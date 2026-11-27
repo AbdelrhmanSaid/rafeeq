@@ -30,7 +30,6 @@ const switchId = useId()
       </div>
     </template>
 
-    <!-- Flush in the row, under its switch: a label with the value, then a full-width slider. -->
     <div v-if="zekrVibrationEnabled">
       <div class="d-flex justify-content-between align-items-baseline gap-3 mb-1">
         <span>قوة الاهتزاز</span>

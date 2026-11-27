@@ -1,5 +1,10 @@
 export const PRAYER_SEQUENCE = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']
 
+export function getPreviousPrayerKey(key) {
+  const index = PRAYER_SEQUENCE.indexOf(key)
+  return PRAYER_SEQUENCE[(index - 1 + PRAYER_SEQUENCE.length) % PRAYER_SEQUENCE.length]
+}
+
 export function getNextPrayerKey(nowMs, timings) {
   if (!timings) return null
 

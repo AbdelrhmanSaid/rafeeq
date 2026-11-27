@@ -3,13 +3,11 @@ defineProps({
   icon: { type: [Object, Function], default: null },
   title: { type: String, required: true },
   message: { type: String, default: '' },
-  // The title is a heading, so the state can be found by heading; 1 where it is the whole screen, like the 404.
   level: { type: Number, default: 2 },
 })
 </script>
 
 <template>
-  <!-- The one pattern behind every error, offline and empty state: a tinted icon tile, a title, a line, an action. -->
   <div class="state-panel">
     <span v-if="icon" class="icon-tile state-panel__icon"><component :is="icon" aria-hidden="true" /></span>
     <component :is="`h${level}`" class="state-panel__title">{{ title }}</component>
@@ -50,7 +48,6 @@ defineProps({
 
 .state-panel__title {
   margin: 0;
-  /* A heading for assistive tech, with the panel's own look rather than the page headings'. */
   font-family: inherit;
   font-size: 1.0625rem;
   font-weight: 600;

@@ -1,12 +1,10 @@
 <script setup>
 defineProps({
-  // Label → value, in the order to list them.
   values: { type: Object, required: true },
 })
 </script>
 
 <template>
-  <!-- Raw sensor values over the screen, at /qibla?debug, for checking the compass on a real phone. -->
   <dl class="qibla-debug" dir="ltr">
     <template v-for="(value, label) in values" :key="label">
       <dt>{{ label }}</dt>

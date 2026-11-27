@@ -1,7 +1,5 @@
-// Calculation parameters keyed by the Aladhan method ids users already have stored, mirroring
-// https://api.aladhan.com/v1/methods so a saved method keeps producing the same times.
-// `ishaInterval` and `maghribOffset` are minutes after sunset; `anchors` are the [lat, lng] points
-// of the authority's region that the automatic method picks from.
+// Keyed by the stored Aladhan method ids and mirroring https://api.aladhan.com/v1/methods, so saved methods keep their
+// times. `ishaInterval`/`maghribOffset` are minutes after sunset; `anchors` are [lat, lng] points for the auto method.
 export const DEFAULT_METHOD = '3'
 
 export const METHOD_PARAMETERS = {

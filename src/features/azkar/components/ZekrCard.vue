@@ -1,13 +1,14 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { onLongPress } from '@vueuse/core'
 import { IconDownload, IconShare3, IconCopy, IconRestore } from '@tabler/icons-vue'
-import { exportComponent } from '@/shared/utils/export'
+import { exportComponent } from '@/features/azkar/lib/exportImage'
 import { toast } from 'vue-sonner'
 import { toArabicNumerals } from '@/shared/utils/arabic'
 import { useIsMobile } from '@/shared/composables/useIsMobile'
 import { useZekrScroll } from '@/features/azkar/composables/useZekrScroll'
 import { useZekrVibration } from '@/features/azkar/composables/useZekrVibration'
+import { repeatLabel } from '@/features/azkar/lib/repeatLabel'
 
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
 import ZekrImage from './ZekrImage.vue'
@@ -31,14 +32,6 @@ const props = defineProps({
 
 const count = defineModel('count', { type: Number, default: 0 })
 
-// How many times to say it, in words: مرة واحدة، مرتان، ٣ مرات، ١٠٠ مرة.
-const repeatLabel = computed(() => {
-  const n = props.repeat
-  if (n === 1) return 'مرة واحدة'
-  if (n === 2) return 'مرتان'
-  const lastTwo = n % 100
-  return `${toArabicNumerals(n)} ${lastTwo >= 3 && lastTwo <= 10 ? 'مرات' : 'مرة'}`
-})
 const card = ref(null)
 const showActions = ref(false)
 const isMobile = useIsMobile()
@@ -76,15 +69,12 @@ const onTouchEnd = (e) => {
   touchStartY = null
 }
 
-// Every new press starts clean. A long press counts by itself and flags the click that follows so it doesn't count
-// twice; that flag used to clear only on pointer-up, which iOS sometimes skips, and then it swallowed the next tap.
+// Cleared on every press: iOS sometimes skips pointerup, and a stale flag would swallow the next tap.
 const onPressStart = () => {
   longPressed = false
 }
 
-// A click anywhere on the card counts, on phones and desktop alike, unless it ends a scroll.
-// (The card can't be text-selected, so a page-wide selection check only blocked real taps.)
-// The actions don't count, but their clicks still bubble: Bootstrap closes the open dropdown on a document click.
+// Action clicks don't count but must still bubble: Bootstrap closes the open dropdown on a document click.
 const onCardClick = (e) => {
   if (e.target.closest?.('.card-actions')) return
   if (!longPressed && !touchMoved) increment()
@@ -118,7 +108,6 @@ const exportAsImage = () => {
   )
 }
 
-// Native share sheet where available, otherwise copy the text. Closing the sheet without sharing isn't an error.
 const shareZekr = async () => {
   if (!navigator.share) return copyZekr()
 
@@ -161,12 +150,11 @@ function copyZekr() {
       </p>
     </div>
 
-    <!-- The footer carries the count: a progress line along its top edge, the count, and the card's actions. -->
     <div class="zekr-footer" :style="{ '--progress': count / repeat }">
       <button class="btn-counter" type="button" aria-label="تسجيل تكرار الذكر" @click.stop="increment">
         {{ toArabicNumerals(`${count} / ${repeat}`) }}
       </button>
-      <span class="zekr-footer__repeat">{{ repeatLabel }}</span>
+      <span class="zekr-footer__repeat">{{ repeatLabel(repeat) }}</span>
       <span class="visually-hidden" role="status">{{ toArabicNumerals(count) }} من {{ toArabicNumerals(repeat) }}</span>
 
       <div class="card-actions">
@@ -174,7 +162,6 @@ function copyZekr() {
           <IconRestore size="18" />
         </button>
 
-        <!-- Phones get the actions in a bottom sheet, larger screens in a dropdown. -->
         <button
           v-if="isMobile"
           type="button"
@@ -250,7 +237,6 @@ function copyZekr() {
     opacity: 0.6;
   }
 
-  /* A finished zekr keeps a full but soft line, so it reads as done rather than calling for attention. */
   .zekr-footer::before {
     background: color-mix(in srgb, var(--bs-primary) 30%, var(--app-surface));
   }
@@ -261,8 +247,6 @@ function copyZekr() {
   container-type: inline-size;
 }
 
-/* Justified text only reads well with about ten words' width to spread over; on narrow cards or large text the few
-   words per line would be pulled apart, so those lines start-align instead. */
 .zekr-text {
   margin: 0;
   font-size: 1.625rem;
@@ -290,7 +274,6 @@ function copyZekr() {
   padding-inline: 0.75rem 0.375rem;
   border-top: 1px solid var(--app-hairline);
 
-  /* The progress line rides the footer's top edge. */
   &::before {
     content: '';
     position: absolute;
@@ -337,7 +320,6 @@ function copyZekr() {
   [data-bs-toggle='dropdown'] {
     display: grid;
     place-items: center;
-    /* A 44px target with a fixed-size icon; growing it with the text would push the repeat label off a narrow card. */
     width: 44px;
     height: 44px;
     padding: 0;
@@ -359,7 +341,6 @@ function copyZekr() {
   }
 }
 
-/* The whole card is the counter. */
 .zekr-card-root {
   cursor: pointer;
   user-select: none;

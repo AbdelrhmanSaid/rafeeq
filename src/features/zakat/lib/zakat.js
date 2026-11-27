@@ -9,45 +9,30 @@ export const NISAB = {
   business: 2156.25,
 }
 
-export const ZAKAT_RATE = 0.025
-export const CROPS_RATE = 0.05 // Rain-fed crops use 10%.
+const ZAKAT_RATE = 0.025
+const CROPS_RATE = 0.05 // Rain-fed crops use 10%.
 
 const toNumber = (value) => parseFloat(value) || 0
 const toInt = (value) => parseInt(value) || 0
+
+function dueAbove(amount, nisab, rate = ZAKAT_RATE) {
+  const value = toNumber(amount)
+  return value < nisab ? 0 : value * rate
+}
 
 export function goldPriceNisab(goldPrice, fallback) {
   const price = parseFloat(goldPrice)
   return price && price > 0 ? price * NISAB.gold : fallback
 }
 
-export function moneyZakat(amount, nisab) {
-  const value = toNumber(amount)
-  return value < nisab ? 0 : value * ZAKAT_RATE
-}
+export const moneyZakat = (amount, nisab) => dueAbove(amount, nisab)
+export const businessZakat = (amount, nisab) => dueAbove(amount, nisab)
+export const goldZakat = (weight) => dueAbove(weight, NISAB.gold)
+export const silverZakat = (weight) => dueAbove(weight, NISAB.silver)
+export const cropsZakat = (amount) => dueAbove(amount, NISAB.crops, CROPS_RATE)
 
-export function goldZakat(weight) {
-  const value = toNumber(weight)
-  return value < NISAB.gold ? 0 : value * ZAKAT_RATE
-}
-
-export function silverZakat(weight) {
-  const value = toNumber(weight)
-  return value < NISAB.silver ? 0 : value * ZAKAT_RATE
-}
-
-export function cropsZakat(amount) {
-  const value = toNumber(amount)
-  return value < NISAB.crops ? 0 : value * CROPS_RATE
-}
-
-export function businessZakat(amount, nisab) {
-  const value = toNumber(amount)
-  return value < nisab ? 0 : value * ZAKAT_RATE
-}
-
-// What's due on livestock is animals, not a share: a sheep or a camel or calf of a given age, named here in Arabic with
-// the dual and plural (3–10) forms Arabic counts them with.
-export const LIVESTOCK_DUES = {
+// Livestock dues are animals, not a share; Arabic names them in singular, dual and plural (3–10) forms.
+const LIVESTOCK_DUES = {
   shah: { one: 'شاة', two: 'شاتان', few: 'شياه' },
   bintMakhad: { one: 'بنت مخاض', two: 'بنتا مخاض', few: 'بنات مخاض' },
   bintLabun: { one: 'بنت لبون', two: 'بنتا لبون', few: 'بنات لبون' },
@@ -73,9 +58,7 @@ const CAMEL_BANDS = [
 
 const due = (kind, count) => (count > 0 ? [{ kind, count }] : [])
 
-// Past the fixed bands the herd is covered in blocks: one `small` animal per `smallSize` head and one `large` per
-// `largeSize`, using as many of the larger blocks as still cover the herd to its last full ten. Where two mixes cover it
-// alike (200 camels: four ḥiqqa or five bint labūn), the one with more of the older animal is given.
+// Past 120, the herd's full tens go in smallSize/largeSize blocks; of two fitting mixes, give more older animals.
 function coverInBlocks(total, small, smallSize, large, largeSize) {
   const covered = Math.floor(total / 10) * 10
 
@@ -112,13 +95,11 @@ export function sheepZakat(count) {
   return due('shah', Math.floor(n / 100))
 }
 
-// What's due for each kind of animal, kept apart: a camel herd and a flock of sheep are judged on their own nisab and
-// paid in different animals.
+// Each kind is judged on its own nisab, never by adding up heads across kinds.
 export function livestockZakat({ cows, sheep, camels }) {
   return { camels: camelsZakat(camels), cows: cowsZakat(cows), sheep: sheepZakat(sheep) }
 }
 
-// "حقة", "حقتان", "٣ حقاق", "١٢ شاة"; a mix is joined with "و": "حقة وبنتا لبون".
 export function formatLivestockDue(dues, numerals = String) {
   return dues
     .map(({ kind, count }) => {

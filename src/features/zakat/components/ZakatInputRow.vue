@@ -5,16 +5,13 @@ import { normalizeNumberInput, toInputDisplay } from '@/features/zakat/lib/numbe
 const props = defineProps({
   label: { type: String, required: true },
   unit: { type: String, default: '' },
-  // Head counts: whole numbers only, so the keyboard drops its decimal key.
   integer: { type: Boolean, default: false },
 })
 
-// The model is a plain number string ("1234.5") for the calculations; the field shows it in Arabic-Indic digits.
 const model = defineModel({ type: [String, Number], default: '' })
 const display = computed(() => toInputDisplay(model.value))
 
-// A text field, not type="number", which would silently drop digits typed on an Arabic keyboard. Every keystroke is
-// read back as a plain number and shown again in Arabic-Indic digits, with the caret kept where it was.
+// A text field, not type="number", which would silently drop digits typed on an Arabic keyboard.
 function onInput(event) {
   const input = event.target
   const caret = input.selectionStart ?? input.value.length
@@ -30,7 +27,6 @@ function onInput(event) {
 </script>
 
 <template>
-  <!-- A grouped row like Settings: the label on one side, the value and its unit on the other. -->
   <label class="list-group-item zakat-row">
     <span class="zakat-row__label">{{ label }}</span>
     <input
@@ -63,9 +59,7 @@ function onInput(event) {
 }
 
 .zakat-row__input {
-  /* Narrow enough to leave the label room, and wider as a long amount is typed so it isn't cut off once the field
-     loses focus; a narrow phone at a large text size gets a narrower field. An Arabic zero would look like a stray dot
-     as placeholder, so "—" stands in. */
+  /* The placeholder is "—": an Arabic zero looks like a dot. */
   flex-shrink: 0;
   width: clamp(min(6.5rem, 40%), calc((var(--chars, 0) + 1) * 1ch), 60%);
   min-width: 0;

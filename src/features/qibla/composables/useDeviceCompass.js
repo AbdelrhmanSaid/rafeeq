@@ -9,20 +9,15 @@ import {
   tiltFromFlat,
 } from '@/features/qibla/lib/qibla'
 
-// The shown heading eases toward the latest reading with this time constant.
 const SMOOTHING_MS = 100
-// With no sign of life from the sensors for this long, the last heading is no longer live.
 const STALE_MS = 1000
-// iOS gives the heading of the phone's top edge, which means nothing once the phone stands up: past this tilt from
-// flat the heading isn't used.
+// iOS's heading is the top edge's, meaningless once the phone stands up past this tilt.
 const MAX_TILT = 60
 // The compass and the gyroscope disagreeing by more than this within a few seconds means magnetic interference.
 const MAX_DRIFT = 15
 const DRIFT_WINDOW_MS = 6000
-// The compass trails a turning phone, by a second or so and even in a slow turn, so the two are only compared once
-// the phone has been at rest this long. Compared mid-turn, that lag alone reads as interference.
+// The compass lags a turning phone by ~1 s, which mid-turn reads as interference: compare only after this long at rest.
 const STEADY_MS = 1000
-// A phone turning slower than this (degrees a second) is at rest.
 const REST_RATE = 5
 
 const needsPermissionPrompt = () =>
@@ -35,26 +30,18 @@ export function useDeviceCompass() {
   const hasSupport = ref(false)
   // Desktop browsers expose the orientation API without ever firing it, so only a real reading means a live compass.
   const hasReading = ref(false)
-  // Whether any reading has arrived: a compass that went quiet is paused, not missing.
   const hadReading = ref(false)
-  // iOS reports how far off its heading may be, in degrees (negative when it can't tell). Null where unknown.
   const accuracy = ref(null)
-  // Held on its side (landscape, even with rotation lock): the heading isn't reliable then.
   const sideways = ref(false)
-  // Tipped up too far for a heading that is measured along the phone's top edge (iOS).
   const upright = ref(false)
-  // The compass disagrees with the gyroscope: a magnet or metal nearby, or it needs calibrating.
   const disturbed = ref(false)
-  // How far the gap between the compass and the gyroscope has wandered lately, in degrees.
   const drifted = ref(0)
   const error = ref(null)
-  // The latest raw sensor values, for the debug readout.
   const raw = shallowRef(null)
 
   const canRequestPermission = computed(() => !hasSupport.value && needsPermissionPrompt())
 
-  // Browsers only send a reading when it changes, so easing a step per reading would stop short of the last one and
-  // leave the tape a few degrees off once the phone is still. Ease by the clock instead, until it gets there.
+  // Browsers fire only on change, so easing per reading would stop short of the last one: ease by the clock.
   let target = 0
   let frame = 0
   let lastFrame = 0
@@ -71,7 +58,7 @@ export function useDeviceCompass() {
     frame = requestAnimationFrame(ease)
   }
 
-  // If the sensors go quiet the last heading is no longer live, and mustn't keep saying the phone faces the qibla.
+  // A stale heading mustn't keep saying the phone faces the qibla.
   let staleTimer = 0
   const drift = createDriftMonitor({ windowMs: DRIFT_WINDOW_MS })
   let driftTimer = 0
@@ -95,7 +82,6 @@ export function useDeviceCompass() {
   function update(rawHeading) {
     target = normalizeAngle(rawHeading)
     if (!hasReading.value) {
-      // The first reading jumps straight to the heading instead of sweeping there from north.
       heading.value = target
     } else if (!frame) {
       lastFrame = now()
@@ -110,7 +96,6 @@ export function useDeviceCompass() {
     if (event.beta != null && event.gamma != null) sideways.value = isHeldSideways(event.beta, event.gamma)
   }
 
-  // The heading from the gyroscope alone: right about turns, with no idea where north is.
   let gyroHeading = null
   let gyroAt = 0
   let turnedAt = 0
@@ -132,7 +117,6 @@ export function useDeviceCompass() {
     if (gyroHeading === null || time - gyroAt > 200 || time - turnedAt < STEADY_MS || sideways.value) return
     drifted.value = drift.add(normalizeAngle(compassHeading - gyroHeading), time)
     disturbed.value = drifted.value > MAX_DRIFT
-    // Old disagreement says nothing about now: with no fresh comparison for a while, start over.
     clearTimeout(driftTimer)
     driftTimer = setTimeout(clearDrift, DRIFT_WINDOW_MS)
   }
@@ -140,8 +124,7 @@ export function useDeviceCompass() {
   function handleOrientation(event) {
     trackPose(event)
 
-    // iOS reports a ready-made compass heading (from magnetic north) and its accuracy. With no heading available it
-    // sends 0 with an accuracy of -1, which must not count as a reading of north.
+    // With no heading iOS sends 0 with accuracy -1, which must not count as north.
     if (event.webkitCompassHeading != null) {
       accuracy.value = event.webkitCompassAccuracy ?? null
       if (accuracy.value != null && accuracy.value < 0) return
@@ -165,8 +148,7 @@ export function useDeviceCompass() {
       return
     }
 
-    // Elsewhere only an absolute reading is measured from north; a relative one starts wherever the phone was
-    // when the page opened, and would point the compass anywhere.
+    // Elsewhere only an absolute reading is north-based; a relative one starts wherever the phone was.
     if (event.absolute && event.alpha !== null) {
       const absolute = headingFromOrientation(event.alpha, event.beta ?? 0, event.gamma ?? 0)
       raw.value = { source: 'deviceorientation (absolute)', event, heading: absolute }
@@ -190,8 +172,7 @@ export function useDeviceCompass() {
     trackGyro(headingFromOrientation(event.alpha, event.beta ?? 0, event.gamma ?? 0))
   }
 
-  // A phone lying still sends no orientation readings, since nothing changes, but its motion sensors keep reporting.
-  // While they say it's at rest, the last heading still holds.
+  // A still phone sends no orientation events but keeps sending motion; while at rest the last heading holds.
   function handleMotion(event) {
     const rate = event.rotationRate
     if (!rate || rate.alpha == null) return
@@ -200,20 +181,17 @@ export function useDeviceCompass() {
       turnedAt = time
       return
     }
-    // At rest the gyroscope's heading sends nothing new either, and still holds.
     if (gyroHeading !== null) gyroAt = time
     if (hasReading.value) keepAlive()
   }
 
-  // Listen where the heading is measured from north. Chrome (Android included) now has the iOS permission prompt too,
-  // so the prompt doesn't mean iOS: pick the event by what the browser offers, not by whether it asked first.
+  // Chrome (Android too) has the iOS permission prompt, so pick the event by what the browser offers.
   let active = true
 
   function listen() {
     // The permission answer can land after the screen has closed.
     if (!active) return
     hasSupport.value = true
-    // A refusal from an earlier tap no longer applies.
     error.value = null
     if ('ondeviceorientationabsolute' in window) {
       window.addEventListener('deviceorientationabsolute', handleAbsoluteOrientation, true)
@@ -224,8 +202,7 @@ export function useDeviceCompass() {
     window.addEventListener('devicemotion', handleMotion, true)
   }
 
-  // Quiet: the try on opening the screen. Browsers that grant it without a tap (or remember an earlier yes) start at
-  // once; the rest refuse until a tap, which isn't an error worth showing.
+  // Browsers that need a tap refuse the quiet try on open; not an error worth showing.
   async function ask(quiet) {
     if (needsPermissionPrompt()) {
       try {

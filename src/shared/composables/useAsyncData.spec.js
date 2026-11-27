@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { effectScope } from 'vue'
 import { flushPromises } from '@vue/test-utils'
 import { useAsyncData } from './useAsyncData'
@@ -33,14 +33,6 @@ describe('useAsyncData', () => {
     expect(api.pending.value).toBe(false)
     expect(api.error.value).toBeInstanceOf(Error)
     expect(api.data.value).toBe(null)
-    scope.stop()
-  })
-
-  it('does not fetch immediately when immediate is false', () => {
-    const fetcher = vi.fn()
-    const { scope } = runInScope(() => useAsyncData(fetcher, { immediate: false }))
-
-    expect(fetcher).not.toHaveBeenCalled()
     scope.stop()
   })
 })
