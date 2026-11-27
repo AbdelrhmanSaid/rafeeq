@@ -32,12 +32,6 @@ import SettingsZekrVibration from '../components/SettingsZekrVibration.vue'
 
 const tabs = [
   {
-    id: 'quran',
-    label: SETTINGS_SECTION_LABELS.quran,
-    icon: IconBook2,
-    sections: [SettingsReaderBackground, SettingsReciter, SettingsTafseer],
-  },
-  {
     id: 'appearance',
     label: SETTINGS_SECTION_LABELS.appearance,
     icon: IconPalette,
@@ -48,6 +42,12 @@ const tabs = [
     label: SETTINGS_SECTION_LABELS.prayer,
     icon: IconClockHour4,
     sections: [SettingsPrayerTimes],
+  },
+  {
+    id: 'quran',
+    label: SETTINGS_SECTION_LABELS.quran,
+    icon: IconBook2,
+    sections: [SettingsReaderBackground, SettingsReciter, SettingsTafseer],
   },
   {
     id: 'azkar',
