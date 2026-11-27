@@ -76,6 +76,7 @@ const updateSW = registerSW({
   <Toaster
     :theme="themeStore.mode"
     position="bottom-center"
+    :swipe-directions="['left', 'right', 'bottom']"
     :offset="{
       bottom: 'calc(var(--navbar-height) + env(safe-area-inset-bottom, 0px) + 16px)',
       right: '20px',

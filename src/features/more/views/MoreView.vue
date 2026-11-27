@@ -35,10 +35,7 @@ const links = [
       <div class="more-list">
         <RouterLink v-for="item in tools" :key="item.name" :to="{ name: item.name }" class="more-row">
           <span class="icon-tile more-row__icon"><component :is="item.icon" aria-hidden="true" /></span>
-          <span class="more-row__text">
-            <span class="more-row__label">{{ item.label }}</span>
-            <span class="more-row__description">{{ item.description }}</span>
-          </span>
+          <span class="more-row__label">{{ item.label }}</span>
           <IconChevronLeft class="more-row__trail" aria-hidden="true" />
         </RouterLink>
       </div>
@@ -147,27 +144,6 @@ const links = [
   flex: 1;
   min-width: 0;
   font-weight: 500;
-}
-
-.more-row__text {
-  /* One line: the name, then its detail muted after it, cut short on narrow phones. */
-  display: flex;
-  flex: 1;
-  align-items: baseline;
-  gap: 0.5rem;
-  min-width: 0;
-
-  .more-row__label {
-    flex: none;
-  }
-}
-
-.more-row__description {
-  overflow: hidden;
-  color: var(--bs-secondary-color);
-  font-size: 0.8rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .more-row__trail {

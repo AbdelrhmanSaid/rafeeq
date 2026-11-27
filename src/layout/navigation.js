@@ -44,21 +44,18 @@ export const navigation = [
   {
     name: 'qibla',
     label: 'اتجاه القبلة',
-    description: 'حدّد اتجاه القبلة بالبوصلة',
     icon: IconCompass,
     menus: ['more'],
   },
   {
     name: 'zakat',
     label: 'حاسبة الزكاة',
-    description: 'زكاة المال والذهب والفضة وغيرها',
     icon: IconCoins,
     menus: ['more'],
   },
   {
     name: 'sebha',
     label: 'السبحة الإلكترونية',
-    description: 'عدّاد للتسبيح والأذكار',
     icon: IconAbacus,
     menus: ['more'],
   },

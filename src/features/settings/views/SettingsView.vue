@@ -64,6 +64,8 @@ const tabs = [
     label: 'التنزيلات',
     icon: IconCloudDownload,
     sections: [SettingsDownloadAssets],
+    // Lays out its own grouped lists.
+    ungrouped: true,
   },
 ]
 
@@ -77,7 +79,7 @@ const activeTab = computed(() => tabs.find((tab) => tab.id === route.params.tab)
     <Heading class="mb-4" :title="activeTab.label" />
 
     <!-- One grouped list per section: each setting is a row, separated by hairlines. -->
-    <div class="settings-group">
+    <div :class="{ 'settings-group': !activeTab.ungrouped }">
       <component v-for="(section, index) in activeTab.sections" :key="index" :is="section" />
     </div>
   </Page>

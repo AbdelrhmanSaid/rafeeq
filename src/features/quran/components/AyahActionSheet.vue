@@ -121,12 +121,14 @@ const share = async () => {
 }
 
 .bookmark-colors__label {
+  flex-shrink: 0;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .bookmark-colors__dots {
   display: flex;
-  gap: 0.25rem;
+  min-width: 0;
 }
 
 /* A 44px target around a 28px swatch. */

@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { IconBook2, IconSparkles, IconCheck, IconLoader2, IconDownload } from '@tabler/icons-vue'
+import { IconCircleCheckFilled, IconLoader2, IconDownload, IconTrash, IconX } from '@tabler/icons-vue'
 
 const props = defineProps({
   asset: { type: Object, required: true },
@@ -11,88 +11,67 @@ defineEmits(['action'])
 
 const ACTION_LABELS = {
   'downloaded': 'حذف',
-  'queued': 'إلغاء',
+  'queued': 'إلغاء تحميل',
   'downloading': 'جاري تحميل',
   'not-downloaded': 'تحميل',
 }
 
+const STATUS_LABELS = {
+  downloaded: 'محمّل',
+  downloading: 'جاري التحميل',
+  queued: 'في الانتظار',
+}
+
 const actionLabel = computed(() => `${ACTION_LABELS[props.asset.status] ?? 'تحميل'} ${props.asset.name}`)
+const disabled = computed(
+  () => props.asset.status === 'downloading' || (!props.online && props.asset.status === 'not-downloaded'),
+)
 </script>
 
 <template>
-  <div class="dm-item" :class="asset.status">
-    <span class="icon-tile dm-item-icon" :class="asset.type">
-      <IconBook2 v-if="asset.type === 'surah'" :size="18" />
-      <IconSparkles v-else :size="18" />
+  <!-- One line: the name, its state muted after it, and the action at the end. -->
+  <div class="download-row" :class="asset.status">
+    <span class="download-row__text">
+      <span class="download-row__name">{{ asset.name }}</span>
+      <span v-if="STATUS_LABELS[asset.status]" class="download-row__status">
+        <IconCircleCheckFilled v-if="asset.status === 'downloaded'" :size="14" aria-hidden="true" />
+        {{ STATUS_LABELS[asset.status] }}
+      </span>
     </span>
 
-    <div class="dm-item-info">
-      <span class="dm-item-name">{{ asset.name }}</span>
-      <span class="dm-item-type">{{ asset.type === 'surah' ? 'سورة' : 'أذكار' }}</span>
-    </div>
-
     <button
-      class="dm-item-action"
-      :class="asset.status"
+      type="button"
+      class="download-row__action"
       :aria-label="actionLabel"
+      :disabled="disabled"
       @click="$emit('action', asset)"
-      :disabled="asset.status === 'downloading' || (!online && asset.status === 'not-downloaded')"
     >
-      <IconCheck v-if="asset.status === 'downloaded'" :size="16" />
-      <IconLoader2 v-else-if="asset.status === 'downloading'" :size="16" class="spin" />
-      <span v-else-if="asset.status === 'queued'" class="queued-dot"></span>
-      <IconDownload v-else :size="16" />
+      <IconTrash v-if="asset.status === 'downloaded'" :size="18" />
+      <IconLoader2 v-else-if="asset.status === 'downloading'" :size="18" class="spin" />
+      <IconX v-else-if="asset.status === 'queued'" :size="18" />
+      <IconDownload v-else :size="18" />
     </button>
   </div>
 </template>
 
-<style scoped>
-.dm-item {
+<style lang="scss" scoped>
+.download-row {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.7rem 1.25rem;
-  border-bottom: 1px solid var(--app-hairline);
-  transition: background-color 0.2s ease;
-}
+  min-height: 3.25rem;
+  padding-block: 0.25rem;
+  padding-inline: 1rem 0.5rem;
+  /* Long lists: skip laying out rows that are off screen. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 3.25rem;
 
-.dm-item:last-child {
-  border-bottom: none;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .dm-item:hover {
-    background: var(--app-surface-hover);
+  & + & {
+    border-top: 1px solid var(--app-hairline);
   }
 }
 
-.dm-item.downloaded {
-  background: color-mix(in srgb, var(--bs-success) 7%, transparent);
-}
-
-.dm-item.downloading {
-  background: var(--app-tint);
-}
-
-.dm-item-icon {
-  width: 2.25rem;
-  height: 2.25rem;
-}
-
-.dm-item-icon.surah {
-  color: var(--bs-primary);
-}
-
-.dm-item-icon.azkar {
-  color: var(--bs-success);
-}
-
-[data-bs-theme='dark'] .dm-item-icon.surah {
-  color: color-mix(in srgb, var(--bs-primary) 28%, #fff);
-}
-
-.dm-item-info {
-  /* One line: the name, then its kind muted after it. */
+.download-row__text {
   display: flex;
   flex: 1;
   align-items: baseline;
@@ -100,89 +79,86 @@ const actionLabel = computed(() => `${ACTION_LABELS[props.asset.status] ?? 'تح
   min-width: 0;
 }
 
-.dm-item-name {
-  min-width: 0;
-  font-size: 0.875rem;
-  font-weight: 500;
-  white-space: nowrap;
+.download-row__name {
   overflow: hidden;
+  font-weight: 500;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.dm-item-type {
+.download-row__status {
+  display: inline-flex;
   flex-shrink: 0;
-  font-size: 0.75rem;
-  color: var(--bs-secondary-color);
-}
-
-.dm-item-action {
-  width: 2.75rem;
-  height: 2.75rem;
-  display: flex;
   align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition:
-    background 0.15s,
-    color 0.15s,
-    transform 0.15s var(--app-ease);
+  align-self: center;
+  gap: 0.25rem;
+  color: var(--bs-secondary-color);
+  font-size: 0.8rem;
 }
 
-.dm-item-action:active:not(:disabled) {
-  transform: scale(0.92);
+.download-row.downloaded .download-row__status {
+  color: var(--bs-success-text-emphasis);
 }
 
-.dm-item-action.not-downloaded {
-  background: var(--app-tint);
+.download-row.downloading .download-row__status {
   color: var(--bs-primary);
 }
 
-[data-bs-theme='dark'] .dm-item-action.not-downloaded {
+[data-bs-theme='dark'] .download-row.downloading .download-row__status {
   color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .dm-item-action.not-downloaded:hover:not(:disabled) {
-    background: var(--bs-primary);
-    color: #fff;
+.download-row__action {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--bs-primary);
+  transition:
+    background-color 0.15s,
+    transform 0.15s var(--app-ease);
+
+  &:active:not(:disabled) {
+    background: var(--app-surface-active);
+    transform: scale(0.92);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(var(--bs-primary-rgb), 0.5);
+    outline-offset: -2px;
   }
 }
 
-.dm-item-action.downloaded {
-  background: var(--bs-success);
-  color: #fff;
+[data-bs-theme='dark'] .download-row__action {
+  color: color-mix(in srgb, var(--bs-primary) 35%, #fff);
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .dm-item-action.downloaded:hover {
-    background: var(--bs-danger);
-  }
-}
-
-.dm-item-action.downloading {
-  background: var(--bs-primary);
-  color: #fff;
-}
-
-.dm-item-action.queued {
-  background: rgba(var(--bs-secondary-rgb), 0.1);
+/* Removing and cancelling are quieter than downloading. */
+.download-row.downloaded .download-row__action,
+.download-row.queued .download-row__action {
   color: var(--bs-secondary-color);
 }
 
-.dm-item-action:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.download-row.downloading .download-row__action:disabled {
+  opacity: 1;
 }
 
-.queued-dot {
-  width: 8px;
-  height: 8px;
-  background: var(--bs-secondary-color);
-  border-radius: 50%;
-  animation: pulse 1.5s ease-in-out infinite;
+@media (hover: hover) and (pointer: fine) {
+  .download-row__action:hover:not(:disabled) {
+    background: var(--app-surface-hover);
+  }
+
+  .download-row.downloaded .download-row__action:hover {
+    color: var(--bs-danger);
+  }
 }
 
 .spin {
@@ -190,21 +166,8 @@ const actionLabel = computed(() => `${ACTION_LABELS[props.asset.status] ?? 'تح
 }
 
 @keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
   to {
     transform: rotate(360deg);
-  }
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 1;
   }
 }
 </style>
