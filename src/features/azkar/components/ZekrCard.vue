@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { onLongPress } from '@vueuse/core'
 import { IconDownload, IconShare3, IconCopy, IconRestore } from '@tabler/icons-vue'
 import { exportComponent } from '@/features/azkar/lib/exportImage'
@@ -8,6 +8,7 @@ import { toArabicNumerals } from '@/shared/utils/arabic'
 import { useIsMobile } from '@/shared/composables/useIsMobile'
 import { useZekrScroll } from '@/features/azkar/composables/useZekrScroll'
 import { useZekrVibration } from '@/features/azkar/composables/useZekrVibration'
+import { repeatLabel } from '@/features/azkar/lib/repeatLabel'
 
 import BottomSheet from '@/shared/ui/BottomSheet.vue'
 import ZekrImage from './ZekrImage.vue'
@@ -31,13 +32,6 @@ const props = defineProps({
 
 const count = defineModel('count', { type: Number, default: 0 })
 
-const repeatLabel = computed(() => {
-  const n = props.repeat
-  if (n === 1) return 'مرة واحدة'
-  if (n === 2) return 'مرتان'
-  const lastTwo = n % 100
-  return `${toArabicNumerals(n)} ${lastTwo >= 3 && lastTwo <= 10 ? 'مرات' : 'مرة'}`
-})
 const card = ref(null)
 const showActions = ref(false)
 const isMobile = useIsMobile()
@@ -160,7 +154,7 @@ function copyZekr() {
       <button class="btn-counter" type="button" aria-label="تسجيل تكرار الذكر" @click.stop="increment">
         {{ toArabicNumerals(`${count} / ${repeat}`) }}
       </button>
-      <span class="zekr-footer__repeat">{{ repeatLabel }}</span>
+      <span class="zekr-footer__repeat">{{ repeatLabel(repeat) }}</span>
       <span class="visually-hidden" role="status">{{ toArabicNumerals(count) }} من {{ toArabicNumerals(repeat) }}</span>
 
       <div class="card-actions">

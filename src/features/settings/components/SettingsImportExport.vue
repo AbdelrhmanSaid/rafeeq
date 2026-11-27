@@ -10,7 +10,9 @@ import {
   restoreSettingsBackup,
   serializeSettingsBackup,
 } from '../lib/backup.js'
-import { ITEM_FORMS, countLabel } from '../lib/countLabel.js'
+import { countLabel } from '@/shared/utils/countLabel'
+
+const ITEM_FORMS = { one: 'عنصر واحد', two: 'عنصرين', few: 'عناصر', many: 'عنصرًا', other: 'عنصر' }
 
 const fileInput = ref(null)
 const isImporting = ref(false)

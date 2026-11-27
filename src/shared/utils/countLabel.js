@@ -11,5 +11,3 @@ export function countLabel(count, { one, two, few, many, other }) {
   if (lastTwo >= 11) return `${number} ${many}`
   return `${number} ${other}`
 }
-
-export const ITEM_FORMS = { one: 'عنصر واحد', two: 'عنصرين', few: 'عناصر', many: 'عنصرًا', other: 'عنصر' }
