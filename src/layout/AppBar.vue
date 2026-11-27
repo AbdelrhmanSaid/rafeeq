@@ -1,5 +1,5 @@
 <script setup>
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useEventListener } from '@vueuse/core'
 import { IconChevronRight, IconShare3 } from '@tabler/icons-vue'
@@ -45,7 +45,17 @@ function scheduleMeasure() {
 useEventListener(window, 'scroll', scheduleMeasure, { passive: true })
 useEventListener(window, 'resize', scheduleMeasure, { passive: true })
 
-watch([() => route.fullPath, () => pageHeader.el], () => nextTick(measure), { immediate: true })
+// A new screen starts as an unscrolled bar and is measured on the next frame, once the router has moved the page to
+// its top (or back to a saved position). Measuring sooner read the last screen's depth and flashed the title and glass.
+watch(
+  [() => route.fullPath, () => pageHeader.el],
+  () => {
+    scrolled.value = false
+    largeTitleHidden.value = false
+    scheduleMeasure()
+  },
+  { immediate: true },
+)
 </script>
 
 <template>

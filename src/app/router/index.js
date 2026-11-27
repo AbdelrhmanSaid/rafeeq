@@ -18,7 +18,10 @@ const router = createRouter({
     if (savedPosition) return savedPosition
     // Param tabs are in-page state changes, so preserve their scroll position.
     if (to.name === from.name && to.meta.paramTabs) return
-    return { top: 0, behavior: 'smooth' }
+    // A new screen opens at its top at once. Gliding up from the last page's depth showed the app bar's title and
+    // glass for a moment, since the large title started out scrolled under the bar. 'instant' is explicit because
+    // Bootstrap makes the page scroll smoothly by default.
+    return { top: 0, behavior: 'instant' }
   },
   routes: withEmbedAliases([
     {
