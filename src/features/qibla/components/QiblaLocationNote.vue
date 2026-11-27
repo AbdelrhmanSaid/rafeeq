@@ -17,7 +17,6 @@ const distanceLabel = computed(() =>
   props.distance == null ? '' : `${Math.round(props.distance).toLocaleString('ar-EG')} كم إلى مكة`,
 )
 
-// What's doubtful about the location, when something is; either way a fresh fix is the answer.
 const doubt = computed(() => {
   if (props.savedLocation) return 'حسب موقعك المحفوظ'
   return props.impreciseLocation ? 'موقعك غير دقيق' : ''
@@ -25,7 +24,6 @@ const doubt = computed(() => {
 </script>
 
 <template>
-  <!-- Where the bearing comes from, under the compass or under a panel saying the compass can't be used. -->
   <p v-if="distanceLabel" class="qibla-note">{{ distanceLabel }}</p>
   <p v-if="doubt && refreshingLocation" class="qibla-note">{{ doubt }} · جاري تحديث الموقع…</p>
   <button v-else-if="doubt" type="button" class="qibla-note__refresh" @click="$emit('refresh-location')">

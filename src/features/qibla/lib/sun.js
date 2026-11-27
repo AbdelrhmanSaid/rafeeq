@@ -3,10 +3,8 @@ const RAD = Math.PI / 180
 const sin = (degrees) => Math.sin(degrees * RAD)
 const cos = (degrees) => Math.cos(degrees * RAD)
 
-// Where the sun is in the sky from a place at a moment: `azimuth` in degrees clockwise from true north, `altitude` in
-// degrees above the horizon. It needs no sensor, only the clock and the location, so it's a check on the compass:
-// point the phone at the sun and the heading should match. Good to a few hundredths of a degree (Meeus,
-// Astronomical Algorithms, ch. 25), far finer than a phone compass.
+// `azimuth` in degrees clockwise from true north, `altitude` above the horizon, to a few hundredths of a degree
+// (Meeus, Astronomical Algorithms, ch. 25).
 export function getSunPosition(date, latitude, longitude) {
   const days = date.getTime() / 86400000 + 2440587.5 - 2451545
   const t = days / 36525

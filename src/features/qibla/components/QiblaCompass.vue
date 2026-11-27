@@ -21,8 +21,7 @@ const props = defineProps({
   heading: { type: Number, default: 0 },
   // A live compass: the tape follows the phone. Without one the tape rests on the qibla bearing.
   live: { type: Boolean, default: false },
-  // Whether the live heading can be relied on. When it can't, the tape still follows the phone but never says
-  // you're facing the qibla.
+  // When false the tape still follows the phone but never says you're facing the qibla.
   trusted: { type: Boolean, default: true },
   // How far off the phone says its compass may be, in degrees. Null where it doesn't say.
   accuracy: { type: Number, default: null },
@@ -48,8 +47,8 @@ const aligned = computed(() => props.live && Math.abs(turn.value) <= FACING_TOLE
 const approximate = computed(() => props.uncertainty != null || (props.savedLocation && props.refreshingLocation))
 const isFacing = computed(() => aligned.value && props.trusted && !approximate.value)
 
-// What screen readers hear. Facing is announced once on entry and only cleared a couple of degrees past the edge, so a
-// hand wobbling at ±5° doesn't repeat it. The live degrees and turn hint are left out; they change too often.
+// Facing is announced once and only cleared a couple of degrees past the edge, so a wobbling hand doesn't repeat it.
+// The live degrees and turn hint are left out; they change too often.
 const announcedFacing = ref(false)
 watchEffect(() => {
   const off = Math.abs(turn.value)
@@ -59,9 +58,8 @@ watchEffect(() => {
 })
 const announcement = computed(() => (announcedFacing.value ? 'أنت تواجه القبلة' : ''))
 
-// The Kaaba marker sits on the tape at the qibla bearing while that's within ±EDGE_OFFSET, the part of the tape that
-// isn't faded. Further out it becomes an arrow at that edge pointing the way to turn, so the marker never sits over
-// the wrong tick.
+// Past ±EDGE_OFFSET (where the tape fades) the Kaaba becomes an arrow at that edge pointing the way to turn, so the
+// marker never sits over the wrong tick.
 const EDGE_OFFSET = 32
 const kaabaOutOfView = computed(() => Math.abs(turn.value) > EDGE_OFFSET)
 const kaabaX = computed(() => CENTER + turn.value * PX_PER_DEGREE)
@@ -78,7 +76,6 @@ const SUN_RAYS = [0, 45, 90, 135, 180, 225, 270, 315]
 // Rounded after wrapping, so 359.6° reads 0° rather than 360°.
 const degrees = (value) => `${toArabicNumerals(Math.round(normalizeAngle(value)) % 360)}°`
 
-// The instruction under the tape: which way to turn, and by how much.
 const turnSide = computed(() => (turn.value > 0 ? 'يمينًا' : 'يسارًا'))
 const turnAmount = computed(() => `${toArabicNumerals(Math.round(Math.abs(turn.value)))}°`)
 
@@ -108,13 +105,11 @@ const showsSun = computed(() => props.live && props.sunAzimuth != null)
         </text>
       </g>
 
-      <!-- The sun, where it is in the sky right now. -->
       <g v-if="sunInView" class="qibla__sun" :transform="`translate(${sunX} 24)`">
         <circle r="4" />
         <line v-for="ray in SUN_RAYS" :key="ray" y1="-6.5" y2="-9" :transform="`rotate(${ray})`" />
       </g>
 
-      <!-- The Kaaba: a dark cube with its gold band. Out of view, an arrow at the edge points the way to turn. -->
       <g v-if="!kaabaOutOfView" class="qibla__kaaba" :transform="`translate(${kaabaX} 24)`">
         <rect x="-10" y="-10" width="20" height="20" rx="2.5" class="qibla__kaaba-body" />
         <rect x="-10" y="-4" width="20" height="3.5" class="qibla__kaaba-band" />
@@ -206,7 +201,6 @@ const showsSun = computed(() => props.live && props.sunAzimuth != null)
   height: auto;
   margin-top: 2rem;
   overflow: hidden;
-  /* Fade the tape out at both ends. */
   mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
 }
 

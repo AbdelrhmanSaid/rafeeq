@@ -2,7 +2,7 @@ export const AUTO = ''
 
 const autoOption = { value: AUTO, label: 'تلقائي' }
 
-export const CALCULATION_METHODS = [
+const CALCULATION_METHODS = [
   autoOption,
   { value: '3', label: 'رابطة العالم الإسلامي' },
   { value: '2', label: 'الجمعية الإسلامية لأمريكا الشمالية' },
@@ -29,16 +29,16 @@ export const CALCULATION_METHODS = [
   { value: '23', label: 'وزارة الأوقاف والشؤون الإسلامية، الأردن' },
 ]
 
-export const SCHOOLS = [autoOption, { value: '0', label: 'شافعي' }, { value: '1', label: 'حنفي' }]
+const SCHOOLS = [autoOption, { value: '0', label: 'شافعي' }, { value: '1', label: 'حنفي' }]
 
-export const LATITUDE_ADJUSTMENT_METHODS = [
+const LATITUDE_ADJUSTMENT_METHODS = [
   autoOption,
   { value: '1', label: 'منتصف الليل' },
   { value: '2', label: 'السُبع' },
   { value: '3', label: 'حسب الزاوية' },
 ]
 
-export const SHAFAQ_OPTIONS = [
+const SHAFAQ_OPTIONS = [
   autoOption,
   { value: 'general', label: 'عام' },
   { value: 'ahmer', label: 'الأحمر' },

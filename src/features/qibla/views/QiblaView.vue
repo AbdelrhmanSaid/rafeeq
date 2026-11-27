@@ -23,6 +23,7 @@ import { toArabicNumerals } from '@/shared/utils/arabic'
 import { getCurrentPosition } from '@/shared/composables/useGeolocation'
 import { useIsMobile } from '@/shared/composables/useIsMobile'
 import { usePrayersStore } from '@/features/prayers/store'
+import { isCoordinate } from '@/features/prayers/lib/coordinates'
 import { useDeviceCompass } from '@/features/qibla/composables/useDeviceCompass'
 import {
   getBearingUncertainty,
@@ -36,8 +37,6 @@ import { getSunPosition } from '@/features/qibla/lib/sun'
 const isMobile = useIsMobile()
 const prayersStore = usePrayersStore()
 
-const isCoordinate = (value) => Number.isFinite(Number(value)) && Number(value) !== 0
-
 // The location saved for prayer times is good enough for the qibla, so only ask when there isn't one.
 const latitude = ref(isCoordinate(prayersStore.latitude) ? Number(prayersStore.latitude) : null)
 const longitude = ref(isCoordinate(prayersStore.longitude) ? Number(prayersStore.longitude) : null)
@@ -46,7 +45,8 @@ const locationError = ref(null)
 // How far off a fresh fix may be, in metres. The saved location doesn't say.
 const locationAccuracy = ref(null)
 
-function applyFix(position) {
+async function takeFreshFix() {
+  const position = await getCurrentPosition({ enableHighAccuracy: true, timeout: 15000 })
   latitude.value = position.coords.latitude
   longitude.value = position.coords.longitude
   locationAccuracy.value = position.coords.accuracy ?? null
@@ -57,7 +57,7 @@ async function requestLocation() {
   locationError.value = null
 
   try {
-    applyFix(await getCurrentPosition({ enableHighAccuracy: true, timeout: 15000 }))
+    await takeFreshFix()
   } catch (err) {
     if (!navigator.geolocation) locationError.value = 'الموقع الجغرافي غير مدعوم في هذا المتصفح'
     else if (err?.code === 1) locationError.value = 'تم رفض إذن الوصول للموقع'
@@ -76,7 +76,7 @@ const refreshingLocation = ref(false)
 async function refreshLocation() {
   refreshingLocation.value = true
   try {
-    applyFix(await getCurrentPosition({ enableHighAccuracy: true, timeout: 15000 }))
+    await takeFreshFix()
     usingSavedLocation.value = false
   } catch {
     // Keep the saved location, and keep saying so.
@@ -116,7 +116,6 @@ const {
   requestPermission,
 } = useDeviceCompass()
 
-// Phone compasses read from magnetic north; the qibla bearing is from true north, so add the local declination.
 const declination = computed(() => (hasLocation.value ? getDeclination(latitude.value, longitude.value) : 0))
 const trueHeading = computed(() => normalizeAngle(heading.value + (declination.value ?? 0)))
 // Without the correction the heading could be tens of degrees off, so there's no compass to show.
@@ -124,9 +123,9 @@ const compassIssue = computed(
   () => compassError.value || (declination.value == null ? 'تعذّر حساب الشمال الحقيقي لموقعك' : null),
 )
 
-// The heading assumes the phone is upright in portrait; turned sideways it would be a quarter turn off.
+// The heading assumes portrait; turned sideways (even with rotation lock, which still reports portrait) it's a quarter
+// turn off.
 const { angle: screenAngle } = useScreenOrientation()
-// Also off when the phone is on its side with rotation lock, where the screen still reports portrait.
 const isPortrait = computed(() => !screenAngle.value && !sideways.value)
 
 // iOS says how far off its compass may be; past this many degrees it needs calibrating.
@@ -274,7 +273,6 @@ onMounted(() => {
 </script>
 
 <template>
-  <!-- One screen tall: the title, then the compass centred in the rest. -->
   <Page class="qibla-page full-height">
     <Heading
       subtitle-desktop-only
@@ -289,8 +287,7 @@ onMounted(() => {
         <button type="button" class="btn btn-soft" @click="requestLocation">إعادة المحاولة</button>
       </StatePanel>
 
-      <!-- Where the phone asks before sharing its compass (iOS), show only the request until it's allowed, so a
-           resting tape isn't mistaken for a working compass. -->
+      <!-- Only the request until allowed (iOS), so a resting tape isn't mistaken for a working compass. -->
       <StatePanel
         v-else-if="awaitingCompass"
         :icon="IconCompass"

@@ -5,46 +5,15 @@ import { toArabicNumerals } from '@/shared/utils/arabic'
 import { useCurrentPrayerKey } from '@/features/prayers/composables/useCurrentPrayerKey'
 
 defineProps({
-  // Shown on the label row above the list, beside the قبل / بعد column labels.
   title: { type: String, default: '' },
 })
 
 const prayers = [
-  {
-    key: 'Fajr',
-    name: 'الفجر',
-    before: 2,
-    after: 0,
-    icon: 'fajr',
-  },
-  {
-    key: 'Dhuhr',
-    name: 'الظهر',
-    before: 4,
-    after: 4,
-    icon: 'dhuhr',
-  },
-  {
-    key: 'Asr',
-    name: 'العصر',
-    before: 0,
-    after: 0,
-    icon: 'asr',
-  },
-  {
-    key: 'Maghrib',
-    name: 'المغرب',
-    before: 0,
-    after: 2,
-    icon: 'maghrib',
-  },
-  {
-    key: 'Isha',
-    name: 'العشاء',
-    before: 0,
-    after: 2,
-    icon: 'isha',
-  },
+  { key: 'Fajr', name: 'الفجر', before: 2, after: 0, icon: 'fajr' },
+  { key: 'Dhuhr', name: 'الظهر', before: 4, after: 4, icon: 'dhuhr' },
+  { key: 'Asr', name: 'العصر', before: 0, after: 0, icon: 'asr' },
+  { key: 'Maghrib', name: 'المغرب', before: 0, after: 2, icon: 'maghrib' },
+  { key: 'Isha', name: 'العشاء', before: 0, after: 2, icon: 'isha' },
 ]
 
 // Phones show only the current prayer's sunnah until expanded; the time after sunrise has none, so Dhuhr stands in.
@@ -128,7 +97,7 @@ const formatRakaa = (value) => {
   }
 }
 
-/* Muted like the other Home section titles (.list-title); the row already spaces it. */
+/* The header row already spaces it. */
 .sunnah-header__title {
   margin: 0;
 }

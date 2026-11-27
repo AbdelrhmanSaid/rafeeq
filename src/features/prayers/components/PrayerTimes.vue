@@ -8,7 +8,8 @@ import LoadingState from '@/shared/ui/LoadingState.vue'
 import { formatTime, toArabicNumerals } from '@/shared/utils/arabic'
 import { calculatePrayerTimes } from '@/features/prayers/lib/prayerTimes'
 import { getHijriDate } from '@/features/prayers/lib/hijri'
-import { getNextPrayerKey, getPrayerPhase, PRAYER_SEQUENCE } from '@/features/prayers/lib/prayerPhase'
+import { getNextPrayerKey, getPreviousPrayerKey, getPrayerPhase } from '@/features/prayers/lib/prayerPhase'
+import { isCoordinate } from '@/features/prayers/lib/coordinates'
 import { IconMapPin } from '@tabler/icons-vue'
 
 import PrayerIcon from '@/features/prayers/components/icons/PrayerIcon.vue'
@@ -22,7 +23,6 @@ const props = defineProps({
 
 const hasPropsCoords = computed(() => props.lat != null && props.long != null)
 
-// Match the countdown's one-second precision instead of updating every frame.
 const now = useNow({ interval: 1000 })
 
 // A local-date string only changes at midnight, so the times below are recomputed once a day.
@@ -44,8 +44,6 @@ const { detect } = usePrayerLocation()
 const latitude = computed(() => (hasPropsCoords.value ? props.lat : store.latitude))
 const longitude = computed(() => (hasPropsCoords.value ? props.long : store.longitude))
 
-// Corrupt or cleared saved coordinates (NaN, 0) must lead back to the location prompt, not a blank section.
-const isCoordinate = (value) => Number.isFinite(Number(value)) && Number(value) !== 0
 const hasCoords = computed(() => isCoordinate(latitude.value) && isCoordinate(longitude.value))
 
 const timingsFor = (date) =>
@@ -61,13 +59,11 @@ const timingsFor = (date) =>
 
 const timings = computed(() => (hasCoords.value ? timingsFor(todayDate.value) : null))
 
-// The strip drops the ص/م suffix; which half of the day each prayer falls in is obvious. No time keeps a leading
-// zero.
+// The strip drops the ص/م suffix and the leading zero.
 const formatShortTiming = (time) => toArabicNumerals(formatDate(new Date(time), 'h:mm'))
 
-const formatTiming = (time) => {
-  return toArabicNumerals(formatDate(new Date(time), 'h:mm A').replace('AM', 'ص').replace('PM', 'م'))
-}
+const formatTiming = (time) =>
+  toArabicNumerals(formatDate(new Date(time), 'h:mm A').replace('AM', 'ص').replace('PM', 'م'))
 
 const hijri = computed(() => getHijriDate(todayDate.value))
 const hijriDate = computed(() => toArabicNumerals(`${hijri.value.day} ${hijri.value.month} ${hijri.value.year}`))
@@ -88,8 +84,7 @@ const phases = computed(() => {
   return result
 })
 
-// When the next prayer is already past today (Fajr, after Isha), it's tomorrow's, worked out for tomorrow's date;
-// the label and the countdown both use it.
+// After Isha the next prayer (Fajr) is tomorrow's, so it's worked out for tomorrow's date.
 const nextPrayerAt = computed(() => {
   const key = nextPrayerKey.value
   if (!timings.value || !key) return null
@@ -109,11 +104,9 @@ const progress = computed(() => {
 
   const nowMs = now.value.getTime()
   const DAY = 24 * 60 * 60 * 1000
-  const idx = PRAYER_SEQUENCE.indexOf(next)
-  const prevKey = PRAYER_SEQUENCE[(idx - 1 + PRAYER_SEQUENCE.length) % PRAYER_SEQUENCE.length]
 
   let nextMs = new Date(prayerTimes[next]).getTime()
-  let prevMs = new Date(prayerTimes[prevKey]).getTime()
+  let prevMs = new Date(prayerTimes[getPreviousPrayerKey(next)]).getTime()
 
   if (nextMs < nowMs) nextMs += DAY
   if (prevMs > nowMs) prevMs -= DAY
@@ -208,8 +201,7 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
     radial-gradient(28rem 14rem at 100% 0, rgba(255, 255, 255, 0.18), transparent 70%),
     linear-gradient(135deg, var(--bs-primary), color-mix(in srgb, var(--bs-primary) 72%, #000));
 
-  /* The gradient deepens away from the text colour: towards black under white text, towards white under dark text, so a
-     light brand colour doesn't darken behind its dark text. */
+  /* Deepen away from the text colour (towards white under dark text), so a light brand colour doesn't darken. */
   @supports (color: rgb(from red r g b)) {
     background:
       radial-gradient(28rem 14rem at 100% 0, rgba(255, 255, 255, 0.18), transparent 70%),
@@ -267,8 +259,8 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
   white-space: nowrap;
 }
 
-/* Items separated by a dot that never dangles: when the line wraps, the dot leading the new line sits in the pulled-in
-   start margin, which the wrapper clips. Clip, not hidden, so the wrapper still won't shrink narrower than its words. */
+/* A wrapped line's leading dot sits in the pulled-in start margin, which this clips. Clip, not hidden, so the wrapper
+   still won't shrink narrower than its words. */
 .prayer-hero__date,
 .prayer-hero__remain {
   overflow: clip;
@@ -393,8 +385,7 @@ const nextPrayerTime = computed(() => (nextPrayerAt.value ? formatTiming(nextPra
   height: 1.1rem;
 }
 
-/* The longest name (المغرب) is about three of its own font sizes wide; a sixth of the strip, less the gaps and
-   padding, sets the most each column can give it. */
+/* The longest name (المغرب) is about three font sizes wide; a sixth of the strip, less gaps and padding, caps it. */
 .prayer-strip__label {
   max-width: 100%;
   overflow: hidden;

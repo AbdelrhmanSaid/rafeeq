@@ -17,20 +17,10 @@ export function smoothAngle(current, target, factor) {
   return normalizeAngle(current + delta * factor)
 }
 
-export function needleRotation(qiblaDirection, heading) {
-  if (qiblaDirection === null) return 0
-  return normalizeAngle(qiblaDirection - heading)
-}
-
-export function isFacingQibla(needleAngle, tolerance) {
-  return needleAngle <= tolerance || needleAngle >= 360 - tolerance
-}
-
 const KAABA = { latitude: 21.4225241, longitude: 39.8261818 }
 const RAD = Math.PI / 180
 
-// The shortest path to the Kaaba over the real shape of the earth (the WGS84 ellipsoid, which GPS positions are
-// given on), not a sphere: a sphere puts the bearing up to 0.2° off.
+// On the WGS84 ellipsoid GPS positions are given on; a sphere puts the bearing up to 0.2° off.
 function toKaaba(latitude, longitude) {
   return geodesic.Geodesic.WGS84.Inverse(Number(latitude), Number(longitude), KAABA.latitude, KAABA.longitude)
 }
@@ -46,15 +36,13 @@ export function getDistanceToKaaba(latitude, longitude) {
   return toKaaba(latitude, longitude).s12 / 1000
 }
 
-// How far off the bearing could be, in degrees, when the location is only known to within `accuracy` metres: the
-// angle that error covers as seen from the Kaaba's distance. Null when either isn't known.
+// Degrees the bearing may be off when the location is known to within `accuracy` metres. Null when either is unknown.
 export function getBearingUncertainty(accuracy, distance) {
   if (!Number.isFinite(accuracy) || !Number.isFinite(distance) || accuracy < 0) return null
   return Math.atan2(accuracy / 1000, distance) / RAD
 }
 
-// Ticks for the compass tape: every `step` degrees within `halfRange` of the heading,
-// each with its offset from the heading (negative to the left, positive to the right).
+// Every `step` degrees within `halfRange` of the heading, with its offset from it (negative to the left).
 export function getTapeTicks(heading, halfRange, step) {
   const ticks = []
   const first = Math.ceil((heading - halfRange) / step) * step
@@ -64,13 +52,9 @@ export function getTapeTicks(heading, halfRange, step) {
   return ticks
 }
 
-// Compass heading (degrees clockwise from north) of where the phone points, from a deviceorientation(absolute)
-// event's Euler angles. `360 - alpha` is only right while the phone lies flat: tilted up it drifts, and browsers may
-// report the same pose as (alpha + 180, 180 - beta, gamma ± 180), which flipped the heading by 180°.
-// "Where the phone points" is the horizontal direction at right angles to its left-right edge: the top edge when it
-// lies flat, the back (camera) when it's held up, and a smooth blend in between, with no jump at any tilt.
-// It's the same for both Euler forms. It's undefined only when the left-right edge itself points straight up
-// (the phone held on its side), which `isHeldSideways` catches.
+// Heading of where the phone points (top edge when flat, camera when held up, blended between) from deviceorientation
+// Euler angles. Unlike `360 - alpha` it holds when tilted and for the equivalent (alpha + 180, 180 - beta, gamma ± 180)
+// pose some browsers report. Undefined only with the phone on its side, which `isHeldSideways` catches.
 export function headingFromOrientation(alpha, beta, gamma) {
   const sa = Math.sin(alpha * RAD)
   const ca = Math.cos(alpha * RAD)
@@ -85,8 +69,7 @@ export function headingFromOrientation(alpha, beta, gamma) {
   return normalizeAngle(Math.atan2(east, north) / RAD)
 }
 
-// True when the phone's left-right edge points mostly up or down: held on its side, as in landscape. The heading
-// can't be read reliably then, and a rotation-locked screen would still report portrait.
+// The left-right edge points mostly up or down (landscape, even when a rotation-locked screen still says portrait).
 export function isHeldSideways(beta, gamma) {
   return Math.abs(Math.cos(beta * RAD) * Math.sin(gamma * RAD)) > 0.75
 }
@@ -97,9 +80,8 @@ export function tiltFromFlat(beta, gamma) {
   return Math.acos(Math.min(1, Math.max(-1, cosine))) / RAD
 }
 
-// Watches the gap between the compass heading and the heading the gyroscope alone gives. The gyroscope can't feel
-// magnets, so while the compass is right that gap holds still; a magnet, metal nearby or a compass that needs
-// calibrating makes it wander. `add` takes the gap now and returns how far it has wandered over the last `windowMs`.
+// The gyroscope can't feel magnets, so the compass-minus-gyro gap holds still unless something disturbs the compass.
+// `add` takes the gap now and returns how far it has wandered over the last `windowMs`.
 export function createDriftMonitor({ windowMs = 10000, everyMs = 200 } = {}) {
   let samples = []
   let spread = 0
@@ -119,11 +101,8 @@ export function createDriftMonitor({ windowMs = 10000, everyMs = 200 } = {}) {
   }
 }
 
-// Phone compasses measure from magnetic north; the qibla bearing is from true north. The gap (magnetic declination)
-// depends on place and year: about +5° in Cairo, -12° in New York. Add it to turn a magnetic heading into a true one.
-// The bundled World Magnetic Model 2025 runs to late 2029; past that it extrapolates (still within a degree or so for
-// a few years) rather than failing. Null when it can't be worked out: with no correction the compass could be tens of
-// degrees off, so the screen must not show a heading then.
+// Add to a magnetic heading to get a true one (about +5° in Cairo, -12° in New York). WMM 2025 runs to late 2029 and
+// extrapolates after. Null when unknown: uncorrected, the compass could be tens of degrees off.
 export function getDeclination(latitude, longitude, date = new Date()) {
   try {
     const declination = geomagnetism

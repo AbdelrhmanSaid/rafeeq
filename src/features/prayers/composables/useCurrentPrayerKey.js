@@ -2,9 +2,8 @@ import { computed } from 'vue'
 import { formatDate, useNow } from '@vueuse/core'
 import { usePrayersStore } from '@/features/prayers/store'
 import { calculatePrayerTimes } from '@/features/prayers/lib/prayerTimes'
-import { getNextPrayerKey, PRAYER_SEQUENCE } from '@/features/prayers/lib/prayerPhase'
-
-const isCoordinate = (value) => Number.isFinite(Number(value)) && Number(value) !== 0
+import { getNextPrayerKey, getPreviousPrayerKey } from '@/features/prayers/lib/prayerPhase'
+import { isCoordinate } from '@/features/prayers/lib/coordinates'
 
 // The prayer whose time has most recently started (Fajr…Isha, or Sunrise) for the saved location.
 // Before Fajr it's still the previous night's Isha. Null when no location is set.
@@ -29,9 +28,6 @@ export function useCurrentPrayerKey() {
 
   return computed(() => {
     const next = getNextPrayerKey(now.value.getTime(), timings.value)
-    if (!next) return null
-
-    const index = PRAYER_SEQUENCE.indexOf(next)
-    return PRAYER_SEQUENCE[(index - 1 + PRAYER_SEQUENCE.length) % PRAYER_SEQUENCE.length]
+    return next ? getPreviousPrayerKey(next) : null
   })
 }

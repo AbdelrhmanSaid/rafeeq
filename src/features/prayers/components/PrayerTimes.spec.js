@@ -11,6 +11,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers()
+  localStorage.clear()
   process.env.TZ = originalTz
 })
 
@@ -33,7 +34,6 @@ describe('PrayerTimes', () => {
     const wrapper = mount(PrayerTimes, { props: { lat: 30.0444, long: 31.2357 } })
 
     expect(fetch).not.toHaveBeenCalled()
-    // The six times sit in the strip inside the next-prayer card.
     expect(wrapper.findAll('.prayer-strip__item')).toHaveLength(6)
   })
 
@@ -44,6 +44,5 @@ describe('PrayerTimes', () => {
     const wrapper = mount(PrayerTimes)
 
     expect(wrapper.text()).toContain('تحديد موقعي')
-    localStorage.clear()
   })
 })

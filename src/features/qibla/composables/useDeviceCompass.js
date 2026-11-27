@@ -19,8 +19,8 @@ const MAX_TILT = 60
 // The compass and the gyroscope disagreeing by more than this within a few seconds means magnetic interference.
 const MAX_DRIFT = 15
 const DRIFT_WINDOW_MS = 6000
-// The compass trails a turning phone, by a second or so and even in a slow turn, so the two are only compared once
-// the phone has been at rest this long. Compared mid-turn, that lag alone reads as interference.
+// The compass trails a turning phone by a second or so, so it's only compared with the gyroscope after this long at rest;
+// mid-turn the lag alone reads as interference.
 const STEADY_MS = 1000
 // A phone turning slower than this (degrees a second) is at rest.
 const REST_RATE = 5
@@ -39,13 +39,12 @@ export function useDeviceCompass() {
   const hadReading = ref(false)
   // iOS reports how far off its heading may be, in degrees (negative when it can't tell). Null where unknown.
   const accuracy = ref(null)
-  // Held on its side (landscape, even with rotation lock): the heading isn't reliable then.
   const sideways = ref(false)
   // Tipped up too far for a heading that is measured along the phone's top edge (iOS).
   const upright = ref(false)
   // The compass disagrees with the gyroscope: a magnet or metal nearby, or it needs calibrating.
   const disturbed = ref(false)
-  // How far the gap between the compass and the gyroscope has wandered lately, in degrees.
+  // Degrees the compass-minus-gyroscope gap has wandered lately.
   const drifted = ref(0)
   const error = ref(null)
   // The latest raw sensor values, for the debug readout.
@@ -205,8 +204,8 @@ export function useDeviceCompass() {
     if (hasReading.value) keepAlive()
   }
 
-  // Listen where the heading is measured from north. Chrome (Android included) now has the iOS permission prompt too,
-  // so the prompt doesn't mean iOS: pick the event by what the browser offers, not by whether it asked first.
+  // Chrome (Android included) has the iOS permission prompt too, so pick the event by what the browser offers, not by
+  // whether it asked first.
   let active = true
 
   function listen() {
@@ -224,8 +223,7 @@ export function useDeviceCompass() {
     window.addEventListener('devicemotion', handleMotion, true)
   }
 
-  // Quiet: the try on opening the screen. Browsers that grant it without a tap (or remember an earlier yes) start at
-  // once; the rest refuse until a tap, which isn't an error worth showing.
+  // Quiet: the try on opening the screen. Browsers that need a tap refuse it, which isn't an error worth showing.
   async function ask(quiet) {
     if (needsPermissionPrompt()) {
       try {
