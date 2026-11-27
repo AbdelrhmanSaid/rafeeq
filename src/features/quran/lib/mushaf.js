@@ -5,8 +5,7 @@ import { AYAHS_STARTING, PAGE_STARTS } from '@/features/quran/data/mushaf-index.
 // The Madinah Mushaf (King Fahd Complex, 15 lines a page), drawn with the Complex's own per-page fonts.
 export const PAGE_COUNT = PAGE_STARTS.length
 
-// Both are served with the app: the layouts from scripts/build-mushaf-data.js and the Complex's V4 page fonts from
-// scripts/build-mushaf-fonts.py.
+// Both are served with the app: the page layouts and the Complex's V4 page fonts, with their tajweed colours removed.
 export const pageDataUrl = (page) => `/data/mushaf/${page}.json`
 export const pageFontUrl = (page) => `/fonts/mushaf/p${page}.woff2`
 
