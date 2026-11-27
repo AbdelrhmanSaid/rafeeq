@@ -30,6 +30,7 @@ export const STORAGE_KEYS = {
   quranBookmark: 'quranBookmark',
   quranBookmarks: 'quran-bookmarks',
   quranLastPage: 'quran-last-page',
+  quranReaderBackground: 'quran-reader-background',
   radioFavorites: 'radioFavorites',
 
   sebhaCount: 'sebha-count',

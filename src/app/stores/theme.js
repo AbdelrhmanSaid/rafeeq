@@ -5,30 +5,43 @@ import {
   applyPrimaryColor,
   applyBgColor,
   applyMode,
+  applyPaper,
   applyFontScale,
   clampFontScale,
   syncMetaThemeColor,
   DEFAULT_FONT_SCALE,
 } from '@/shared/utils/css'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
+import { SYSTEM_THEME, paperOf, themeOf } from '@/shared/constants/themes'
 
 export const useThemeStore = defineStore('theme', () => {
-  const mode = useLocalStorage(STORAGE_KEYS.themeMode, 'system')
+  // Holds a look from THEMES; 'light', 'dark' and 'system' are the values saved before paper and black.
+  const mode = useLocalStorage(STORAGE_KEYS.themeMode, SYSTEM_THEME)
   const primaryColor = useLocalStorage(STORAGE_KEYS.themePrimary, '')
   const fontScale = useLocalStorage(STORAGE_KEYS.fontScale, DEFAULT_FONT_SCALE)
   const prefersDark = usePreferredDark()
 
   const queryOverrides = ref(null)
+  // A screen's own look, like the Quran reader's background; it goes when the screen does.
+  const pageTheme = ref(null)
 
-  const resolvedMode = computed(() => {
-    if (mode.value === 'system') return prefersDark.value ? 'dark' : 'light'
-    return mode.value
+  const resolvedTheme = computed(() => {
+    if (themeOf(pageTheme.value)?.scheme) return pageTheme.value
+    // An unknown saved value, from an edited backup, follows the phone.
+    if (themeOf(mode.value)?.scheme) return mode.value
+    return prefersDark.value ? 'dark' : 'light'
   })
 
   function setMode(next) {
-    if (['light', 'dark', 'system'].includes(next)) {
-      mode.value = next
-    }
+    if (themeOf(next)) mode.value = next
+  }
+
+  function setPageTheme(next) {
+    pageTheme.value = themeOf(next)?.scheme ? next : null
+  }
+
+  function clearPageTheme() {
+    pageTheme.value = null
   }
 
   function setPrimaryColor(color) {
@@ -59,16 +72,20 @@ export const useThemeStore = defineStore('theme', () => {
 
   watchEffect(() => {
     const theme = {
-      mode: resolvedMode.value,
+      mode: themeOf(resolvedTheme.value).scheme,
+      paper: paperOf(resolvedTheme.value),
       fg: primaryColor.value || null,
       bg: null,
     }
 
+    // An embed's query wins: the host page asks for a plain scheme, or an exact background.
     if (queryOverrides.value) {
       Object.assign(theme, queryOverrides.value)
+      if (queryOverrides.value.mode || queryOverrides.value.bg) theme.paper = null
     }
 
     if (theme.mode) applyMode(theme.mode)
+    applyPaper(theme.paper)
     applyPrimaryColor(theme.fg)
     applyBgColor(theme.bg)
 
@@ -91,5 +108,7 @@ export const useThemeStore = defineStore('theme', () => {
     resetFontScale,
     applyQueryOverrides,
     clearQueryOverrides,
+    setPageTheme,
+    clearPageTheme,
   }
 })

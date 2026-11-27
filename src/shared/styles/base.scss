@@ -83,6 +83,38 @@
   }
 }
 
+/* Papers on top of a scheme, keyed to body like data-bs-theme; keep the colours in step with shared/constants/themes.js. */
+/* The light tokens derived at :root resolve against white, so a paper redeclares them to follow its own colours. */
+body[data-app-paper='paper'] {
+  --app-body-bg-base: #fffdf6;
+  --bs-body-bg: color-mix(in srgb, #fbf6e8 96%, var(--bs-primary));
+  --bs-border-color: #ece4cf;
+  --bs-secondary-bg: #f1e9d4;
+  --bs-tertiary-bg: #f7f1e1;
+
+  --app-surface: var(--app-body-bg-base);
+  --app-surface-hover: color-mix(in srgb, var(--bs-primary) 6%, var(--app-surface));
+  --app-surface-active: color-mix(in srgb, var(--bs-primary) 11%, var(--app-surface));
+  --app-hairline: color-mix(in srgb, var(--bs-primary) 8%, var(--bs-border-color));
+  --app-hairline-strong: color-mix(in srgb, var(--bs-primary) 30%, var(--bs-border-color));
+  --app-glass: color-mix(in srgb, var(--bs-body-bg) 78%, transparent);
+  --app-shadow-card: 0 1px 2px rgba(74, 56, 20, 0.05), 0 6px 20px -8px rgba(74, 56, 20, 0.1);
+  --app-shadow-card-hover: 0 2px 4px rgba(74, 56, 20, 0.06), 0 16px 32px -12px rgba(74, 56, 20, 0.18);
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    --app-glass: var(--bs-body-bg);
+  }
+}
+
+/* True black for OLED screens: no brand tint or glow behind the page, only on the cards above it. */
+body[data-bs-theme='dark'][data-app-paper='black'] {
+  --bs-body-bg: #000;
+  --app-surface: #121212;
+  --app-page-bg-color: #000;
+  --app-page-top-color: #000;
+  --app-page-bg-image: none;
+}
+
 html.is-immersive,
 html.is-immersive body {
   overflow: hidden;

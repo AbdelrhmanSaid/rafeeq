@@ -6,6 +6,7 @@ const css = vi.hoisted(() => ({
   applyPrimaryColor: vi.fn(),
   applyBgColor: vi.fn(),
   applyMode: vi.fn(),
+  applyPaper: vi.fn(),
   applyFontScale: vi.fn(),
   syncMetaThemeColor: vi.fn(),
 }))
@@ -38,5 +39,59 @@ describe('theme store', () => {
     await nextTick()
 
     expect(css.applyPrimaryColor).toHaveBeenLastCalledWith(null)
+  })
+
+  it('keeps the light and dark values saved before the new looks', async () => {
+    const theme = useThemeStore()
+
+    theme.setMode('dark')
+    await nextTick()
+    expect(css.applyMode).toHaveBeenLastCalledWith('dark')
+    expect(css.applyPaper).toHaveBeenLastCalledWith(null)
+  })
+
+  it.each([
+    ['paper', 'light'],
+    ['black', 'dark'],
+  ])('draws %s on top of the %s scheme', async (look, scheme) => {
+    const theme = useThemeStore()
+
+    theme.setMode(look)
+    await nextTick()
+    expect(css.applyMode).toHaveBeenLastCalledWith(scheme)
+    expect(css.applyPaper).toHaveBeenLastCalledWith(look)
+  })
+
+  it('ignores an unknown look', () => {
+    const theme = useThemeStore()
+
+    theme.setMode('sepia')
+    expect(theme.mode).toBe('system')
+  })
+
+  it("puts a page's look over the saved one and gives it back when cleared", async () => {
+    const theme = useThemeStore()
+    theme.setMode('paper')
+
+    theme.setPageTheme('black')
+    await nextTick()
+    expect(css.applyMode).toHaveBeenLastCalledWith('dark')
+    expect(css.applyPaper).toHaveBeenLastCalledWith('black')
+
+    theme.clearPageTheme()
+    await nextTick()
+    expect(css.applyMode).toHaveBeenLastCalledWith('light')
+    expect(css.applyPaper).toHaveBeenLastCalledWith('paper')
+  })
+
+  it("lets an embed's scheme win over the page's look, without its paper", async () => {
+    const theme = useThemeStore()
+
+    theme.setPageTheme('black')
+    theme.applyQueryOverrides({ mode: 'light' })
+    await nextTick()
+
+    expect(css.applyMode).toHaveBeenLastCalledWith('light')
+    expect(css.applyPaper).toHaveBeenLastCalledWith(null)
   })
 })

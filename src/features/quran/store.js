@@ -2,6 +2,7 @@ import { useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed, watch } from 'vue'
 import reciters from '@/features/quran/data/reciters.js'
+import readerBackgrounds, { DEFAULT_READER_BACKGROUND } from '@/features/quran/data/readerBackgrounds.js'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 import { API } from '@/shared/constants/api'
 
@@ -12,6 +13,12 @@ export const useQuranStore = defineStore('quran', () => {
   const currentReciter = useLocalStorage(STORAGE_KEYS.currentReciter, DEFAULT_RECITER_ID)
   const currentTafseer = useLocalStorage(STORAGE_KEYS.currentTafseer, DEFAULT_TAFSEER)
   const lastPage = useLocalStorage(STORAGE_KEYS.quranLastPage, 0)
+  const readerBackground = useLocalStorage(STORAGE_KEYS.quranReaderBackground, DEFAULT_READER_BACKGROUND)
+
+  // An unknown value, from an old or edited backup, reads as the default.
+  const readerBackgroundOption = computed(
+    () => readerBackgrounds.find((option) => option.value === readerBackground.value) ?? readerBackgrounds[0],
+  )
 
   const reciter = computed(() => {
     const id = Number(currentReciter.value)
@@ -48,6 +55,8 @@ export const useQuranStore = defineStore('quran', () => {
     currentReciter,
     currentTafseer,
     lastPage,
+    readerBackground,
+    readerBackgroundOption,
     reciter,
     surahAudioUrl,
     fetchAyahTimings,

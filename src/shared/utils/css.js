@@ -209,6 +209,11 @@ export function applyMode(mode) {
   document.body.setAttribute('data-bs-theme', mode)
 }
 
+export function applyPaper(paper) {
+  if (paper) document.body.setAttribute('data-app-paper', paper)
+  else document.body.removeAttribute('data-app-paper')
+}
+
 export function clampFontScale(value) {
   const n = Math.round(Number(value))
   if (!Number.isFinite(n)) return DEFAULT_FONT_SCALE
