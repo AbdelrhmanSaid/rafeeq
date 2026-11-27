@@ -51,7 +51,7 @@ describe('theme store', () => {
   })
 
   it.each([
-    ['yellow', 'light'],
+    ['paper', 'light'],
     ['black', 'dark'],
   ])('draws %s on top of the %s scheme', async (look, scheme) => {
     const theme = useThemeStore()
@@ -71,7 +71,7 @@ describe('theme store', () => {
 
   it("puts a page's look over the saved one and gives it back when cleared", async () => {
     const theme = useThemeStore()
-    theme.setMode('yellow')
+    theme.setMode('paper')
 
     theme.setPageTheme('black')
     await nextTick()
@@ -81,7 +81,7 @@ describe('theme store', () => {
     theme.clearPageTheme()
     await nextTick()
     expect(css.applyMode).toHaveBeenLastCalledWith('light')
-    expect(css.applyPaper).toHaveBeenLastCalledWith('yellow')
+    expect(css.applyPaper).toHaveBeenLastCalledWith('paper')
   })
 
   it("lets an embed's scheme win over the page's look, without its paper", async () => {

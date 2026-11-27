@@ -85,7 +85,7 @@
 
 /* Papers on top of a scheme, keyed to body like data-bs-theme; keep the colours in step with shared/constants/themes.js. */
 /* The light tokens derived at :root resolve against white, so a paper redeclares them to follow its own colours. */
-body[data-app-paper='yellow'] {
+body[data-app-paper='paper'] {
   --app-body-bg-base: #fffdf6;
   --bs-body-bg: color-mix(in srgb, #fbf6e8 96%, var(--bs-primary));
   --bs-border-color: #ece4cf;

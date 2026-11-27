@@ -19,8 +19,8 @@ export const THEMES = [
     ink: '#212529',
   },
   {
-    value: 'yellow',
-    label: 'أصفر',
+    value: 'paper',
+    label: 'ورقي',
     scheme: 'light',
     swatch: 'color-mix(in srgb, #fbf6e8 96%, var(--bs-primary))',
     ink: '#212529',
@@ -38,4 +38,4 @@ export const THEMES = [
 export const themeOf = (value) => THEMES.find((theme) => theme.value === value) ?? null
 
 // Each scheme's plain look is drawn by Bootstrap's own theme; the others add a paper on top.
-export const paperOf = (value) => (value === 'yellow' || value === 'black' ? value : null)
+export const paperOf = (value) => (value === 'paper' || value === 'black' ? value : null)

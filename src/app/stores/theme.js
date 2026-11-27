@@ -15,7 +15,7 @@ import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 import { SYSTEM_THEME, paperOf, themeOf } from '@/shared/constants/themes'
 
 export const useThemeStore = defineStore('theme', () => {
-  // Holds a look from THEMES; 'light', 'dark' and 'system' are the values saved before yellow and black.
+  // Holds a look from THEMES; 'light', 'dark' and 'system' are the values saved before paper and black.
   const mode = useLocalStorage(STORAGE_KEYS.themeMode, SYSTEM_THEME)
   const primaryColor = useLocalStorage(STORAGE_KEYS.themePrimary, '')
   const fontScale = useLocalStorage(STORAGE_KEYS.fontScale, DEFAULT_FONT_SCALE)
