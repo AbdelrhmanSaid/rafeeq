@@ -6,12 +6,11 @@ import { IconRefreshDot, IconTrash } from '@tabler/icons-vue'
 import SettingsSection from './SettingsSection.vue'
 import SelectRow from '@/shared/ui/SelectRow.vue'
 import { CALCULATION_FIELDS } from '@/features/prayers/constants/calculationOptions'
+import { isCoordinate } from '@/features/prayers/lib/coordinates'
 
 const store = usePrayersStore()
 
 const { detect } = usePrayerLocation()
-
-const isCoordinate = (value) => Number.isFinite(Number(value)) && Number(value) !== 0
 
 // Four decimals, about 10 m.
 const location = computed(() => {
