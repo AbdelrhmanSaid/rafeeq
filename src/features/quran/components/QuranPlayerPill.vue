@@ -58,9 +58,9 @@ const reciterName = computed(() => quranStore.reciter?.name ?? 'اختر الق�
       :disabled="loading"
       @click="emit('toggle')"
     >
-      <IconLoader2 v-if="loading" size="20" class="spin" aria-hidden="true" />
-      <IconPlayerPauseFilled v-else-if="playing" size="20" aria-hidden="true" />
-      <IconPlayerPlayFilled v-else size="20" aria-hidden="true" />
+      <IconLoader2 v-if="loading" size="16" class="spin" aria-hidden="true" />
+      <IconPlayerPauseFilled v-else-if="playing" size="16" aria-hidden="true" />
+      <IconPlayerPlayFilled v-else size="16" aria-hidden="true" />
     </button>
 
     <button type="button" class="player-pill__reciter" :aria-label="`القارئ: ${reciterName}`" @click="openReciters">
@@ -152,8 +152,8 @@ const reciterName = computed(() => quranStore.reciter?.name ?? 'اختر الق�
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border: 0;
   border-radius: 50%;
   background: var(--bs-primary);
@@ -174,7 +174,7 @@ const reciterName = computed(() => quranStore.reciter?.name ?? 'اختر الق�
   align-items: center;
   gap: 0.25rem;
   min-width: 0;
-  min-height: 2.75rem;
+  min-height: 2.25rem;
   padding-inline: 0.5rem 0.25rem;
   border: 0;
   border-radius: var(--bs-border-radius-pill);
