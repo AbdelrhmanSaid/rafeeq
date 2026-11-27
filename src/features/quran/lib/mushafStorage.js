@@ -28,6 +28,8 @@ export function scanStoredPages() {
     for (let page = 1; page <= 604; page++) {
       if (urls.has(absolute(pageDataUrl(page))) && urls.has(absolute(pageFontUrl(page)))) storedPages.add(page)
     }
+    // Surahs read to the end before reading counted as downloading them.
+    recordReadSurahs(storedPages)
   })()
   return scanned
 }
@@ -96,7 +98,10 @@ export function loadPage(page) {
         await cache?.delete(pageFontUrl(page))
         throw error
       }
-      if (data.saved && font.saved) storedPages.add(page)
+      if (data.saved && font.saved) {
+        storedPages.add(page)
+        recordReadSurahs([page])
+      }
       // Let go while loading: the page is no longer near the reader, so its font isn't registered.
       if (!entry.dropped) {
         entry.face = face
@@ -152,6 +157,29 @@ async function removePages(pages) {
 // until the last of them is removed. Kept out of settings backups: it describes this device's storage.
 const downloaded = useLocalStorage('mushaf-downloaded-surahs', [])
 const downloadedSet = computed(() => new Set(downloaded.value))
+
+// The surahs on each page, built the first time a page is checked.
+let surahsByPage = null
+function surahsOnPage(page) {
+  if (!surahsByPage) {
+    surahsByPage = new Map()
+    for (const { id } of surahs) {
+      for (const p of surahPages(id)) surahsByPage.set(p, [...(surahsByPage.get(p) ?? []), id])
+    }
+  }
+  return surahsByPage.get(page) ?? []
+}
+
+// A surah whose every page reading has stored counts as downloaded, the same as one downloaded on purpose.
+function recordReadSurahs(pages) {
+  const complete = new Set()
+  for (const page of pages) {
+    for (const surah of surahsOnPage(page)) {
+      if (!downloadedSet.value.has(surah) && surahPages(surah).every((p) => storedPages.has(p))) complete.add(surah)
+    }
+  }
+  if (complete.size) downloaded.value = [...downloaded.value, ...complete]
+}
 
 const isSurahDownloaded = (surah) =>
   downloadedSet.value.has(surah) && surahPages(surah).every((page) => storedPages.has(page))
