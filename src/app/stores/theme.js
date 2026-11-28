@@ -22,11 +22,8 @@ export const useThemeStore = defineStore('theme', () => {
   const prefersDark = usePreferredDark()
 
   const queryOverrides = ref(null)
-  // A screen's own look, like the Quran reader's background; it goes when the screen does.
-  const pageTheme = ref(null)
 
   const resolvedTheme = computed(() => {
-    if (themeOf(pageTheme.value)?.scheme) return pageTheme.value
     // An unknown saved value, from an edited backup, follows the phone.
     if (themeOf(mode.value)?.scheme) return mode.value
     return prefersDark.value ? 'dark' : 'light'
@@ -34,14 +31,6 @@ export const useThemeStore = defineStore('theme', () => {
 
   function setMode(next) {
     if (themeOf(next)) mode.value = next
-  }
-
-  function setPageTheme(next) {
-    pageTheme.value = themeOf(next)?.scheme ? next : null
-  }
-
-  function clearPageTheme() {
-    pageTheme.value = null
   }
 
   function setPrimaryColor(color) {
@@ -108,7 +97,5 @@ export const useThemeStore = defineStore('theme', () => {
     resetFontScale,
     applyQueryOverrides,
     clearQueryOverrides,
-    setPageTheme,
-    clearPageTheme,
   }
 })

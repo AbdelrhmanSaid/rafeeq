@@ -1,75 +1,42 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import { createApp, nextTick, ref } from 'vue'
-
-vi.mock('@/shared/utils/css', () => ({
-  applyPrimaryColor: vi.fn(),
-  applyBgColor: vi.fn(),
-  applyMode: vi.fn(),
-  applyPaper: vi.fn(),
-  applyFontScale: vi.fn(),
-  syncMetaThemeColor: vi.fn(),
-  clampFontScale: (value) => value,
-  DEFAULT_FONT_SCALE: 100,
-}))
+import { ref } from 'vue'
 
 vi.mock('@vueuse/core', () => ({
   useLocalStorage: (_key, defaultValue) => ref(defaultValue),
-  usePreferredDark: () => ref(false),
 }))
 
-import { applyMode, applyPaper } from '@/shared/utils/css'
 import { useQuranStore } from '@/features/quran/store'
 import { useReaderBackground } from './useReaderBackground'
 
-function mountReader(pinia) {
-  const app = createApp({ setup: () => useReaderBackground(), render: () => null })
-  app.use(pinia)
-  app.mount(document.createElement('div'))
-  return app
-}
-
 describe('useReaderBackground', () => {
-  let pinia
-
   beforeEach(() => {
-    pinia = createPinia()
-    setActivePinia(pinia)
-    vi.clearAllMocks()
+    setActivePinia(createPinia())
   })
 
-  it('leaves the app theme alone for the default background', async () => {
-    const app = mountReader(pinia)
-    await nextTick()
-
-    expect(applyMode).toHaveBeenLastCalledWith('light')
-    expect(applyPaper).toHaveBeenLastCalledWith(null)
-    app.unmount()
+  it('gives the page no look of its own for the default background', () => {
+    expect(useReaderBackground().value).toEqual({})
   })
 
-  it('turns the screen dark for a black page and gives the theme back on leaving', async () => {
+  it("paints the page in the chosen look's scheme and paper", () => {
     const quran = useQuranStore()
-    const app = mountReader(pinia)
+    const look = useReaderBackground()
 
     quran.readerBackground = 'black'
-    await nextTick()
-    expect(applyMode).toHaveBeenLastCalledWith('dark')
-    expect(applyPaper).toHaveBeenLastCalledWith('black')
+    expect(look.value).toEqual({ 'data-bs-theme': 'dark', 'data-app-paper': 'black' })
 
-    app.unmount()
-    await nextTick()
-    expect(applyMode).toHaveBeenLastCalledWith('light')
-    expect(applyPaper).toHaveBeenLastCalledWith(null)
+    quran.readerBackground = 'paper'
+    expect(look.value).toEqual({ 'data-bs-theme': 'light', 'data-app-paper': 'paper' })
+
+    quran.readerBackground = 'dark'
+    expect(look.value).toEqual({ 'data-bs-theme': 'dark', 'data-app-paper': undefined })
   })
 
-  it('reads an unknown saved value as the default', async () => {
+  it('reads an unknown saved value as the default', () => {
     const quran = useQuranStore()
     quran.readerBackground = 'sepia'
-    const app = mountReader(pinia)
-    await nextTick()
 
     expect(quran.readerBackgroundOption.value).toBe('default')
-    expect(applyPaper).toHaveBeenLastCalledWith(null)
-    app.unmount()
+    expect(useReaderBackground().value).toEqual({})
   })
 })

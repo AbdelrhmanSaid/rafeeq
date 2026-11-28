@@ -1,16 +1,15 @@
-import { onBeforeUnmount, watchEffect } from 'vue'
-import { useThemeStore } from '@/app/stores/theme'
+import { computed } from 'vue'
 import { useQuranStore } from '@/features/quran/store'
+import { paperOf, themeOf } from '@/shared/constants/themes'
 
-// The chosen look takes over the whole screen while the reader is open, then hands back the app's own.
+// The chosen look paints the Mushaf page only, as attributes on its own element; the bars and sheets keep the app's.
 export function useReaderBackground() {
-  const theme = useThemeStore()
   const quranStore = useQuranStore()
 
-  const stop = watchEffect(() => theme.setPageTheme(quranStore.readerBackgroundOption.value))
-
-  onBeforeUnmount(() => {
-    stop()
-    theme.clearPageTheme()
+  return computed(() => {
+    const look = quranStore.readerBackgroundOption.value
+    const scheme = themeOf(look)?.scheme
+    if (!scheme) return {}
+    return { 'data-bs-theme': scheme, 'data-app-paper': paperOf(look) ?? undefined }
   })
 }

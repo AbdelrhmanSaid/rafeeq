@@ -69,25 +69,10 @@ describe('theme store', () => {
     expect(theme.mode).toBe('system')
   })
 
-  it("puts a page's look over the saved one and gives it back when cleared", async () => {
-    const theme = useThemeStore()
-    theme.setMode('paper')
-
-    theme.setPageTheme('black')
-    await nextTick()
-    expect(css.applyMode).toHaveBeenLastCalledWith('dark')
-    expect(css.applyPaper).toHaveBeenLastCalledWith('black')
-
-    theme.clearPageTheme()
-    await nextTick()
-    expect(css.applyMode).toHaveBeenLastCalledWith('light')
-    expect(css.applyPaper).toHaveBeenLastCalledWith('paper')
-  })
-
-  it("lets an embed's scheme win over the page's look, without its paper", async () => {
+  it("lets an embed's scheme win over the saved look, without its paper", async () => {
     const theme = useThemeStore()
 
-    theme.setPageTheme('black')
+    theme.setMode('black')
     theme.applyQueryOverrides({ mode: 'light' })
     await nextTick()
 

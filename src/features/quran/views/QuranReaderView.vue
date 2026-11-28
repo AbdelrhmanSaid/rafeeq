@@ -41,7 +41,7 @@ const recitation = useMushafRecitation()
 const { toggle: toggleChrome } = useImmersiveChrome()
 
 useScreenWakeLock()
-useReaderBackground()
+const pageLook = useReaderBackground()
 
 const routePage = computed(() => clampPage(route.params.page))
 const current = ref(routePage.value)
@@ -382,6 +382,7 @@ usePageMeta(() => ({
     <div
       ref="pager"
       class="reader__pager"
+      v-bind="pageLook"
       @pointerdown="onPointerDown"
       @pointermove="onPointerMove"
       @click.capture="onClickCapture"
@@ -488,10 +489,18 @@ usePageMeta(() => ({
 .reader__pager {
   position: relative;
   height: 100%;
+  color: var(--bs-body-color);
+  background-color: var(--bs-body-bg);
   overflow: hidden;
   -webkit-user-select: none;
   user-select: none;
   touch-action: pinch-zoom;
+}
+
+// Bootstrap's light theme resets the primary colour to its own; the page keeps the one the app chose.
+.reader__pager[data-bs-theme] {
+  --bs-primary: inherit;
+  --bs-primary-rgb: inherit;
 }
 
 .reader__track {
